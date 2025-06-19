@@ -1,0 +1,71 @@
+{
+  "yx_100_far": {
+    "sounds": [
+      "minecraft:entity.generic.explode"
+    ]
+  },
+  "yx_100_veryfar": {
+    "sounds": [
+      "minecraft:entity.generic.explode"
+    ]
+  },
+  "wheel_step": {
+    "sounds": [
+      "vvp:wheel_step"
+    ]
+  },
+  "m2_1p": {
+    "sounds": [
+      "vvp:m2_1p"
+    ]
+  },
+  "m2_3p": {
+    "sounds": [
+      "vvp:m2_3p"
+    ]
+  },
+  "m2_far": {
+    "sounds": [
+      "vvp:m2_far"
+    ]
+  },
+  "m2_veryfar": {
+    "sounds": [
+      "vvp:m2_veryfar"
+    ]
+  },
+  "tow_1p": {
+    "sounds": [
+      "vvp:tow_1p"
+    ]
+  },
+  "tow_3p": {
+    "sounds": [
+      "vvp:tow_3p"
+    ]
+  },
+  "tow_far": {
+    "sounds": [
+      "vvp:tow_far"
+    ]
+  },
+  "tow_reload": {
+    "sounds": [
+      "vvp:tow_reload"
+    ]
+  },
+  "radiohead": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "vvp:radiohead",
+          "stream": true
+        }
+      ]
+    },
+    "btr_80a_engine": {
+      "sounds": [
+        "vvp:btr_80a_engine"
+      ]
+    }
+}
