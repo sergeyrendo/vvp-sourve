@@ -296,7 +296,7 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
     public boolean canCollideHardBlock() {
         return getDeltaMovement().horizontalDistance() > 0.09 || Mth.abs(this.entityData.get(POWER)) > 0.15;
     }
-    
+
     private void handleAmmo() {
         if (!(this.getFirstPassenger() instanceof Player player)) return;
     
@@ -308,34 +308,35 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
             return false;
         }).mapToInt(Ammo.RIFLE::get).sum() + countItem(ModItems.RIFLE_AMMO.get());
     
-        // Подсчет снарядов для пушки
-        int shellCount = countItem(ModItems.SMALL_SHELL.get());
+        // Подсчет AP снарядов для пушки (НЕ МАЛЕНЬКИХ СНАРЯДОВ!)
+        int apShellCount = countItem(ModItems.AP_5_INCHES.get());
     
         // АВТОМАТИЧЕСКАЯ ПЕРЕЗАРЯДКА AP СНАРЯДОВ
         if ((this.getEntityData().get(LOADED_AP) == 0)
                 && reloadCoolDown <= 0
-                && (InventoryTool.hasCreativeAmmoBox(player) || hasItem(ModItems.AP_5_INCHES.get()))
+                && (InventoryTool.hasCreativeAmmoBox(player) || apShellCount > 0)
         ) {
             this.entityData.set(LOADED_AP, 1);
             if (!InventoryTool.hasCreativeAmmoBox(player)) {
                 consumeItem(ModItems.AP_5_INCHES.get(), 1);
             }
             reloadCoolDown = 60; // Кулдаун перезарядки
+            
+            // Звук перезарядки
+            this.level().playSound(null, this, ModSounds.YX_100_RELOAD.get(), this.getSoundSource(), 1.5f, 1.0f);
         }
     
         // УСТАНАВЛИВАЕМ ПРАВИЛЬНОЕ ЗНАЧЕНИЕ AMMO ДЛЯ ОТОБРАЖЕНИЯ НА UI
         if (getWeaponIndex(0) == 0) {
-            // Для пушки показываем: обычные снаряды + заряженный AP снаряд
-            int totalShells = shellCount + this.getEntityData().get(LOADED_AP);
-            this.entityData.set(AMMO, totalShells);
+            // Для пушки показываем: AP снаряды в инвентаре + заряженный снаряд
+            int totalAPShells = apShellCount + this.getEntityData().get(LOADED_AP);
+            this.entityData.set(AMMO, totalAPShells);
         } else if (getWeaponIndex(0) == 1) {
             // Для пулемета показываем количество патронов
             this.entityData.set(AMMO, rifleAmmoCount);
         }
-    
-        // ОТДЕЛЬНО ОБНОВЛЯЕМ LOADED_AP (для внутренней логики)
-        // Не изменяем LOADED_AP здесь, только в автоперезарядке выше
     }
+    
     
     @Override
     public Vec3 getBarrelVector(float pPartialTicks) {
@@ -353,75 +354,115 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
                 hasCreativeAmmo = true;
             }
         }
+    
         Matrix4f transform = getBarrelTransform(1);
-
-        if (getWeaponIndex(0) == 0) { // Проверка на основное орудие (пушка)
-            // Проверка на перезарядку и на то, что выбрано либо AP (индекс 0), либо HE (индекс 1)
-            if (reloadCoolDown == 0 && getWeaponIndex(0) == 0) { 
-                // ... (проверка на энергию) ...
     
-                // Получение трансформации ствола
-                Vector4f worldPosition = transformPosition(transform, 0, 0, 0);
+        if (getWeaponIndex(0) == 0) { // ПУШКА
+            if (this.cannotFire) return;
+            
+            // ПРОВЕРЯЕМ НАЛИЧИЕ СНАРЯДОВ
+            boolean hasAPShell = this.getEntityData().get(LOADED_AP) > 0;
+            
+            if (!hasCreativeAmmo && !hasAPShell) {
+                return; // Нет снарядов для стрельбы
+            }
     
-                // Получение объекта оружия и создание снаряда
-                var cannonShell = (CannonShellWeapon) getWeapon(0);
-                var entityToSpawn = cannonShell.create(player);
+            // Позиция выстрела
+            float x = 0.0609375f;
+            float y = 0.0517f;
+            float z = 3.0927625f;
     
-                // Установка позиции и направления полета снаряда
-                entityToSpawn.setPos(worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z);
-                entityToSpawn.shoot(getBarrelVector(1).x, getBarrelVector(1).y + 0.005f, getBarrelVector(1).z, cannonShell.velocity, 0.02f);
-                level().addFreshEntity(entityToSpawn); // Спавн снаряда в мире
+            Vector4f worldPosition = transformPosition(transform, x, y, z);
+            
+            // Создаем снаряд
+            var cannonShell = ((CannonShellWeapon) getWeapon(0));
+            var entityToSpawn = cannonShell.create(player);
     
-                // ... (звуки выстрела и отдача) ...
+            // Устанавливаем позицию и стреляем
+            entityToSpawn.setPos(worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z);
+            entityToSpawn.shoot(getBarrelVector(1).x, getBarrelVector(1).y + 0.005f, getBarrelVector(1).z, 40, 0.02f);
+            this.level().addFreshEntity(entityToSpawn);
     
-                // Эта проверка выполняется специально для AP снаряда
-                if (getWeaponIndex(0) == 0) { 
-                    this.entityData.set(LOADED_AP, 0); // Обновление данных о том, что AP снаряд отстрелян
+            // ЭФФЕКТЫ ВЫСТРЕЛА:
+            sendParticle((ServerLevel) this.level(), ParticleTypes.LARGE_SMOKE, worldPosition.x, worldPosition.y, worldPosition.z, 1, 0.2, 0.2, 0.2, 0.001, true);
+            sendParticle((ServerLevel) this.level(), ParticleTypes.CLOUD, worldPosition.x, worldPosition.y, worldPosition.z, 2, 0.5, 0.5, 0.5, 0.005, true);
+    
+            // ЗВУКИ ВЫСТРЕЛА:
+            if (!player.level().isClientSide) {
+                playShootSound3p(player, 0, 4, 12, 24);
+            }
+    
+            // ТРЯСКА КАМЕРЫ:
+            Level level = player.level();
+            final Vec3 center = new Vec3(this.getX(), this.getEyeY(), this.getZ());
+            for (Entity target : level.getEntitiesOfClass(Entity.class, new AABB(center, center).inflate(5), e -> true).stream().sorted(Comparator.comparingDouble(e -> e.distanceToSqr(center))).toList()) {
+                if (target instanceof ServerPlayer serverPlayer) {
+                    Mod.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ShakeClientMessage(8, 6, 15, this.getX(), this.getEyeY(), this.getZ()));
                 }
             }
-
-            // ... (потребление энергии, перезарядка, эффекты частиц и тряска камеры) ...
-        } else if (getWeaponIndex(0) == 1) {
+    
+            // ОБНОВЛЯЕМ ПАРАМЕТРЫ:
+            this.entityData.set(CANNON_RECOIL_TIME, 60); // Увеличенная отдача для мощной пушки
+            this.entityData.set(YAW, getTurretYRot());
+            this.entityData.set(HEAT, this.entityData.get(HEAT) + 12); // Больше нагрев
+            this.entityData.set(FIRE_ANIM, 3);
+    
+            // ТРАТИМ СНАРЯД:
+            if (!hasCreativeAmmo) {
+                this.entityData.set(LOADED_AP, 0); // Тратим заряженный AP снаряд
+            }
+    
+            // КУЛДАУН ПЕРЕЗАРЯДКИ:
+            reloadCoolDown = 240; // 12 секунд перезарядки (240 тиков)
+    
+        } else if (getWeaponIndex(0) == 1) { // ПУЛЕМЕТ
             if (this.cannotFireCoax) return;
+            
+            // ПРОВЕРЯЕМ НАЛИЧИЕ ПАТРОНОВ
+            if (this.entityData.get(AMMO) <= 0 && !hasCreativeAmmo) {
+                return;
+            }
+    
             float x = -0.3f;
             float y = 0.08f;
             float z = 0.7f;
-
+    
             Vector4f worldPosition = transformPosition(transform, x, y, z);
-
-            if (this.entityData.get(AMMO) > 0 || hasCreativeAmmo) {
-                var projectile = ((ProjectileWeapon) getWeapon(0)).create(player).setGunItemId(this.getType().getDescriptionId());
-
-                projectile.bypassArmorRate(0.2f);
-                projectile.setPos(worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z);
-                projectile.shoot(player, getBarrelVector(1).x, getBarrelVector(1).y + 0.002f, getBarrelVector(1).z, 36,
-                        0.25f);
-                this.level().addFreshEntity(projectile);
-
-                if (!hasCreativeAmmo) {
-                    ItemStack ammoBox = this.getItemStacks().stream().filter(stack -> {
-                        if (stack.is(ModItems.AMMO_BOX.get())) {
-                            return Ammo.RIFLE.get(stack) > 0;
-                        }
-                        return false;
-                    }).findFirst().orElse(ItemStack.EMPTY);
-
-                    if (!ammoBox.isEmpty()) {
-                        Ammo.RIFLE.add(ammoBox, -1);
-                    } else {
-                        this.getItemStacks().stream().filter(stack -> stack.is(ModItems.RIFLE_AMMO.get())).findFirst().ifPresent(stack -> stack.shrink(1));
+            var projectile = ((ProjectileWeapon) getWeapon(0)).create(player).setGunItemId(this.getType().getDescriptionId());
+    
+            projectile.bypassArmorRate(0.2f);
+            projectile.setPos(worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z);
+            projectile.shoot(player, getBarrelVector(1).x, getBarrelVector(1).y + 0.002f, getBarrelVector(1).z, 36, 0.25f);
+            this.level().addFreshEntity(projectile);
+    
+            // ТРАТИМ ПАТРОНЫ:
+            if (!hasCreativeAmmo) {
+                ItemStack ammoBox = this.getItemStacks().stream().filter(stack -> {
+                    if (stack.is(ModItems.AMMO_BOX.get())) {
+                        return Ammo.RIFLE.get(stack) > 0;
                     }
+                    return false;
+                }).findFirst().orElse(ItemStack.EMPTY);
+    
+                if (!ammoBox.isEmpty()) {
+                    Ammo.RIFLE.add(ammoBox, -1);
+                } else {
+                    this.getItemStacks().stream()
+                        .filter(stack -> stack.is(ModItems.RIFLE_AMMO.get()))
+                        .findFirst()
+                        .ifPresent(stack -> stack.shrink(1));
                 }
             }
-
+    
             this.entityData.set(COAX_HEAT, this.entityData.get(COAX_HEAT) + 3);
             this.entityData.set(FIRE_ANIM, 2);
-
+    
             if (!player.level().isClientSide) {
                 playShootSound3p(player, 0, 3, 6, 12);
-            } 
+            }
         }
-    } 
+    }
+    
 
     @Override
     public void travel() {
@@ -653,15 +694,19 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         return 300;
     }
 
-    @Override
-    public boolean canShoot(Player player) {
-        if (getWeaponIndex(0) == 0) {
-            return (this.entityData.get(LOADED_AP) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFire;
-        } else if (getWeaponIndex(0) == 1) {
-            return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFireCoax;
-        }
-        return false;
+@Override
+public boolean canShoot(Player player) {
+    if (getWeaponIndex(0) == 0) {
+        // Для пушки: проверяем заряженный снаряд И отсутствие перезарядки
+        return (this.entityData.get(LOADED_AP) > 0 || InventoryTool.hasCreativeAmmoBox(player)) 
+            && !cannotFire && reloadCoolDown <= 0;
+    } else if (getWeaponIndex(0) == 1) {
+        // Для пулемета: проверяем патроны
+        return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFireCoax;
     }
+    return false;
+}
+
 
     @Override
     public int getAmmoCount(Player player) {
@@ -702,29 +747,63 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
     @Override
     public void renderFirstPersonOverlay(GuiGraphics guiGraphics, Font font, Player player, int screenWidth, int screenHeight, float scale) {
         super.renderFirstPersonOverlay(guiGraphics, font, player, screenWidth, screenHeight, scale);
-
+    
         if (this.getWeaponIndex(0) == 0) {
+            // ОТОБРАЖЕНИЕ ДЛЯ AP ПУШКИ
             double heat = 1 - this.getEntityData().get(HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("2A72 30MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
-        } else {
+            
+            // Показываем статус перезарядки
+            String reloadStatus = "";
+            if (reloadCoolDown > 0) {
+                reloadStatus = " (RELOAD: " + (reloadCoolDown / 20 + 1) + "s)";
+            } else if (this.getEntityData().get(LOADED_AP) == 0) {
+                reloadStatus = " (LOADING...)";
+            }
+            
+            guiGraphics.drawString(font, 
+                Component.literal("105MM AP " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player)) + reloadStatus), 
+                screenWidth / 2 - 50, screenHeight - 65, 
+                Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
+                
+        } else if (this.getWeaponIndex(0) == 1) {
+            // ОТОБРАЖЕНИЕ ДЛЯ ПУЛЕМЕТА
             double heat = 1 - this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("7.62MM PKT " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
+            
+            guiGraphics.drawString(font, 
+                Component.literal("7.62MM PKT " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 
+                screenWidth / 2 - 40, screenHeight - 65, 
+                Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
         }
     }
-
+    
     @OnlyIn(Dist.CLIENT)
     @Override
     public void renderThirdPersonOverlay(GuiGraphics guiGraphics, Font font, Player player, int screenWidth, int screenHeight, float scale) {
         super.renderThirdPersonOverlay(guiGraphics, font, player, screenWidth, screenHeight, scale);
-
+    
         if (this.getWeaponIndex(0) == 0) {
             double heat = this.getEntityData().get(HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("2A72 30MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
-        } else {
+            
+            String reloadStatus = "";
+            if (reloadCoolDown > 0) {
+                reloadStatus = " (RELOAD: " + (reloadCoolDown / 20 + 1) + "s)";
+            }
+            
+            guiGraphics.drawString(font, 
+                Component.literal("105MM AP " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player)) + reloadStatus), 
+                30, -9, 
+                Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
+                
+        } else if (this.getWeaponIndex(0) == 1) {
             double heat2 = this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("7.62MM PKT " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
+            
+            guiGraphics.drawString(font, 
+                Component.literal("7.62MM PKT " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 
+                30, -9, 
+                Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
         }
     }
+    
 
     @Override
     public boolean hasDecoy() {
