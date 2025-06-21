@@ -2,9 +2,6 @@ package tech.vvp.vvp.entity.vehicle;
 
 import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
-
-import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.config.VehicleConfigVVP;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.HelicopterEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition;
@@ -25,6 +22,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -40,6 +38,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,8 +50,14 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
-
+import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.config.VehicleConfigVVP;
+import tech.vvp.vvp.entity.base.AirEntity;
 import tech.vvp.vvp.init.ModEntities;
+import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPitch;
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
@@ -64,6 +69,9 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
     public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(mi24Entity.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(mi24Entity.class, EntityDataSerializers.INT);
 
+    // КОНСТАНТА ДЛЯ РАДИУСА РАДАРА
+    public static final int RADAR_RANGE = 150;
+
     public boolean engineStart;
     public boolean engineStartOver;
 
@@ -72,7 +80,7 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
     public int holdTick;
     public int holdPowerTick;
     public float destroyRot;
-    
+
     public float delta_x;
     public float delta_y;
 
@@ -84,6 +92,61 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         super(type, world);
     }
 
+    // НОВЫЙ МЕТОД ДЛЯ СКАНИРОВАНИЯ ЦЕЛЕЙ
+    private void handleRadar() {
+        if (this.level().isClientSide() || !(this.getFirstPassenger() instanceof ServerPlayer player)) {
+            return;
+        }
+
+        List<Vec3> targetPositions = new ArrayList<>();
+        List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
+                entity -> entity instanceof AirEntity && entity != this);
+
+        for (Entity target : potentialTargets) {
+            targetPositions.add(target.position());
+        }
+        com.atsuishio.superbwarfare.Mod.PACKET_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+    }
+
+    @Override
+    public void baseTick() {
+        super.baseTick();
+
+        // ВЫЗЫВАЕМ СКАНЕР РАДАРА КАЖДУЮ СЕКУНДУ (20 ТИКОВ)
+        if (this.tickCount % 20 == 0) {
+            handleRadar();
+        }
+
+        if (this.level() instanceof ServerLevel) {
+            if (reloadCoolDown > 0) {
+                reloadCoolDown--;
+            }
+            handleAmmo();
+        }
+
+        if (this.onGround()) {
+            this.setDeltaMovement(this.getDeltaMovement().multiply(0.8, 1, 0.8));
+        } else {
+            setZRot(getRoll() * (backInputDown ? 0.9f : 0.99f));
+            float f = (float) Mth.clamp(0.95f - 0.015 * getDeltaMovement().length() + 0.02f * Mth.abs(90 - (float) calculateAngle(this.getDeltaMovement(), this.getViewVector(1))) / 90, 0.01, 0.99);
+            this.setDeltaMovement(this.getDeltaMovement().add(this.getViewVector(1).scale((this.getXRot() < 0 ? -0.035 : (this.getXRot() > 0 ? 0.035 : 0)) * this.getDeltaMovement().length())));
+            this.setDeltaMovement(this.getDeltaMovement().multiply(f, 0.95, f));
+        }
+
+        if (this.isInWater() && this.tickCount % 4 == 0 && getSubmergedHeight(this) > 0.5 * getBbHeight()) {
+            this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 0.6, 0.6));
+            this.hurt(ModDamageTypes.causeVehicleStrikeDamage(this.level().registryAccess(), this, this.getFirstPassenger() == null ? this : this.getFirstPassenger()), 6 + (float) (20 * ((lastTickSpeed - 0.4) * (lastTickSpeed - 0.4))));
+        }
+
+        releaseDecoy();
+        lowHealthWarning();
+        this.terrainCompact(2.7f, 2.7f);
+
+        this.refreshDimensions();
+    }
+
+    // ----- ДАЛЕЕ ИДЕТ ОСТАЛЬНОЙ КОД КЛАССА MI24ENTITY БЕЗ ИЗМЕНЕНИЙ -----
+    // (Я не буду его здесь дублировать, просто скопируйте весь остальной код из вашего оригинального файла сюда)
     @Override
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{
@@ -163,38 +226,6 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         return super.interact(player, hand);
     }
 
-    @Override
-    public void baseTick() {
-        super.baseTick();
-
-        if (this.level() instanceof ServerLevel) {
-            if (reloadCoolDown > 0) {
-                reloadCoolDown--;
-            }
-            handleAmmo();
-        }
-
-        if (this.onGround()) {
-            this.setDeltaMovement(this.getDeltaMovement().multiply(0.8, 1, 0.8));
-        } else {
-            setZRot(getRoll() * (backInputDown ? 0.9f : 0.99f));
-            float f = (float) Mth.clamp(0.95f - 0.015 * getDeltaMovement().length() + 0.02f * Mth.abs(90 - (float) calculateAngle(this.getDeltaMovement(), this.getViewVector(1))) / 90, 0.01, 0.99);
-            this.setDeltaMovement(this.getDeltaMovement().add(this.getViewVector(1).scale((this.getXRot() < 0 ? -0.035 : (this.getXRot() > 0 ? 0.035 : 0)) * this.getDeltaMovement().length())));
-            this.setDeltaMovement(this.getDeltaMovement().multiply(f, 0.95, f));
-        }
-
-        if (this.isInWater() && this.tickCount % 4 == 0 && getSubmergedHeight(this) > 0.5 * getBbHeight()) {
-            this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 0.6, 0.6));
-            this.hurt(ModDamageTypes.causeVehicleStrikeDamage(this.level().registryAccess(), this, this.getFirstPassenger() == null ? this : this.getFirstPassenger()), 6 + (float) (20 * ((lastTickSpeed - 0.4) * (lastTickSpeed - 0.4))));
-        }
-
-        releaseDecoy();
-        lowHealthWarning();
-        this.terrainCompact(2.7f, 2.7f);
-
-        this.refreshDimensions();
-    }
-
     private void handleAmmo() {
         if (!(this.getFirstPassenger() instanceof Player player)) return;
 
@@ -240,7 +271,7 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
                     this.entityData.set(POWER, this.entityData.get(POWER) * 0.99f);
                 }
             } else if (passenger instanceof Player) {
-                
+
                 if (rightInputDown) {
                     holdTick++;
                     this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 2f * Math.min(holdTick, 7) * this.entityData.get(POWER));
@@ -389,12 +420,12 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         if (!this.hasPassenger(passenger)) {
             return;
         }
-    
+
         Matrix4f transform = getVehicleTransform(1.0f);
         int i = this.getOrderedPassengers().indexOf(passenger);
         float riderOffset = (float) passenger.getMyRidingOffset();
         Vector4f worldPosition;
-    
+
         if (i == 0) { // Пилот (переднее сиденье)
             float pilotX = 0.0f;
             float pilotY = 0.43f + riderOffset;
@@ -410,11 +441,11 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
             callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);
         }
-    
+
         if (passenger != this.getFirstPassenger()) {
             passenger.setXRot(passenger.getXRot() + (getXRot() - xRotO));
         }
-    
+
         copyEntityData(passenger);
     }
 
