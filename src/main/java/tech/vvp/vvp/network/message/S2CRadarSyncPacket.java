@@ -37,6 +37,8 @@ public class S2CRadarSyncPacket {
     public static void handler(S2CRadarSyncPacket message, Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
+            // --- КЛИЕНТСКИЙ МАЯЧОК: Сообщаем о получении пакета ---
+            System.out.println("[RADAR CLIENT DEBUG] Packet received with " + message.targets.size() + " targets.");
             RadarHud.radarTargets = message.targets;
         });
         context.setPacketHandled(true);

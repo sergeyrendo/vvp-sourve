@@ -52,7 +52,6 @@ import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.config.VehicleConfigVVP;
-import tech.vvp.vvp.entity.base.AirEntity;
 import tech.vvp.vvp.init.ModEntities;
 import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
 
@@ -69,18 +68,15 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
     public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(mi24Entity.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(mi24Entity.class, EntityDataSerializers.INT);
 
-    // КОНСТАНТА ДЛЯ РАДИУСА РАДАРА
     public static final int RADAR_RANGE = 150;
 
     public boolean engineStart;
     public boolean engineStartOver;
-
     public double velocity;
     public int fireIndex;
     public int holdTick;
     public int holdPowerTick;
     public float destroyRot;
-
     public float delta_x;
     public float delta_y;
 
@@ -92,27 +88,35 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         super(type, world);
     }
 
-    // НОВЫЙ МЕТОД ДЛЯ СКАНИРОВАНИЯ ЦЕЛЕЙ
     private void handleRadar() {
         if (this.level().isClientSide() || !(this.getFirstPassenger() instanceof ServerPlayer player)) {
             return;
         }
 
-        List<Vec3> targetPositions = new ArrayList<>();
-        List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
-                entity -> entity instanceof AirEntity && entity != this);
+        System.out.println("[RADAR SERVER DEBUG] #1 - handleRadar called for player: " + player.getName().getString());
 
-        for (Entity target : potentialTargets) {
-            targetPositions.add(target.position());
+        List<Vec3> targetPositions = new ArrayList<>();
+        
+        // --- ФИНАЛЬНОЕ ИСПРАВЛЕНИЕ ЗДЕСЬ ---
+        List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
+            entity -> entity instanceof HelicopterEntity && entity != this);
+
+        System.out.println("[RADAR SERVER DEBUG] #2 - Found " + potentialTargets.size() + " potential targets.");
+
+        if (!potentialTargets.isEmpty()) {
+            for (Entity target : potentialTargets) {
+                System.out.println("[RADAR SERVER DEBUG] #3 - Adding target: " + target.getType().getDescriptionId() + " at " + target.position());
+                targetPositions.add(target.position());
+            }
+            System.out.println("[RADAR SERVER DEBUG] #4 - Sending packet to client with " + targetPositions.size() + " targets.");
+            com.atsuishio.superbwarfare.Mod.PACKET_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
-        com.atsuishio.superbwarfare.Mod.PACKET_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
     @Override
     public void baseTick() {
         super.baseTick();
 
-        // ВЫЗЫВАЕМ СКАНЕР РАДАРА КАЖДУЮ СЕКУНДУ (20 ТИКОВ)
         if (this.tickCount % 20 == 0) {
             handleRadar();
         }
@@ -145,8 +149,6 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         this.refreshDimensions();
     }
 
-    // ----- ДАЛЕЕ ИДЕТ ОСТАЛЬНОЙ КОД КЛАССА MI24ENTITY БЕЗ ИЗМЕНЕНИЙ -----
-    // (Я не буду его здесь дублировать, просто скопируйте весь остальной код из вашего оригинального файла сюда)
     @Override
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{
@@ -237,7 +239,7 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         }).mapToInt(Ammo.HEAVY::get).sum() + countItem(ModItems.SMALL_SHELL.get());
 
         if ((hasItem(ModItems.ROCKET_70.get()) || InventoryTool.hasCreativeAmmoBox(player)) && reloadCoolDown == 0 && this.getEntityData().get(LOADED_ROCKET) < 25) {
-            this.entityData.set(LOADED_ROCKET, this.getEntityData().get(LOADED_ROCKET) + 1);
+            this.entityData.set(LOADED_ROCKET, this.entityData.get(LOADED_ROCKET) + 1);
             reloadCoolDown = 25;
             if (!InventoryTool.hasCreativeAmmoBox(player)) {
                 this.getItemStacks().stream().filter(stack -> stack.is(ModItems.ROCKET_70.get())).findFirst().ifPresent(stack -> stack.shrink(1));
