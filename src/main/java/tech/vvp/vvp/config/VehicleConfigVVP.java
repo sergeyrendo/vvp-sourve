@@ -30,6 +30,10 @@ public class VehicleConfigVVP {
         public static ForgeConfigSpec.IntValue JAGUAR_MAX_ENERGY_COST;
         public static ForgeConfigSpec.IntValue JAGUAR_MIN_ENERGY_COST;
 
+        public static ForgeConfigSpec.IntValue STRYKER_M1128_CANNON_DAMAGE;
+        public static ForgeConfigSpec.IntValue STRYKER_M1128_CANNON_EXPLOSION_DAMAGE;
+        public static ForgeConfigSpec.DoubleValue STRYKER_M1128_CANNON_EXPLOSION_RADIUS;
+
         static {
             BUILDER.push("Vehicle Configs for VVP");
     
@@ -82,6 +86,15 @@ public class VehicleConfigVVP {
     
             BUILDER.comment("The rocket explosion radius of MI-24");
             MI_24_ROCKET_EXPLOSION_RADIUS = BUILDER.defineInRange("mi_24_rocket_explosion_radius", 5, 1, 10000000);
+
+            BUILDER.comment("The cannon damage of Stryker M1128");
+            STRYKER_M1128_CANNON_DAMAGE = BUILDER.defineInRange("stryker_m1128_cannon_damage", 550, 1, 10000000);
+    
+            BUILDER.comment("The cannon explosion damage of Stryker M1128");
+            STRYKER_M1128_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("stryker_m1128_cannon_explosion_damage", 128, 1, 10000000);
+    
+            BUILDER.comment("The cannon explosion radius of Stryker M1128");
+            STRYKER_M1128_CANNON_EXPLOSION_RADIUS = BUILDER.defineInRange("stryker_m1128_cannon_explosion_radius", 7d, 1d, 10000000d);
 
             BUILDER.comment("Whether to destroy the block when cannon of MI-24 hits a block");
             MI_24_CANNON_DESTROY = BUILDER.define("mi_24_cannon_destroy", true);

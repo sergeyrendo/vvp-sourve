@@ -50,6 +50,12 @@ public class ModSounds {
     // Звук двигателя Stryker
     public static final RegistryObject<SoundEvent> STRYKER_ENGINE = register("stryker_engine");
     
+    // Звуки для 2A72
+    public static final RegistryObject<SoundEvent> BTR_2A72_P1 = register("btr_2a72_p1");
+    public static final RegistryObject<SoundEvent> BTR_2A72_P3 = register("btr_2a72_p3");
+    public static final RegistryObject<SoundEvent> BTR_2A72_FAR = register("btr_2a72_far");
+    public static final RegistryObject<SoundEvent> BTR_2A72_VERYFAR = register("btr_2a72_veryfar");
+    
     /**
      * Вспомогательный метод для регистрации звуков
      * @param name Название звука (без пространства имен)

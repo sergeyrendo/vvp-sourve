@@ -72,5 +72,26 @@
       "sounds": [
         "vvp:stryker_engine"
       ]
-    }
+    },
+
+  "btr_2a72_p1": {
+    "sounds": [
+      "vvp:btr_2a72_p1"
+    ]
+  },
+  "btr_2a72_p3": {
+    "sounds": [
+      "vvp:2a72_p3"
+    ]
+  },
+  "btr_2a72_far": {
+    "sounds": [
+      "vvp:2a72_far"
+    ]
+  },
+  "btr_2a72_veryfar": {
+    "sounds": [
+      "vvp:2a72_veryfar"
+    ]
+  }
 }

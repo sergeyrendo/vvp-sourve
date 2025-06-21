@@ -111,15 +111,15 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
                         new SmallCannonShellWeapon()
-                                .damage(VehicleConfig.BMP_2_CANNON_DAMAGE.get())
-                                .explosionDamage(VehicleConfig.BMP_2_CANNON_EXPLOSION_DAMAGE.get())
-                                .explosionRadius(VehicleConfig.BMP_2_CANNON_EXPLOSION_RADIUS.get().floatValue())
-                                .sound(ModSounds.INTO_MISSILE.get())
-                                .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_30mm.png"))
-                                .sound1p(ModSounds.BMP_CANNON_FIRE_1P.get())
-                                .sound3p(ModSounds.BMP_CANNON_FIRE_3P.get())
-                                .sound3pFar(ModSounds.LAV_CANNON_FAR.get())
-                                .sound3pVeryFar(ModSounds.LAV_CANNON_VERYFAR.get()),
+                        .damage(VehicleConfig.BMP_2_CANNON_DAMAGE.get())
+                        .explosionDamage(VehicleConfig.BMP_2_CANNON_EXPLOSION_DAMAGE.get())
+                        .explosionRadius(VehicleConfig.BMP_2_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                        .sound(ModSounds.INTO_MISSILE.get())
+                        .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_30mm.png"))
+                        .sound1p(ModSounds.BMP_CANNON_FIRE_1P.get())
+                        .sound3p(ModSounds.BMP_CANNON_FIRE_3P.get())
+                        .sound3pFar(ModSounds.LAV_CANNON_FAR.get())
+                        .sound3pVeryFar(ModSounds.LAV_CANNON_VERYFAR.get()),
                         new ProjectileWeapon()
                                 .damage(VehicleConfig.LAV_150_MACHINE_GUN_DAMAGE.get())
                                 .headShot(2)

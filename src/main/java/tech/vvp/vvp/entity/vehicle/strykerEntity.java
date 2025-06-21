@@ -126,7 +126,7 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
                                 .gravity(0.1f)
                                 .sound(ModSounds.INTO_MISSILE.get())
                                 .ammo(ModItems.AP_5_INCHES.get())
-                                .icon(Mod.loc("textures/screens/vehicle_weapon/ap_shell.png"))
+                                .icon(VVP.loc("textures/screens/vehicle_weapon/m6a1e4_shell.png"))
                                 .sound1p(ModSounds.YX_100_FIRE_1P.get())
                                 .sound3p(ModSounds.YX_100_FIRE_3P.get())
                                 .sound3pFar(ModSounds.YX_100_FAR.get())
@@ -689,7 +689,7 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/btr80a_icon.png");
+        return VVP.loc("textures/vehicle_icon/stryker_icon.png");
     }
 
     @OnlyIn(Dist.CLIENT)
