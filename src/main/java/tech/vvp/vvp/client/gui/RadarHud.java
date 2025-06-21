@@ -36,8 +36,11 @@ public class RadarHud {
         }
 
         int radarSize = 96;
-        int radarX = 10;
-        int radarY = 10;
+        // --- ИЗМЕНЕНИЕ ЗДЕСЬ: Вычисляем координаты центра экрана ---
+        int radarX = (screenWidth / 2) - (radarSize / 2);
+        int radarY = (screenHeight / 2) - (radarSize / 2);
+        // --- КОНЕЦ ИЗМЕНЕНИЯ ---
+
         int radarCenterX = radarX + radarSize / 2;
         int radarCenterY = radarY + radarSize / 2;
         float radarDisplayRange = 150f;
