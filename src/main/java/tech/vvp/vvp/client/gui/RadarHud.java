@@ -17,7 +17,8 @@ import tech.vvp.vvp.entity.vehicle.mi24Entity;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = VVP.MOD_ID, value = Dist.CLIENT)
+// ИЗМЕНЕНИЕ ЗДЕСЬ: Добавлен параметр bus = Mod.EventBusSubscriber.Bus.FORGE
+@Mod.EventBusSubscriber(modid = VVP.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class RadarHud {
 
     public static List<Vec3> radarTargets = new ArrayList<>();
