@@ -1,13 +1,15 @@
 package tech.vvp.vvp.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tech.vvp.vvp.VVP;
@@ -24,11 +26,20 @@ public class RadarHud {
     private static final ResourceLocation RADAR_BACKGROUND = new ResourceLocation(VVP.MOD_ID, "textures/gui/radar_bg.png");
     private static final ResourceLocation RADAR_TARGET = new ResourceLocation(VVP.MOD_ID, "textures/gui/radar_target.png");
 
+    // ИЗМЕНЕНИЕ: Используем RenderLevelStageEvent, который сложнее отменить
     @SubscribeEvent
-    public static void onRenderGui(RenderGuiOverlayEvent.Post event) {
+    public static void onRenderLevelStage(RenderLevelStageEvent event) {
+        // Выполняем код только на стадии ПОСЛЕ отрисовки GUI
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_GUI) {
+            return;
+        }
+
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
-        if (player == null || !player.isAlive()) return;
+
+        if (player == null || !player.isAlive() || mc.level == null) {
+            return;
+        }
 
         if (!(player.getVehicle() instanceof AirEntity)) {
             if (!radarTargets.isEmpty()) {
@@ -37,26 +48,33 @@ public class RadarHud {
             return;
         }
 
-        renderRadar(event.getGuiGraphics(), player);
+        // Получаем PoseStack из события
+        PoseStack poseStack = event.getPoseStack();
+        renderRadar(poseStack, player);
     }
 
-    private static void renderRadar(GuiGraphics guiGraphics, Player player) {
+    private static void renderRadar(PoseStack poseStack, Player player) {
         int radarSize = 96;
         int radarX = 10;
         int radarY = 10;
         int radarCenterX = radarX + radarSize / 2;
         int radarCenterY = radarY + radarSize / 2;
-        float radarDisplayRange = 150f; // Увеличим дальность отображения на радаре до максимальной
+        float radarDisplayRange = 150f;
 
-        // Устанавливаем правильное состояние рендера
+        // Сохраняем текущее состояние, чтобы не сломать другой рендер
+        poseStack.pushPose();
+
+        // Настраиваем систему рендера для 2D
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
 
         // Рисуем фон
-        guiGraphics.blit(RADAR_BACKGROUND, radarX, radarY, 0, 0, radarSize, radarSize, radarSize, radarSize);
+        RenderSystem.setShaderTexture(0, RADAR_BACKGROUND);
+        GuiComponent.blit(poseStack, radarX, radarY, 0, 0, radarSize, radarSize, radarSize, radarSize);
 
         // Рисуем цели
+        RenderSystem.setShaderTexture(0, RADAR_TARGET);
         for (Vec3 targetPos : radarTargets) {
             Vec3 relativePos = targetPos.subtract(player.position());
             double distance = Math.sqrt(relativePos.x * relativePos.x + relativePos.z * relativePos.z);
@@ -67,15 +85,16 @@ public class RadarHud {
             double angleToTarget = Math.toDegrees(Math.atan2(relativePos.z, relativePos.x)) - 90;
             double rotatedAngle = Math.toRadians(angleToTarget - playerYaw);
 
-            // Масштабируем дистанцию до размера радара
             double displayDist = (distance / radarDisplayRange) * (radarSize / 2.0 - 4);
-            displayDist = Math.min(displayDist, radarSize / 2.0 - 4); // Убедимся, что точка не выходит за пределы
+            displayDist = Math.min(displayDist, radarSize / 2.0 - 4);
 
             int targetX = radarCenterX + (int) (Math.cos(rotatedAngle) * displayDist);
             int targetY = radarCenterY + (int) (Math.sin(rotatedAngle) * displayDist);
 
-            guiGraphics.blit(RADAR_TARGET, targetX - 2, targetY - 2, 0, 0, 4, 4, 4, 4);
+            GuiComponent.blit(poseStack, targetX - 2, targetY - 2, 0, 0, 4, 4, 4, 4);
         }
-        RenderSystem.disableBlend();
+
+        // Восстанавливаем состояние
+        poseStack.popPose();
     }
 }
