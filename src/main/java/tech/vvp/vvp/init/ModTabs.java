@@ -25,16 +25,18 @@ public class ModTabs {
             .title(Component.translatable("item_group.vvp.vvp"))
             .displayItems((parameters, output) -> {
                 // Добавляем всю технику
-                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_80A.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR80A.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_80A_1.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M997.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M997_GREEN.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI24.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI24POL.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI24UKR.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M997.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.COBRA.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.COBRASHARK.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.F35.get()));
                 // Здесь будут добавляться новые единицы техники
             })
             .build());

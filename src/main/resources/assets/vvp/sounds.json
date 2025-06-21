@@ -67,5 +67,10 @@
       "sounds": [
         "vvp:btr_80a_engine"
       ]
+    },
+    "stryker_engine": {
+      "sounds": [
+        "vvp:stryker_engine"
+      ]
     }
 }

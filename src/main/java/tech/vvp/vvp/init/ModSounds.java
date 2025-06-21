@@ -46,6 +46,9 @@ public class ModSounds {
 
     // Звук двигателя BTR-80A
     public static final RegistryObject<SoundEvent> BTR_80A_ENGINE = register("btr_80a_engine");
+
+    // Звук двигателя Stryker
+    public static final RegistryObject<SoundEvent> STRYKER_ENGINE = register("stryker_engine");
     
     /**
      * Вспомогательный метод для регистрации звуков

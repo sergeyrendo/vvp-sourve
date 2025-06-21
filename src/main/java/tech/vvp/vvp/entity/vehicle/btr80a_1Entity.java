@@ -77,6 +77,8 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
+
+
     public btr80a_1Entity(PlayMessages.SpawnEntity packet, Level world) {
         this(ModEntities.BTR_80A_1.get(), world);
     }

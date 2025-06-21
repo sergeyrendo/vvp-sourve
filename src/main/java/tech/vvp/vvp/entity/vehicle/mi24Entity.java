@@ -655,7 +655,7 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/mi24rf_icon.png");
+        return VVP.loc("textures/vehicle_icon/mi24pl_icon.png");
     }
 
     @Override

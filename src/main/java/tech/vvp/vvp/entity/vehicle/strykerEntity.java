@@ -4,11 +4,13 @@ import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 import com.atsuishio.superbwarfare.config.server.VehicleConfig;
 import com.atsuishio.superbwarfare.entity.projectile.AerialBombEntity;
+import com.atsuishio.superbwarfare.entity.vehicle.Yx100Entity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.LandArmorEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition;
 import com.atsuishio.superbwarfare.entity.vehicle.base.WeaponVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
+import com.atsuishio.superbwarfare.entity.vehicle.weapon.CannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.ProjectileWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallCannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.VehicleWeapon;
@@ -31,6 +33,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -74,15 +79,17 @@ import java.util.Comparator;
 
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
-public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity {
+public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity {
+
+    public static final EntityDataAccessor<Integer> LOADED_AP = SynchedEntityData.defineId(strykerEntity.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public btr80aEntity(PlayMessages.SpawnEntity packet, Level world) {
-        this(ModEntities.BTR80A.get(), world);
+    public strykerEntity(PlayMessages.SpawnEntity packet, Level world) {
+        this(ModEntities.STRYKER.get(), world);
     }
 
-    public btr80aEntity(EntityType<btr80aEntity> type, Level world) {
+    public strykerEntity(EntityType<strykerEntity> type, Level world) {
         super(type, world);
     }
 
@@ -110,16 +117,22 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
-                        new SmallCannonShellWeapon()
-                                .damage(VehicleConfig.BMP_2_CANNON_DAMAGE.get())
-                                .explosionDamage(VehicleConfig.BMP_2_CANNON_EXPLOSION_DAMAGE.get())
-                                .explosionRadius(VehicleConfig.BMP_2_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                        new CannonShellWeapon()
+                                .hitDamage(VehicleConfig.YX_100_AP_CANNON_DAMAGE.get())
+                                .explosionRadius(VehicleConfig.YX_100_AP_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .explosionDamage(VehicleConfig.YX_100_AP_CANNON_EXPLOSION_DAMAGE.get())
+                                .fireProbability(0)
+                                .fireTime(0)
+                                .durability(100)
+                                .velocity(40)
+                                .gravity(0.1f)
                                 .sound(ModSounds.INTO_MISSILE.get())
-                                .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_30mm.png"))
-                                .sound1p(ModSounds.BMP_CANNON_FIRE_1P.get())
-                                .sound3p(ModSounds.BMP_CANNON_FIRE_3P.get())
-                                .sound3pFar(ModSounds.LAV_CANNON_FAR.get())
-                                .sound3pVeryFar(ModSounds.LAV_CANNON_VERYFAR.get()),
+                                .ammo(ModItems.AP_5_INCHES.get())
+                                .icon(Mod.loc("textures/screens/vehicle_weapon/ap_shell.png"))
+                                .sound1p(ModSounds.YX_100_FIRE_1P.get())
+                                .sound3p(ModSounds.YX_100_FIRE_3P.get())
+                                .sound3pFar(ModSounds.YX_100_FAR.get())
+                                .sound3pVeryFar(ModSounds.YX_100_VERYFAR.get()),
                         new ProjectileWeapon()
                                 .damage(VehicleConfig.LAV_150_MACHINE_GUN_DAMAGE.get())
                                 .headShot(2)
@@ -142,16 +155,19 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+        this.entityData.define(LOADED_AP, 0);
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        compound.putInt("LoadedAP", this.entityData.get(LOADED_AP));
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        this.entityData.set(LOADED_AP, compound.getInt("LoadedAP"));
     }
 
     @Override
@@ -280,24 +296,47 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
     public boolean canCollideHardBlock() {
         return getDeltaMovement().horizontalDistance() > 0.09 || Mth.abs(this.entityData.get(POWER)) > 0.15;
     }
-
+    
     private void handleAmmo() {
-        if (!(this.getFirstPassenger() instanceof Player)) return;
-
-        int ammoCount = this.getItemStacks().stream().filter(stack -> {
+        if (!(this.getFirstPassenger() instanceof Player player)) return;
+    
+        // Подсчет патронов для пулемета (7.62мм)
+        int rifleAmmoCount = this.getItemStacks().stream().filter(stack -> {
             if (stack.is(ModItems.AMMO_BOX.get())) {
                 return Ammo.RIFLE.get(stack) > 0;
             }
             return false;
         }).mapToInt(Ammo.RIFLE::get).sum() + countItem(ModItems.RIFLE_AMMO.get());
-
-        if (getWeaponIndex(0) == 0) {
-            this.entityData.set(AMMO, countItem(ModItems.SMALL_SHELL.get()));
-        } else if (getWeaponIndex(0) == 1) {
-            this.entityData.set(AMMO, ammoCount);
+    
+        // Подсчет снарядов для пушки
+        int shellCount = countItem(ModItems.SMALL_SHELL.get());
+    
+        // АВТОМАТИЧЕСКАЯ ПЕРЕЗАРЯДКА AP СНАРЯДОВ
+        if ((this.getEntityData().get(LOADED_AP) == 0)
+                && reloadCoolDown <= 0
+                && (InventoryTool.hasCreativeAmmoBox(player) || hasItem(ModItems.AP_5_INCHES.get()))
+        ) {
+            this.entityData.set(LOADED_AP, 1);
+            if (!InventoryTool.hasCreativeAmmoBox(player)) {
+                consumeItem(ModItems.AP_5_INCHES.get(), 1);
+            }
+            reloadCoolDown = 60; // Кулдаун перезарядки
         }
+    
+        // УСТАНАВЛИВАЕМ ПРАВИЛЬНОЕ ЗНАЧЕНИЕ AMMO ДЛЯ ОТОБРАЖЕНИЯ НА UI
+        if (getWeaponIndex(0) == 0) {
+            // Для пушки показываем: обычные снаряды + заряженный AP снаряд
+            int totalShells = shellCount + this.getEntityData().get(LOADED_AP);
+            this.entityData.set(AMMO, totalShells);
+        } else if (getWeaponIndex(0) == 1) {
+            // Для пулемета показываем количество патронов
+            this.entityData.set(AMMO, rifleAmmoCount);
+        }
+    
+        // ОТДЕЛЬНО ОБНОВЛЯЕМ LOADED_AP (для внутренней логики)
+        // Не изменяем LOADED_AP здесь, только в автоперезарядке выше
     }
-
+    
     @Override
     public Vec3 getBarrelVector(float pPartialTicks) {
         Matrix4f transform = getBarrelTransform(pPartialTicks);
@@ -314,47 +353,34 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
                 hasCreativeAmmo = true;
             }
         }
-
         Matrix4f transform = getBarrelTransform(1);
-        if (getWeaponIndex(0) == 0) {
-            if (this.cannotFire) return;
-            float x = 0.0609375f;
-            float y = 0.0517f;
-            float z = 3.0927625f;
 
-            Vector4f worldPosition = transformPosition(transform, x, y, z);
-            var smallCannonShell = ((SmallCannonShellWeapon) getWeapon(0)).create(player);
-
-            smallCannonShell.setPos(worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z);
-            smallCannonShell.shoot(getBarrelVector(1).x, getBarrelVector(1).y + 0.005f, getBarrelVector(1).z, 35,
-                    0.25f);
-            this.level().addFreshEntity(smallCannonShell);
-
-            sendParticle((ServerLevel) this.level(), ParticleTypes.LARGE_SMOKE, worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z, 1, 0.02, 0.02, 0.02, 0, false);
-
-            if (!player.level().isClientSide) {
-                playShootSound3p(player, 0, 4, 12, 24);
-            }
-
-            Level level = player.level();
-            final Vec3 center = new Vec3(this.getX(), this.getEyeY(), this.getZ());
-
-            for (Entity target : level.getEntitiesOfClass(Entity.class, new AABB(center, center).inflate(4), e -> true).stream().sorted(Comparator.comparingDouble(e -> e.distanceToSqr(center))).toList()) {
-                if (target instanceof ServerPlayer serverPlayer) {
-                    Mod.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ShakeClientMessage(6, 5, 9, this.getX(), this.getEyeY(), this.getZ()));
+        if (getWeaponIndex(0) == 0) { // Проверка на основное орудие (пушка)
+            // Проверка на перезарядку и на то, что выбрано либо AP (индекс 0), либо HE (индекс 1)
+            if (reloadCoolDown == 0 && getWeaponIndex(0) == 0) { 
+                // ... (проверка на энергию) ...
+    
+                // Получение трансформации ствола
+                Vector4f worldPosition = transformPosition(transform, 0, 0, 0);
+    
+                // Получение объекта оружия и создание снаряда
+                var cannonShell = (CannonShellWeapon) getWeapon(0);
+                var entityToSpawn = cannonShell.create(player);
+    
+                // Установка позиции и направления полета снаряда
+                entityToSpawn.setPos(worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z);
+                entityToSpawn.shoot(getBarrelVector(1).x, getBarrelVector(1).y + 0.005f, getBarrelVector(1).z, cannonShell.velocity, 0.02f);
+                level().addFreshEntity(entityToSpawn); // Спавн снаряда в мире
+    
+                // ... (звуки выстрела и отдача) ...
+    
+                // Эта проверка выполняется специально для AP снаряда
+                if (getWeaponIndex(0) == 0) { 
+                    this.entityData.set(LOADED_AP, 0); // Обновление данных о том, что AP снаряд отстрелян
                 }
             }
 
-            this.entityData.set(CANNON_RECOIL_TIME, 40);
-            this.entityData.set(YAW, getTurretYRot());
-
-            this.entityData.set(HEAT, this.entityData.get(HEAT) + 7);
-            this.entityData.set(FIRE_ANIM, 3);
-
-            if (hasCreativeAmmo) return;
-
-            this.getItemStacks().stream().filter(stack -> stack.is(ModItems.SMALL_SHELL.get())).findFirst().ifPresent(stack -> stack.shrink(1));
-
+            // ... (потребление энергии, перезарядка, эффекты частиц и тряска камеры) ...
         } else if (getWeaponIndex(0) == 1) {
             if (this.cannotFireCoax) return;
             float x = -0.3f;
@@ -393,9 +419,9 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
 
             if (!player.level().isClientSide) {
                 playShootSound3p(player, 0, 3, 6, 12);
-            }
+            } 
         }
-    }
+    } 
 
     @Override
     public void travel() {
@@ -448,7 +474,7 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
 
     @Override
     public SoundEvent getEngineSound() {
-        return tech.vvp.vvp.init.ModSounds.BTR_80A_ENGINE.get();
+        return tech.vvp.vvp.init.ModSounds.STRYKER_ENGINE.get();
     }
 
     @Override
@@ -595,7 +621,7 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
         this.clampRotation(entity);
     }
 
-    private PlayState firePredicate(AnimationState<btr80aEntity> event) {
+    private PlayState firePredicate(AnimationState<strykerEntity> event) {
         if (this.entityData.get(FIRE_ANIM) > 1 && getWeaponIndex(0) == 0) {
             return event.setAndContinue(RawAnimation.begin().thenPlay("animation.lav.fire"));
         }
@@ -620,7 +646,7 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
     @Override
     public int mainGunRpm(Player player) {
         if (getWeaponIndex(0) == 0) {
-            return 300;
+            return 15;
         } else if (getWeaponIndex(0) == 1) {
             return 600;
         }
@@ -630,7 +656,7 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
     @Override
     public boolean canShoot(Player player) {
         if (getWeaponIndex(0) == 0) {
-            return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFire;
+            return (this.entityData.get(LOADED_AP) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFire;
         } else if (getWeaponIndex(0) == 1) {
             return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFireCoax;
         }
