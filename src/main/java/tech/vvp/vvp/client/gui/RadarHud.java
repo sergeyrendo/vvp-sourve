@@ -2,6 +2,7 @@ package tech.vvp.vvp.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -14,13 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RadarHud {
-    // Этот список будет обновляться сетевым пакетом
     public static List<Vec3> radarTargets = new ArrayList<>();
 
     private static final ResourceLocation RADAR_BACKGROUND = new ResourceLocation(VVP.MOD_ID, "textures/gui/radar_bg.png");
     private static final ResourceLocation RADAR_TARGET = new ResourceLocation(VVP.MOD_ID, "textures/gui/radar_target.png");
 
-    // Создаем наш оверлей как статическую переменную
     public static final IGuiOverlay HUD_RADAR = (gui, guiGraphics, partialTick, screenWidth, screenHeight) -> {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
@@ -46,10 +45,8 @@ public class RadarHud {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
-        // Рисуем фон
         guiGraphics.blit(RADAR_BACKGROUND, radarX, radarY, 0, 0, radarSize, radarSize, radarSize, radarSize);
 
-        // Рисуем цели
         for (Vec3 targetPos : radarTargets) {
             Vec3 relativePos = targetPos.subtract(player.position());
             double distance = Math.sqrt(relativePos.x * relativePos.x + relativePos.z * relativePos.z);
