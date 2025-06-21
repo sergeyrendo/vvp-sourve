@@ -17,7 +17,6 @@ import tech.vvp.vvp.entity.vehicle.mi24Entity;
 import java.util.ArrayList;
 import java.util.List;
 
-// ИЗМЕНЕНИЕ ЗДЕСЬ: Добавлен параметр bus = Mod.EventBusSubscriber.Bus.FORGE
 @Mod.EventBusSubscriber(modid = VVP.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class RadarHud {
 
@@ -47,11 +46,17 @@ public class RadarHud {
         int radarY = 10;
         int radarCenterX = radarX + radarSize / 2;
         int radarCenterY = radarY + radarSize / 2;
-        float radarDisplayRange = 64f;
+        float radarDisplayRange = 150f; // Увеличим дальность отображения на радаре до максимальной
 
+        // Устанавливаем правильное состояние рендера
         RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
+        // Рисуем фон
         guiGraphics.blit(RADAR_BACKGROUND, radarX, radarY, 0, 0, radarSize, radarSize, radarSize, radarSize);
 
+        // Рисуем цели
         for (Vec3 targetPos : radarTargets) {
             Vec3 relativePos = targetPos.subtract(player.position());
             double distance = Math.sqrt(relativePos.x * relativePos.x + relativePos.z * relativePos.z);
@@ -62,7 +67,9 @@ public class RadarHud {
             double angleToTarget = Math.toDegrees(Math.atan2(relativePos.z, relativePos.x)) - 90;
             double rotatedAngle = Math.toRadians(angleToTarget - playerYaw);
 
-            double displayDist = Math.min(distance, radarDisplayRange) / radarDisplayRange * (radarSize / 2.0 - 4);
+            // Масштабируем дистанцию до размера радара
+            double displayDist = (distance / radarDisplayRange) * (radarSize / 2.0 - 4);
+            displayDist = Math.min(displayDist, radarSize / 2.0 - 4); // Убедимся, что точка не выходит за пределы
 
             int targetX = radarCenterX + (int) (Math.cos(rotatedAngle) * displayDist);
             int targetY = radarCenterY + (int) (Math.sin(rotatedAngle) * displayDist);
