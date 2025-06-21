@@ -93,22 +93,14 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
             return;
         }
 
-        System.out.println("[RADAR SERVER DEBUG] #1 - handleRadar called for player: " + player.getName().getString());
-
         List<Vec3> targetPositions = new ArrayList<>();
-        
-        // --- ФИНАЛЬНОЕ ИСПРАВЛЕНИЕ ЗДЕСЬ ---
         List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
             entity -> entity instanceof HelicopterEntity && entity != this);
 
-        System.out.println("[RADAR SERVER DEBUG] #2 - Found " + potentialTargets.size() + " potential targets.");
-
         if (!potentialTargets.isEmpty()) {
             for (Entity target : potentialTargets) {
-                System.out.println("[RADAR SERVER DEBUG] #3 - Adding target: " + target.getType().getDescriptionId() + " at " + target.position());
                 targetPositions.add(target.position());
             }
-            System.out.println("[RADAR SERVER DEBUG] #4 - Sending packet to client with " + targetPositions.size() + " targets.");
             com.atsuishio.superbwarfare.Mod.PACKET_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
@@ -239,7 +231,7 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         }).mapToInt(Ammo.HEAVY::get).sum() + countItem(ModItems.SMALL_SHELL.get());
 
         if ((hasItem(ModItems.ROCKET_70.get()) || InventoryTool.hasCreativeAmmoBox(player)) && reloadCoolDown == 0 && this.getEntityData().get(LOADED_ROCKET) < 25) {
-            this.entityData.set(LOADED_ROCKET, this.entityData.get(LOADED_ROCKET) + 1);
+            this.entityData.set(LOADED_ROCKET, this.getEntityData().get(LOADED_ROCKET) + 1);
             reloadCoolDown = 25;
             if (!InventoryTool.hasCreativeAmmoBox(player)) {
                 this.getItemStacks().stream().filter(stack -> stack.is(ModItems.ROCKET_70.get())).findFirst().ifPresent(stack -> stack.shrink(1));
