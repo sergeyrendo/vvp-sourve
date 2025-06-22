@@ -55,6 +55,10 @@ public class ModSounds {
     public static final RegistryObject<SoundEvent> BTR_2A72_P3 = register("btr_2a72_p3");
     public static final RegistryObject<SoundEvent> BTR_2A72_FAR = register("btr_2a72_far");
     public static final RegistryObject<SoundEvent> BTR_2A72_VERYFAR = register("btr_2a72_veryfar");
+
+    // Звуки для мотоцикла
+    public static final RegistryObject<SoundEvent> PLANETA_ENGINE = register("planeta_engine");
+    
     
     /**
      * Вспомогательный метод для регистрации звуков

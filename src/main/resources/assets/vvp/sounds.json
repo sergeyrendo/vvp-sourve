@@ -63,35 +63,20 @@
         }
       ]
     },
-    "btr_80a_engine": {
-      "sounds": [
-        "vvp:btr_80a_engine"
-      ]
-    },
-    "stryker_engine": {
-      "sounds": [
-        "vvp:stryker_engine"
-      ]
-    },
+  "planeta_engine": {
+    "sounds": [
+      "vvp:planeta_engine"
+    ]
+  },
+  "btr_80a_engine": {
+    "sounds": [
+      "vvp:btr_80a_engine"
+    ]
+  },
 
-  "btr_2a72_p1": {
+  "stryker_engine": {
     "sounds": [
-      "vvp:btr_2a72_p1"
-    ]
-  },
-  "btr_2a72_p3": {
-    "sounds": [
-      "vvp:2a72_p3"
-    ]
-  },
-  "btr_2a72_far": {
-    "sounds": [
-      "vvp:2a72_far"
-    ]
-  },
-  "btr_2a72_veryfar": {
-    "sounds": [
-      "vvp:2a72_veryfar"
+      "vvp:stryker_engine"
     ]
   }
 }

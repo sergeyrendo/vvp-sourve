@@ -19,6 +19,6 @@ public class btr80aModel extends GeoModel<btr80aEntity> {
 
     @Override
     public ResourceLocation getTextureResource(btr80aEntity entity) {
-        return new ResourceLocation(VVP.MOD_ID, "textures/entity/btr80a.png");
+        return new ResourceLocation(VVP.MOD_ID, "textures/entity/btr80a_1.png");
     }
 } 

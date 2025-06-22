@@ -19,7 +19,7 @@ import tech.vvp.vvp.client.renderer.entity.btr80aRenderer;
 import tech.vvp.vvp.client.renderer.entity.btr80a_1Renderer;
 import tech.vvp.vvp.client.renderer.entity.f35Renderer;
 import tech.vvp.vvp.client.renderer.entity.strykerRenderer;
-
+import tech.vvp.vvp.client.renderer.entity.btr2s14Renderer;
 
 @Mod.EventBusSubscriber(modid = VVP.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ModEntityRenderers {
@@ -39,6 +39,7 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.BTR_80A_1.get(), btr80a_1Renderer::new);
         event.registerEntityRenderer(ModEntities.F35.get(), f35Renderer::new);
         event.registerEntityRenderer(ModEntities.STRYKER.get(), strykerRenderer::new);
+        event.registerEntityRenderer(ModEntities.BTR_2S14.get(), btr2s14Renderer::new);
 
     }
 

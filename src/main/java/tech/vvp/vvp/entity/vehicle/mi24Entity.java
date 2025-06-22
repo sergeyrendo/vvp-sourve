@@ -301,7 +301,7 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
                     if (up && engineStartOver) {
                         holdPowerTick++;
-                        this.entityData.set(POWER, Math.min(this.entityData.get(POWER) + 0.0007f * Math.min(holdPowerTick, 10), 0.12f));
+                        this.entityData.set(POWER, Math.min(this.entityData.get(POWER) + 0.0001f * Math.min(holdPowerTick, 10), 0.12f));
                     }
 
                     if (engineStartOver) {

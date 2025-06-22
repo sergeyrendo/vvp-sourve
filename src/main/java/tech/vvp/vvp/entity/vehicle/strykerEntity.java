@@ -116,9 +116,9 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
                         new CannonShellWeapon()
-                                .hitDamage(VehicleConfig.YX_100_AP_CANNON_DAMAGE.get())
-                                .explosionRadius(VehicleConfig.YX_100_AP_CANNON_EXPLOSION_RADIUS.get().floatValue())
-                                .explosionDamage(VehicleConfig.YX_100_AP_CANNON_EXPLOSION_DAMAGE.get())
+                                .hitDamage(VehicleConfigVVP.STRYKER_M1128_CANNON_DAMAGE.get())
+                                .explosionRadius(VehicleConfigVVP.STRYKER_M1128_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .explosionDamage(VehicleConfigVVP.STRYKER_M1128_CANNON_EXPLOSION_DAMAGE.get())
                                 .fireProbability(0)
                                 .fireTime(0)
                                 .durability(100)
@@ -126,7 +126,7 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
                                 .gravity(0.1f)
                                 .sound(ModSounds.INTO_MISSILE.get())
                                 .ammo(ModItems.AP_5_INCHES.get())
-                                .icon(VVP.loc("textures/screens/vehicle_weapon/m6a1e4_shell.png"))
+                                .icon(VVP.loc("textures/screens/vehicle_weapon/m68a1e4_shell.png"))
                                 .sound1p(ModSounds.YX_100_FIRE_1P.get())
                                 .sound3p(ModSounds.YX_100_FIRE_3P.get())
                                 .sound3pFar(ModSounds.YX_100_FAR.get())
@@ -699,10 +699,10 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
         if (this.getWeaponIndex(0) == 0) {
             double heat = 1 - this.getEntityData().get(HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("2A72 30MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("M68A1E4 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
         } else {
             double heat = 1 - this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("7.62MM PKT " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("7.62MM M240 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
         }
     }
 
@@ -713,10 +713,10 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
         if (this.getWeaponIndex(0) == 0) {
             double heat = this.getEntityData().get(HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("2A72 30MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("M68A1E4 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
         } else {
             double heat2 = this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("7.62MM PKT " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("7.62MM M240 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
         }
     }
 

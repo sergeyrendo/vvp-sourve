@@ -16,13 +16,6 @@ public class ModItems {
     public static final DeferredRegister<Item> REGISTRY = 
             DeferredRegister.create(ForgeRegistries.ITEMS, VVP.MOD_ID);
 
-    public static final RegistryObject<Item> SHELL_30MM = REGISTRY.register("shell_30mm",
-            () -> new Item(new Item.Properties()));
-
-    // Регистрация предмета ruflag
-    public static final RegistryObject<Item> RUFLAG = REGISTRY.register("ruflag",
-            () -> new Item(new Item.Properties().stacksTo(64)));
-
     public static final RegistryObject<Item> ICON_SPAWN_ITEM = REGISTRY.register("icon_spawn_item",
             () -> new Item(new Item.Properties()));
 

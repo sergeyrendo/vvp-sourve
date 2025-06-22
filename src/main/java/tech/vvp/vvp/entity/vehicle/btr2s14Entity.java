@@ -9,8 +9,8 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.LandArmorEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition;
 import com.atsuishio.superbwarfare.entity.vehicle.base.WeaponVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
+import com.atsuishio.superbwarfare.entity.vehicle.weapon.CannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.ProjectileWeapon;
-import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallCannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.VehicleWeapon;
 import com.atsuishio.superbwarfare.event.ClientMouseHandler;
 import com.atsuishio.superbwarfare.init.ModDamageTypes;
@@ -31,6 +31,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -67,23 +70,24 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 // import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.client.Minecraft;
 import tech.vvp.vvp.client.sound.VehicleEngineSoundInstance;
+import tech.vvp.vvp.config.VehicleConfigVVP;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Comparator;
 
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
-public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity {
+public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity {
+
+    public static final EntityDataAccessor<Integer> LOADED_AP = SynchedEntityData.defineId(btr2s14Entity.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-
-
-    public btr80a_1Entity(PlayMessages.SpawnEntity packet, Level world) {
-        this(ModEntities.BTR_80A_1.get(), world);
+    public btr2s14Entity(PlayMessages.SpawnEntity packet, Level world) {
+        this(ModEntities.BTR_2S14.get(), world);
     }
 
-    public btr80a_1Entity(EntityType<btr80a_1Entity> type, Level world) {
+    public btr2s14Entity(EntityType<btr2s14Entity> type, Level world) {
         super(type, world);
     }
 
@@ -111,16 +115,22 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
-                        new SmallCannonShellWeapon()
-                                .damage(VehicleConfig.BMP_2_CANNON_DAMAGE.get())
-                                .explosionDamage(VehicleConfig.BMP_2_CANNON_EXPLOSION_DAMAGE.get())
-                                .explosionRadius(VehicleConfig.BMP_2_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                        new CannonShellWeapon()
+                                .hitDamage(VehicleConfigVVP.STRYKER_M1128_CANNON_DAMAGE.get())
+                                .explosionRadius(VehicleConfigVVP.STRYKER_M1128_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .explosionDamage(VehicleConfigVVP.STRYKER_M1128_CANNON_EXPLOSION_DAMAGE.get())
+                                .fireProbability(0)
+                                .fireTime(0)
+                                .durability(100)
+                                .velocity(40)
+                                .gravity(0.1f)
                                 .sound(ModSounds.INTO_MISSILE.get())
-                                .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_30mm.png"))
-                                .sound1p(ModSounds.BMP_CANNON_FIRE_1P.get())
-                                .sound3p(ModSounds.BMP_CANNON_FIRE_3P.get())
-                                .sound3pFar(ModSounds.LAV_CANNON_FAR.get())
-                                .sound3pVeryFar(ModSounds.LAV_CANNON_VERYFAR.get()),
+                                .ammo(ModItems.AP_5_INCHES.get())
+                                .icon(Mod.loc("textures/screens/vehicle_weapon/ap_shell.png"))
+                                .sound1p(ModSounds.YX_100_FIRE_1P.get())
+                                .sound3p(ModSounds.YX_100_FIRE_3P.get())
+                                .sound3pFar(ModSounds.YX_100_FAR.get())
+                                .sound3pVeryFar(ModSounds.YX_100_VERYFAR.get()),
                         new ProjectileWeapon()
                                 .damage(VehicleConfig.LAV_150_MACHINE_GUN_DAMAGE.get())
                                 .headShot(2)
@@ -143,16 +153,19 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+        this.entityData.define(LOADED_AP, 0);
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        compound.putInt("loaded_ap", this.entityData.get(LOADED_AP));
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        this.entityData.set(LOADED_AP, compound.getInt("loaded_ap"));
     }
 
     @Override
@@ -292,8 +305,10 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
             return false;
         }).mapToInt(Ammo.RIFLE::get).sum() + countItem(ModItems.RIFLE_AMMO.get());
 
+
+
         if (getWeaponIndex(0) == 0) {
-            this.entityData.set(AMMO, countItem(ModItems.SMALL_SHELL.get()));
+            this.entityData.set(LOADED_AP, countItem(ModItems.AP_5_INCHES.get()));
         } else if (getWeaponIndex(0) == 1) {
             this.entityData.set(AMMO, ammoCount);
         }
@@ -324,12 +339,12 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
             float z = 3.0927625f;
 
             Vector4f worldPosition = transformPosition(transform, x, y, z);
-            var smallCannonShell = ((SmallCannonShellWeapon) getWeapon(0)).create(player);
+            var cannonShell = ((CannonShellWeapon) getWeapon(0)).create(player);
 
-            smallCannonShell.setPos(worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z);
-            smallCannonShell.shoot(getBarrelVector(1).x, getBarrelVector(1).y + 0.005f, getBarrelVector(1).z, 35,
+            cannonShell.setPos(worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z);
+            cannonShell.shoot(getBarrelVector(1).x, getBarrelVector(1).y + 0.005f, getBarrelVector(1).z, 35,
                     0.25f);
-            this.level().addFreshEntity(smallCannonShell);
+            this.level().addFreshEntity(cannonShell);
 
             sendParticle((ServerLevel) this.level(), ParticleTypes.LARGE_SMOKE, worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z, 1, 0.02, 0.02, 0.02, 0, false);
 
@@ -354,7 +369,7 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
 
             if (hasCreativeAmmo) return;
 
-            this.getItemStacks().stream().filter(stack -> stack.is(ModItems.SMALL_SHELL.get())).findFirst().ifPresent(stack -> stack.shrink(1));
+            this.getItemStacks().stream().filter(stack -> stack.is(ModItems.AP_5_INCHES.get())).findFirst().ifPresent(stack -> stack.shrink(1));
 
         } else if (getWeaponIndex(0) == 1) {
             if (this.cannotFireCoax) return;
@@ -423,11 +438,11 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
         if (rightInputDown) {
             this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.1f);
         } else if (this.leftInputDown) {
-            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.1f);
+            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.2f);
         }
 
         if (this.forwardInputDown || this.backInputDown) {
-            this.consumeEnergy(VehicleConfig.LAV_150_ENERGY_COST.get());
+            this.consumeEnergy(VehicleConfigVVP.TYPHOON_ENERGY_COST.get());
         }
 
         this.entityData.set(POWER, this.entityData.get(POWER) * (upInputDown ? 0.5f : (rightInputDown || leftInputDown) ? 0.977f : 0.99f));
@@ -596,7 +611,7 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
         this.clampRotation(entity);
     }
 
-    private PlayState firePredicate(AnimationState<btr80a_1Entity> event) {
+    private PlayState firePredicate(AnimationState<btr2s14Entity> event) {
         if (this.entityData.get(FIRE_ANIM) > 1 && getWeaponIndex(0) == 0) {
             return event.setAndContinue(RawAnimation.begin().thenPlay("animation.lav.fire"));
         }
@@ -621,7 +636,7 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
     @Override
     public int mainGunRpm(Player player) {
         if (getWeaponIndex(0) == 0) {
-            return 300;
+            return 15;
         } else if (getWeaponIndex(0) == 1) {
             return 600;
         }
@@ -631,7 +646,7 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
     @Override
     public boolean canShoot(Player player) {
         if (getWeaponIndex(0) == 0) {
-            return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFire;
+            return (this.entityData.get(LOADED_AP) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFire;
         } else if (getWeaponIndex(0) == 1) {
             return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFireCoax;
         }
@@ -640,7 +655,11 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
 
     @Override
     public int getAmmoCount(Player player) {
-        return this.entityData.get(AMMO);
+        if (getWeaponIndex(0) == 0) {
+            return this.entityData.get(LOADED_AP);
+        } else {
+            return this.entityData.get(AMMO);
+        }
     }
 
     @Override
@@ -670,7 +689,7 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/btr80a_1_icon.png");
+        return VVP.loc("textures/vehicle_icon/2s14_icon.png");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -680,10 +699,10 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
 
         if (this.getWeaponIndex(0) == 0) {
             double heat = 1 - this.getEntityData().get(HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("2A72 30MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("M68A1E4 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
         } else {
             double heat = 1 - this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("7.62MM PKT " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("7.62MM M240 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
         }
     }
 
@@ -694,10 +713,10 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
 
         if (this.getWeaponIndex(0) == 0) {
             double heat = this.getEntityData().get(HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("2A72 30MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("M68A1E4 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
         } else {
             double heat2 = this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("7.62MM PKT " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("7.62MM M240 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
         }
     }
 

@@ -12,6 +12,7 @@ import net.minecraftforge.registries.RegistryObject;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.entity.vehicle.vazikEntity;
 import tech.vvp.vvp.entity.vehicle.bikeredEntity;
+import tech.vvp.vvp.entity.vehicle.btr2s14Entity;
 import tech.vvp.vvp.entity.vehicle.bikegreenEntity;
 import tech.vvp.vvp.entity.vehicle.mi24Entity;
 import tech.vvp.vvp.entity.vehicle.mi24polEntity;
@@ -73,13 +74,22 @@ public class ModEntities {
                                 .sized(3.9f, 3.2f)
                                 .build("btr_80a_1"));
 
+    public static final RegistryObject<EntityType<btr2s14Entity>> BTR_2S14 = ENTITY_TYPES.register("btr_2s14",
+                            () -> EntityType.Builder.<btr2s14Entity>of(btr2s14Entity::new, MobCategory.MISC)
+                                .setTrackingRange(64)
+                                .setUpdateInterval(1)
+                                // .setCustomClientFactory(btr2s14Entity::clientSpawn)
+                                .fireImmune()
+                                .sized(3.9f, 3.3f)
+                                .build("btr_2s14"));
+
     public static final RegistryObject<EntityType<strykerEntity>> STRYKER = ENTITY_TYPES.register("stryker",
                             () -> EntityType.Builder.<strykerEntity>of(strykerEntity::new, MobCategory.MISC)
                                 .setTrackingRange(64)
                                 .setUpdateInterval(1)
                                 // .setCustomClientFactory(strykerEntity::clientSpawn)
                                 .fireImmune()
-                                .sized(3.9f, 3.2f)
+                                .sized(3.9f, 3.5f)
                                 .build("stryker"));
 
     public static final RegistryObject<EntityType<bikegreenEntity>> BIKEGREEN = ENTITY_TYPES.register("bikegreen",
