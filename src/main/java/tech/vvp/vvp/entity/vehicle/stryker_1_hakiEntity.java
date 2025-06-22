@@ -11,7 +11,9 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.WeaponVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.CannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.ProjectileWeapon;
+import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallCannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.VehicleWeapon;
+import com.atsuishio.superbwarfare.entity.vehicle.weapon.WgMissileWeapon;
 import com.atsuishio.superbwarfare.event.ClientMouseHandler;
 import com.atsuishio.superbwarfare.init.ModDamageTypes;
 
@@ -77,17 +79,17 @@ import java.util.Comparator;
 
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
-public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity {
+public class stryker_1_hakiEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity {
 
-    public static final EntityDataAccessor<Integer> LOADED_AP = SynchedEntityData.defineId(btr2s14Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> LOADED_AP = SynchedEntityData.defineId(stryker_1_hakiEntity.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public btr2s14Entity(PlayMessages.SpawnEntity packet, Level world) {
-        this(ModEntities.BTR_2S14.get(), world);
+    public stryker_1_hakiEntity(PlayMessages.SpawnEntity packet, Level world) {
+        this(ModEntities.STRYKER_1_HAKI.get(), world);
     }
-
-    public btr2s14Entity(EntityType<btr2s14Entity> type, Level world) {
+    
+    public stryker_1_hakiEntity(EntityType<stryker_1_hakiEntity> type, Level world) {
         super(type, world);
     }
 
@@ -115,32 +117,26 @@ public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEn
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
-                        new CannonShellWeapon()
-                                .hitDamage(VehicleConfigVVP.STRYKER_M1128_CANNON_DAMAGE.get())
-                                .explosionRadius(VehicleConfigVVP.STRYKER_M1128_CANNON_EXPLOSION_RADIUS.get().floatValue())
-                                .explosionDamage(VehicleConfigVVP.STRYKER_M1128_CANNON_EXPLOSION_DAMAGE.get())
-                                .fireProbability(0)
-                                .fireTime(0)
-                                .durability(100)
-                                .velocity(40)
-                                .gravity(0.1f)
+                        new SmallCannonShellWeapon()
+                                .damage(VehicleConfig.BMP_2_CANNON_DAMAGE.get())
+                                .explosionDamage(VehicleConfig.BMP_2_CANNON_EXPLOSION_DAMAGE.get())
+                                .explosionRadius(VehicleConfig.BMP_2_CANNON_EXPLOSION_RADIUS.get().floatValue())
                                 .sound(ModSounds.INTO_MISSILE.get())
-                                .ammo(ModItems.AP_5_INCHES.get())
-                                .icon(Mod.loc("textures/screens/vehicle_weapon/ap_shell.png"))
-                                .sound1p(ModSounds.YX_100_FIRE_1P.get())
-                                .sound3p(ModSounds.YX_100_FIRE_3P.get())
-                                .sound3pFar(ModSounds.YX_100_FAR.get())
-                                .sound3pVeryFar(ModSounds.YX_100_VERYFAR.get()),
+                                .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_30mm.png"))
+                                .sound1p(tech.vvp.vvp.init.ModSounds.BUSHMASTER_1P.get())
+                                .sound3p(tech.vvp.vvp.init.ModSounds.BUSHMASTER_3P.get())
+                                .sound3pFar(tech.vvp.vvp.init.ModSounds.BUSHMASTER_FAR.get())
+                                .sound3pVeryFar(tech.vvp.vvp.init.ModSounds.BUSHMASTER_VERYFAR.get()),
                         new ProjectileWeapon()
-                                .damage(VehicleConfig.LAV_150_MACHINE_GUN_DAMAGE.get())
+                                .damage(9.5f)
                                 .headShot(2)
                                 .zoom(false)
                                 .sound(ModSounds.INTO_CANNON.get())
                                 .icon(Mod.loc("textures/screens/vehicle_weapon/gun_7_62mm.png"))
                                 .sound1p(ModSounds.COAX_FIRE_1P.get())
-                                .sound3p(ModSounds.RPK_FIRE_3P.get())
-                                .sound3pFar(ModSounds.RPK_FAR.get())
-                                .sound3pVeryFar(ModSounds.RPK_VERYFAR.get()),
+                                .sound3p(ModSounds.M_60_FIRE_3P.get())
+                                .sound3pFar(ModSounds.M_60_FAR.get())
+                                .sound3pVeryFar(ModSounds.M_60_VERYFAR.get()),
                 }
         };
     }
@@ -296,7 +292,7 @@ public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEn
     }
 
     private void handleAmmo() {
-        if (!(this.getFirstPassenger() instanceof Player)) return;
+        if (!(this.getFirstPassenger() instanceof Player player)) return;
 
         int ammoCount = this.getItemStacks().stream().filter(stack -> {
             if (stack.is(ModItems.AMMO_BOX.get())) {
@@ -305,13 +301,12 @@ public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEn
             return false;
         }).mapToInt(Ammo.RIFLE::get).sum() + countItem(ModItems.RIFLE_AMMO.get());
 
-
-
         if (getWeaponIndex(0) == 0) {
-            this.entityData.set(LOADED_AP, countItem(ModItems.AP_5_INCHES.get()));
+            this.entityData.set(AMMO, countItem(ModItems.SMALL_SHELL.get()));
         } else if (getWeaponIndex(0) == 1) {
             this.entityData.set(AMMO, ammoCount);
         }
+
     }
 
     @Override
@@ -334,17 +329,17 @@ public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEn
         Matrix4f transform = getBarrelTransform(1);
         if (getWeaponIndex(0) == 0) {
             if (this.cannotFire) return;
-            float x = 0.0609375f;
-            float y = 0.0517f;
-            float z = 3.0927625f;
+            float x = -0.17f;
+            float y = 0.4f;
+            float z = 2.2f;
 
             Vector4f worldPosition = transformPosition(transform, x, y, z);
-            var cannonShell = ((CannonShellWeapon) getWeapon(0)).create(player);
+            var smallCannonShell = ((SmallCannonShellWeapon) getWeapon(0)).create(player);
 
-            cannonShell.setPos(worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z);
-            cannonShell.shoot(getBarrelVector(1).x, getBarrelVector(1).y + 0.005f, getBarrelVector(1).z, 35,
+            smallCannonShell.setPos(worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z);
+            smallCannonShell.shoot(getBarrelVector(1).x, getBarrelVector(1).y + 0.005f, getBarrelVector(1).z, 35,
                     0.25f);
-            this.level().addFreshEntity(cannonShell);
+            this.level().addFreshEntity(smallCannonShell);
 
             sendParticle((ServerLevel) this.level(), ParticleTypes.LARGE_SMOKE, worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z, 1, 0.02, 0.02, 0.02, 0, false);
 
@@ -369,24 +364,23 @@ public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEn
 
             if (hasCreativeAmmo) return;
 
-            this.getItemStacks().stream().filter(stack -> stack.is(ModItems.AP_5_INCHES.get())).findFirst().ifPresent(stack -> stack.shrink(1));
-
+            this.getItemStacks().stream().filter(stack -> stack.is(ModItems.SMALL_SHELL.get())).findFirst().ifPresent(stack -> stack.shrink(1));
         } else if (getWeaponIndex(0) == 1) {
             if (this.cannotFireCoax) return;
-            float x = -0.3f;
-            float y = 0.08f;
-            float z = 0.7f;
+            float x = -0.2f;
+            float y = 0.3f;
+            float z = 1.2f;
 
             Vector4f worldPosition = transformPosition(transform, x, y, z);
 
             if (this.entityData.get(AMMO) > 0 || hasCreativeAmmo) {
-                var projectile = ((ProjectileWeapon) getWeapon(0)).create(player).setGunItemId(this.getType().getDescriptionId());
+                var projectileRight = ((ProjectileWeapon) getWeapon(0)).create(player).setGunItemId(this.getType().getDescriptionId());
 
-                projectile.bypassArmorRate(0.2f);
-                projectile.setPos(worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z);
-                projectile.shoot(player, getBarrelVector(1).x, getBarrelVector(1).y + 0.002f, getBarrelVector(1).z, 36,
+                projectileRight.bypassArmorRate(0.2f);
+                projectileRight.setPos(worldPosition.x - 1.1 * this.getDeltaMovement().x, worldPosition.y, worldPosition.z - 1.1 * this.getDeltaMovement().z);
+                projectileRight.shoot(player, getBarrelVector(1).x, getBarrelVector(1).y + 0.002f, getBarrelVector(1).z, 36,
                         0.25f);
-                this.level().addFreshEntity(projectile);
+                this.level().addFreshEntity(projectileRight);
 
                 if (!hasCreativeAmmo) {
                     ItemStack ammoBox = this.getItemStacks().stream().filter(stack -> {
@@ -464,12 +458,12 @@ public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public SoundEvent getEngineSound() {
-        return tech.vvp.vvp.init.ModSounds.BTR_80A_ENGINE.get();
+        return tech.vvp.vvp.init.ModSounds.STRYKER_ENGINE.get();
     }
 
     @Override
     public float getEngineSoundVolume() {
-        return Mth.abs(entityData.get(POWER)) * 2f;
+        return Mth.abs(entityData.get(POWER)) * 8f;
     }
 
     @Override
@@ -611,7 +605,7 @@ public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEn
         this.clampRotation(entity);
     }
 
-    private PlayState firePredicate(AnimationState<btr2s14Entity> event) {
+    private PlayState firePredicate(AnimationState<stryker_1_hakiEntity> event) {
         if (this.entityData.get(FIRE_ANIM) > 1 && getWeaponIndex(0) == 0) {
             return event.setAndContinue(RawAnimation.begin().thenPlay("animation.lav.fire"));
         }
@@ -636,11 +630,11 @@ public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEn
     @Override
     public int mainGunRpm(Player player) {
         if (getWeaponIndex(0) == 0) {
-            return 15;
+            return 250;
         } else if (getWeaponIndex(0) == 1) {
-            return 600;
+            return 750;
         }
-        return 300;
+        return 250;
     }
 
     @Override
@@ -655,11 +649,7 @@ public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public int getAmmoCount(Player player) {
-        if (getWeaponIndex(0) == 0) {
-            return this.entityData.get(LOADED_AP);
-        } else {
-            return this.entityData.get(AMMO);
-        }
+        return this.entityData.get(AMMO);
     }
 
     @Override
@@ -689,7 +679,7 @@ public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/2s14_icon.png");
+        return VVP.loc("textures/vehicle_icon/stryker_1_haki_icon.png");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -699,10 +689,10 @@ public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEn
 
         if (this.getWeaponIndex(0) == 0) {
             double heat = 1 - this.getEntityData().get(HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("M68A1E4 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("XM813 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
         } else {
             double heat = 1 - this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("7.62MM M240 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("7.62MM M240C " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
         }
     }
 
@@ -713,10 +703,10 @@ public class btr2s14Entity extends ContainerMobileVehicleEntity implements GeoEn
 
         if (this.getWeaponIndex(0) == 0) {
             double heat = this.getEntityData().get(HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("M68A1E4 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("XM813 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
         } else {
             double heat2 = this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("7.62MM M240 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("7.62MM M240C " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
         }
     }
 

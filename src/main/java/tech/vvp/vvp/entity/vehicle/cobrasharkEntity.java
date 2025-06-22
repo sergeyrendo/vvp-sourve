@@ -2,7 +2,11 @@ package tech.vvp.vvp.entity.vehicle;
 
 import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
-import com.atsuishio.superbwarfare.entity.vehicle.base.*; // Объединено для краткости
+import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
+import com.atsuishio.superbwarfare.entity.vehicle.base.HelicopterEntity;
+import com.atsuishio.superbwarfare.entity.vehicle.base.AirEntity;
+import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition;
+import com.atsuishio.superbwarfare.entity.vehicle.base.WeaponVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.Agm65Weapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.HeliRocketWeapon;
@@ -13,6 +17,7 @@ import com.atsuishio.superbwarfare.init.*;
 import com.atsuishio.superbwarfare.tools.*;
 import com.mojang.math.Axis;
 import it.unimi.dsi.fastutil.Pair;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -21,7 +26,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerPlayer; // Добавлено
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -38,7 +43,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkDirection; // Добавлено
 import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,6 +56,7 @@ import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.client.sound.VehicleEngineSoundInstance;
 import tech.vvp.vvp.config.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
 import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
@@ -94,6 +100,25 @@ public class cobrasharkEntity extends ContainerMobileVehicleEntity implements Ge
 
     public cobrasharkEntity(EntityType<cobrasharkEntity> type, Level world) {
         super(type, world);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private VehicleEngineSoundInstance engineSoundInstance;
+
+    public float getEnginePower() {
+        return this.entityData.get(POWER);
+    }
+
+    public boolean isEngineRunning() {
+        return Math.abs(this.entityData.get(POWER)) > 0.01f;
+    }
+
+    public boolean hasEnergy() {
+        return this.getEnergy() > 0;
+    }
+
+    public int getCurrentEnergy() {
+        return this.getEnergy();
     }
 
     private void handleRadar() {
@@ -215,6 +240,10 @@ public class cobrasharkEntity extends ContainerMobileVehicleEntity implements Ge
             }
             handleAmmo();
         }
+
+        // if (this.level().isClientSide()) {
+        //     handleEngineSound();
+        // }
 
         if (this.onGround()) {
             this.setDeltaMovement(this.getDeltaMovement().multiply(0.8, 1, 0.8));
@@ -769,7 +798,7 @@ public class cobrasharkEntity extends ContainerMobileVehicleEntity implements Ge
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/cobra_shark_icon.png");
+        return VVP.loc("textures/vehicle_icon/cobra_icon.png");
     }
 
     @Override
@@ -836,5 +865,56 @@ public class cobrasharkEntity extends ContainerMobileVehicleEntity implements Ge
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
         return Mod.loc("textures/gui/vehicle/type/aircraft.png");
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void handleEngineSound() {
+        Minecraft minecraft = Minecraft.getInstance();
+        Player player = minecraft.player;
+        
+        if (player == null) return;
+        
+        // ПРОВЕРКА ЭНЕРГИИ - главное условие!
+        if (!hasEnergy()) {
+            // Если нет энергии - останавливаем звук
+            if (engineSoundInstance != null) {
+                minecraft.getSoundManager().stop(engineSoundInstance);
+                engineSoundInstance = null;
+            }
+            return;
+        }
+        
+        double distance = player.distanceTo(this);
+        float enginePower = getEnginePower();
+        float speed = (float) getDeltaMovement().horizontalDistance();
+        
+        // Условия для проигрывания звука (ТОЛЬКО при наличии энергии)
+        boolean shouldPlaySound = distance < 60.0f && 
+            (Math.abs(enginePower) > 0.01f || speed > 0.02f || distance < 15.0f);
+        
+        // Если звук должен играть, но его нет - создаем
+        if (shouldPlaySound && (engineSoundInstance == null || !minecraft.getSoundManager().isActive(engineSoundInstance))) {
+            if (engineSoundInstance != null) {
+                minecraft.getSoundManager().stop(engineSoundInstance);
+            }
+            engineSoundInstance = new VehicleEngineSoundInstance(this, getEngineSound());
+            minecraft.getSoundManager().play(engineSoundInstance);
+        }
+        
+        // Если звук не должен играть, но играет - останавливаем
+        if (!shouldPlaySound && engineSoundInstance != null) {
+            minecraft.getSoundManager().stop(engineSoundInstance);
+            engineSoundInstance = null;
+        }
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        // Останавливаем звук при удалении сущности
+        if (level().isClientSide() && engineSoundInstance != null) {
+            Minecraft.getInstance().getSoundManager().stop(engineSoundInstance);
+            engineSoundInstance = null;
+        }
+        super.remove(reason);
     }
 }

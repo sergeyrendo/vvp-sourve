@@ -15,7 +15,6 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-import static com.atsuishio.superbwarfare.entity.vehicle.A10Entity.LOADED_BOMB;
 import static com.atsuishio.superbwarfare.entity.vehicle.A10Entity.LOADED_MISSILE;
 import static com.atsuishio.superbwarfare.entity.vehicle.base.MobileVehicleEntity.GEAR_ROT;
 

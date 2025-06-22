@@ -43,7 +43,7 @@ description = '''
 VVP - Vintage Vehicle Pack
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-[[dependencies.mcsp]] #optional
+[[dependencies.vvp]] #optional
 # the modid of the dependency
 modId = "forge" #mandatory
 # Does this dependency have to exist - if not, ordering below must be specified
@@ -57,7 +57,7 @@ ordering = "NONE"
 # Side this dependency is applied on - BOTH, CLIENT, or SERVER
 side = "BOTH"
 
-[[dependencies.mcsp]]
+[[dependencies.vvp]]
 modId = "minecraft"
 mandatory = true
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
@@ -66,9 +66,9 @@ ordering = "NONE"
 side = "BOTH"
 
 # Don't forget to add SuperbWarfare as a mandatory dependency mod
-[[dependencies.mcsp]]
+[[dependencies.vvp]]
 modId = "superbwarfare"
 mandatory = true
-versionRange = "[0.8.1]"
+versionRange = "[0.8.2]"
 ordering = "AFTER"
 side = "BOTH"

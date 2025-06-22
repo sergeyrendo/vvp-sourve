@@ -20,7 +20,7 @@ plugins {
 //apply plugin: 'org.spongepowered.mixin'
 
 group = mod_group_id
-version = '0.1.1-hotfix'
+version = '0.1.2'
 
 base {
     archivesName = "vvp-beta"

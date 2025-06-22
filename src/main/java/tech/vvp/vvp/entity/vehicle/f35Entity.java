@@ -16,6 +16,7 @@ import com.atsuishio.superbwarfare.tools.*;
 // import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import it.unimi.dsi.fastutil.Pair;
+import net.minecraft.client.Minecraft;
 // import net.minecraft.client.renderer.MultiBufferSource;
 // import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
@@ -70,6 +71,7 @@ import software.bernie.geckolib.core.animation.AnimatableManager;
 // import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP; // Добавлено
+import tech.vvp.vvp.client.sound.VehicleEngineSoundInstance;
 import tech.vvp.vvp.config.VehicleConfigVVP; // Добавлено
 import tech.vvp.vvp.init.ModEntities; // Добавлено
 import tech.vvp.vvp.network.message.S2CRadarSyncPacket; // Добавлено
@@ -79,6 +81,7 @@ import java.util.ArrayList; // Добавлено
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
+import tech.vvp.vvp.client.sound.VehicleEngineSoundInstance;
 
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPitch;
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
@@ -115,6 +118,25 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
 
     public f35Entity(EntityType<f35Entity> type, Level world) {
         super(type, world);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private VehicleEngineSoundInstance engineSoundInstance;
+
+    public float getEnginePower() {
+        return this.entityData.get(POWER);
+    }
+
+    public boolean isEngineRunning() {
+        return Math.abs(this.entityData.get(POWER)) > 0.01f;
+    }
+
+    public boolean hasEnergy() {
+        return this.getEnergy() > 0;
+    }
+
+    public int getCurrentEnergy() {
+        return this.getEnergy();
     }
 
     private void handleRadar() {
@@ -260,6 +282,10 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
             if (lastTickSpeed > 0.4) {
                 this.hurt(ModDamageTypes.causeVehicleStrikeDamage(this.level().registryAccess(), this, this.getFirstPassenger() == null ? this : this.getFirstPassenger()), (float) (20 * ((lastTickSpeed - 0.4) * (lastTickSpeed - 0.4))));
             }
+        }
+
+        if (level().isClientSide()) {
+            handleEngineSound();
         }
 
         if (this.level() instanceof ServerLevel) {
@@ -684,7 +710,7 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
 
     @Override
     public SoundEvent getEngineSound() {
-        return ModSounds.A_10_ENGINE.get();
+        return tech.vvp.vvp.init.ModSounds.F35_ENGINE.get();
     }
 
     @Override
@@ -702,8 +728,8 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
         Matrix4f transform = getVehicleTransform(1);
 
         float x = 0f;      // По центру (не меняем)
-        float y = -0.5f;   // Немного ниже 
-        float z = 0.8f;    // Немного вперед
+        float y = -0.7f;   // Немного ниже 
+        float z = 0.5f;    // Немного вперед
         
         y += (float) passenger.getMyRidingOffset();
 
@@ -880,7 +906,7 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
             this.level().playSound(null, pos, ModSounds.BOMB_RELEASE.get(), SoundSource.PLAYERS, 3, 1);
 
             if (this.getEntityData().get(LOADED_MISSILE) == 2) {
-                reloadCoolDownMissile = 400;
+                reloadCoolDownMissile = 175;
             }
 
             this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) - 1);
@@ -1037,5 +1063,56 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
     public @Nullable ResourceLocation getVehicleItemIcon() {
         return
          Mod.loc("textures/gui/vehicle/type/aircraft.png");
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void handleEngineSound() {
+        Minecraft minecraft = Minecraft.getInstance();
+        Player player = minecraft.player;
+        
+        if (player == null) return;
+        
+        // ПРОВЕРКА ЭНЕРГИИ - главное условие!
+        if (!hasEnergy()) {
+            // Если нет энергии - останавливаем звук
+            if (engineSoundInstance != null) {
+                minecraft.getSoundManager().stop(engineSoundInstance);
+                engineSoundInstance = null;
+            }
+            return;
+        }
+        
+        double distance = player.distanceTo(this);
+        float enginePower = getEnginePower();
+        float speed = (float) getDeltaMovement().horizontalDistance();
+        
+        // Условия для проигрывания звука (ТОЛЬКО при наличии энергии)
+        boolean shouldPlaySound = distance < 60.0f && 
+            (Math.abs(enginePower) > 0.01f || speed > 0.02f || distance < 15.0f);
+        
+        // Если звук должен играть, но его нет - создаем
+        if (shouldPlaySound && (engineSoundInstance == null || !minecraft.getSoundManager().isActive(engineSoundInstance))) {
+            if (engineSoundInstance != null) {
+                minecraft.getSoundManager().stop(engineSoundInstance);
+            }
+            engineSoundInstance = new VehicleEngineSoundInstance(this, getEngineSound());
+            minecraft.getSoundManager().play(engineSoundInstance);
+        }
+        
+        // Если звук не должен играть, но играет - останавливаем
+        if (!shouldPlaySound && engineSoundInstance != null) {
+            minecraft.getSoundManager().stop(engineSoundInstance);
+            engineSoundInstance = null;
+        }
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        // Останавливаем звук при удалении сущности
+        if (level().isClientSide() && engineSoundInstance != null) {
+            Minecraft.getInstance().getSoundManager().stop(engineSoundInstance);
+            engineSoundInstance = null;
+        }
+        super.remove(reason);
     }
 }

@@ -78,5 +78,75 @@
     "sounds": [
       "vvp:stryker_engine"
     ]
+  },
+  "f35_engine": {
+    "sounds": [
+      "vvp:f35_engine"
+    ]
+  },
+  "mi24_engine": {
+    "sounds": [
+      "vvp:mi24_engine"
+    ]
+  },
+  "bushmaster_1p": {
+    "sounds": [
+      "vvp:bushmaster_1p"
+    ]
+  },
+  "bushmaster_3p": {
+    "sounds": [
+      "vvp:bushmaster_3p"
+    ]
+  },
+  "bushmaster_far": {
+    "sounds": [
+      "vvp:bushmaster_far"
+    ]
+  },
+  "bushmaster_veryfar": {
+    "sounds": [
+      "vvp:bushmaster_veryfar"
+    ]
+  },
+  "m1128_1p": {
+    "sounds": [
+      "vvp:m1128_1p"
+    ]
+  },
+  "m1128_3p": {
+    "sounds": [
+      "vvp:m1128_3p"
+    ]
+  },
+  "m1128_far": {
+    "sounds": [
+      "vvp:m1128_far"
+    ]
+  },
+  "m1128_veryfar": {
+    "sounds": [
+      "vvp:m1128_veryfar"
+    ]
+  },
+  "m1128_reload": {
+    "sounds": [
+      "vvp:m1128_reload"
+    ]
+  },
+  "humvee_engine": {
+    "sounds": [
+      "vvp:humvee_engine"
+    ]
+  },
+  "cobra_engine": {
+    "sounds": [
+      "vvp:cobra_engine"
+    ]
+  },
+  "vazik_engine": {
+    "sounds": [
+      "vvp:vazik_engine"
+    ]
   }
 }

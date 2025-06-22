@@ -33,7 +33,7 @@ public class RadarHud {
     
     // Переменные для эффекта сканирования
     private static float sweepAngle = 0.0f;
-    private static final float SWEEP_SPEED = 4.0f; // Увеличенная скорость вращения развертки
+    private static final float SWEEP_SPEED = 1.0f; // Увеличенная скорость вращения развертки
     private static final int TRAIL_LENGTH = 3; // Только 3 сегмента шлейфа
     
     // Карта для отслеживания времени обнаружения целей

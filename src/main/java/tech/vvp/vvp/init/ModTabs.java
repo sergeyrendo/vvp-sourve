@@ -27,10 +27,12 @@ public class ModTabs {
                 // Добавляем всю технику
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BTR80A.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_80A_1.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_2S14.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M997.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M997_GREEN.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_HAKI.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_1.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_1_HAKI.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI24.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI24POL.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI24UKR.get()));

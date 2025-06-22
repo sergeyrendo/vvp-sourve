@@ -58,8 +58,30 @@ public class ModSounds {
 
     // Звуки для мотоцикла
     public static final RegistryObject<SoundEvent> PLANETA_ENGINE = register("planeta_engine");
+
+    // Звуки для F35
+    public static final RegistryObject<SoundEvent> F35_ENGINE = register("f35_engine");
     
+    // Звуки для MI24
+    public static final RegistryObject<SoundEvent> MI24_ENGINE = register("mi24_engine");
+
+    // Звуки дляBushmaster
+    public static final RegistryObject<SoundEvent> BUSHMASTER_1P = register("bushmaster_1p");
+    public static final RegistryObject<SoundEvent> BUSHMASTER_3P = register("bushmaster_3p");
+    public static final RegistryObject<SoundEvent> BUSHMASTER_FAR = register("bushmaster_far");
+    public static final RegistryObject<SoundEvent> BUSHMASTER_VERYFAR = register("bushmaster_veryfar");
     
+    // Звуки для M1128
+    public static final RegistryObject<SoundEvent> M1128_1P = register("m1128_1p");
+    public static final RegistryObject<SoundEvent> M1128_3P = register("m1128_3p");
+    public static final RegistryObject<SoundEvent> M1128_FAR = register("m1128_far");
+    public static final RegistryObject<SoundEvent> M1128_VERYFAR = register("m1128_veryfar");
+    public static final RegistryObject<SoundEvent> M1128_RELOAD = register("m1128_reload");
+    
+    public static final RegistryObject<SoundEvent> HUMVEE_ENGINE = register("humvee_engine");
+
+    public static final RegistryObject<SoundEvent> COBRA_ENGINE = register("cobra_engine");
+    public static final RegistryObject<SoundEvent> VAZIK_ENGINE = register("vazik_engine");
     /**
      * Вспомогательный метод для регистрации звуков
      * @param name Название звука (без пространства имен)

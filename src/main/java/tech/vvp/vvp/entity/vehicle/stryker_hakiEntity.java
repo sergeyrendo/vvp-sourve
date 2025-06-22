@@ -78,17 +78,17 @@ import java.util.Comparator;
 
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
-public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity {
+public class stryker_hakiEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity {
 
-    public static final EntityDataAccessor<Integer> LOADED_AP = SynchedEntityData.defineId(strykerEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> LOADED_AP = SynchedEntityData.defineId(stryker_hakiEntity.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public strykerEntity(PlayMessages.SpawnEntity packet, Level world) {
-        this(ModEntities.STRYKER.get(), world);
+    public stryker_hakiEntity(PlayMessages.SpawnEntity packet, Level world) {
+        this(ModEntities.STRYKER_HAKI.get(), world);
     }
 
-    public strykerEntity(EntityType<strykerEntity> type, Level world) {
+    public stryker_hakiEntity(EntityType<stryker_hakiEntity> type, Level world) {
         super(type, world);
     }
 
@@ -366,8 +366,6 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
                 }
             }
 
-            reloadCoolDown = 80;
-
             this.entityData.set(CANNON_RECOIL_TIME, 40);
             this.entityData.set(YAW, getTurretYRot());
 
@@ -618,7 +616,7 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         this.clampRotation(entity);
     }
 
-    private PlayState firePredicate(AnimationState<strykerEntity> event) {
+    private PlayState firePredicate(AnimationState<stryker_hakiEntity> event) {
         if (this.entityData.get(FIRE_ANIM) > 1 && getWeaponIndex(0) == 0) {
             return event.setAndContinue(RawAnimation.begin().thenPlay("animation.lav.fire"));
         }
@@ -696,7 +694,7 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/stryker_icon.png");
+        return VVP.loc("textures/vehicle_icon/stryker_haki_icon.png");
     }
 
     @OnlyIn(Dist.CLIENT)
