@@ -52,7 +52,6 @@ import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.config.VehicleConfigVVP;
-import tech.vvp.vvp.entity.base.AirEntity;
 import tech.vvp.vvp.init.ModEntities;
 import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
 
@@ -95,9 +94,8 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         }
 
         List<Vec3> targetPositions = new ArrayList<>();
-        // --- ИЗМЕНЕНИЕ ЗДЕСЬ: Ищем все AirEntity, а не только HelicopterEntity ---
         List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
-            entity -> entity instanceof AirEntity && entity != this);
+            entity -> entity instanceof HelicopterEntity && entity != this);
 
         if (!potentialTargets.isEmpty()) {
             for (Entity target : potentialTargets) {
@@ -611,7 +609,7 @@ public class mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
                 playShootSound3p(player, 0, 6, 6, 6);
             }
 
-            this.entityData.set(LOADED_ROCKET, this.entityData.get(LOADED_ROCKET) - 1);
+            this.entityData.set(LOADED_ROCKET, this.getEntityData().get(LOADED_ROCKET) - 1);
             reloadCoolDown = 30;
         }
     }
