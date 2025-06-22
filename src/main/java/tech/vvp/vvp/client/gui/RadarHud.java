@@ -57,7 +57,8 @@ public class RadarHud {
             int radarY = 10;
             int radarCenterX = radarX + radarSize / 2;
             int radarCenterY = radarY + radarSize / 2;
-            float radarDisplayRange = 150f;
+            // ИЗМЕНЕНО: Дальность отображения на радаре увеличена в два раза (было 150f)
+            float radarDisplayRange = 300f;
 
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
@@ -115,6 +116,8 @@ public class RadarHud {
                 Vec3 relativePos = targetPos.subtract(player.position());
                 double distance = Math.sqrt(relativePos.x * relativePos.x + relativePos.z * relativePos.z);
 
+                // Примечание: фактическая дальность обнаружения по-прежнему зависит от mi24Entity.RADAR_RANGE.
+                // Если там стоит 150, то цели дальше 150 блоков не появятся, даже если радар показывает 300.
                 if (distance > mi24Entity.RADAR_RANGE) continue;
 
                 float playerYaw = (player.getViewYRot(1.0f) % 360 + 360) % 360;
@@ -161,7 +164,9 @@ public class RadarHud {
                     }
                     
                     RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
-                    guiGraphics.blit(RADAR_TARGET, targetX - 2, targetY - 2, 0, 0, 4, 4, 4, 4);
+                    // ИЗМЕНЕНО: Размер цели уменьшен ~в 1.5 раза (с 4x4 до 3x3) для лучшей читаемости
+                    int targetSize = 3;
+                    guiGraphics.blit(RADAR_TARGET, targetX - (targetSize / 2), targetY - (targetSize / 2), 0, 0, targetSize, targetSize, targetSize, targetSize);
                 }
             }
             
