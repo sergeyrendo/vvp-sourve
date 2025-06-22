@@ -4,6 +4,7 @@ import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.HelicopterEntity;
+import com.atsuishio.superbwarfare.entity.vehicle.base.AirEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition;
 import com.atsuishio.superbwarfare.entity.vehicle.base.WeaponVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
@@ -89,14 +90,18 @@ public class mi24ukrEntity extends ContainerMobileVehicleEntity implements GeoEn
     }
 
     private void handleRadar() {
+        // Эта часть остается без изменений
         if (this.level().isClientSide() || !(this.getFirstPassenger() instanceof ServerPlayer player)) {
             return;
         }
 
         List<Vec3> targetPositions = new ArrayList<>();
-        List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
-            entity -> entity instanceof HelicopterEntity && entity != this);
 
+        // Здесь мы изменяем условие поиска сущностей
+        List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
+            entity -> (entity instanceof HelicopterEntity || entity instanceof AirEntity) && entity != this);
+
+        // Эта часть тоже остается без изменений
         if (!potentialTargets.isEmpty()) {
             for (Entity target : potentialTargets) {
                 targetPositions.add(target.position());
