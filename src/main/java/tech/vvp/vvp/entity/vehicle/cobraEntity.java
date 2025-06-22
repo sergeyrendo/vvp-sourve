@@ -2,11 +2,9 @@ package tech.vvp.vvp.entity.vehicle;
 
 import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
-
-import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.config.VehicleConfigVVP;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.HelicopterEntity;
+import com.atsuishio.superbwarfare.entity.vehicle.base.AirEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition;
 import com.atsuishio.superbwarfare.entity.vehicle.base.WeaponVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
@@ -27,6 +25,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer; // Добавлено
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -43,6 +42,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.network.NetworkDirection; // Добавлено
 import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,8 +54,13 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
-
+import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.config.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
+import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
+
+import java.util.ArrayList; // Добавлено
+import java.util.List; // Добавлено
 
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPitch;
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
@@ -67,6 +72,8 @@ public class cobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
     public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(cobraEntity.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(cobraEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(cobraEntity.class, EntityDataSerializers.INT);
+
+    public static final int RADAR_RANGE = 150;
 
     public boolean engineStart;
     public boolean engineStartOver;
@@ -91,6 +98,27 @@ public class cobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
 
     public cobraEntity(EntityType<cobraEntity> type, Level world) {
         super(type, world);
+    }
+
+    private void handleRadar() {
+        // Эта часть остается без изменений
+        if (this.level().isClientSide() || !(this.getFirstPassenger() instanceof ServerPlayer player)) {
+            return;
+        }
+
+        List<Vec3> targetPositions = new ArrayList<>();
+
+        // Здесь мы изменяем условие поиска сущностей
+        List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
+            entity -> (entity instanceof HelicopterEntity || entity instanceof AirEntity) && entity != this);
+
+        // Эта часть тоже остается без изменений
+        if (!potentialTargets.isEmpty()) {
+            for (Entity target : potentialTargets) {
+                targetPositions.add(target.position());
+            }
+            com.atsuishio.superbwarfare.Mod.PACKET_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        }
     }
 
     @Override
@@ -180,6 +208,10 @@ public class cobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
     @Override
     public void baseTick() {
         super.baseTick();
+
+        if (this.tickCount % 20 == 0) {
+            handleRadar();
+        }
 
         if (this.level() instanceof ServerLevel) {
             if (reloadCoolDown > 0) {

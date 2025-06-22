@@ -49,6 +49,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.network.NetworkDirection; // Добавлено
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
@@ -68,8 +69,13 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import tech.vvp.vvp.VVP; // Добавлено
+import tech.vvp.vvp.config.VehicleConfigVVP; // Добавлено
+import tech.vvp.vvp.init.ModEntities; // Добавлено
+import tech.vvp.vvp.network.message.S2CRadarSyncPacket; // Добавлено
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList; // Добавлено
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
@@ -101,12 +107,35 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
     public float delta_x;
     public float delta_y;
 
+    public static final int RADAR_RANGE = 250;
+
     public f35Entity(PlayMessages.SpawnEntity packet, Level world) {
         this(tech.vvp.vvp.init.ModEntities.F35.get(), world);
     }
 
     public f35Entity(EntityType<f35Entity> type, Level world) {
         super(type, world);
+    }
+
+    private void handleRadar() {
+        // Эта часть остается без изменений
+        if (this.level().isClientSide() || !(this.getFirstPassenger() instanceof ServerPlayer player)) {
+            return;
+        }
+
+        List<Vec3> targetPositions = new ArrayList<>();
+
+        // Здесь мы изменяем условие поиска сущностей
+        List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
+            entity -> (entity instanceof HelicopterEntity || entity instanceof AirEntity) && entity != this);
+
+        // Эта часть тоже остается без изменений
+        if (!potentialTargets.isEmpty()) {
+            for (Entity target : potentialTargets) {
+                targetPositions.add(target.position());
+            }
+            com.atsuishio.superbwarfare.Mod.PACKET_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+        }
     }
 
     @Override
@@ -217,6 +246,10 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
 
         super.baseTick();
         float f = (float) Mth.clamp(Math.max((onGround() ? 0.819f : 0.82f) - 0.0035 * getDeltaMovement().length(), 0.5) + 0.001f * Mth.abs(90 - (float) calculateAngle(this.getDeltaMovement(), this.getViewVector(1))) / 90, 0.01, 0.99);
+
+        if (this.tickCount % 20 == 0) {
+            handleRadar();
+        }
 
         boolean forward = getDeltaMovement().dot(getViewVector(1)) > 0;
         this.setDeltaMovement(this.getDeltaMovement().add(this.getViewVector(1).scale((forward ? 0.227 : 0.1) * getDeltaMovement().dot(getViewVector(1)))));
