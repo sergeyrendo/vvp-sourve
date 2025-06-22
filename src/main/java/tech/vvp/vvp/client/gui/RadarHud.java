@@ -21,9 +21,11 @@ public class RadarHud {
     private static final ResourceLocation RADAR_BACKGROUND = new ResourceLocation(VVP.MOD_ID, "textures/gui/radar_bg.png");
     private static final ResourceLocation RADAR_TARGET = new ResourceLocation(VVP.MOD_ID, "textures/gui/radar_target.png");
     
-    // СПИСОК ПОДДЕРЖИВАЕМЫХ ВЕРТОЛЕТОВ
     private static final List<String> SUPPORTED_HELICOPTERS = Arrays.asList(
         "mi24Entity",
+        "cobraEntity",
+        "f35Entity",
+        "cobrasharkEntity",
         "mi24ukrEntity", 
         "mi24polEntity"
     );
