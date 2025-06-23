@@ -4,7 +4,6 @@ import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.client.sound.VehicleEngineSoundInstance;
 import tech.vvp.vvp.config.VehicleConfigVVP;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ArmedVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
@@ -15,7 +14,7 @@ import com.atsuishio.superbwarfare.init.*;
 import com.atsuishio.superbwarfare.tools.CustomExplosion;
 import com.atsuishio.superbwarfare.tools.ParticleTool;
 
-import net.minecraft.client.Minecraft;
+// import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -50,7 +49,6 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
-import tech.vvp.vvp.client.sound.VehicleEngineSoundInstance;
 
 // Импортируем необходимые классы для атрибутов
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -74,25 +72,6 @@ public class m997Entity extends ContainerMobileVehicleEntity implements GeoEntit
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.8D)
                 .add(Attributes.ARMOR, 10.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 5.0D);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private VehicleEngineSoundInstance engineSoundInstance;
-
-    public float getEnginePower() {
-        return this.entityData.get(POWER);
-    }
-
-    public boolean isEngineRunning() {
-        return Math.abs(this.entityData.get(POWER)) > 0.01f;
-    }
-
-    public boolean hasEnergy() {
-        return this.getEnergy() > 0;
-    }
-
-    public int getCurrentEnergy() {
-        return this.getEnergy();
     }
 
     @SuppressWarnings("unchecked")
@@ -194,10 +173,6 @@ public class m997Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
         super.baseTick();
 
-        if (level().isClientSide()) {
-            handleEngineSound();
-        }
-
         if (this.onGround()) {
             float f0 = 0.54f + 0.25f * Mth.abs(90 - (float) calculateAngle(this.getDeltaMovement(), this.getViewVector(1))) / 90;
             this.setDeltaMovement(this.getDeltaMovement().add(this.getViewVector(1).normalize().scale(0.05 * this.getDeltaMovement().horizontalDistance())));
@@ -282,7 +257,7 @@ public class m997Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public float getEngineSoundVolume() {
-        return Mth.abs(entityData.get(POWER)) * 4f;
+        return Mth.abs(entityData.get(POWER)) * 2f;
     }
 
     @Override
@@ -424,56 +399,5 @@ public class m997Entity extends ContainerMobileVehicleEntity implements GeoEntit
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
         return Mod.loc("textures/gui/vehicle/type/land.png");
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private void handleEngineSound() {
-        Minecraft minecraft = Minecraft.getInstance();
-        Player player = minecraft.player;
-        
-        if (player == null) return;
-        
-        // ПРОВЕРКА ЭНЕРГИИ - главное условие!
-        if (!hasEnergy()) {
-            // Если нет энергии - останавливаем звук
-            if (engineSoundInstance != null) {
-                minecraft.getSoundManager().stop(engineSoundInstance);
-                engineSoundInstance = null;
-            }
-            return;
-        }
-        
-        double distance = player.distanceTo(this);
-        float enginePower = getEnginePower();
-        float speed = (float) getDeltaMovement().horizontalDistance();
-        
-        // Условия для проигрывания звука (ТОЛЬКО при наличии энергии)
-        boolean shouldPlaySound = distance < 60.0f && 
-            (Math.abs(enginePower) > 0.01f || speed > 0.02f || distance < 15.0f);
-        
-        // Если звук должен играть, но его нет - создаем
-        if (shouldPlaySound && (engineSoundInstance == null || !minecraft.getSoundManager().isActive(engineSoundInstance))) {
-            if (engineSoundInstance != null) {
-                minecraft.getSoundManager().stop(engineSoundInstance);
-            }
-            engineSoundInstance = new VehicleEngineSoundInstance(this, getEngineSound());
-            minecraft.getSoundManager().play(engineSoundInstance);
-        }
-        
-        // Если звук не должен играть, но играет - останавливаем
-        if (!shouldPlaySound && engineSoundInstance != null) {
-            minecraft.getSoundManager().stop(engineSoundInstance);
-            engineSoundInstance = null;
-        }
-    }
-
-    @Override
-    public void remove(RemovalReason reason) {
-        // Останавливаем звук при удалении сущности
-        if (level().isClientSide() && engineSoundInstance != null) {
-            Minecraft.getInstance().getSoundManager().stop(engineSoundInstance);
-            engineSoundInstance = null;
-        }
-        super.remove(reason);
     }
 }

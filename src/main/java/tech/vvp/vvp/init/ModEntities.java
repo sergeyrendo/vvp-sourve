@@ -62,7 +62,7 @@ public class ModEntities {
                             () -> EntityType.Builder.<btr80aEntity>of(btr80aEntity::new, MobCategory.MISC)
                                 .setTrackingRange(64)
                                 .setUpdateInterval(1)
-                                // .setCustomClientFactory(btr80aEntity::clientSpawn)
+                                .setCustomClientFactory(btr80aEntity::clientSpawn)
                                 .fireImmune()
                                 .sized(3.9f, 3.2f)
                                 .build("btr_80a"));
@@ -71,7 +71,7 @@ public class ModEntities {
                             () -> EntityType.Builder.<btr80a_1Entity>of(btr80a_1Entity::new, MobCategory.MISC)
                                 .setTrackingRange(64)
                                 .setUpdateInterval(1)
-                                // .setCustomClientFactory(btr80a_1Entity::clientSpawn)
+                                .setCustomClientFactory(btr80a_1Entity::clientSpawn)
                                 .fireImmune()
                                 .sized(3.9f, 3.2f)
                                 .build("btr_80a_1"));
@@ -80,7 +80,7 @@ public class ModEntities {
                             () -> EntityType.Builder.<strykerEntity>of(strykerEntity::new, MobCategory.MISC)
                                 .setTrackingRange(64)
                                 .setUpdateInterval(1)
-                                // .setCustomClientFactory(strykerEntity::clientSpawn)
+                                .setCustomClientFactory(strykerEntity::clientSpawn)
                                 .fireImmune()
                                 .sized(3.9f, 3.5f)
                                 .build("stryker"));
@@ -89,7 +89,7 @@ public class ModEntities {
                             () -> EntityType.Builder.<stryker_1Entity>of(stryker_1Entity::new, MobCategory.MISC)
                                 .setTrackingRange(64)
                                 .setUpdateInterval(1)
-                                // .setCustomClientFactory(strykerEntity::clientSpawn)
+                                .setCustomClientFactory(stryker_1Entity::clientSpawn)
                                 .fireImmune()
                                 .sized(3.9f, 3.5f)
                                 .build("stryker_1"));
@@ -98,7 +98,7 @@ public class ModEntities {
                                 () -> EntityType.Builder.<stryker_1_hakiEntity>of(stryker_1_hakiEntity::new, MobCategory.MISC)
                                     .setTrackingRange(64)
                                     .setUpdateInterval(1)
-                                    // .setCustomClientFactory(strykerEntity::clientSpawn)
+                                    .setCustomClientFactory(stryker_1_hakiEntity::clientSpawn)
                                     .fireImmune()
                                     .sized(3.9f, 3.5f)
                                     .build("stryker_1"));
@@ -107,7 +107,7 @@ public class ModEntities {
                                 () -> EntityType.Builder.<stryker_hakiEntity>of(stryker_hakiEntity::new, MobCategory.MISC)
                                     .setTrackingRange(64)
                                     .setUpdateInterval(1)
-                                //     .setCustomClientFactory(strykerEntity::clientSpawn)
+                                    .setCustomClientFactory(stryker_hakiEntity::clientSpawn)
                                     .fireImmune()
                                     .sized(3.9f, 3.5f)
                                     .build("stryker_haki"));

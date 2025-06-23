@@ -80,12 +80,13 @@ public class f35Renderer extends GeoEntityRenderer<f35Entity> {
         if (name.equals("missile4")) {
             bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 4);
         }
-        // if (name.equals("wingLB")) {
-        //     bone.setRotX(Mth.lerp(partialTick, animatable.flap2LRotO, animatable.getFlap2LRot()) * Mth.DEG_TO_RAD);
-        // }
-        // if (name.equals("wingRB")) {
-        //     bone.setRotX(Mth.lerp(partialTick, animatable.flap2RRotO, animatable.getFlap2RRot()) * Mth.DEG_TO_RAD);
-        // }
+
+        if (name.equals("wingLB")) {
+            bone.setRotX(Mth.lerp(partialTick, animatable.flap2LRotO, animatable.getFlap2LRot()) * Mth.DEG_TO_RAD);
+        }
+        if (name.equals("wingRB")) {
+            bone.setRotX(Mth.lerp(partialTick, animatable.flap2RRotO, animatable.getFlap2RRot()) * Mth.DEG_TO_RAD);
+        }
         // if (name.equals("weiyi")) {
         //     bone.setRotY(Mth.clamp(Mth.lerp(partialTick, animatable.flap3RotO, animatable.getFlap3Rot()), -5f, 5f) * Mth.DEG_TO_RAD);
         // }

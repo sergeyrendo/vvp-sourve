@@ -23,7 +23,7 @@ group = mod_group_id
 version = '0.1.2'
 
 base {
-    archivesName = "vvp-beta"
+    archivesName = "vvp-beta-hotfix"
 }
 
 java {

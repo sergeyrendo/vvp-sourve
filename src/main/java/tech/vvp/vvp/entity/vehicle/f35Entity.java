@@ -50,6 +50,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.network.NetworkDirection; // Добавлено
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PlayMessages;
@@ -71,7 +72,6 @@ import software.bernie.geckolib.core.animation.AnimatableManager;
 // import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP; // Добавлено
-import tech.vvp.vvp.client.sound.VehicleEngineSoundInstance;
 import tech.vvp.vvp.config.VehicleConfigVVP; // Добавлено
 import tech.vvp.vvp.init.ModEntities; // Добавлено
 import tech.vvp.vvp.network.message.S2CRadarSyncPacket; // Добавлено
@@ -81,7 +81,6 @@ import java.util.ArrayList; // Добавлено
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
-import tech.vvp.vvp.client.sound.VehicleEngineSoundInstance;
 
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPitch;
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
@@ -97,6 +96,8 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(f35Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> FIRE_TIME = SynchedEntityData.defineId(f35Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<String> TARGET_UUID = SynchedEntityData.defineId(f35Entity.class, EntityDataSerializers.STRING);
+    public static final EntityDataAccessor<Boolean> IS_ENGINE_RUNNING = SynchedEntityData.defineId(f35Entity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(f35Entity.class, EntityDataSerializers.FLOAT);
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public int fireIndex;
     public int reloadCoolDownBomb;
@@ -120,23 +121,8 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
         super(type, world);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private VehicleEngineSoundInstance engineSoundInstance;
-
-    public float getEnginePower() {
-        return this.entityData.get(POWER);
-    }
-
-    public boolean isEngineRunning() {
-        return Math.abs(this.entityData.get(POWER)) > 0.01f;
-    }
-
-    public boolean hasEnergy() {
-        return this.getEnergy() > 0;
-    }
-
-    public int getCurrentEnergy() {
-        return this.getEnergy();
+    public static f35Entity clientSpawn(PlayMessages.SpawnEntity packet, Level level) {
+        return new f35Entity(ModEntities.F35.get(), level);
     }
 
     private void handleRadar() {
@@ -189,6 +175,8 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
         this.entityData.define(LOADED_MISSILE, 0);
         this.entityData.define(FIRE_TIME, 0);
         this.entityData.define(TARGET_UUID, "none");
+        this.entityData.define(PROPELLER_ROT, 0.0f);
+        this.entityData.define(IS_ENGINE_RUNNING, false);
     }
 
     @Override
@@ -245,7 +233,7 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
             this.level().playSound(null, this, ModSounds.BOMB_RELOAD.get(), this.getSoundSource(), 2, 1);
             return InteractionResult.sidedSuccess(this.level().isClientSide());
         }
-        if (stack.getItem() == ModItems.AGM.get() && this.entityData.get(LOADED_MISSILE) < 2) {
+        if (stack.getItem() == ModItems.AGM.get() && this.entityData.get(LOADED_MISSILE) < 4) {
             // 装载导弹
             this.entityData.set(LOADED_MISSILE, this.entityData.get(LOADED_MISSILE) + 1);
             if (!player.isCreative()) {
@@ -284,21 +272,8 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
             }
         }
 
-        if (level().isClientSide()) {
-            handleEngineSound();
-        }
-
         if (this.level() instanceof ServerLevel) {
-            if (reloadCoolDown > 0) {
-                reloadCoolDown--;
-            }
-            if (reloadCoolDownBomb > 0) {
-                reloadCoolDownBomb--;
-            }
-            if (reloadCoolDownMissile > 0) {
-                reloadCoolDownMissile--;
-            }
-            handleAmmo();
+            this.handleAmmo();
         }
 
         if (this.getFirstPassenger() instanceof Player player && fireInputDown) {
@@ -307,7 +282,7 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
                     vehicleShoot(player, 0);
                 }
             } else if (this.getWeaponIndex(0) == 1) {
-                if (this.entityData.get(AMMO) > 0) {
+                if (this.entityData.get(LOADED_MISSILE) > 0 && this.entityData.get(FIRE_TIME) == 0) {
                     vehicleShoot(player, 0);
                 }
             }
@@ -441,9 +416,9 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
 
         int ammoCount = countItem(ModItems.SMALL_SHELL.get());
 
-        if ((hasItem(ModItems.AGM.get()) || hasCreativeAmmoBox) && reloadCoolDownMissile == 0 && this.getEntityData().get(LOADED_MISSILE) < 2) {
+        if ((hasItem(ModItems.AGM.get()) || hasCreativeAmmoBox) && reloadCoolDownMissile == 0 && this.getEntityData().get(LOADED_MISSILE) < 4) {
             this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) + 1);
-            reloadCoolDownMissile = 400;
+            reloadCoolDownMissile = 60;
             if (!hasCreativeAmmoBox) {
                 this.getItemStacks().stream().filter(stack -> stack.is(ModItems.AGM.get())).findFirst().ifPresent(stack -> stack.shrink(1));
             }
@@ -707,7 +682,6 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
             }
         }
     }
-
     @Override
     public SoundEvent getEngineSound() {
         return tech.vvp.vvp.init.ModSounds.F35_ENGINE.get();
@@ -802,7 +776,7 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return Mod.loc("textures/vehicle_icon/a10_icon.png");
+        return VVP.loc("textures/vehicle_icon/f35_icon.png");
     }
 
     @Override
@@ -888,7 +862,7 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
 
             Vector4f worldPosition;
 
-            if (this.getEntityData().get(LOADED_MISSILE) == 2) {
+            if (this.getEntityData().get(LOADED_MISSILE) == 4) {
                 worldPosition = transformPosition(transform, 6.63f, -1.55f, 1.83f);
             } else {
                 worldPosition = transformPosition(transform, -6.63f, -1.55f, 1.83f);
@@ -905,8 +879,8 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
 
             this.level().playSound(null, pos, ModSounds.BOMB_RELEASE.get(), SoundSource.PLAYERS, 3, 1);
 
-            if (this.getEntityData().get(LOADED_MISSILE) == 2) {
-                reloadCoolDownMissile = 175;
+            if (this.getEntityData().get(LOADED_MISSILE) == 4) {
+                reloadCoolDownMissile = 60;
             }
 
             this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) - 1);
@@ -1063,56 +1037,5 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
     public @Nullable ResourceLocation getVehicleItemIcon() {
         return
          Mod.loc("textures/gui/vehicle/type/aircraft.png");
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private void handleEngineSound() {
-        Minecraft minecraft = Minecraft.getInstance();
-        Player player = minecraft.player;
-        
-        if (player == null) return;
-        
-        // ПРОВЕРКА ЭНЕРГИИ - главное условие!
-        if (!hasEnergy()) {
-            // Если нет энергии - останавливаем звук
-            if (engineSoundInstance != null) {
-                minecraft.getSoundManager().stop(engineSoundInstance);
-                engineSoundInstance = null;
-            }
-            return;
-        }
-        
-        double distance = player.distanceTo(this);
-        float enginePower = getEnginePower();
-        float speed = (float) getDeltaMovement().horizontalDistance();
-        
-        // Условия для проигрывания звука (ТОЛЬКО при наличии энергии)
-        boolean shouldPlaySound = distance < 60.0f && 
-            (Math.abs(enginePower) > 0.01f || speed > 0.02f || distance < 15.0f);
-        
-        // Если звук должен играть, но его нет - создаем
-        if (shouldPlaySound && (engineSoundInstance == null || !minecraft.getSoundManager().isActive(engineSoundInstance))) {
-            if (engineSoundInstance != null) {
-                minecraft.getSoundManager().stop(engineSoundInstance);
-            }
-            engineSoundInstance = new VehicleEngineSoundInstance(this, getEngineSound());
-            minecraft.getSoundManager().play(engineSoundInstance);
-        }
-        
-        // Если звук не должен играть, но играет - останавливаем
-        if (!shouldPlaySound && engineSoundInstance != null) {
-            minecraft.getSoundManager().stop(engineSoundInstance);
-            engineSoundInstance = null;
-        }
-    }
-
-    @Override
-    public void remove(RemovalReason reason) {
-        // Останавливаем звук при удалении сущности
-        if (level().isClientSide() && engineSoundInstance != null) {
-            Minecraft.getInstance().getSoundManager().stop(engineSoundInstance);
-            engineSoundInstance = null;
-        }
-        super.remove(reason);
     }
 }

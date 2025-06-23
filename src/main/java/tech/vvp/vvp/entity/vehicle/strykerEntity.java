@@ -69,8 +69,6 @@ import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 // import net.minecraftforge.api.distmarker.Dist;
 // import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraft.client.Minecraft;
-import tech.vvp.vvp.client.sound.VehicleEngineSoundInstance;
 import tech.vvp.vvp.config.VehicleConfigVVP;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -84,33 +82,17 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
+    public static strykerEntity clientSpawn(PlayMessages.SpawnEntity packet, Level level) {
+        return new strykerEntity(ModEntities.STRYKER.get(), level);
+    }
+
     public strykerEntity(PlayMessages.SpawnEntity packet, Level world) {
-        this(ModEntities.STRYKER.get(), world);
+        this(ModEntities.STRYKER.get() , world);
     }
 
     public strykerEntity(EntityType<strykerEntity> type, Level world) {
         super(type, world);
     }
-
-    @OnlyIn(Dist.CLIENT)
-    private VehicleEngineSoundInstance engineSoundInstance;
-
-    public float getEnginePower() {
-        return this.entityData.get(POWER);
-    }
-
-    public boolean isEngineRunning() {
-        return Math.abs(this.entityData.get(POWER)) > 0.01f;
-    }
-
-    public boolean hasEnergy() {
-        return this.getEnergy() > 0;
-    }
-
-    public int getCurrentEnergy() {
-        return this.getEnergy();
-    }
-
 
     @Override
     public VehicleWeapon[][] initWeapons() {
@@ -198,10 +180,6 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
         super.baseTick();
 
-        if (level().isClientSide()) {
-            handleEngineSound();
-        }
-
         if (this.level() instanceof ServerLevel) {
             this.handleAmmo();
         }
@@ -240,58 +218,6 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         releaseSmokeDecoy(getTurretVector(1));
 
         this.refreshDimensions();
-    }
-    
-    @OnlyIn(Dist.CLIENT)
-    private void handleEngineSound() {
-        Minecraft minecraft = Minecraft.getInstance();
-        Player player = minecraft.player;
-        
-        if (player == null) return;
-        
-        // ПРОВЕРКА ЭНЕРГИИ - главное условие!
-        if (!hasEnergy()) {
-            // Если нет энергии - останавливаем звук
-            if (engineSoundInstance != null) {
-                minecraft.getSoundManager().stop(engineSoundInstance);
-                engineSoundInstance = null;
-            }
-            return;
-        }
-        
-        double distance = player.distanceTo(this);
-        float enginePower = getEnginePower();
-        float speed = (float) getDeltaMovement().horizontalDistance();
-        
-        // Условия для проигрывания звука (ТОЛЬКО при наличии энергии)
-        boolean shouldPlaySound = distance < 60.0f && 
-            (Math.abs(enginePower) > 0.01f || speed > 0.02f || distance < 15.0f);
-        
-        // Если звук должен играть, но его нет - создаем
-        if (shouldPlaySound && (engineSoundInstance == null || !minecraft.getSoundManager().isActive(engineSoundInstance))) {
-            if (engineSoundInstance != null) {
-                minecraft.getSoundManager().stop(engineSoundInstance);
-            }
-            engineSoundInstance = new VehicleEngineSoundInstance(this, getEngineSound());
-            minecraft.getSoundManager().play(engineSoundInstance);
-        }
-        
-        // Если звук не должен играть, но играет - останавливаем
-        if (!shouldPlaySound && engineSoundInstance != null) {
-            minecraft.getSoundManager().stop(engineSoundInstance);
-            engineSoundInstance = null;
-        }
-    }
-    
-
-    @Override
-    public void remove(RemovalReason reason) {
-        // Останавливаем звук при удалении сущности
-        if (level().isClientSide() && engineSoundInstance != null) {
-            Minecraft.getInstance().getSoundManager().stop(engineSoundInstance);
-            engineSoundInstance = null;
-        }
-        super.remove(reason);
     }
 
 
@@ -365,8 +291,6 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
                     Mod.PACKET_HANDLER.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new ShakeClientMessage(6, 5, 9, this.getX(), this.getEyeY(), this.getZ()));
                 }
             }
-
-            reloadCoolDown = 80;
 
             this.entityData.set(CANNON_RECOIL_TIME, 40);
             this.entityData.set(YAW, getTurretYRot());
@@ -696,7 +620,7 @@ public class strykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/stryker_icon.png");
+        return VVP.loc("textures/vehicle_icon/stryker_haki_icon.png");
     }
 
     @OnlyIn(Dist.CLIENT)

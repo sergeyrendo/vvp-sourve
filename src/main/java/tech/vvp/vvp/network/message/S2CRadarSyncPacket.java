@@ -18,7 +18,7 @@ public class S2CRadarSyncPacket {
     }
 
     public S2CRadarSyncPacket(FriendlyByteBuf buf) {
-        int size = buf.readVarInt();
+        int size = buf.readInt();
         this.targets = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             this.targets.add(new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()));
@@ -26,7 +26,7 @@ public class S2CRadarSyncPacket {
     }
 
     public static void buffer(S2CRadarSyncPacket message, FriendlyByteBuf buf) {
-        buf.writeVarInt(message.targets.size());
+        buf.writeInt(message.targets.size());
         for (Vec3 target : message.targets) {
             buf.writeDouble(target.x);
             buf.writeDouble(target.y);

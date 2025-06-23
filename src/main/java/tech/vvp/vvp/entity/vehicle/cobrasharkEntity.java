@@ -56,7 +56,6 @@ import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.client.sound.VehicleEngineSoundInstance;
 import tech.vvp.vvp.config.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
 import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
@@ -102,24 +101,10 @@ public class cobrasharkEntity extends ContainerMobileVehicleEntity implements Ge
         super(type, world);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private VehicleEngineSoundInstance engineSoundInstance;
-
-    public float getEnginePower() {
-        return this.entityData.get(POWER);
+    public static cobrasharkEntity clientSpawn(PlayMessages.SpawnEntity packet, Level level) {
+        return new cobrasharkEntity(ModEntities.COBRASHARK.get(), level);
     }
 
-    public boolean isEngineRunning() {
-        return Math.abs(this.entityData.get(POWER)) > 0.01f;
-    }
-
-    public boolean hasEnergy() {
-        return this.getEnergy() > 0;
-    }
-
-    public int getCurrentEnergy() {
-        return this.getEnergy();
-    }
 
     private void handleRadar() {
         // Эта часть остается без изменений
@@ -240,10 +225,6 @@ public class cobrasharkEntity extends ContainerMobileVehicleEntity implements Ge
             }
             handleAmmo();
         }
-
-        // if (this.level().isClientSide()) {
-        //     handleEngineSound();
-        // }
 
         if (this.onGround()) {
             this.setDeltaMovement(this.getDeltaMovement().multiply(0.8, 1, 0.8));
@@ -865,56 +846,5 @@ public class cobrasharkEntity extends ContainerMobileVehicleEntity implements Ge
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
         return Mod.loc("textures/gui/vehicle/type/aircraft.png");
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private void handleEngineSound() {
-        Minecraft minecraft = Minecraft.getInstance();
-        Player player = minecraft.player;
-        
-        if (player == null) return;
-        
-        // ПРОВЕРКА ЭНЕРГИИ - главное условие!
-        if (!hasEnergy()) {
-            // Если нет энергии - останавливаем звук
-            if (engineSoundInstance != null) {
-                minecraft.getSoundManager().stop(engineSoundInstance);
-                engineSoundInstance = null;
-            }
-            return;
-        }
-        
-        double distance = player.distanceTo(this);
-        float enginePower = getEnginePower();
-        float speed = (float) getDeltaMovement().horizontalDistance();
-        
-        // Условия для проигрывания звука (ТОЛЬКО при наличии энергии)
-        boolean shouldPlaySound = distance < 60.0f && 
-            (Math.abs(enginePower) > 0.01f || speed > 0.02f || distance < 15.0f);
-        
-        // Если звук должен играть, но его нет - создаем
-        if (shouldPlaySound && (engineSoundInstance == null || !minecraft.getSoundManager().isActive(engineSoundInstance))) {
-            if (engineSoundInstance != null) {
-                minecraft.getSoundManager().stop(engineSoundInstance);
-            }
-            engineSoundInstance = new VehicleEngineSoundInstance(this, getEngineSound());
-            minecraft.getSoundManager().play(engineSoundInstance);
-        }
-        
-        // Если звук не должен играть, но играет - останавливаем
-        if (!shouldPlaySound && engineSoundInstance != null) {
-            minecraft.getSoundManager().stop(engineSoundInstance);
-            engineSoundInstance = null;
-        }
-    }
-
-    @Override
-    public void remove(RemovalReason reason) {
-        // Останавливаем звук при удалении сущности
-        if (level().isClientSide() && engineSoundInstance != null) {
-            Minecraft.getInstance().getSoundManager().stop(engineSoundInstance);
-            engineSoundInstance = null;
-        }
-        super.remove(reason);
     }
 }

@@ -66,7 +66,6 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 // import net.minecraftforge.api.distmarker.Dist;
 // import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.client.Minecraft;
-import tech.vvp.vvp.client.sound.VehicleEngineSoundInstance;
 import tech.vvp.vvp.config.VehicleConfigVVP;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -86,23 +85,8 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
         super(type, world);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private VehicleEngineSoundInstance engineSoundInstance;
-
-    public float getEnginePower() {
-        return this.entityData.get(POWER);
-    }
-
-    public boolean isEngineRunning() {
-        return Math.abs(this.entityData.get(POWER)) > 0.01f;
-    }
-
-    public boolean hasEnergy() {
-        return this.getEnergy() > 0;
-    }
-
-    public int getCurrentEnergy() {
-        return this.getEnergy();
+    public static btr80aEntity clientSpawn(PlayMessages.SpawnEntity packet, Level level) {
+        return new btr80aEntity(ModEntities.BTR80A.get(), level);
     }
 
 
@@ -183,10 +167,6 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
 
         super.baseTick();
 
-        if (level().isClientSide()) {
-            handleEngineSound();
-        }
-
         if (this.level() instanceof ServerLevel) {
             this.handleAmmo();
         }
@@ -223,59 +203,6 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
         this.refreshDimensions();
     }
     
-    @OnlyIn(Dist.CLIENT)
-    private void handleEngineSound() {
-        Minecraft minecraft = Minecraft.getInstance();
-        Player player = minecraft.player;
-        
-        if (player == null) return;
-        
-        // ПРОВЕРКА ЭНЕРГИИ - главное условие!
-        if (!hasEnergy()) {
-            // Если нет энергии - останавливаем звук
-            if (engineSoundInstance != null) {
-                minecraft.getSoundManager().stop(engineSoundInstance);
-                engineSoundInstance = null;
-            }
-            return;
-        }
-        
-        double distance = player.distanceTo(this);
-        float enginePower = getEnginePower();
-        float speed = (float) getDeltaMovement().horizontalDistance();
-        
-        // Условия для проигрывания звука (ТОЛЬКО при наличии энергии)
-        boolean shouldPlaySound = distance < 60.0f && 
-            (Math.abs(enginePower) > 0.01f || speed > 0.02f || distance < 15.0f);
-        
-        // Если звук должен играть, но его нет - создаем
-        if (shouldPlaySound && (engineSoundInstance == null || !minecraft.getSoundManager().isActive(engineSoundInstance))) {
-            if (engineSoundInstance != null) {
-                minecraft.getSoundManager().stop(engineSoundInstance);
-            }
-            engineSoundInstance = new VehicleEngineSoundInstance(this, getEngineSound());
-            minecraft.getSoundManager().play(engineSoundInstance);
-        }
-        
-        // Если звук не должен играть, но играет - останавливаем
-        if (!shouldPlaySound && engineSoundInstance != null) {
-            minecraft.getSoundManager().stop(engineSoundInstance);
-            engineSoundInstance = null;
-        }
-    }
-    
-
-    @Override
-    public void remove(RemovalReason reason) {
-        // Останавливаем звук при удалении сущности
-        if (level().isClientSide() && engineSoundInstance != null) {
-            Minecraft.getInstance().getSoundManager().stop(engineSoundInstance);
-            engineSoundInstance = null;
-        }
-        super.remove(reason);
-    }
-
-
     @Override
     public boolean canCollideHardBlock() {
         return getDeltaMovement().horizontalDistance() > 0.09 || Mth.abs(this.entityData.get(POWER)) > 0.15;
@@ -357,8 +284,8 @@ public class btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
 
         } else if (getWeaponIndex(0) == 1) {
             if (this.cannotFireCoax) return;
-            float x = -0.3f;
-            float y = 0.08f;
+            float x = -0.5f;
+            float y = 0.2f;
             float z = 0.7f;
 
             Vector4f worldPosition = transformPosition(transform, x, y, z);

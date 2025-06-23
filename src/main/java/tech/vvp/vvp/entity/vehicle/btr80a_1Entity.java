@@ -66,7 +66,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 // import net.minecraftforge.api.distmarker.Dist;
 // import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.client.Minecraft;
-import tech.vvp.vvp.client.sound.VehicleEngineSoundInstance;
+import tech.vvp.vvp.config.VehicleConfigVVP;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Comparator;
@@ -77,8 +77,6 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-
-
     public btr80a_1Entity(PlayMessages.SpawnEntity packet, Level world) {
         this(ModEntities.BTR_80A_1.get(), world);
     }
@@ -87,23 +85,8 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
         super(type, world);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private VehicleEngineSoundInstance engineSoundInstance;
-
-    public float getEnginePower() {
-        return this.entityData.get(POWER);
-    }
-
-    public boolean isEngineRunning() {
-        return Math.abs(this.entityData.get(POWER)) > 0.01f;
-    }
-
-    public boolean hasEnergy() {
-        return this.getEnergy() > 0;
-    }
-
-    public int getCurrentEnergy() {
-        return this.getEnergy();
+    public static btr80a_1Entity clientSpawn(PlayMessages.SpawnEntity packet, Level level) {
+        return new btr80a_1Entity(ModEntities.BTR_80A_1.get(), level);
     }
 
 
@@ -112,15 +95,15 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
                         new SmallCannonShellWeapon()
-                                .damage(VehicleConfig.BMP_2_CANNON_DAMAGE.get())
-                                .explosionDamage(VehicleConfig.BMP_2_CANNON_EXPLOSION_DAMAGE.get())
-                                .explosionRadius(VehicleConfig.BMP_2_CANNON_EXPLOSION_RADIUS.get().floatValue())
-                                .sound(ModSounds.INTO_MISSILE.get())
-                                .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_30mm.png"))
-                                .sound1p(ModSounds.BMP_CANNON_FIRE_1P.get())
-                                .sound3p(ModSounds.BMP_CANNON_FIRE_3P.get())
-                                .sound3pFar(ModSounds.LAV_CANNON_FAR.get())
-                                .sound3pVeryFar(ModSounds.LAV_CANNON_VERYFAR.get()),
+                        .damage(VehicleConfig.BMP_2_CANNON_DAMAGE.get())
+                        .explosionDamage(VehicleConfig.BMP_2_CANNON_EXPLOSION_DAMAGE.get())
+                        .explosionRadius(VehicleConfig.BMP_2_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                        .sound(ModSounds.INTO_MISSILE.get())
+                        .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_30mm.png"))
+                        .sound1p(ModSounds.BMP_CANNON_FIRE_1P.get())
+                        .sound3p(ModSounds.BMP_CANNON_FIRE_3P.get())
+                        .sound3pFar(ModSounds.LAV_CANNON_FAR.get())
+                        .sound3pVeryFar(ModSounds.LAV_CANNON_VERYFAR.get()),
                         new ProjectileWeapon()
                                 .damage(VehicleConfig.LAV_150_MACHINE_GUN_DAMAGE.get())
                                 .headShot(2)
@@ -184,10 +167,6 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
 
         super.baseTick();
 
-        if (level().isClientSide()) {
-            handleEngineSound();
-        }
-
         if (this.level() instanceof ServerLevel) {
             this.handleAmmo();
         }
@@ -224,59 +203,6 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
         this.refreshDimensions();
     }
     
-    @OnlyIn(Dist.CLIENT)
-    private void handleEngineSound() {
-        Minecraft minecraft = Minecraft.getInstance();
-        Player player = minecraft.player;
-        
-        if (player == null) return;
-        
-        // ПРОВЕРКА ЭНЕРГИИ - главное условие!
-        if (!hasEnergy()) {
-            // Если нет энергии - останавливаем звук
-            if (engineSoundInstance != null) {
-                minecraft.getSoundManager().stop(engineSoundInstance);
-                engineSoundInstance = null;
-            }
-            return;
-        }
-        
-        double distance = player.distanceTo(this);
-        float enginePower = getEnginePower();
-        float speed = (float) getDeltaMovement().horizontalDistance();
-        
-        // Условия для проигрывания звука (ТОЛЬКО при наличии энергии)
-        boolean shouldPlaySound = distance < 60.0f && 
-            (Math.abs(enginePower) > 0.01f || speed > 0.02f || distance < 15.0f);
-        
-        // Если звук должен играть, но его нет - создаем
-        if (shouldPlaySound && (engineSoundInstance == null || !minecraft.getSoundManager().isActive(engineSoundInstance))) {
-            if (engineSoundInstance != null) {
-                minecraft.getSoundManager().stop(engineSoundInstance);
-            }
-            engineSoundInstance = new VehicleEngineSoundInstance(this, getEngineSound());
-            minecraft.getSoundManager().play(engineSoundInstance);
-        }
-        
-        // Если звук не должен играть, но играет - останавливаем
-        if (!shouldPlaySound && engineSoundInstance != null) {
-            minecraft.getSoundManager().stop(engineSoundInstance);
-            engineSoundInstance = null;
-        }
-    }
-    
-
-    @Override
-    public void remove(RemovalReason reason) {
-        // Останавливаем звук при удалении сущности
-        if (level().isClientSide() && engineSoundInstance != null) {
-            Minecraft.getInstance().getSoundManager().stop(engineSoundInstance);
-            engineSoundInstance = null;
-        }
-        super.remove(reason);
-    }
-
-
     @Override
     public boolean canCollideHardBlock() {
         return getDeltaMovement().horizontalDistance() > 0.09 || Mth.abs(this.entityData.get(POWER)) > 0.15;
@@ -358,8 +284,8 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
 
         } else if (getWeaponIndex(0) == 1) {
             if (this.cannotFireCoax) return;
-            float x = -0.3f;
-            float y = 0.08f;
+            float x = -0.5f;
+            float y = 0.2f;
             float z = 0.7f;
 
             Vector4f worldPosition = transformPosition(transform, x, y, z);
@@ -423,11 +349,11 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
         if (rightInputDown) {
             this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.1f);
         } else if (this.leftInputDown) {
-            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.1f);
+            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.2f);
         }
 
         if (this.forwardInputDown || this.backInputDown) {
-            this.consumeEnergy(VehicleConfig.LAV_150_ENERGY_COST.get());
+            this.consumeEnergy(VehicleConfigVVP.TYPHOON_ENERGY_COST.get());
         }
 
         this.entityData.set(POWER, this.entityData.get(POWER) * (upInputDown ? 0.5f : (rightInputDown || leftInputDown) ? 0.977f : 0.99f));
@@ -670,7 +596,7 @@ public class btr80a_1Entity extends ContainerMobileVehicleEntity implements GeoE
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/btr80a_1_icon.png");
+        return VVP.loc("textures/vehicle_icon/btr80a_icon.png");
     }
 
     @OnlyIn(Dist.CLIENT)
