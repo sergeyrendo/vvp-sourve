@@ -1,7 +1,7 @@
 package tech.vvp.vvp.client.renderer.entity;
 
 import tech.vvp.vvp.client.model.cobrasharkModel;
-import tech.vvp.vvp.entity.vehicle.cobrasharkEntity;
+import tech.vvp.vvp.entity.vehicle.CobrasharkEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -15,7 +15,7 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class cobrasharkRenderer extends GeoEntityRenderer<cobrasharkEntity> {
+public class cobrasharkRenderer extends GeoEntityRenderer<CobrasharkEntity> {
 
     public cobrasharkRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new cobrasharkModel());
@@ -23,12 +23,12 @@ public class cobrasharkRenderer extends GeoEntityRenderer<cobrasharkEntity> {
     }
 
     @Override
-    public RenderType getRenderType(cobrasharkEntity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(CobrasharkEntity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 
     @Override
-    public void preRender(PoseStack poseStack, cobrasharkEntity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
+    public void preRender(PoseStack poseStack, CobrasharkEntity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
                           float blue, float alpha) {
         float scale = 1f;
         this.scaleHeight = scale;
@@ -37,7 +37,7 @@ public class cobrasharkRenderer extends GeoEntityRenderer<cobrasharkEntity> {
     }
 
     @Override
-    public void render(cobrasharkEntity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
+    public void render(CobrasharkEntity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
         Vec3 root = new Vec3(0, 1.45, 0);
         poseStack.rotateAround(Axis.YP.rotationDegrees(-entityYaw), (float) root.x, (float) root.y, (float) root.z);
@@ -48,7 +48,7 @@ public class cobrasharkRenderer extends GeoEntityRenderer<cobrasharkEntity> {
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, cobrasharkEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(PoseStack poseStack, CobrasharkEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         String name = bone.getName();
         if (name.equals("propeller")) {
             bone.setRotY(Mth.lerp(partialTick, animatable.propellerRotO, animatable.getPropellerRot()));

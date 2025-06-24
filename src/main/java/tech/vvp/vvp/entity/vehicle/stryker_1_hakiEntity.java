@@ -31,6 +31,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -43,6 +44,9 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
@@ -78,22 +82,46 @@ import java.util.Comparator;
 
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
-public class stryker_1_hakiEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity {
+public class Stryker_1_hakiEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity {
 
-    public static final EntityDataAccessor<Integer> LOADED_AP = SynchedEntityData.defineId(stryker_1_hakiEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> LOADED_AP = SynchedEntityData.defineId(Stryker_1_hakiEntity.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public stryker_1_hakiEntity(PlayMessages.SpawnEntity packet, Level world) {
+    public Stryker_1_hakiEntity(PlayMessages.SpawnEntity packet, Level world) {
         this(ModEntities.STRYKER_1_HAKI.get(), world);
     }
     
-    public stryker_1_hakiEntity(EntityType<stryker_1_hakiEntity> type, Level world) {
+    public Stryker_1_hakiEntity(EntityType<Stryker_1_hakiEntity> type, Level world) {
         super(type, world);
+        this.setMaxUpStep(1.5f);
     }
 
-    public static stryker_1_hakiEntity clientSpawn(PlayMessages.SpawnEntity packet, Level level) {
-        return new stryker_1_hakiEntity(ModEntities.STRYKER_1_HAKI.get(), level);
+    // Добавляем статический метод для создания атрибутов
+    public static AttributeSupplier.Builder createAttributes() {
+        return Mob.createMobAttributes()
+                .add(Attributes.MAX_HEALTH, 100.0D)  // Тигр легче Абрамса
+                .add(Attributes.MOVEMENT_SPEED, 1.0D) // Тигр быстрее
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.8D)
+                .add(Attributes.ARMOR, 10.0D)
+                .add(Attributes.ARMOR_TOUGHNESS, 5.0D);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Stryker_1_hakiEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
+        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
+        if (entityTypeFromPacket == null) {
+            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
+            return null; 
+        }
+        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
+             Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
+             return null;
+        }
+
+        EntityType<Stryker_1_hakiEntity> castedEntityType = (EntityType<Stryker_1_hakiEntity>) entityTypeFromPacket;
+        Stryker_1_hakiEntity entity = new Stryker_1_hakiEntity(castedEntityType, world);
+        return entity;
     }
 
 
@@ -533,7 +561,7 @@ public class stryker_1_hakiEntity extends ContainerMobileVehicleEntity implement
         this.clampRotation(entity);
     }
 
-    private PlayState firePredicate(AnimationState<stryker_1_hakiEntity> event) {
+    private PlayState firePredicate(AnimationState<Stryker_1_hakiEntity> event) {
         if (this.entityData.get(FIRE_ANIM) > 1 && getWeaponIndex(0) == 0) {
             return event.setAndContinue(RawAnimation.begin().thenPlay("animation.lav.fire"));
         }

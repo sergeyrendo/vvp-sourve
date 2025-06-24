@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.entity.vehicle.mi24Entity;
+import tech.vvp.vvp.entity.vehicle.Mi24Entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
@@ -118,7 +118,7 @@ public class RadarHud {
 
                 // Примечание: фактическая дальность обнаружения по-прежнему зависит от mi24Entity.RADAR_RANGE.
                 // Если там стоит 150, то цели дальше 150 блоков не появятся, даже если радар показывает 300.
-                if (distance > mi24Entity.RADAR_RANGE) continue;
+                if (distance > Mi24Entity.RADAR_RANGE) continue;
 
                 float playerYaw = (player.getViewYRot(1.0f) % 360 + 360) % 360;
                 double angleToTarget = Math.toDegrees(Math.atan2(relativePos.z, relativePos.x)) - 90;

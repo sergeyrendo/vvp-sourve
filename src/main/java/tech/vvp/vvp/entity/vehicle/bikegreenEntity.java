@@ -55,11 +55,11 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.Mob;
 
-public class bikegreenEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, ArmedVehicleEntity {
+public class BikegreenEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, ArmedVehicleEntity {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public bikegreenEntity(EntityType<? extends bikegreenEntity> type, Level world) {
+    public BikegreenEntity(EntityType<? extends BikegreenEntity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
     }
@@ -75,7 +75,7 @@ public class bikegreenEntity extends ContainerMobileVehicleEntity implements Geo
     }
 
     @SuppressWarnings("unchecked")
-    public static bikegreenEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
+    public static BikegreenEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
         EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
         if (entityTypeFromPacket == null) {
             Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
@@ -86,8 +86,8 @@ public class bikegreenEntity extends ContainerMobileVehicleEntity implements Geo
              return null;
         }
 
-        EntityType<bikegreenEntity> castedEntityType = (EntityType<bikegreenEntity>) entityTypeFromPacket;
-        bikegreenEntity entity = new bikegreenEntity(castedEntityType, world);
+        EntityType<BikegreenEntity> castedEntityType = (EntityType<BikegreenEntity>) entityTypeFromPacket;
+        BikegreenEntity entity = new BikegreenEntity(castedEntityType, world);
         return entity;
     }
 
@@ -314,7 +314,7 @@ public class bikegreenEntity extends ContainerMobileVehicleEntity implements Geo
         // Ничего не делаем здесь, чтобы предотвратить вращение турели при повороте головы пассажира
     }
 
-    private PlayState idlePredicate(AnimationState<bikegreenEntity> event) {
+    private PlayState idlePredicate(AnimationState<BikegreenEntity> event) {
         if (Mth.abs((float)this.getDeltaMovement().horizontalDistanceSqr()) > 0.001 || Mth.abs(this.entityData.get(POWER)) > 0.05) {
             return event.setAndContinue(RawAnimation.begin().thenLoop("animation.lav.idle"));
         }

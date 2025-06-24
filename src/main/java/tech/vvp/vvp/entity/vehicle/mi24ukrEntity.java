@@ -18,6 +18,7 @@ import com.mojang.math.Axis;
 import it.unimi.dsi.fastutil.Pair;
 // import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -31,6 +32,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
@@ -64,11 +68,11 @@ import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPit
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
-public class mi24ukrEntity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity {
+public class Mi24ukrEntity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(mi24ukrEntity.class, EntityDataSerializers.FLOAT);
-    public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(mi24ukrEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(Mi24ukrEntity.class, EntityDataSerializers.FLOAT);
+    public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(Mi24ukrEntity.class, EntityDataSerializers.INT);
 
     public static final int RADAR_RANGE = 150;
 
@@ -82,16 +86,40 @@ public class mi24ukrEntity extends ContainerMobileVehicleEntity implements GeoEn
     public float delta_x;
     public float delta_y;
 
-    public mi24ukrEntity(PlayMessages.SpawnEntity packet, Level world) {
+    public Mi24ukrEntity(PlayMessages.SpawnEntity packet, Level world) {
         this(ModEntities.MI24UKR.get(), world);
     }
 
-    public mi24ukrEntity(EntityType<mi24ukrEntity> type, Level world) {
+    public Mi24ukrEntity(EntityType<Mi24ukrEntity> type, Level world) {
         super(type, world);
+        this.setMaxUpStep(1.5f);
     }
 
-    public static mi24ukrEntity clientSpawn(PlayMessages.SpawnEntity packet, Level level) {
-        return new mi24ukrEntity(ModEntities.MI24UKR.get(), level);
+    // Добавляем статический метод для создания атрибутов
+    public static AttributeSupplier.Builder createAttributes() {
+        return Mob.createMobAttributes()
+                .add(Attributes.MAX_HEALTH, 100.0D)  // Тигр легче Абрамса
+                .add(Attributes.MOVEMENT_SPEED, 1.0D) // Тигр быстрее
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.8D)
+                .add(Attributes.ARMOR, 10.0D)
+                .add(Attributes.ARMOR_TOUGHNESS, 5.0D);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Mi24ukrEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
+        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
+        if (entityTypeFromPacket == null) {
+            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
+            return null; 
+        }
+        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
+             Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
+             return null;
+        }
+
+        EntityType<Mi24ukrEntity> castedEntityType = (EntityType<Mi24ukrEntity>) entityTypeFromPacket;
+        Mi24ukrEntity entity = new Mi24ukrEntity(castedEntityType, world);
+        return entity;
     }
 
     private void handleRadar() {

@@ -55,11 +55,11 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.Mob;
 
-public class m997_greenEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, ArmedVehicleEntity {
+public class M997_greenEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, ArmedVehicleEntity {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public m997_greenEntity(EntityType<? extends m997_greenEntity> type, Level world) {
+    public M997_greenEntity(EntityType<? extends M997_greenEntity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
     }
@@ -68,14 +68,14 @@ public class m997_greenEntity extends ContainerMobileVehicleEntity implements Ge
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 100.0D)  // Тигр легче Абрамса
-                .add(Attributes.MOVEMENT_SPEED, 0.35D) // Тигр быстрее
+                .add(Attributes.MOVEMENT_SPEED, 1.0D) // Тигр быстрее
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.8D)
                 .add(Attributes.ARMOR, 10.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 5.0D);
     }
 
     @SuppressWarnings("unchecked")
-    public static m997_greenEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
+    public static M997_greenEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
         EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
         if (entityTypeFromPacket == null) {
             Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
@@ -86,8 +86,8 @@ public class m997_greenEntity extends ContainerMobileVehicleEntity implements Ge
              return null;
         }
 
-        EntityType<m997_greenEntity> castedEntityType = (EntityType<m997_greenEntity>) entityTypeFromPacket;
-        m997_greenEntity entity = new m997_greenEntity(castedEntityType, world);
+        EntityType<M997_greenEntity> castedEntityType = (EntityType<M997_greenEntity>) entityTypeFromPacket;
+        M997_greenEntity entity = new M997_greenEntity(castedEntityType, world);
         return entity;
     }
 
@@ -319,7 +319,7 @@ public class m997_greenEntity extends ContainerMobileVehicleEntity implements Ge
         // Ничего не делаем здесь, чтобы предотвратить вращение турели при повороте головы пассажира
     }
 
-    private PlayState idlePredicate(AnimationState<m997_greenEntity> event) {
+    private PlayState idlePredicate(AnimationState<M997_greenEntity> event) {
         if (Mth.abs((float)this.getDeltaMovement().horizontalDistanceSqr()) > 0.001 || Mth.abs(this.entityData.get(POWER)) > 0.05) {
             return event.setAndContinue(RawAnimation.begin().thenLoop("animation.lav.idle"));
         }

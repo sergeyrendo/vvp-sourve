@@ -1,22 +1,22 @@
 package tech.vvp.vvp.client.model;
 
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.entity.vehicle.mi24ukrEntity;
+import tech.vvp.vvp.entity.vehicle.Mi24ukrEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import software.bernie.geckolib.model.GeoModel;
 
-public class mi24ukrModel extends GeoModel<mi24ukrEntity> {
+public class mi24ukrModel extends GeoModel<Mi24ukrEntity> {
 
     @Override
-    public ResourceLocation getAnimationResource(mi24ukrEntity entity) {
+    public ResourceLocation getAnimationResource(Mi24ukrEntity entity) {
         return null;
 //        return ModUtils.loc("animations/wheel_chair.animation.json");
     }
 
     @Override
-    public ResourceLocation getModelResource(mi24ukrEntity entity) {
+    public ResourceLocation getModelResource(Mi24ukrEntity entity) {
         Player player = Minecraft.getInstance().player;
 
         int distance = 0;
@@ -37,7 +37,7 @@ public class mi24ukrModel extends GeoModel<mi24ukrEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureResource(mi24ukrEntity entity) {
+    public ResourceLocation getTextureResource(Mi24ukrEntity entity) {
         return VVP.loc("textures/entity/mi24ukr.png");
     }
 }

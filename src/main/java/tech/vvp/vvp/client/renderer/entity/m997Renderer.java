@@ -1,7 +1,7 @@
 package tech.vvp.vvp.client.renderer.entity;
 
 import tech.vvp.vvp.client.model.m997Model;
-import tech.vvp.vvp.entity.vehicle.m997Entity;
+import tech.vvp.vvp.entity.vehicle.M997Entity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -19,7 +19,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.base.MobileVehicleEntity.YAW;
 
-public class m997Renderer extends GeoEntityRenderer<m997Entity> {
+public class m997Renderer extends GeoEntityRenderer<M997Entity> {
 
     public m997Renderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new m997Model());
@@ -28,12 +28,12 @@ public class m997Renderer extends GeoEntityRenderer<m997Entity> {
     }
 
     @Override
-    public RenderType getRenderType(m997Entity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(M997Entity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 
     @Override
-    public void preRender(PoseStack poseStack, m997Entity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
+    public void preRender(PoseStack poseStack, M997Entity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
                           float blue, float alpha) {
         float scale = 1f;
         this.scaleHeight = scale;
@@ -42,7 +42,7 @@ public class m997Renderer extends GeoEntityRenderer<m997Entity> {
     }
 
     @Override
-    public void render(m997Entity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
+    public void render(M997Entity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(-Mth.lerp(partialTicks, entityIn.yRotO, entityIn.getYRot())));
         poseStack.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, entityIn.xRotO, entityIn.getXRot())));
@@ -52,7 +52,7 @@ public class m997Renderer extends GeoEntityRenderer<m997Entity> {
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, m997Entity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(PoseStack poseStack, M997Entity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         String name = bone.getName();
         if (name.equals("wheel1")) {
             bone.setRotY(Mth.lerp(partialTick, animatable.rudderRotO, animatable.getRudderRot()));
@@ -144,7 +144,7 @@ public class m997Renderer extends GeoEntityRenderer<m997Entity> {
     }
 
     @Override
-    protected float getDeathMaxRotation(m997Entity entityLivingBaseIn) {
+    protected float getDeathMaxRotation(M997Entity entityLivingBaseIn) {
         return 0.0F;
     }
 }

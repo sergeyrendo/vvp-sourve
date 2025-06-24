@@ -1,7 +1,7 @@
 package tech.vvp.vvp.client.renderer.entity;
 
 import tech.vvp.vvp.client.model.cobraModel;
-import tech.vvp.vvp.entity.vehicle.cobraEntity;
+import tech.vvp.vvp.entity.vehicle.CobraEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -14,9 +14,9 @@ import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import static tech.vvp.vvp.entity.vehicle.cobraEntity.LOADED_MISSILE;
+import static tech.vvp.vvp.entity.vehicle.CobraEntity.LOADED_MISSILE;
 
-public class cobraRenderer extends GeoEntityRenderer<cobraEntity> {
+public class cobraRenderer extends GeoEntityRenderer<CobraEntity> {
 
     public cobraRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new cobraModel());
@@ -24,12 +24,12 @@ public class cobraRenderer extends GeoEntityRenderer<cobraEntity> {
     }
 
     @Override
-    public RenderType getRenderType(cobraEntity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(CobraEntity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 
     @Override
-    public void preRender(PoseStack poseStack, cobraEntity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
+    public void preRender(PoseStack poseStack, CobraEntity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
                           float blue, float alpha) {
         float scale = 1f;
         this.scaleHeight = scale;
@@ -38,7 +38,7 @@ public class cobraRenderer extends GeoEntityRenderer<cobraEntity> {
     }
 
     @Override
-    public void render(cobraEntity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
+    public void render(CobraEntity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
         Vec3 root = new Vec3(0, 1.45, 0);
         poseStack.rotateAround(Axis.YP.rotationDegrees(-entityYaw), (float) root.x, (float) root.y, (float) root.z);
@@ -49,7 +49,7 @@ public class cobraRenderer extends GeoEntityRenderer<cobraEntity> {
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, cobraEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(PoseStack poseStack, CobraEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         String name = bone.getName();
         if (name.equals("propeller")) {
             bone.setRotY(Mth.lerp(partialTick, animatable.propellerRotO, animatable.getPropellerRot()));

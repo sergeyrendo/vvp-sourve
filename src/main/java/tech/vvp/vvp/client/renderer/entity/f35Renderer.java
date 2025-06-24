@@ -1,7 +1,7 @@
 package tech.vvp.vvp.client.renderer.entity;
 
 import tech.vvp.vvp.client.model.f35Model;
-import tech.vvp.vvp.entity.vehicle.f35Entity;
+import tech.vvp.vvp.entity.vehicle.F35Entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -18,7 +18,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import static com.atsuishio.superbwarfare.entity.vehicle.A10Entity.LOADED_MISSILE;
 import static com.atsuishio.superbwarfare.entity.vehicle.base.MobileVehicleEntity.GEAR_ROT;
 
-public class f35Renderer extends GeoEntityRenderer<f35Entity> {
+public class f35Renderer extends GeoEntityRenderer<F35Entity> {
 
     public f35Renderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new f35Model());
@@ -26,12 +26,12 @@ public class f35Renderer extends GeoEntityRenderer<f35Entity> {
     }
 
     @Override
-    public RenderType getRenderType(f35Entity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(F35Entity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 
     @Override
-    public void preRender(PoseStack poseStack, f35Entity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
+    public void preRender(PoseStack poseStack, F35Entity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
                           float blue, float alpha) {
         float scale = 1f;
         this.scaleHeight = scale;
@@ -40,7 +40,7 @@ public class f35Renderer extends GeoEntityRenderer<f35Entity> {
     }
 
     @Override
-    public void render(f35Entity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
+    public void render(F35Entity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
         Vec3 root = new Vec3(0, 2.375, 0);
         poseStack.rotateAround(Axis.YP.rotationDegrees(-entityYaw), (float) root.x, (float) root.y, (float) root.z);
@@ -51,7 +51,7 @@ public class f35Renderer extends GeoEntityRenderer<f35Entity> {
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, f35Entity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(PoseStack poseStack, F35Entity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         String name = bone.getName();
         if (name.equals("gear2") || name.equals("gear3")) {
             bone.setRotX(Mth.lerp(partialTick, animatable.gearRotO, animatable.getEntityData().get(GEAR_ROT)) * Mth.DEG_TO_RAD);

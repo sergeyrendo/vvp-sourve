@@ -2,7 +2,7 @@ package tech.vvp.vvp.client.renderer.entity;
 
 // import tech.vvp.vvp.client.layer.vehicle.btr80aLayer;
 import tech.vvp.vvp.client.model.btr80aModel;
-import tech.vvp.vvp.entity.vehicle.btr80aEntity;
+import tech.vvp.vvp.entity.vehicle.Btr80aEntity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -20,7 +20,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.base.MobileVehicleEntity.YAW;
 
-public class btr80aRenderer extends GeoEntityRenderer<btr80aEntity> {
+public class btr80aRenderer extends GeoEntityRenderer<Btr80aEntity> {
 
     public btr80aRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new btr80aModel());
@@ -28,12 +28,12 @@ public class btr80aRenderer extends GeoEntityRenderer<btr80aEntity> {
     }
 
     @Override
-    public RenderType getRenderType(btr80aEntity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(Btr80aEntity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 
     @Override
-    public void preRender(PoseStack poseStack, btr80aEntity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
+    public void preRender(PoseStack poseStack, Btr80aEntity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
                           float blue, float alpha) {
         float scale = 1f;
         this.scaleHeight = scale;
@@ -42,7 +42,7 @@ public class btr80aRenderer extends GeoEntityRenderer<btr80aEntity> {
     }
 
     @Override
-    public void render(btr80aEntity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
+    public void render(Btr80aEntity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(-Mth.lerp(partialTicks, entityIn.yRotO, entityIn.getYRot())));
         poseStack.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, entityIn.xRotO, entityIn.getXRot())));
@@ -52,7 +52,7 @@ public class btr80aRenderer extends GeoEntityRenderer<btr80aEntity> {
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, btr80aEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(PoseStack poseStack, Btr80aEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         String name = bone.getName();
         if (name.equals("wheel1")) {
             bone.setRotY(Mth.lerp(partialTick, animatable.rudderRotO, animatable.getRudderRot()));
@@ -149,7 +149,7 @@ public class btr80aRenderer extends GeoEntityRenderer<btr80aEntity> {
     }
 
     @Override
-    protected float getDeathMaxRotation(btr80aEntity entityLivingBaseIn) {
+    protected float getDeathMaxRotation(Btr80aEntity entityLivingBaseIn) {
         return 0.0F;
     }
 }

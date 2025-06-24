@@ -1,7 +1,7 @@
 package tech.vvp.vvp.client.renderer.entity;
 
 import tech.vvp.vvp.client.model.bikeredModel;
-import tech.vvp.vvp.entity.vehicle.bikeredEntity;
+import tech.vvp.vvp.entity.vehicle.BikeredEntity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -19,7 +19,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.base.MobileVehicleEntity.YAW;
 
-public class bikeredRenderer extends GeoEntityRenderer<bikeredEntity> {
+public class bikeredRenderer extends GeoEntityRenderer<BikeredEntity> {
 
     public bikeredRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new bikeredModel());
@@ -28,12 +28,12 @@ public class bikeredRenderer extends GeoEntityRenderer<bikeredEntity> {
     }
 
     @Override
-    public RenderType getRenderType(bikeredEntity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(BikeredEntity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 
     @Override
-    public void preRender(PoseStack poseStack, bikeredEntity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
+    public void preRender(PoseStack poseStack, BikeredEntity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
                           float blue, float alpha) {
         float scale = 1f;
         this.scaleHeight = scale;
@@ -42,7 +42,7 @@ public class bikeredRenderer extends GeoEntityRenderer<bikeredEntity> {
     }
 
     @Override
-    public void render(bikeredEntity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
+    public void render(BikeredEntity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(-Mth.lerp(partialTicks, entityIn.yRotO, entityIn.getYRot())));
         poseStack.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, entityIn.xRotO, entityIn.getXRot())));
@@ -52,7 +52,7 @@ public class bikeredRenderer extends GeoEntityRenderer<bikeredEntity> {
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, bikeredEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(PoseStack poseStack, BikeredEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         String name = bone.getName();
         if (name.equals("wheel1")) {
             bone.setRotY(Mth.lerp(partialTick, animatable.rudderRotO, animatable.getRudderRot()));
@@ -101,7 +101,7 @@ public class bikeredRenderer extends GeoEntityRenderer<bikeredEntity> {
     }
 
     @Override
-    protected float getDeathMaxRotation(bikeredEntity entityLivingBaseIn) {
+    protected float getDeathMaxRotation(BikeredEntity entityLivingBaseIn) {
         return 0.0F;
     }
 }

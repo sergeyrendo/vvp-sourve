@@ -22,6 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -38,7 +39,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
@@ -86,18 +90,18 @@ import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPit
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
-public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity, WeaponVehicleEntity, AircraftEntity {
+public class F35Entity extends ContainerMobileVehicleEntity implements GeoEntity, WeaponVehicleEntity, AircraftEntity {
 
     public static Consumer<MobileVehicleEntity> fireSound = vehicle -> {
     };
 
-    public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(f35Entity.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer> LOADED_BOMB = SynchedEntityData.defineId(f35Entity.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(f35Entity.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer> FIRE_TIME = SynchedEntityData.defineId(f35Entity.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<String> TARGET_UUID = SynchedEntityData.defineId(f35Entity.class, EntityDataSerializers.STRING);
-    public static final EntityDataAccessor<Boolean> IS_ENGINE_RUNNING = SynchedEntityData.defineId(f35Entity.class, EntityDataSerializers.BOOLEAN);
-    public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(f35Entity.class, EntityDataSerializers.FLOAT);
+    public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(F35Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> LOADED_BOMB = SynchedEntityData.defineId(F35Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(F35Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> FIRE_TIME = SynchedEntityData.defineId(F35Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<String> TARGET_UUID = SynchedEntityData.defineId(F35Entity.class, EntityDataSerializers.STRING);
+    public static final EntityDataAccessor<Boolean> IS_ENGINE_RUNNING = SynchedEntityData.defineId(F35Entity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(F35Entity.class, EntityDataSerializers.FLOAT);
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public int fireIndex;
     public int reloadCoolDownBomb;
@@ -113,16 +117,40 @@ public class f35Entity extends ContainerMobileVehicleEntity implements GeoEntity
 
     public static final int RADAR_RANGE = 250;
 
-    public f35Entity(PlayMessages.SpawnEntity packet, Level world) {
+    public F35Entity(PlayMessages.SpawnEntity packet, Level world) {
         this(tech.vvp.vvp.init.ModEntities.F35.get(), world);
     }
 
-    public f35Entity(EntityType<f35Entity> type, Level world) {
+    public F35Entity(EntityType<F35Entity> type, Level world) {
         super(type, world);
+        this.setMaxUpStep(1.5f);
     }
 
-    public static f35Entity clientSpawn(PlayMessages.SpawnEntity packet, Level level) {
-        return new f35Entity(ModEntities.F35.get(), level);
+    // Добавляем статический метод для создания атрибутов
+    public static AttributeSupplier.Builder createAttributes() {
+        return Mob.createMobAttributes()
+                .add(Attributes.MAX_HEALTH, 100.0D)  // Тигр легче Абрамса
+                .add(Attributes.MOVEMENT_SPEED, 1.0D) // Тигр быстрее
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.8D)
+                .add(Attributes.ARMOR, 10.0D)
+                .add(Attributes.ARMOR_TOUGHNESS, 5.0D);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static F35Entity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
+        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
+        if (entityTypeFromPacket == null) {
+            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
+            return null; 
+        }
+        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
+             Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
+             return null;
+        }
+
+        EntityType<F35Entity> castedEntityType = (EntityType<F35Entity>) entityTypeFromPacket;
+        F35Entity entity = new F35Entity(castedEntityType, world);
+        return entity;
     }
 
     private void handleRadar() {

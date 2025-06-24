@@ -2,7 +2,7 @@ package tech.vvp.vvp.client.renderer.entity;
 
 // import tech.vvp.vvp.client.layer.vehicle.btr80aLayer;
 import tech.vvp.vvp.client.model.stryker_hakiModel;
-import tech.vvp.vvp.entity.vehicle.stryker_hakiEntity;
+import tech.vvp.vvp.entity.vehicle.Stryker_hakiEntity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -20,7 +20,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.base.MobileVehicleEntity.YAW;
 
-public class stryker_hakiRenderer extends GeoEntityRenderer<stryker_hakiEntity> {
+public class stryker_hakiRenderer extends GeoEntityRenderer<Stryker_hakiEntity> {
 
     public stryker_hakiRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new stryker_hakiModel());
@@ -28,12 +28,12 @@ public class stryker_hakiRenderer extends GeoEntityRenderer<stryker_hakiEntity> 
     }
 
     @Override
-    public RenderType getRenderType(stryker_hakiEntity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(Stryker_hakiEntity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 
     @Override
-    public void preRender(PoseStack poseStack, stryker_hakiEntity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
+    public void preRender(PoseStack poseStack, Stryker_hakiEntity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
                           float blue, float alpha) {
         float scale = 1f;
         this.scaleHeight = scale;
@@ -42,7 +42,7 @@ public class stryker_hakiRenderer extends GeoEntityRenderer<stryker_hakiEntity> 
     }
 
     @Override
-    public void render(stryker_hakiEntity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
+    public void render(Stryker_hakiEntity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(-Mth.lerp(partialTicks, entityIn.yRotO, entityIn.getYRot())));
         poseStack.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, entityIn.xRotO, entityIn.getXRot())));
@@ -52,7 +52,7 @@ public class stryker_hakiRenderer extends GeoEntityRenderer<stryker_hakiEntity> 
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, stryker_hakiEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(PoseStack poseStack, Stryker_hakiEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         String name = bone.getName();
         if (name.equals("wheel1")) {
             bone.setRotY(Mth.lerp(partialTick, animatable.rudderRotO, animatable.getRudderRot()));
@@ -149,7 +149,7 @@ public class stryker_hakiRenderer extends GeoEntityRenderer<stryker_hakiEntity> 
     }
 
     @Override
-    protected float getDeathMaxRotation(stryker_hakiEntity entityLivingBaseIn) {
+    protected float getDeathMaxRotation(Stryker_hakiEntity entityLivingBaseIn) {
         return 0.0F;
     }
 }
