@@ -4,6 +4,7 @@ import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.HelicopterEntity;
+import com.atsuishio.superbwarfare.entity.OBBEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.AirEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition;
 import com.atsuishio.superbwarfare.entity.vehicle.base.WeaponVehicleEntity;
@@ -54,6 +55,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -63,6 +65,7 @@ import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.config.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
 import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
+import tech.vvp.vvp.network.VVPNetwork;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,15 +74,14 @@ import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPit
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
-public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity {
+public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity {
 
-    public static final EntityDataAccessor<Boolean> IS_ENGINE_RUNNING = SynchedEntityData.defineId(CobraEntity.class, EntityDataSerializers.BOOLEAN);
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(CobraEntity.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(CobraEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(CobraEntity.class, EntityDataSerializers.INT);
 
-    public static final int RADAR_RANGE = 150;
+    public static final int RADAR_RANGE = 200;
 
     public boolean engineStart;
     public boolean engineStartOver;
@@ -97,6 +99,13 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
     
     public float delta_x;
     public float delta_y;
+    public OBB obb;
+    public OBB obb2;
+    public OBB obb3;
+    // public OBB obb4;
+    // public OBB obb5;
+    public OBB obb6;
+    public OBB obb7;
 
     public CobraEntity(PlayMessages.SpawnEntity packet, Level world) {
         this(ModEntities.COBRA.get(), world);
@@ -105,33 +114,27 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
     public CobraEntity(EntityType<CobraEntity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
+        // telo
+        this.obb = new OBB(this.position().toVector3f(), new Vector3f(1.7f, 1.18125f, 2.625f), new Quaternionf(), OBB.Part.BODY);
+        // cabina
+        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(0.575f, 0.9875f, 1.39375f), new Quaternionf(), OBB.Part.BODY);
+        // хвост
+        this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.60f, 0.5f, 2.7f), new Quaternionf(), OBB.Part.BODY);
+        // 
+        // this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.0625f, 1.15625f, 0.40625f), new Quaternionf(), OBB.Part.BODY);
+        // this.obb5 = new OBB(this.position().toVector3f(), new Vector3f(1f, 0.25f, 0.21875f), new Quaternionf(), OBB.Part.BODY);
+        this.obb6 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.40625f, 0.84375f), new Quaternionf(), OBB.Part.ENGINE1);
+        this.obb7 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.40625f, 0.40625f), new Quaternionf(), OBB.Part.ENGINE2);
     }
 
-    // Добавляем статический метод для создания атрибутов
-    public static AttributeSupplier.Builder createAttributes() {
+     // Добавляем статический метод для создания атрибутов
+     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 100.0D)  // Тигр легче Абрамса
                 .add(Attributes.MOVEMENT_SPEED, 1.0D) // Тигр быстрее
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.8D)
                 .add(Attributes.ARMOR, 10.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 5.0D);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static CobraEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null; 
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-             Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-             return null;
-        }
-
-        EntityType<CobraEntity> castedEntityType = (EntityType<CobraEntity>) entityTypeFromPacket;
-        CobraEntity entity = new CobraEntity(castedEntityType, world);
-        return entity;
     }
 
     private void handleRadar() {
@@ -151,8 +154,31 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
             for (Entity target : potentialTargets) {
                 targetPositions.add(target.position());
             }
-            com.atsuishio.superbwarfare.Mod.PACKET_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            tech.vvp.vvp.network.VVPNetwork.VVP_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        handleRadar();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static CobraSharkEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
+        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
+        if (entityTypeFromPacket == null) {
+            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
+            return null; 
+        }
+        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
+             Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
+             return null;
+        }
+
+        EntityType<CobraSharkEntity> castedEntityType = (EntityType<CobraSharkEntity>) entityTypeFromPacket;
+        CobraSharkEntity entity = new CobraSharkEntity(castedEntityType, world);
+        return entity;
     }
 
     @Override
@@ -194,7 +220,6 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
         this.entityData.define(PROPELLER_ROT, 0.0f);
         this.entityData.define(LOADED_ROCKET, 0);
         this.entityData.define(LOADED_MISSILE, 0);
-        this.entityData.define(IS_ENGINE_RUNNING, false);
     }
 
     @Override
@@ -243,10 +268,7 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
     @Override
     public void baseTick() {
         super.baseTick();
-
-        if (this.tickCount % 20 == 0) {
-            handleRadar();
-        }
+        updateOBB();
 
         if (this.level() instanceof ServerLevel) {
             if (reloadCoolDown > 0) {
@@ -875,5 +897,43 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
         return Mod.loc("textures/gui/vehicle/type/aircraft.png");
+    }
+
+    @Override
+    public List<OBB> getOBBs() {
+        return List.of(this.obb, this.obb2, this.obb3, this.obb6, this.obb7); // this.obb4, this.obb5
+    }
+
+    @Override
+    public void updateOBB() {
+        Matrix4f transform = getVehicleTransform(1);
+
+        Vector4f worldPosition = transformPosition(transform, 0, 1.86875f - 1.45f, -0.15625f);
+        this.obb.center().set(new Vector3f(worldPosition.x, worldPosition.y, worldPosition.z));
+        this.obb.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition2 = transformPosition(transform, 0, 1.5f - 1.45f, 1.90625f);
+        this.obb2.center().set(new Vector3f(worldPosition2.x, worldPosition2.y, worldPosition2.z));
+        this.obb2.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition3 = transformPosition(transform, 0, -0.3f, -6.6f);
+        this.obb3.center().set(new Vector3f(worldPosition3.x, worldPosition3.y, worldPosition3.z));
+        this.obb3.setRotation(VectorTool.combineRotations(1, this));
+
+        // Vector4f worldPosition4 = transformPosition(transform, -0.125f, 2.34375f - 1.45f, -6.34375f);
+        // this.obb4.center().set(new Vector3f(worldPosition4.x, worldPosition4.y, worldPosition4.z));
+        // this.obb4.setRotation(VectorTool.combineRotations(1, this));
+
+        // Vector4f worldPosition5 = transformPosition(transform, -0.125f, 3.5625f - 1.45f, -6.65625f);
+        // this.obb5.center().set(new Vector3f(worldPosition5.x, worldPosition5.y, worldPosition5.z));
+        // this.obb5.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition6 = transformPosition(transform, 0, 3.28125f - 1.45f, -0.53125f);
+        this.obb6.center().set(new Vector3f(worldPosition6.x, worldPosition6.y, worldPosition6.z));
+        this.obb6.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition7 = transformPosition(transform, 0.1875f, 2.09375f - 1.45f, -6.15625f);
+        this.obb7.center().set(new Vector3f(worldPosition7.x, worldPosition7.y, worldPosition7.z));
+        this.obb7.setRotation(VectorTool.combineRotations(1, this));
     }
 }

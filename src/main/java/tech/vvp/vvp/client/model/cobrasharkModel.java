@@ -1,22 +1,22 @@
 package tech.vvp.vvp.client.model;
 
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.entity.vehicle.CobrasharkEntity;
+import tech.vvp.vvp.entity.vehicle.CobraSharkEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import software.bernie.geckolib.model.GeoModel;
 
-public class cobrasharkModel extends GeoModel<CobrasharkEntity> {
+public class cobrasharkModel extends GeoModel<CobraSharkEntity> {
 
     @Override
-    public ResourceLocation getAnimationResource(CobrasharkEntity entity) {
+    public ResourceLocation getAnimationResource(CobraSharkEntity entity) {
         return null;
 //        return ModUtils.loc("animations/wheel_chair.animation.json");
     }
 
     @Override
-    public ResourceLocation getModelResource(CobrasharkEntity entity) {
+    public ResourceLocation getModelResource(CobraSharkEntity entity) {
         Player player = Minecraft.getInstance().player;
 
         int distance = 0;
@@ -37,7 +37,7 @@ public class cobrasharkModel extends GeoModel<CobrasharkEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureResource(CobrasharkEntity entity) {
+    public ResourceLocation getTextureResource(CobraSharkEntity entity) {
         return VVP.loc("textures/entity/cobra_shark.png");
     }
 }

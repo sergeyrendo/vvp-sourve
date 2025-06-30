@@ -18,7 +18,7 @@ import tech.vvp.vvp.entity.vehicle.Mi24polEntity;
 import tech.vvp.vvp.entity.vehicle.Mi24ukrEntity;
 import tech.vvp.vvp.entity.vehicle.M997Entity;
 import tech.vvp.vvp.entity.vehicle.CobraEntity;
-import tech.vvp.vvp.entity.vehicle.CobrasharkEntity;
+import tech.vvp.vvp.entity.vehicle.CobraSharkEntity;
 import tech.vvp.vvp.entity.vehicle.F35Entity;
 import tech.vvp.vvp.entity.vehicle.Btr80aEntity;
 import tech.vvp.vvp.entity.vehicle.M997_greenEntity;
@@ -182,8 +182,8 @@ public class ModEntities {
     public static final RegistryObject<EntityType<CobraEntity>> COBRA = register("cobra",
             EntityType.Builder.<CobraEntity>of(CobraEntity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(CobraEntity::new).fireImmune().sized(4.5f, 4.8f));
 
-    public static final RegistryObject<EntityType<CobrasharkEntity>> COBRASHARK = register("cobrashark",
-            EntityType.Builder.<CobrasharkEntity>of(CobrasharkEntity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(CobrasharkEntity::new).fireImmune().sized(4.5f, 4.8f));
+    public static final RegistryObject<EntityType<CobraSharkEntity>> COBRASHARK = register("cobrashark",
+            EntityType.Builder.<CobraSharkEntity>of(CobraSharkEntity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(CobraSharkEntity::new).fireImmune().sized(4.5f, 4.8f));
 
     public static final RegistryObject<EntityType<F35Entity>> F35 = register("f35",
             EntityType.Builder.<F35Entity>of(F35Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(F35Entity::new).fireImmune().sized(4.5f, 4.8f));

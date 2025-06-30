@@ -4,6 +4,7 @@ import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.HelicopterEntity;
+import com.atsuishio.superbwarfare.entity.OBBEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.AirEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition;
 import com.atsuishio.superbwarfare.entity.vehicle.base.WeaponVehicleEntity;
@@ -31,6 +32,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -51,6 +53,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -59,6 +62,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.config.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
+import tech.vvp.vvp.network.VVPNetwork;
 import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
 
 import java.util.ArrayList;
@@ -68,7 +72,7 @@ import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPit
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
-public class Mi24ukrEntity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity {
+public class Mi24ukrEntity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(Mi24ukrEntity.class, EntityDataSerializers.FLOAT);
@@ -85,6 +89,10 @@ public class Mi24ukrEntity extends ContainerMobileVehicleEntity implements GeoEn
     public float destroyRot;
     public float delta_x;
     public float delta_y;
+    public OBB obb;
+    public OBB obb1;
+    public OBB obb2;
+    public OBB obb3;
 
     public Mi24ukrEntity(PlayMessages.SpawnEntity packet, Level world) {
         this(ModEntities.MI24UKR.get(), world);
@@ -93,6 +101,14 @@ public class Mi24ukrEntity extends ContainerMobileVehicleEntity implements GeoEn
     public Mi24ukrEntity(EntityType<Mi24ukrEntity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
+        // КАБИНА
+        this.obb = new OBB(this.position().toVector3f(), new Vector3f(0.85f, 1.177f, 1.398f), new Quaternionf(), OBB.Part.BODY);
+        // КОРПУС
+        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(0.85f, 1.45f, 4.289f), new Quaternionf(), OBB.Part.BODY); 
+        // ВИНТ
+        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(0.85f, 0.239f, 2.742f), new Quaternionf(), OBB.Part.BODY); 
+        // ХВОСТ
+        this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.85f, 1.0515625f, 2.7421875f), new Quaternionf(), OBB.Part.ENGINE1); 
     }
 
     // Добавляем статический метод для создания атрибутов
@@ -139,13 +155,14 @@ public class Mi24ukrEntity extends ContainerMobileVehicleEntity implements GeoEn
             for (Entity target : potentialTargets) {
                 targetPositions.add(target.position());
             }
-            com.atsuishio.superbwarfare.Mod.PACKET_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            VVPNetwork.VVP_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 
     @Override
     public void baseTick() {
         super.baseTick();
+        updateOBB();
 
         if (this.tickCount % 20 == 0) {
             handleRadar();
@@ -511,6 +528,11 @@ public class Mi24ukrEntity extends ContainerMobileVehicleEntity implements GeoEn
         return transform;
     }
 
+    // @Override
+    // public EntityDimensions getDimensions(net.minecraft.world.entity.Pose pose) {
+    //     return EntityDimensions.scalable(2.063f, 3.625f);
+    // }
+
     @Override
     public void destroy() {
         if (this.crash) {
@@ -723,7 +745,7 @@ public class Mi24ukrEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/mi24pl_icon.png");
+        return VVP.loc("textures/vehicle_icon/mi24ukr_icon.png");
     }
 
     @Override
@@ -791,5 +813,31 @@ public class Mi24ukrEntity extends ContainerMobileVehicleEntity implements GeoEn
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
         return Mod.loc("textures/gui/vehicle/type/aircraft.png");
+    }
+
+    @Override
+    public List<OBB> getOBBs() {
+        return List.of(this.obb, this.obb1, this.obb2, this.obb3); 
+    }
+
+    @Override
+    public void updateOBB() {
+        Matrix4f transform = getVehicleTransform(1);
+
+        Vector4f worldPosition = transformPosition(transform, -0.020f, 1.190f, 0.746f);
+        this.obb.center().set(new Vector3f(worldPosition.x, worldPosition.y, worldPosition.z));
+        this.obb.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition1 = transformPosition(transform, 0.0f, 1.327f, -4.1953125f);
+        this.obb1.center().set(new Vector3f(worldPosition1.x, worldPosition1.y, worldPosition1.z));
+        this.obb1.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition2 = transformPosition(transform, 0.0f, 3.249f, -3.96f);
+        this.obb2.center().set(new Vector3f(worldPosition2.x, worldPosition2.y, worldPosition2.z));
+        this.obb2.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition3 = transformPosition(transform, 0.0f, 1.26796875f, -11.2109375f);
+        this.obb3.center().set(new Vector3f(worldPosition3.x, worldPosition3.y, worldPosition3.z));
+        this.obb3.setRotation(VectorTool.combineRotations(1, this));
     }
 }

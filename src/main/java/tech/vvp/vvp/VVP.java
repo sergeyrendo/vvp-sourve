@@ -16,6 +16,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import tech.vvp.vvp.network.VVPNetwork;
 import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
 
 @Mod(VVP.MOD_ID)
@@ -46,7 +47,7 @@ public class VVP {
             LOGGER.info("HELLO FROM COMMON SETUP");
             LOGGER.info("DIRT BLOCK >> {}", net.minecraft.world.level.block.Blocks.DIRT);
         });
-        com.atsuishio.superbwarfare.Mod.addNetworkMessage(S2CRadarSyncPacket.class, S2CRadarSyncPacket::buffer, S2CRadarSyncPacket::new, S2CRadarSyncPacket::handler, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        VVPNetwork.addNetworkMessage(S2CRadarSyncPacket.class, S2CRadarSyncPacket::buffer, S2CRadarSyncPacket::new, S2CRadarSyncPacket::handler, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 
     private void onItemTooltip(ItemTooltipEvent event) {

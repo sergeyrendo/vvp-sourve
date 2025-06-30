@@ -125,7 +125,7 @@ public class Stryker_hakiEntity extends ContainerMobileVehicleEntity implements 
         this.obb6 = new OBB(this.position().toVector3f(), new Vector3f(1.625f, 0.53125f, 0.34375f), new Quaternionf(), OBB.Part.BODY);
         this.obb7 = new OBB(this.position().toVector3f(), new Vector3f(1.625f, 0.625f, 1.5f), new Quaternionf(), OBB.Part.BODY);
         this.obb8 = new OBB(this.position().toVector3f(), new Vector3f(0.71875f, 0.46875f, 0.875f), new Quaternionf(), OBB.Part.ENGINE1);
-        this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(0.875f, 0.46f, 1.25f), new Quaternionf(), OBB.Part.TURRET);
+        this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(0.711f, 0.453f, 1.789f), new Quaternionf(), OBB.Part.TURRET);
         
     }
     
@@ -151,7 +151,7 @@ public class Stryker_hakiEntity extends ContainerMobileVehicleEntity implements 
              return null;
         }
 
-        EntityType<Stryker_hakiEntity> castedEntityType = (EntityType<Stryker_hakiEntity>) entityTypeFromPacket;
+        EntityType<Stryker_hakiEntity> castedEntityType = (EntityType<?>) entityTypeFromPacket;
         Stryker_hakiEntity entity = new Stryker_hakiEntity(castedEntityType, world);
         return entity;
     }
@@ -677,7 +677,7 @@ public class Stryker_hakiEntity extends ContainerMobileVehicleEntity implements 
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/stryker_haki_icon.png");
+        return VVP.loc("textures/vehicle_icon/stryker_icon.png");
     }
 
     @OnlyIn(Dist.CLIENT)
