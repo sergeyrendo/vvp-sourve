@@ -262,7 +262,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
             sendParticle(serverLevel, ParticleTypes.BUBBLE_COLUMN_UP, this.getX() + 0.5 * this.getDeltaMovement().x, this.getY() + getSubmergedHeight(this) - 0.2, this.getZ() + 0.5 * this.getDeltaMovement().z, (int) (2 + 10 * this.getDeltaMovement().length()), 0.65, 0, 0.65, 0, true);
         }
 
-        turretAngle(15, 12.5f);
+        turretAngle(3f, 3f);
         lowHealthWarning();
         this.terrainCompact(2.7f, 3.61f);
         inertiaRotate(1.25f);
@@ -380,9 +380,10 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
                 }
             }
 
-            this.entityData.set(CANNON_RECOIL_TIME, 40);
-            this.entityData.set(YAW, this.getTurretYRot());
-            this.entityData.set(HEAT, this.entityData.get(HEAT) + 2);
+            this.entityData.set(CANNON_RECOIL_TIME, 30);
+            this.entityData.set(YAW, getTurretYRot());
+
+            this.entityData.set(HEAT, this.entityData.get(HEAT) + 4);
             this.entityData.set(FIRE_ANIM, 3);
 
             if (hasCreativeAmmo) return;
@@ -480,9 +481,9 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         }
 
         if (rightInputDown) {
-            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.1f);
+            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.08f); // Уменьшено с 0.1f до 0.08f
         } else if (this.leftInputDown) {
-            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.2f);
+            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.16f); // Уменьшено с 0.2f до 0.16f
         }
 
         if (this.forwardInputDown || this.backInputDown) {
@@ -490,7 +491,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         }
 
         this.entityData.set(POWER, this.entityData.get(POWER) * (upInputDown ? 0.5f : (rightInputDown || leftInputDown) ? 0.977f : 0.99f));
-        this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) * (float) Math.max(0.76f - 0.1f * this.getDeltaMovement().horizontalDistance(), 0.3));
+        this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) * (float) Math.max(0.72f - 0.1f * this.getDeltaMovement().horizontalDistance(), 0.3)); // Уменьшено с 0.76f до 0.72f
 
         double s0 = getDeltaMovement().dot(this.getViewVector(1));
 
@@ -499,9 +500,10 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
 
         this.setRudderRot(Mth.clamp(this.getRudderRot() - this.entityData.get(DELTA_ROT), -0.8f, 0.8f) * 0.75f);
 
-        this.setYRot((float) (this.getYRot() - Math.max((isInWater() && !onGround() ? 5 : 10) * this.getDeltaMovement().horizontalDistance(), 0) * this.getRudderRot() * (this.entityData.get(POWER) > 0 ? 1 : -1)));
+        this.setYRot((float) (this.getYRot() - Math.max((isInWater() && !onGround() ? 4 : 8) * this.getDeltaMovement().horizontalDistance(), 0) * this.getRudderRot() * (this.entityData.get(POWER) > 0 ? 1 : -1))); // Уменьшено с (5 : 10) до (4 : 8)
+
         if (this.isInWater() || onGround()) {
-            float power = this.entityData.get(POWER) * Mth.clamp(1 + (s0 > 0 ? 1 : -1) * getXRot() / 35, 0 , 2);
+            float power = this.entityData.get(POWER) * Mth.clamp(1 + (s0 > 0 ? 1 : -1) * getXRot() / 35, 0, 2);
             this.setDeltaMovement(this.getDeltaMovement().add(getViewVector(1).scale((!isInWater() && !onGround() ? 0.05f : (isInWater() && !onGround() ? 0.3f : 1)) * power)));
         }
     }

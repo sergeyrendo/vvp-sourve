@@ -428,7 +428,7 @@ public class M997Entity extends ContainerMobileVehicleEntity implements GeoEntit
     }
 
     public List<OBB> getOBBs() {
-        return List.of(this.obb, this.obb2, this.obb3, this.obb4, this.obb5, this.obb6);
+        return List.of(this.obb, this.obb1, this.obb2, this.obb3, this.obb4, this.obb5, this.obb6);
     }
 
     // @Override

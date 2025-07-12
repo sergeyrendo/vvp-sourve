@@ -495,19 +495,19 @@ public class Mi24polEntity extends ContainerMobileVehicleEntity implements GeoEn
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
             callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);
         } else if (i == 2) {
-            worldPosition = transformPosition(transform, -0.61f, -0.3f, -1.4f);
+            worldPosition = transformPosition(transform, -0.51f, -0.3f, -1.4f);
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
             callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);       
         } else if (i == 3) {
-            worldPosition = transformPosition(transform, 0.55f, -0.3f, -1.4f);      
+            worldPosition = transformPosition(transform, 0.43f, -0.3f, -1.4f);      
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
             callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);        
         } else if (i == 4) {
-            worldPosition = transformPosition(transform, -0.61f, -0.3f, -4.0f);   
+            worldPosition = transformPosition(transform, -0.51f, -0.3f, -4.0f);   
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
             callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);           
         } else if (i == 5) {
-            worldPosition = transformPosition(transform, 0.55f, -0.3f, -4.0f);  
+            worldPosition = transformPosition(transform, 0.43f, -0.3f, -4.0f);  
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
             callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);            
         }
