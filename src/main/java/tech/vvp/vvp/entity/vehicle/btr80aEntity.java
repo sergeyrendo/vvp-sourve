@@ -96,9 +96,6 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
     public OBB obb8;
     public OBB obb9;
     public OBB obb10;
-    public OBB obb11;
-    public OBB obb12;
-    public OBB obbTurret;
 
     public Btr80aEntity(PlayMessages.SpawnEntity packet, Level world) {
         this(ModEntities.BTR80A.get(), world);
@@ -107,21 +104,20 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
     public Btr80aEntity(EntityType<Btr80aEntity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
-        this.obb = new OBB(this.position().toVector3f(), new Vector3f(0.2f, 0.45f, 0.45f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
-        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(0.2f, 0.45f, 0.45f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
-        this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.2f, 0.45f, 0.45f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
-        this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.2f, 0.45f, 0.45f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
-        this.obb9 = new OBB(this.position().toVector3f(), new Vector3f(0.2f, 0.45f, 0.45f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
-        this.obb10 = new OBB(this.position().toVector3f(), new Vector3f(0.2f, 0.45f, 0.45f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
-        this.obb11 = new OBB(this.position().toVector3f(), new Vector3f(0.2f, 0.45f, 0.45f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
-        this.obb12 = new OBB(this.position().toVector3f(), new Vector3f(0.2f, 0.45f, 0.45f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
-        this.obb5 = new OBB(this.position().toVector3f(), new Vector3f(1.625f, 0.90625f, 2.4375f), new Quaternionf(), OBB.Part.BODY);
-        this.obb6 = new OBB(this.position().toVector3f(), new Vector3f(1.625f, 0.53125f, 0.34375f), new Quaternionf(), OBB.Part.BODY);
-        this.obb7 = new OBB(this.position().toVector3f(), new Vector3f(1.625f, 0.625f, 1.5f), new Quaternionf(), OBB.Part.BODY);
-        this.obb8 = new OBB(this.position().toVector3f(), new Vector3f(0.71875f, 0.46875f, 0.875f), new Quaternionf(), OBB.Part.ENGINE1);
-        this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(0.711f, 0.453f, 1.789f), new Quaternionf(), OBB.Part.TURRET);
+        this.obb = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_LEFT);    // OBB6
+        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_LEFT);    // OBB7
+        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_LEFT);    // OBB8
+        this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_LEFT);    // OBB9
+        this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.90625f, 0.453125f, 0.867188f), new Quaternionf(), OBB.Part.TURRET);   // OBBTURRET
+        this.obb5 = new OBB(this.position().toVector3f(), new Vector3f(1.78125f, 0.625f, 3.25f), new Quaternionf(), OBB.Part.BODY);          // OBB
+        this.obb6 = new OBB(this.position().toVector3f(), new Vector3f(1.78125f, 0.625f, 0.796875f), new Quaternionf(), OBB.Part.ENGINE1);      // OBB1
+        this.obb7 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);    // OBB5
+        this.obb8 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);    // OBB4
+        this.obb9 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);    // OBB3
+        this.obb10 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);    // OBB2
+        
+
     }
-    
 
     // Добавляем статический метод для создания атрибутов
     public static AttributeSupplier.Builder createAttributes() {
@@ -484,7 +480,7 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
         Matrix4f transformT = getTurretTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, 0.0234375f, 0.33795f, 0.825f);
+        Vector4f worldPosition = transformPosition(transform, 0f, 0.35f, 0.8f); // подберите под свою модель
 
         transformT.translate(worldPosition.x, worldPosition.y, worldPosition.z);
 
@@ -523,7 +519,7 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
         Matrix4f transformV = getVehicleTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, 0, 2.4003f, 0);
+        Vector4f worldPosition = transformPosition(transform, -0.015625f, 2.703125f, 0.648438f);
 
         transformV.translate(worldPosition.x, worldPosition.y, worldPosition.z);
         transformV.rotate(Axis.YP.rotationDegrees(Mth.lerp(ticks, turretYRotO, getTurretYRot())));
@@ -736,64 +732,68 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
     }
 
     public List<OBB> getOBBs() {
-        return List.of(this.obb, this.obb2, this.obb3, this.obb4, this.obb5, this.obb6, this.obb7, this.obb8, this.obb9, this.obb10, this.obb11, this.obb12, this.obbTurret);
+        return List.of(this.obb, this.obb1, this.obb2, this.obb3, this.obb4, this.obb5, this.obb6, this.obb7, this.obb8, this.obb9, this.obb10);
     }
 
     // @Override
     public void updateOBB() {
         Matrix4f transform = getVehicleTransform(1);
 
-        Vector4f worldPosition = transformPosition(transform, -1.37f, 0.50f, 2.58f);
-        this.obb.center().set(new Vector3f(worldPosition.x, worldPosition.y, worldPosition.z));
-        this.obb.setRotation(VectorTool.combineRotations(1, this));
+    // OBB6
+    Vector4f worldPosition = transformPosition(transform, 1.445f, 0.699f, 2.282f);
+    this.obb.center().set(new Vector3f(worldPosition.x, worldPosition.y, worldPosition.z));
+    this.obb.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition2 = transformPosition(transform, 1.37f, 0.50f, 2.58f);
-        this.obb2.center().set(new Vector3f(worldPosition2.x, worldPosition2.y, worldPosition2.z));
-        this.obb2.setRotation(VectorTool.combineRotations(1, this));
+    // OBB7
+    Vector4f worldPosition1 = transformPosition(transform, 1.445f, 0.699f, 0.469f);
+    this.obb1.center().set(new Vector3f(worldPosition1.x, worldPosition1.y, worldPosition1.z));
+    this.obb1.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition9 = transformPosition(transform, 1.37f, 0.50f, 1.20f);
-        this.obb9.center().set(new Vector3f(worldPosition9.x, worldPosition9.y, worldPosition9.z));
-        this.obb9.setRotation(VectorTool.combineRotations(1, this));
+    // OBB8
+    Vector4f worldPosition2 = transformPosition(transform, 1.445f, 0.699f, -1.406f);
+    this.obb2.center().set(new Vector3f(worldPosition2.x, worldPosition2.y, worldPosition2.z));
+    this.obb2.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition10 = transformPosition(transform, 1.37f, 0.50f, -0.45f);
-        this.obb10.center().set(new Vector3f(worldPosition10.x, worldPosition10.y, worldPosition10.z));
-        this.obb10.setRotation(VectorTool.combineRotations(1, this));
+    // OBB9
+    Vector4f worldPosition3 = transformPosition(transform, 1.445f, 0.699f, -3.124f);
+    this.obb3.center().set(new Vector3f(worldPosition3.x, worldPosition3.y, worldPosition3.z));
+    this.obb3.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition11 = transformPosition(transform, -1.37f, 0.50f, 1.20f);
-        this.obb11.center().set(new Vector3f(worldPosition11.x, worldPosition11.y, worldPosition11.z));
-        this.obb11.setRotation(VectorTool.combineRotations(1, this));
+    // OBBTURRET
+    Matrix4f transformT = getTurretTransform(1);
+    Vector4f worldPosition4 = transformPosition(transformT, 0.0f, 0.0f, 0.0f);
+    this.obb4.center().set(new Vector3f(worldPosition4.x, worldPosition4.y, worldPosition4.z));
+    this.obb4.setRotation(VectorTool.combineRotationsTurret(1, this));
 
-        Vector4f worldPosition12 = transformPosition(transform, -1.37f, 0.50f, -0.45f);
-        this.obb12.center().set(new Vector3f(worldPosition12.x, worldPosition12.y, worldPosition12.z));
-        this.obb12.setRotation(VectorTool.combineRotations(1, this));
+    // OBB
+    Vector4f worldPosition5 = transformPosition(transform, 0f, 1.8125f, -0.125f);
+    this.obb5.center().set(new Vector3f(worldPosition5.x, worldPosition5.y, worldPosition5.z));
+    this.obb5.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition3 = transformPosition(transform, 1.37f, 0.50f, -2.05f);
-        this.obb3.center().set(new Vector3f(worldPosition3.x, worldPosition3.y, worldPosition3.z));
-        this.obb3.setRotation(VectorTool.combineRotations(1, this));
+    // OBB1
+    Vector4f worldPosition6 = transformPosition(transform, 0f, 1.8125f, -3.921875f);
+    this.obb6.center().set(new Vector3f(worldPosition6.x, worldPosition6.y, worldPosition6.z));
+    this.obb6.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition4 = transformPosition(transform, -1.37f, 0.50f, -2.05f);
-        this.obb4.center().set(new Vector3f(worldPosition4.x, worldPosition4.y, worldPosition4.z));
-        this.obb4.setRotation(VectorTool.combineRotations(1, this));
+    // OBB5
+    Vector4f worldPosition7 = transformPosition(transform, -1.445f, 0.699f, 2.282f);
+    this.obb7.center().set(new Vector3f(worldPosition7.x, worldPosition7.y, worldPosition7.z));
+    this.obb7.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition5 = transformPosition(transform, 0, 1.53125f, -0.4375f);
-        this.obb5.center().set(new Vector3f(worldPosition5.x, worldPosition5.y, worldPosition5.z));
-        this.obb5.setRotation(VectorTool.combineRotations(1, this));
+    // OBB4
+    Vector4f worldPosition8 = transformPosition(transform, -1.445f, 0.699f, 0.469f);
+    this.obb8.center().set(new Vector3f(worldPosition8.x, worldPosition8.y, worldPosition8.z));
+    this.obb8.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition6 = transformPosition(transform, 0, 1.90625f, -3.21875f);
-        this.obb6.center().set(new Vector3f(worldPosition6.x, worldPosition6.y, worldPosition6.z));
-        this.obb6.setRotation(VectorTool.combineRotations(1, this));
+    // OBB3
+    Vector4f worldPosition9 = transformPosition(transform, -1.445f, 0.699f, -1.406f);
+    this.obb9.center().set(new Vector3f(worldPosition9.x, worldPosition9.y, worldPosition9.z));
+    this.obb9.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition7 = transformPosition(transform, 0, 1.8f, 2.53125f);
-        this.obb7.center().set(new Vector3f(worldPosition7.x, worldPosition7.y, worldPosition7.z));
-        this.obb7.setRotation(VectorTool.combineRotations(1, this));
+    // OBB2
+    Vector4f worldPosition10 = transformPosition(transform, -1.445f, 0.699f, -3.124f);
+    this.obb10.center().set(new Vector3f(worldPosition10.x, worldPosition10.y, worldPosition10.z));
+    this.obb10.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition8 = transformPosition(transform, 0.65625f, 2.03125f, -2.0625f);
-        this.obb8.center().set(new Vector3f(worldPosition8.x, worldPosition8.y, worldPosition8.z));
-        this.obb8.setRotation(VectorTool.combineRotations(1, this));
-
-        Matrix4f transformT = getTurretTransform(1);
-        Vector4f worldPositionT = transformPosition(transformT, 0, -0.25f, -1.25f);
-        this.obbTurret.center().set(new Vector3f(worldPositionT.x, worldPositionT.y, worldPositionT.z));
-        this.obbTurret.setRotation(VectorTool.combineRotationsTurret(1, this));
     }    
 }

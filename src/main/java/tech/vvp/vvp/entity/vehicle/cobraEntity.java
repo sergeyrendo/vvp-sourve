@@ -105,7 +105,6 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
     // public OBB obb4;
     // public OBB obb5;
     public OBB obb6;
-    public OBB obb7;
 
     public CobraEntity(PlayMessages.SpawnEntity packet, Level world) {
         this(ModEntities.COBRA.get(), world);
@@ -124,7 +123,6 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
         // this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.0625f, 1.15625f, 0.40625f), new Quaternionf(), OBB.Part.BODY);
         // this.obb5 = new OBB(this.position().toVector3f(), new Vector3f(1f, 0.25f, 0.21875f), new Quaternionf(), OBB.Part.BODY);
         this.obb6 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.40625f, 0.84375f), new Quaternionf(), OBB.Part.ENGINE1);
-        this.obb7 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.40625f, 0.40625f), new Quaternionf(), OBB.Part.ENGINE2);
     }
 
      // Добавляем статический метод для создания атрибутов
@@ -901,7 +899,7 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
 
     @Override
     public List<OBB> getOBBs() {
-        return List.of(this.obb, this.obb2, this.obb3, this.obb6, this.obb7); // this.obb4, this.obb5
+        return List.of(this.obb, this.obb2, this.obb3, this.obb6);
     }
 
     @Override
@@ -920,20 +918,8 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
         this.obb3.center().set(new Vector3f(worldPosition3.x, worldPosition3.y, worldPosition3.z));
         this.obb3.setRotation(VectorTool.combineRotations(1, this));
 
-        // Vector4f worldPosition4 = transformPosition(transform, -0.125f, 2.34375f - 1.45f, -6.34375f);
-        // this.obb4.center().set(new Vector3f(worldPosition4.x, worldPosition4.y, worldPosition4.z));
-        // this.obb4.setRotation(VectorTool.combineRotations(1, this));
-
-        // Vector4f worldPosition5 = transformPosition(transform, -0.125f, 3.5625f - 1.45f, -6.65625f);
-        // this.obb5.center().set(new Vector3f(worldPosition5.x, worldPosition5.y, worldPosition5.z));
-        // this.obb5.setRotation(VectorTool.combineRotations(1, this));
-
         Vector4f worldPosition6 = transformPosition(transform, 0, 3.28125f - 1.45f, -0.53125f);
         this.obb6.center().set(new Vector3f(worldPosition6.x, worldPosition6.y, worldPosition6.z));
         this.obb6.setRotation(VectorTool.combineRotations(1, this));
-
-        Vector4f worldPosition7 = transformPosition(transform, 0.1875f, 2.09375f - 1.45f, -6.15625f);
-        this.obb7.center().set(new Vector3f(worldPosition7.x, worldPosition7.y, worldPosition7.z));
-        this.obb7.setRotation(VectorTool.combineRotations(1, this));
     }
 }

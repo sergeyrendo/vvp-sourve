@@ -14,7 +14,7 @@ public class bikeredModel extends GeoModel<BikeredEntity> {
 
     @Override
     public ResourceLocation getModelResource(BikeredEntity entity) {
-        return new ResourceLocation(VVP.MOD_ID, "geo/bikered.geo.json");
+        return new ResourceLocation(VVP.MOD_ID, "geo/bike.geo.json");
     }
 
     @Override

@@ -701,9 +701,9 @@ public class F35Entity extends ContainerMobileVehicleEntity implements GeoEntity
 
         Matrix4f transform = getVehicleTransform(1);
 
-        float x = 0f;
-        float y = 0.1f + (float) passenger.getMyRidingOffset();
-        float z = 3.95f;
+        float x = 0.024112f;
+        float y = -0.6f + (float) passenger.getMyRidingOffset();
+        float z = 0.447525f;
 
         Vector4f worldPosition = transformPosition(transform, x, y, z);
         passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);

@@ -494,6 +494,22 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
             worldPosition = transformPosition(transform, gunnerX, gunnerY, gunnerZ);
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
             callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);
+        } else if (i == 2) {
+            worldPosition = transformPosition(transform, -0.61f, -0.3f, -1.4f);
+            passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
+            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);       
+        } else if (i == 3) {
+            worldPosition = transformPosition(transform, 0.55f, -0.3f, -1.4f);      
+            passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
+            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);        
+        } else if (i == 4) {
+            worldPosition = transformPosition(transform, -0.61f, -0.3f, -4.0f);   
+            passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
+            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);           
+        } else if (i == 5) {
+            worldPosition = transformPosition(transform, 0.55f, -0.3f, -4.0f);  
+            passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
+            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);            
         }
 
         if (passenger != this.getFirstPassenger()) {
@@ -740,12 +756,12 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
     }
 
     public int getMaxPassengers() {
-        return 2;
+        return 6;
     }
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/mi24_icon.png");
+        return VVP.loc("textures/vehicle_icon/mi24pl_icon.png");
     }
 
     @Override

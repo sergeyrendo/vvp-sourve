@@ -20,10 +20,10 @@ plugins {
 //apply plugin: 'org.spongepowered.mixin'
 
 group = mod_group_id
-version = '0.1.2'
+version = '0.1.4'
 
 base {
-    archivesName = "vvp-beta-hotfix"
+    archivesName = "vvp-beta"
 }
 
 java {

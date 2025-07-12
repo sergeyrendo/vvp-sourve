@@ -1,34 +1,4 @@
 {
-  "m1a1_engine": {
-    "sounds": [
-      "mcsp:m1a1_engine"
-    ]
-  },
-  "m1a1_fire": {
-    "sounds": [
-      "mcsp:m1a1_fire"
-    ]
-  },
-  "m1a1_reload": {
-    "sounds": [
-      "minecraft:item.crossbow.loading_end"
-    ]
-  },
-  "wheel_step": {
-    "sounds": [
-      "minecraft:block.gravel.step"
-    ]
-  },
-  "yx_100_fire_1p": {
-    "sounds": [
-      "minecraft:entity.generic.explode"
-    ]
-  },
-  "yx_100_fire_3p": {
-    "sounds": [
-      "minecraft:entity.generic.explode"
-    ]
-  },
   "yx_100_far": {
     "sounds": [
       "minecraft:entity.generic.explode"
@@ -39,64 +9,144 @@
       "minecraft:entity.generic.explode"
     ]
   },
-  "yx_100_reload": {
+  "wheel_step": {
     "sounds": [
-      "minecraft:block.iron_door.close"
+      "vvp:wheel_step"
     ]
   },
-  "m_2_fire_1p": {
+  "m2_1p": {
     "sounds": [
-      "minecraft:entity.firework_rocket.blast"
+      "vvp:m2_1p"
     ]
   },
-  "m_2_fire_3p": {
+  "m2_3p": {
     "sounds": [
-      "minecraft:entity.firework_rocket.blast"
+      "vvp:m2_3p"
     ]
   },
-  "m_2_far": {
+  "m2_far": {
     "sounds": [
-      "minecraft:entity.firework_rocket.blast"
+      "vvp:m2_far"
     ]
   },
-  "m_2_veryfar": {
+  "m2_veryfar": {
     "sounds": [
-      "minecraft:entity.firework_rocket.blast_far"
+      "vvp:m2_veryfar"
     ]
   },
-  "taifun_engine": {
+  "tow_1p": {
     "sounds": [
-      "mcsp:taifun_engine"
+      "vvp:tow_1p"
     ]
   },
-  "vdv_cannon_fire": {
+  "tow_3p": {
     "sounds": [
-      "mcsp:vdv_cannon_fire"
+      "vvp:tow_3p"
     ]
   },
-  "vdv_cannon_fire_1p": {
+  "tow_far": {
     "sounds": [
-      "mcsp:vdv_cannon_fire_1p"
+      "vvp:tow_far"
     ]
   },
-  "vdv_cannon_fire_3p": {
+  "tow_reload": {
     "sounds": [
-      "mcsp:vdv_cannon_fire_3p"
+      "vvp:tow_reload"
     ]
   },
-  "vdv_cannon_fire_far": {
+  "radiohead": {
+    "category": "record",
     "sounds": [
-      "mcsp:vdv_cannon_fire_far"
+      {
+        "name": "vvp:radiohead",
+          "stream": true
+        }
+      ]
+    },
+  "planeta_engine": {
+    "sounds": [
+      "vvp:planeta_engine"
     ]
   },
-  "vdv_cannon_fire_veryfar": {
+  "btr_80a_engine": {
     "sounds": [
-      "mcsp:vdv_cannon_fire_veryfar"
+      "vvp:btr_80a_engine"
     ]
   },
-  "smoke_fire": {
+
+  "stryker_engine": {
     "sounds": [
-      "mcsp:smoke_fire"
+      "vvp:stryker_engine"
+    ]
+  },
+  "f35_engine": {
+    "sounds": [
+      "vvp:f35_engine"
+    ]
+  },
+  "mi24_engine": {
+    "sounds": [
+      "vvp:mi24_engine"
+    ]
+  },
+  "bushmaster_1p": {
+    "sounds": [
+      "vvp:bushmaster_1p"
+    ]
+  },
+  "bushmaster_3p": {
+    "sounds": [
+      "vvp:bushmaster_3p"
+    ]
+  },
+  "bushmaster_far": {
+    "sounds": [
+      "vvp:bushmaster_far"
+    ]
+  },
+  "bushmaster_veryfar": {
+    "sounds": [
+      "vvp:bushmaster_veryfar"
+    ]
+  },
+  "m1128_1p": {
+    "sounds": [
+      "vvp:m1128_1p"
+    ]
+  },
+  "m1128_3p": {
+    "sounds": [
+      "vvp:m1128_3p"
+    ]
+  },
+  "m1128_far": {
+    "sounds": [
+      "vvp:m1128_far"
+    ]
+  },
+  "m1128_veryfar": {
+    "sounds": [
+      "vvp:m1128_veryfar"
+    ]
+  },
+  "m1128_reload": {
+    "sounds": [
+      "vvp:m1128_reload"
+    ]
+  },
+  "humvee_engine": {
+    "sounds": [
+      "vvp:humvee_engine"
+    ]
+  },
+  "cobra_engine": {
+    "sounds": [
+      "vvp:cobra_engine"
+    ]
+  },
+  "vazik_engine": {
+    "sounds": [
+      "vvp:vazik_engine"
     ]
   }
-} 
+}

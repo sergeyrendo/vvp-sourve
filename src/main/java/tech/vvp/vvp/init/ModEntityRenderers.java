@@ -22,6 +22,8 @@ import tech.vvp.vvp.client.renderer.entity.strykerRenderer;
 import tech.vvp.vvp.client.renderer.entity.stryker_hakiRenderer;
 import tech.vvp.vvp.client.renderer.entity.stryker_1Renderer;
 import tech.vvp.vvp.client.renderer.entity.stryker_1_hakiRenderer;
+import tech.vvp.vvp.client.renderer.entity.btr4Renderer;
+import tech.vvp.vvp.client.renderer.entity.terminatorRenderer;
 
 @Mod.EventBusSubscriber(modid = VVP.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ModEntityRenderers {
@@ -44,6 +46,10 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.STRYKER_HAKI.get(), stryker_hakiRenderer::new);
         event.registerEntityRenderer(ModEntities.STRYKER_1.get(), stryker_1Renderer::new);
         event.registerEntityRenderer(ModEntities.STRYKER_1_HAKI.get(), stryker_1_hakiRenderer::new);
+        event.registerEntityRenderer(ModEntities.BTR_4.get(), btr4Renderer::new);
+        event.registerEntityRenderer(ModEntities.TERMINATOR.get(), terminatorRenderer::new);
+
+
 
     }
 

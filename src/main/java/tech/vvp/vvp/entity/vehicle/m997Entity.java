@@ -5,6 +5,8 @@ import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.config.VehicleConfigVVP;
+
+import com.atsuishio.superbwarfare.entity.OBBEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ArmedVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.LandArmorEntity;
@@ -12,7 +14,9 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
 import com.atsuishio.superbwarfare.init.*;
 import com.atsuishio.superbwarfare.tools.CustomExplosion;
+import com.atsuishio.superbwarfare.tools.OBB;
 import com.atsuishio.superbwarfare.tools.ParticleTool;
+import com.atsuishio.superbwarfare.tools.VectorTool;
 
 // import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -36,10 +40,15 @@ import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.network.PlayMessages;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.core.registries.BuiltInRegistries;
+
+import java.util.List;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Math;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -49,19 +58,35 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import com.atsuishio.superbwarfare.entity.OBBEntity;
 
 // Импортируем необходимые классы для атрибутов
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.Mob;
 
-public class M997Entity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, ArmedVehicleEntity {
+public class M997Entity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, ArmedVehicleEntity, OBBEntity {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    public OBB obb;
+    public OBB obb1;
+    public OBB obb2;
+    public OBB obb3;
+    public OBB obb4;
+    public OBB obb5;
+    public OBB obb6;
+
 
     public M997Entity(EntityType<? extends M997Entity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
+        this.obb = new OBB(this.position().toVector3f(), new Vector3f(1.3125f, 1.0625f, 1.65625f), new Quaternionf(), OBB.Part.BODY);
+        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(1.3125f, 1.0f, 0.46875f), new Quaternionf(), OBB.Part.BODY); 
+        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(1.3125f, 0.3125f, 0.8125f), new Quaternionf(), OBB.Part.BODY); 
+        this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.234375f, 0.3125f, 0.375f), new Quaternionf(), OBB.Part.ENGINE1);
+        this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.234375f, 0.3125f, 0.375f), new Quaternionf(), OBB.Part.ENGINE1);
+        this.obb5 = new OBB(this.position().toVector3f(), new Vector3f(0.234375f, 0.3125f, 0.375f), new Quaternionf(), OBB.Part.ENGINE1);
+        this.obb6 = new OBB(this.position().toVector3f(), new Vector3f(0.234375f, 0.3125f, 0.375f), new Quaternionf(), OBB.Part.ENGINE1);
     }
 
     // Добавляем статический метод для создания атрибутов
@@ -172,6 +197,7 @@ public class M997Entity extends ContainerMobileVehicleEntity implements GeoEntit
         rightWheelRotO = this.getRightWheelRot();
 
         super.baseTick();
+        updateOBB();
 
         if (this.onGround()) {
             float f0 = 0.54f + 0.25f * Mth.abs(90 - (float) calculateAngle(this.getDeltaMovement(), this.getViewVector(1))) / 90;
@@ -400,4 +426,43 @@ public class M997Entity extends ContainerMobileVehicleEntity implements GeoEntit
     public @Nullable ResourceLocation getVehicleItemIcon() {
         return Mod.loc("textures/gui/vehicle/type/land.png");
     }
+
+    public List<OBB> getOBBs() {
+        return List.of(this.obb, this.obb2, this.obb3, this.obb4, this.obb5, this.obb6);
+    }
+
+    // @Override
+    public void updateOBB() {
+        Matrix4f transform = getVehicleTransform(1);
+
+        Vector4f worldPosition = transformPosition(transform, 0f, 2.0625f, -1.59375f);
+        this.obb.center().set(new Vector3f(worldPosition.x, worldPosition.y, worldPosition.z));
+        this.obb.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition1 = transformPosition(transform, 0f, 2.0f, 0.53125f);
+        this.obb1.center().set(new Vector3f(worldPosition1.x, worldPosition1.y, worldPosition1.z));
+        this.obb1.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition2 = transformPosition(transform, 0f, 1.3125f, 1.8125f);
+        this.obb2.center().set(new Vector3f(worldPosition2.x, worldPosition2.y, worldPosition2.z));
+        this.obb2.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition3 = transformPosition(transform, 1.078125f, 0.5f, 1.9375f);
+        this.obb3.center().set(new Vector3f(worldPosition3.x, worldPosition3.y, worldPosition3.z));
+        this.obb3.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition4 = transformPosition(transform, -1.078125f, 0.5f, 1.9375f);
+        this.obb4.center().set(new Vector3f(worldPosition4.x, worldPosition4.y, worldPosition4.z));
+        this.obb4.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition5 = transformPosition(transform, 1.078125f, 0.5f, -1.875f);
+        this.obb5.center().set(new Vector3f(worldPosition5.x, worldPosition5.y, worldPosition5.z));
+        this.obb5.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition6 = transformPosition(transform, -1.078125f, 0.5f, -1.875f);
+        this.obb6.center().set(new Vector3f(worldPosition6.x, worldPosition6.y, worldPosition6.z));
+        this.obb6.setRotation(VectorTool.combineRotations(1, this));
+
+
+    }    
 }

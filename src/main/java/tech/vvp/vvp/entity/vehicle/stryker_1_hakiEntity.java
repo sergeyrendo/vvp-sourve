@@ -124,7 +124,7 @@ public class Stryker_1_hakiEntity extends ContainerMobileVehicleEntity implement
         this.obb6 = new OBB(this.position().toVector3f(), new Vector3f(1.625f, 0.53125f, 0.34375f), new Quaternionf(), OBB.Part.BODY);
         this.obb7 = new OBB(this.position().toVector3f(), new Vector3f(1.625f, 0.625f, 1.5f), new Quaternionf(), OBB.Part.BODY);
         this.obb8 = new OBB(this.position().toVector3f(), new Vector3f(0.71875f, 0.46875f, 0.875f), new Quaternionf(), OBB.Part.ENGINE1);
-        this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(0.975f, 0.46f, 1.0f), new Quaternionf(), OBB.Part.TURRET);
+        this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(1.2890625f, 0.4609375f, 1.1953125f), new Quaternionf(), OBB.Part.TURRET);
     }
 
     // Добавляем статический метод для создания атрибутов
@@ -232,6 +232,9 @@ public class Stryker_1_hakiEntity extends ContainerMobileVehicleEntity implement
 
 
         if (this.level() instanceof ServerLevel) {
+            if (reloadCoolDown > 0) {
+                reloadCoolDown--;
+            }
             this.handleAmmo();
         }
 
@@ -284,7 +287,7 @@ public class Stryker_1_hakiEntity extends ContainerMobileVehicleEntity implement
         }).mapToInt(Ammo.RIFLE::get).sum() + countItem(ModItems.RIFLE_AMMO.get());
 
         if (getWeaponIndex(0) == 0) {
-            this.entityData.set(AMMO, countItem(ModItems.SMALL_SHELL.get()));
+            this.entityData.set(AMMO, countItem(com.atsuishio.superbwarfare.init.ModItems.SMALL_SHELL.get()));
         } else if (getWeaponIndex(0) == 1) {
             this.entityData.set(AMMO, ammoCount);
         }
@@ -311,9 +314,9 @@ public class Stryker_1_hakiEntity extends ContainerMobileVehicleEntity implement
         Matrix4f transform = getBarrelTransform(1);
         if (getWeaponIndex(0) == 0) {
             if (this.cannotFire) return;
-            float x = -0.17f;
+            float x = 0.0f;
             float y = 0.4f;
-            float z = 2.2f;
+            float z = 4.3f;
 
             Vector4f worldPosition = transformPosition(transform, x, y, z);
             var smallCannonShell = ((SmallCannonShellWeapon) getWeapon(0)).create(player);
@@ -346,11 +349,11 @@ public class Stryker_1_hakiEntity extends ContainerMobileVehicleEntity implement
 
             if (hasCreativeAmmo) return;
 
-            this.getItemStacks().stream().filter(stack -> stack.is(ModItems.SMALL_SHELL.get())).findFirst().ifPresent(stack -> stack.shrink(1));
+            this.getItemStacks().stream().filter(stack -> stack.is(com.atsuishio.superbwarfare.init.ModItems.SMALL_SHELL.get())).findFirst().ifPresent(stack -> stack.shrink(1));
         } else if (getWeaponIndex(0) == 1) {
             if (this.cannotFireCoax) return;
             float x = -0.2f;
-            float y = 0.3f;
+            float y = -0.3f;
             float z = 1.2f;
 
             Vector4f worldPosition = transformPosition(transform, x, y, z);
@@ -532,7 +535,7 @@ public class Stryker_1_hakiEntity extends ContainerMobileVehicleEntity implement
         Matrix4f transformV = getVehicleTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, 0, 3.5004f, 0);
+        Vector4f worldPosition = transformPosition(transform, 0, 3.25f, -1.25f);
 
         transformV.translate(worldPosition.x, worldPosition.y, worldPosition.z);
         transformV.rotate(Axis.YP.rotationDegrees(Mth.lerp(ticks, turretYRotO, getTurretYRot())));
@@ -622,7 +625,7 @@ public class Stryker_1_hakiEntity extends ContainerMobileVehicleEntity implement
     @Override
     public boolean canShoot(Player player) {
         if (getWeaponIndex(0) == 0) {
-            return (this.entityData.get(LOADED_AP) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFire;
+            return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFire;
         } else if (getWeaponIndex(0) == 1) {
             return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFireCoax;
         }
@@ -661,7 +664,7 @@ public class Stryker_1_hakiEntity extends ContainerMobileVehicleEntity implement
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/stryker_1_haki_icon.png");
+        return VVP.loc("textures/vehicle_icon/stryker_1_icon.png");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -800,7 +803,7 @@ public class Stryker_1_hakiEntity extends ContainerMobileVehicleEntity implement
         this.obb8.setRotation(VectorTool.combineRotations(1, this));
 
         Matrix4f transformT = getTurretTransform(1);
-        Vector4f worldPositionT = transformPosition(transformT, 0, -0.25f, -1.25f);
+        Vector4f worldPositionT = transformPosition(transformT, 0, -0.25f, 0.0f);
         this.obbTurret.center().set(new Vector3f(worldPositionT.x, worldPositionT.y, worldPositionT.z));
         this.obbTurret.setRotation(VectorTool.combineRotationsTurret(1, this));
     }

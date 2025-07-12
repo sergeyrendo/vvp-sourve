@@ -5,6 +5,8 @@ import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.config.VehicleConfigVVP;
+
+import com.atsuishio.superbwarfare.entity.OBBEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ArmedVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.LandArmorEntity;
@@ -12,7 +14,9 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
 import com.atsuishio.superbwarfare.init.*;
 import com.atsuishio.superbwarfare.tools.CustomExplosion;
+import com.atsuishio.superbwarfare.tools.OBB;
 import com.atsuishio.superbwarfare.tools.ParticleTool;
+import com.atsuishio.superbwarfare.tools.VectorTool;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -36,10 +40,15 @@ import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.network.PlayMessages;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.core.registries.BuiltInRegistries;
+
+import java.util.List;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Math;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -55,20 +64,26 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.Mob;
 
-public class BikegreenEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, ArmedVehicleEntity {
+public class BikegreenEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, ArmedVehicleEntity, OBBEntity {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    public OBB obb;
+    public OBB obb1;
+    public OBB obb2;
 
     public BikegreenEntity(EntityType<? extends BikegreenEntity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
+        this.obb = new OBB(this.position().toVector3f(), new Vector3f(0.15625f, 0.289f, 0.297f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
+        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(0.15625f, 0.289f, 0.297f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
+        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(0.203f, 0.18f, 0.398f), new Quaternionf(), OBB.Part.BODY);
     }
 
     // Добавляем статический метод для создания атрибутов
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 100.0D)  // Тигр легче Абрамса
-                .add(Attributes.MOVEMENT_SPEED, 0.35D) // Тигр быстрее
+                .add(Attributes.MOVEMENT_SPEED, 1.0D) // Тигр быстрее
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.8D)
                 .add(Attributes.ARMOR, 10.0D)
                 .add(Attributes.ARMOR_TOUGHNESS, 5.0D);
@@ -172,7 +187,7 @@ public class BikegreenEntity extends ContainerMobileVehicleEntity implements Geo
         rightWheelRotO = this.getRightWheelRot();
 
         super.baseTick();
-
+        this.updateOBB();
 
         if (this.onGround()) {
             float f0 = 0.54f + 0.25f * Mth.abs(90 - (float) calculateAngle(this.getDeltaMovement(), this.getViewVector(1))) / 90;
@@ -394,5 +409,26 @@ public class BikegreenEntity extends ContainerMobileVehicleEntity implements Geo
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
         return Mod.loc("textures/gui/vehicle/type/land.png");
+    }
+
+    public List<OBB> getOBBs() {
+        return List.of(this.obb, this.obb1, this.obb2);
+    }
+
+    // @Override
+    public void updateOBB() {
+        Matrix4f transform = getVehicleTransform(1);
+
+        Vector4f worldPosition = transformPosition(transform, 0.0f, 0.383f, 0.859f);
+        this.obb.center().set(new Vector3f(worldPosition.x, worldPosition.y, worldPosition.z));
+        this.obb.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition2 = transformPosition(transform, 0.0f, 0.383f, -0.859f); 
+        this.obb1.center().set(new Vector3f(worldPosition2.x, worldPosition2.y, worldPosition2.z));
+        this.obb1.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition3 = transformPosition(transform, 0.0f, 0.977f, -0.961f);
+        this.obb2.center().set(new Vector3f(worldPosition3.x, worldPosition3.y, worldPosition3.z));
+        this.obb2.setRotation(VectorTool.combineRotations(1, this));
     }
 }
