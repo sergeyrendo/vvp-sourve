@@ -408,6 +408,25 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
             this.consumeEnergy(VehicleConfigVVP.TYPHOON_ENERGY_COST.get());
         }
 
+        int i;
+
+        if (entityData.get(L_WHEEL_DAMAGED) && entityData.get(R_WHEEL_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.93f);
+            i = 0;
+        } else if (entityData.get(L_WHEEL_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
+            i = 3;
+        } else if (entityData.get(R_WHEEL_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
+            i = -3;
+        } else {
+            i = 0;
+        }
+
+        if (entityData.get(ENGINE1_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.85f);
+        }
+
         this.entityData.set(POWER, this.entityData.get(POWER) * (upInputDown ? 0.5f : (rightInputDown || leftInputDown) ? 0.977f : 0.99f));
         this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) * (float) Math.max(0.76f - 0.1f * this.getDeltaMovement().horizontalDistance(), 0.3));
 
@@ -795,5 +814,20 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
     this.obb10.center().set(new Vector3f(worldPosition10.x, worldPosition10.y, worldPosition10.z));
     this.obb10.setRotation(VectorTool.combineRotations(1, this));
 
-    }    
+    }
+
+    @Override
+    public float getTurretMaxHealth() {
+        return 100;
+    }
+
+    @Override
+    public float getWheelMaxHealth() {
+        return 100;
+    }
+
+    @Override
+    public float getEngineMaxHealth() {
+        return 150;
+    }
 }

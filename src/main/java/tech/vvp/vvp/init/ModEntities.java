@@ -10,37 +10,19 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.entity.vehicle.VazikEntity;
-import tech.vvp.vvp.entity.vehicle.BikeredEntity;
-import tech.vvp.vvp.entity.vehicle.BikegreenEntity;
-import tech.vvp.vvp.entity.vehicle.Mi24Entity;
-import tech.vvp.vvp.entity.vehicle.Mi24polEntity;
-import tech.vvp.vvp.entity.vehicle.Mi24ukrEntity;
-import tech.vvp.vvp.entity.vehicle.M997Entity;
-import tech.vvp.vvp.entity.vehicle.CobraEntity;
-import tech.vvp.vvp.entity.vehicle.CobraSharkEntity;
-import tech.vvp.vvp.entity.vehicle.F35Entity;
-import tech.vvp.vvp.entity.vehicle.Btr80aEntity;
-import tech.vvp.vvp.entity.vehicle.M997_greenEntity;
-import tech.vvp.vvp.entity.vehicle.Btr80a_1Entity;
-import tech.vvp.vvp.entity.vehicle.StrykerEntity;
-import tech.vvp.vvp.entity.vehicle.Stryker_1Entity;
-import tech.vvp.vvp.entity.vehicle.Stryker_hakiEntity;
-import tech.vvp.vvp.entity.vehicle.TerminatorEntity;
-import tech.vvp.vvp.entity.vehicle.Stryker_1_hakiEntity;
-import tech.vvp.vvp.entity.vehicle.Btr4Entity;
+import tech.vvp.vvp.entity.vehicle.*;
 
 public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, VVP.MOD_ID);
                     
-    public static final RegistryObject<EntityType<VazikEntity>> VAZIK = ENTITY_TYPES.register("vazik",
-                    () -> EntityType.Builder.<VazikEntity>of(VazikEntity::new, MobCategory.MISC)
-                        .setTrackingRange(64)
-                        .setUpdateInterval(1)
-                        .setCustomClientFactory(VazikEntity::clientSpawn)
-                        .fireImmune()
-                        .sized(2.7f, 2.3f)
-                        .build("vazik"));
+//     public static final RegistryObject<EntityType<VazikEntity>> VAZIK = ENTITY_TYPES.register("vazik",
+//                     () -> EntityType.Builder.<VazikEntity>of(VazikEntity::new, MobCategory.MISC)
+//                         .setTrackingRange(64)
+//                         .setUpdateInterval(1)
+//                         .setCustomClientFactory(VazikEntity::clientSpawn)
+//                         .fireImmune()
+//                         .sized(2.7f, 2.3f)
+//                         .build("vazik"));
 
     public static final RegistryObject<EntityType<M997Entity>> M997 = ENTITY_TYPES.register("m997",
                         () -> EntityType.Builder.<M997Entity>of(M997Entity::new, MobCategory.MISC)
@@ -114,23 +96,23 @@ public class ModEntities {
                                     .sized(3.9f, 3.5f)
                                     .build("stryker_haki"));
 
-    public static final RegistryObject<EntityType<BikegreenEntity>> BIKEGREEN = ENTITY_TYPES.register("bikegreen",
-                        () -> EntityType.Builder.<BikegreenEntity>of(BikegreenEntity::new, MobCategory.MISC)
-                        .setTrackingRange(64)
-                        .setUpdateInterval(1)
-                        .setCustomClientFactory(BikegreenEntity::clientSpawn)
-                        .fireImmune()
-                        .sized(0.9f, 1.2f)
-                        .build("bikegreen"));
+//     public static final RegistryObject<EntityType<BikegreenEntity>> BIKEGREEN = ENTITY_TYPES.register("bikegreen",
+//                         () -> EntityType.Builder.<BikegreenEntity>of(BikegreenEntity::new, MobCategory.MISC)
+//                         .setTrackingRange(64)
+//                         .setUpdateInterval(1)
+//                         .setCustomClientFactory(BikegreenEntity::clientSpawn)
+//                         .fireImmune()
+//                         .sized(0.9f, 1.2f)
+//                         .build("bikegreen"));
 
-    public static final RegistryObject<EntityType<BikeredEntity>> BIKERED = ENTITY_TYPES.register("bikered",
-                            () -> EntityType.Builder.<BikeredEntity>of(BikeredEntity::new, MobCategory.MISC)
-                        .setTrackingRange(64)
-                        .setUpdateInterval(1)
-                        .setCustomClientFactory(BikeredEntity::clientSpawn)
-                        .fireImmune()
-                        .sized(0.9f, 1.2f)
-                        .build("bikered"));
+//     public static final RegistryObject<EntityType<BikeredEntity>> BIKERED = ENTITY_TYPES.register("bikered",
+//                             () -> EntityType.Builder.<BikeredEntity>of(BikeredEntity::new, MobCategory.MISC)
+//                         .setTrackingRange(64)
+//                         .setUpdateInterval(1)
+//                         .setCustomClientFactory(BikeredEntity::clientSpawn)
+//                         .fireImmune()
+//                         .sized(0.9f, 1.2f)
+//                         .build("bikered"));
 
     public static final RegistryObject<EntityType<SmallCannonShellEntity>> SMALL_CANNON_SHELL = ENTITY_TYPES.register("small_cannon_shell",
                     () -> EntityType.Builder.<SmallCannonShellEntity>of(SmallCannonShellEntity::new, MobCategory.MISC)
@@ -147,8 +129,8 @@ public class ModEntities {
                             .sized(0.5f, 0.5f)
                             .build("projectile"));
         
-    public static final RegistryObject<EntityType<HeliRocketEntity>> HELI_ROCKET = ENTITY_TYPES.register("heli_rocket",
-                    () -> EntityType.Builder.<HeliRocketEntity>of(HeliRocketEntity::new, MobCategory.MISC)
+    public static final RegistryObject<EntityType<SmallRocketEntity>> HELI_ROCKET = ENTITY_TYPES.register("heli_rocket",
+                    () -> EntityType.Builder.<SmallRocketEntity>of(SmallRocketEntity::new, MobCategory.MISC)
                             .sized(0.5f, 0.5f)
                             .build("heli_rocket"));
         
@@ -189,6 +171,15 @@ public class ModEntities {
                                     .fireImmune()
                                     .sized(3.9f, 3.5f)
                                     .build("terminator"));
+
+    public static final RegistryObject<EntityType<TerminatorHakiEntity>> TERMINATOR_HAKI = ENTITY_TYPES.register("terminator_haki",
+                                () -> EntityType.Builder.<TerminatorHakiEntity>of(TerminatorHakiEntity::new, MobCategory.MISC)
+                                    .setTrackingRange(64)
+                                    .setUpdateInterval(1)
+                                    .setCustomClientFactory(TerminatorHakiEntity::clientSpawn)
+                                    .fireImmune()
+                                    .sized(3.9f, 3.5f)
+                                    .build("terminator_haki"));
 
     public static final RegistryObject<EntityType<Mi24Entity>> MI24 = register("mi24",
             EntityType.Builder.<Mi24Entity>of(Mi24Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(Mi24Entity::new).fireImmune().sized(4.5f, 4.8f));

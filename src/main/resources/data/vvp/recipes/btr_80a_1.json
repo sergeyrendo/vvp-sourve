@@ -1,0 +1,32 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+      "BLA",
+      "SSS",
+      "WMW"
+    ],
+    "key": {
+      "B": {
+        "item": "superbwarfare:medium_battery_pack"
+      },
+      "L": {
+        "item": "superbwarfare:light_armament_module"
+      },
+      "A": {
+        "item": "superbwarfare:sandbag"
+      },
+      "S": {
+        "tag": "forge:storage_blocks/steel"
+      },
+      "W": {
+        "item": "superbwarfare:wheel"
+      },
+      "M": {
+        "item": "superbwarfare:large_motor"
+      }
+    },
+    "result": {
+      "item": "superbwarfare:container",
+      "nbt": "{BlockEntityTag: {EntityType: \"vvp:btr_80a_1\", id: \"superbwarfare:container\"}}"
+    }
+  }

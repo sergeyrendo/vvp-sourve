@@ -1,6 +1,6 @@
 package tech.vvp.vvp.init;
 
-import com.atsuishio.superbwarfare.item.ContainerBlockItem;
+import com.atsuishio.superbwarfare.item.common.container.ContainerBlockItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -35,6 +35,7 @@ public class ModTabs {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_1_HAKI.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_4.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.TERMINATOR.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.TERMINATOR_HAKI.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI24.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI24POL.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI24UKR.get()));
@@ -45,17 +46,6 @@ public class ModTabs {
                 // Здесь будут добавляться новые единицы техники
             })
             .build());
-
-    public static final RegistryObject<CreativeModeTab> CIVILIAN_VEHICLE = TABS.register("civilian_vehicle",
-            () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.vvp_civilian_vehicle_tab"))
-                    .icon(() -> new ItemStack(ModItems.ICON_CIVILIAN.get()))
-                    .displayItems((parameters, output) -> {
-                        output.accept(ContainerBlockItem.createInstance(ModEntities.VAZIK.get()));
-                        output.accept(ContainerBlockItem.createInstance(ModEntities.BIKEGREEN.get()));
-                        output.accept(ContainerBlockItem.createInstance(ModEntities.BIKERED.get()));
-                    })
-                    .build());
 
     public static final RegistryObject<CreativeModeTab> ARMOR_TAB = TABS.register("armor_tab",
                     () -> CreativeModeTab.builder()

@@ -47,7 +47,7 @@ public class VehicleConfigVVP {
     
             TYPHOON_ENERGY_COST = BUILDER
                     .comment("Energy cost for Typhoon vehicle")
-                    .defineInRange("typhoon_energy_cost", 64, 0, 2147483647);
+                    .defineInRange("typhoon_energy_cost", 128, 0, 2147483647);
     
             TYPHOON_ENERGY_MULTIPLIER = BUILDER
                     .comment("Energy multiplier for Typhoon vehicle")

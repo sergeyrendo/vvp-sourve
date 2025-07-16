@@ -262,7 +262,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
             sendParticle(serverLevel, ParticleTypes.BUBBLE_COLUMN_UP, this.getX() + 0.5 * this.getDeltaMovement().x, this.getY() + getSubmergedHeight(this) - 0.2, this.getZ() + 0.5 * this.getDeltaMovement().z, (int) (2 + 10 * this.getDeltaMovement().length()), 0.65, 0, 0.65, 0, true);
         }
 
-        turretAngle(3f, 3f);
+        turretAngle(10, 12.5f);
         lowHealthWarning();
         this.terrainCompact(2.7f, 3.61f);
         inertiaRotate(1.25f);
@@ -464,7 +464,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
 
         if (this.getEnergy() <= 0) return;
 
-        if (passenger0 == null) {
+        if (!(passenger0 instanceof Player)) {
             this.leftInputDown = false;
             this.rightInputDown = false;
             this.forwardInputDown = false;
@@ -473,38 +473,67 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         }
 
         if (forwardInputDown) {
-            this.entityData.set(POWER, Math.min(this.entityData.get(POWER) + (this.entityData.get(POWER) < 0 ? 0.012f : 0.0024f), 0.18f));
+            this.entityData.set(POWER, Math.min(this.entityData.get(POWER) + (this.entityData.get(POWER) < 0 ? 0.004f : 0.0024f) * (1 + getXRot() / 55), 0.21f));
         }
 
         if (backInputDown) {
-            this.entityData.set(POWER, Math.max(this.entityData.get(POWER) - (this.entityData.get(POWER) > 0 ? 0.012f : 0.0024f), -0.13f));
-        }
-
-        if (rightInputDown) {
-            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.08f); // Уменьшено с 0.1f до 0.08f
-        } else if (this.leftInputDown) {
-            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.16f); // Уменьшено с 0.2f до 0.16f
+            this.entityData.set(POWER, Math.max(this.entityData.get(POWER) - (this.entityData.get(POWER) > 0 ? 0.004f : 0.0024f) * (1 - getXRot() / 55), -0.16f));
+            if (rightInputDown) {
+                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.1f);
+            } else if (this.leftInputDown) {
+                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.1f);
+            }
+        } else {
+            if (rightInputDown) {
+                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.1f);
+            } else if (this.leftInputDown) {
+                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.1f);
+            }
         }
 
         if (this.forwardInputDown || this.backInputDown) {
-            this.consumeEnergy(VehicleConfigVVP.TYPHOON_ENERGY_COST.get());
+            this.consumeEnergy(VehicleConfig.YX_100_ENERGY_COST.get());
         }
 
-        this.entityData.set(POWER, this.entityData.get(POWER) * (upInputDown ? 0.5f : (rightInputDown || leftInputDown) ? 0.977f : 0.99f));
-        this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) * (float) Math.max(0.72f - 0.1f * this.getDeltaMovement().horizontalDistance(), 0.3)); // Уменьшено с 0.76f до 0.72f
+        this.entityData.set(POWER, this.entityData.get(POWER) * (upInputDown ? 0.5f : (rightInputDown || leftInputDown) ? 0.947f : 0.96f));
+        this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) * (float) Math.max(0.76f - 0.1f * this.getDeltaMovement().horizontalDistance(), 0.3));
 
         double s0 = getDeltaMovement().dot(this.getViewVector(1));
 
-        this.setLeftWheelRot((float) ((this.getLeftWheelRot() - 1.25 * s0) - this.getDeltaMovement().horizontalDistance() * Mth.clamp(1.5f * this.entityData.get(DELTA_ROT), -5f, 5f)));
-        this.setRightWheelRot((float) ((this.getRightWheelRot() - 1.25 * s0) + this.getDeltaMovement().horizontalDistance() * Mth.clamp(1.5f * this.entityData.get(DELTA_ROT), -5f, 5f)));
+        this.setLeftWheelRot((float) ((this.getLeftWheelRot() - 1.25 * s0) + Mth.clamp(0.75f * this.entityData.get(DELTA_ROT), -5f, 5f)));
+        this.setRightWheelRot((float) ((this.getRightWheelRot() - 1.25 * s0) - Mth.clamp(0.75f * this.entityData.get(DELTA_ROT), -5f, 5f)));
 
-        this.setRudderRot(Mth.clamp(this.getRudderRot() - this.entityData.get(DELTA_ROT), -0.8f, 0.8f) * 0.75f);
+        setLeftTrack((float) ((getLeftTrack() - 1.5 * Math.PI * s0) + Mth.clamp(0.4f * Math.PI * this.entityData.get(DELTA_ROT), -5f, 5f)));
+        setRightTrack((float) ((getRightTrack() - 1.5 * Math.PI * s0) - Mth.clamp(0.4f * Math.PI * this.entityData.get(DELTA_ROT), -5f, 5f)));
 
-        this.setYRot((float) (this.getYRot() - Math.max((isInWater() && !onGround() ? 4 : 8) * this.getDeltaMovement().horizontalDistance(), 0) * this.getRudderRot() * (this.entityData.get(POWER) > 0 ? 1 : -1))); // Уменьшено с (5 : 10) до (4 : 8)
+        int i;
 
+        if (entityData.get(L_WHEEL_DAMAGED) && entityData.get(R_WHEEL_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.93f);
+            i = 0;
+        } else if (entityData.get(L_WHEEL_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
+            i = 3;
+        } else if (entityData.get(R_WHEEL_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
+            i = -3;
+        } else {
+            i = 0;
+        }
+
+        if (entityData.get(ENGINE1_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.85f);
+        }
+
+        this.setYRot((float) (this.getYRot() - (isInWater() && !onGround() ? 2.5 : 6) * entityData.get(DELTA_ROT) - i * s0));
         if (this.isInWater() || onGround()) {
-            float power = this.entityData.get(POWER) * Mth.clamp(1 + (s0 > 0 ? 1 : -1) * getXRot() / 35, 0, 2);
-            this.setDeltaMovement(this.getDeltaMovement().add(getViewVector(1).scale((!isInWater() && !onGround() ? 0.05f : (isInWater() && !onGround() ? 0.3f : 1)) * power)));
+            this.setDeltaMovement(this.getDeltaMovement().add(getViewVector(1).scale((!isInWater() && !onGround() ? 0.13f : (isInWater() && !onGround() ? 0 : 2.4f)) * this.entityData.get(POWER))));
+        }
+
+        // Добавлено: тонуть в воде, если не на земле
+        if (this.isInWater() && !this.onGround()) {
+            Vec3 movement = this.getDeltaMovement();
+            this.setDeltaMovement(movement.add(0, -0.05, 0)); // Скорость погружения (можно скорректировать значение)
         }
     }
 
@@ -849,5 +878,20 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         Vector4f worldPositionT = transformPosition(transformT, 0.0f, 0.0f, 0.0f);
         this.obbTurret.center().set(new Vector3f(worldPositionT.x, worldPositionT.y, worldPositionT.z));
         this.obbTurret.setRotation(VectorTool.combineRotationsTurret(1, this));
+    }
+
+    @Override
+    public float getTurretMaxHealth() {
+        return 150;
+    }
+
+    @Override
+    public float getWheelMaxHealth() {
+        return 125;
+    }
+
+    @Override
+    public float getEngineMaxHealth() {
+        return 150;
     }
 }

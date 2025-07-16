@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+      "CDC",
+      "CCC",
+      "CCC"
+    ],
+    "key": {
+      "C": {
+        "item": "superbwarfare:cemented_carbide_ingot"
+      },
+      "D": {
+        "item": "minecraft:dirt"
+      }
+    },
+    "result": {
+      "item": "vvp:usachest"
+    }
+}

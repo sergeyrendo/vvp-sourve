@@ -1,0 +1,32 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+      "BLM",
+      "SSS",
+      "TAT"
+    ],
+    "key": {
+      "B": {
+        "item": "superbwarfare:large_battery_pack"
+      },
+      "L": {
+        "item": "superbwarfare:light_armament_module"
+      },
+      "M": {
+        "item": "superbwarfare:medium_armament_module"
+      },
+      "S": {
+        "tag": "forge:storage_blocks/steel"
+      },
+      "T": {
+        "item": "superbwarfare:track"
+      },
+      "A": {
+        "item": "superbwarfare:large_motor"
+      }
+    },
+    "result": {
+      "item": "superbwarfare:container",
+      "nbt": "{BlockEntityTag: {EntityType: \"vvp:terminator\", id: \"superbwarfare:container\"}}"
+    }
+  }

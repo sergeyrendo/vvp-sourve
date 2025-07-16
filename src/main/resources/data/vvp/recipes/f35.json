@@ -1,0 +1,32 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+      "LSL",
+      "MHM",
+      "BVB"
+    ],
+    "key": {
+      "L": {
+        "item": "superbwarfare:large_propeller"
+      },
+      "S": {
+        "tag": "forge:storage_blocks/steel"
+      },
+      "V": {
+        "item": "superbwarfare:large_motor"
+      },
+      "H": {
+        "item": "superbwarfare:heavy_armament_module"
+      },
+      "B": {
+        "item": "superbwarfare:medium_battery_pack"
+      },
+      "M": {
+        "item": "superbwarfare:medium_armament_module"
+      }
+    },
+    "result": {
+      "item": "superbwarfare:container",
+      "nbt": "{BlockEntityTag: {EntityType: \"vvp:f35\", id: \"superbwarfare:container\"}}"
+    }
+  }

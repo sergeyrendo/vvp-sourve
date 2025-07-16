@@ -10,7 +10,7 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition
 import com.atsuishio.superbwarfare.entity.vehicle.base.WeaponVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.Agm65Weapon;
-import com.atsuishio.superbwarfare.entity.vehicle.weapon.HeliRocketWeapon;
+import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallRocketWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallCannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.VehicleWeapon;
 import com.atsuishio.superbwarfare.event.ClientMouseHandler;
@@ -102,8 +102,6 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
     public OBB obb;
     public OBB obb2;
     public OBB obb3;
-    // public OBB obb4;
-    // public OBB obb5;
     public OBB obb6;
 
     public CobraEntity(PlayMessages.SpawnEntity packet, Level world) {
@@ -156,14 +154,8 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
         }
     }
 
-    @Override
-    public void tick() {
-        super.tick();
-        handleRadar();
-    }
-
     @SuppressWarnings("unchecked")
-    public static CobraSharkEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
+    public static CobraEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
         EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
         if (entityTypeFromPacket == null) {
             Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
@@ -174,8 +166,8 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
              return null;
         }
 
-        EntityType<CobraSharkEntity> castedEntityType = (EntityType<CobraSharkEntity>) entityTypeFromPacket;
-        CobraSharkEntity entity = new CobraSharkEntity(castedEntityType, world);
+        EntityType<CobraEntity> castedEntityType = (EntityType<CobraEntity>) entityTypeFromPacket;
+        CobraEntity entity = new CobraEntity(castedEntityType, world);
         return entity;
     }
 
@@ -194,13 +186,13 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
                                 .sound3p(ModSounds.HELICOPTER_CANNON_FIRE_3P.get())
                                 .sound3pFar(ModSounds.HELICOPTER_CANNON_FAR.get())
                                 .sound3pVeryFar(ModSounds.HELICOPTER_CANNON_VERYFAR.get()),
-                        new HeliRocketWeapon()
+                        new SmallRocketWeapon()
                                 .damage(VehicleConfigVVP.MI_24_ROCKET_DAMAGE.get())
                                 .explosionDamage(VehicleConfigVVP.MI_24_ROCKET_EXPLOSION_DAMAGE.get())
                                 .explosionRadius(VehicleConfigVVP.MI_24_ROCKET_EXPLOSION_RADIUS.get())
                                 .sound(ModSounds.INTO_MISSILE.get())
-                                .sound1p(ModSounds.HELICOPTER_ROCKET_FIRE_1P.get())
-                                .sound3p(ModSounds.HELICOPTER_ROCKET_FIRE_3P.get()),
+                                .sound1p(ModSounds.SMALL_ROCKET_FIRE_1P.get())
+                                .sound3p(ModSounds.SMALL_ROCKET_FIRE_3P.get()),
                         new Agm65Weapon()
                                 .sound(ModSounds.INTO_MISSILE.get()),
                 }
@@ -252,7 +244,7 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
     @Override
     public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getMainHandItem();
-        if (stack.getItem() == ModItems.ROCKET_70.get() && this.entityData.get(LOADED_ROCKET) < 25) {
+        if (stack.getItem() == ModItems.SMALL_ROCKET.get() && this.entityData.get(LOADED_ROCKET) < 25) {
             this.entityData.set(LOADED_ROCKET, this.entityData.get(LOADED_ROCKET) + 1);
             if (!player.isCreative()) {
                 stack.shrink(1);
@@ -267,6 +259,10 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
     public void baseTick() {
         super.baseTick();
         updateOBB();
+
+        if (this.tickCount % 20 == 0) {
+            handleRadar();
+        }
 
         if (this.level() instanceof ServerLevel) {
             if (reloadCoolDown > 0) {
@@ -310,11 +306,11 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
             return false;
         }).mapToInt(Ammo.HEAVY::get).sum() + countItem(ModItems.SMALL_SHELL.get());
 
-        if ((hasItem(ModItems.ROCKET_70.get()) || InventoryTool.hasCreativeAmmoBox(player)) && reloadCoolDown == 0 && this.getEntityData().get(LOADED_ROCKET) < 25) {
+        if ((hasItem(ModItems.SMALL_ROCKET.get()) || InventoryTool.hasCreativeAmmoBox(player)) && reloadCoolDown == 0 && this.getEntityData().get(LOADED_ROCKET) < 25) {
             this.entityData.set(LOADED_ROCKET, this.getEntityData().get(LOADED_ROCKET) + 1);
             reloadCoolDown = 18;
             if (!InventoryTool.hasCreativeAmmoBox(player)) {
-                this.getItemStacks().stream().filter(stack -> stack.is(ModItems.ROCKET_70.get())).findFirst().ifPresent(stack -> stack.shrink(1));
+                this.getItemStacks().stream().filter(stack -> stack.is(ModItems.SMALL_ROCKET.get())).findFirst().ifPresent(stack -> stack.shrink(1));
             }
             this.level().playSound(null, this, ModSounds.MISSILE_RELOAD.get(), this.getSoundSource(), 1, 1);
         }
@@ -443,6 +439,10 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
 
         if (engineStart) {
             this.consumeEnergy((int) (VehicleConfigVVP.MI_24_MIN_ENERGY_COST.get() + this.entityData.get(POWER) * ((VehicleConfigVVP.MI_24_MAX_ENERGY_COST.get() - VehicleConfigVVP.MI_24_MIN_ENERGY_COST.get()) / 0.12)));
+        }
+
+        if (entityData.get(ENGINE1_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.98f);
         }
 
         Matrix4f transform = getVehicleTransform(1);
@@ -684,7 +684,7 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
             y = 0.62f - 1.45f;
             z = 0.8f;
 
-            var heliRocketEntity = ((HeliRocketWeapon) getWeapon(0)).create(player);
+            var heliRocketEntity = ((SmallRocketWeapon) getWeapon(0)).create(player);
 
             Vector4f worldPosition;
             Vector4f worldPosition2;
@@ -921,5 +921,6 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
         Vector4f worldPosition6 = transformPosition(transform, 0, 3.28125f - 1.45f, -0.53125f);
         this.obb6.center().set(new Vector3f(worldPosition6.x, worldPosition6.y, worldPosition6.z));
         this.obb6.setRotation(VectorTool.combineRotations(1, this));
+
     }
 }

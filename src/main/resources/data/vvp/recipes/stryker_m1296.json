@@ -1,0 +1,35 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+      "BMC",
+      "SGS",
+      "WAW"
+    ],
+    "key": {
+      "B": {
+        "item": "superbwarfare:medium_battery_pack"
+      },
+      "M": {
+        "item": "superbwarfare:medium_armament_module"
+      },
+      "C": {
+        "item": "superbwarfare:cemented_carbide_ingot"
+      },
+      "S": {
+        "tag": "forge:storage_blocks/steel"
+      },
+      "G": {
+        "item": "minecraft:green_dye"
+      },
+      "W": {
+        "item": "superbwarfare:wheel"
+      },
+      "A": {
+        "item": "superbwarfare:large_motor"
+      }
+    },
+    "result": {
+      "item": "superbwarfare:container",
+      "nbt": "{BlockEntityTag: {EntityType: \"vvp:stryker_m1296\", id: \"superbwarfare:container\"}}"
+    }
+  }

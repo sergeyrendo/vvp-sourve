@@ -1,0 +1,41 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+      "LMP",
+      "CSO",
+      "BHT"
+    ],
+    "key": {
+      "L": {
+        "item": "superbwarfare:large_propeller"
+      },
+      "M": {
+        "item": "superbwarfare:large_motor"
+      },
+      "P": {
+        "item": "superbwarfare:propeller"
+      },
+      "C": {
+        "item": "minecraft:compass"
+      },
+      "S": {
+        "tag": "forge:storage_blocks/steel"
+      },
+      "O": {
+        "item": "minecraft:observer"
+      },
+      "B": {
+        "item": "superbwarfare:medium_battery_pack"
+      },
+      "H": {
+        "item": "superbwarfare:heavy_armament_module"
+      },
+      "T": {
+        "item": "minecraft:light_gray_dye"
+      }
+    },
+    "result": {
+      "item": "superbwarfare:container",
+      "nbt": "{BlockEntityTag: {EntityType: \"vvp:cobra\", id: \"superbwarfare:container\"}}"
+    }
+  }

@@ -5,33 +5,12 @@ import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.client.renderer.entity.vazikRenderer;
-import tech.vvp.vvp.client.renderer.entity.bikegreenRenderer;
-import tech.vvp.vvp.client.renderer.entity.bikeredRenderer;
-import tech.vvp.vvp.client.renderer.entity.mi24Renderer;
-import tech.vvp.vvp.client.renderer.entity.mi24polRenderer;
-import tech.vvp.vvp.client.renderer.entity.mi24ukrRenderer;
-import tech.vvp.vvp.client.renderer.entity.m997Renderer;
-import tech.vvp.vvp.client.renderer.entity.m997_greenRenderer;
-import tech.vvp.vvp.client.renderer.entity.cobraRenderer;
-import tech.vvp.vvp.client.renderer.entity.cobrasharkRenderer;
-import tech.vvp.vvp.client.renderer.entity.btr80aRenderer;
-import tech.vvp.vvp.client.renderer.entity.btr80a_1Renderer;
-import tech.vvp.vvp.client.renderer.entity.f35Renderer;
-import tech.vvp.vvp.client.renderer.entity.strykerRenderer;
-import tech.vvp.vvp.client.renderer.entity.stryker_hakiRenderer;
-import tech.vvp.vvp.client.renderer.entity.stryker_1Renderer;
-import tech.vvp.vvp.client.renderer.entity.stryker_1_hakiRenderer;
-import tech.vvp.vvp.client.renderer.entity.btr4Renderer;
-import tech.vvp.vvp.client.renderer.entity.terminatorRenderer;
+import tech.vvp.vvp.client.renderer.entity.*;
 
 @Mod.EventBusSubscriber(modid = VVP.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ModEntityRenderers {
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(ModEntities.VAZIK.get(), vazikRenderer::new);
-        event.registerEntityRenderer(ModEntities.BIKEGREEN.get(), bikegreenRenderer::new);
-        event.registerEntityRenderer(ModEntities.BIKERED.get(), bikeredRenderer::new);
         event.registerEntityRenderer(ModEntities.MI24.get(), mi24Renderer::new);
         event.registerEntityRenderer(ModEntities.MI24POL.get(), mi24polRenderer::new);
         event.registerEntityRenderer(ModEntities.MI24UKR.get(), mi24ukrRenderer::new);
@@ -48,6 +27,7 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.STRYKER_1_HAKI.get(), stryker_1_hakiRenderer::new);
         event.registerEntityRenderer(ModEntities.BTR_4.get(), btr4Renderer::new);
         event.registerEntityRenderer(ModEntities.TERMINATOR.get(), terminatorRenderer::new);
+        event.registerEntityRenderer(ModEntities.TERMINATOR_HAKI.get(), terminatorHakiRenderer::new);
 
 
 

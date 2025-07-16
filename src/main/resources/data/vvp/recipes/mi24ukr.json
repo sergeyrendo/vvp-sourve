@@ -1,0 +1,38 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+      "LVP",
+      "CGS",
+      "MBM"
+    ],
+    "key": {
+      "L": {
+        "item": "superbwarfare:large_propeller"
+      },
+      "V": {
+        "item": "superbwarfare:large_motor"
+      },
+      "P": {
+        "item": "superbwarfare:propeller"
+      },
+      "C": {
+        "item": "minecraft:compass"
+      },
+      "G": {
+        "item": "minecraft:yellow_dye"
+      },
+      "S": {
+        "tag": "forge:storage_blocks/steel"
+      },
+      "B": {
+        "item": "superbwarfare:large_battery_pack"
+      },
+      "M": {
+        "item": "superbwarfare:medium_armament_module"
+      }
+    },
+    "result": {
+      "item": "superbwarfare:container",
+      "nbt": "{BlockEntityTag: {EntityType: \"vvp:mi24ukr\", id: \"superbwarfare:container\"}}"
+    }
+  }

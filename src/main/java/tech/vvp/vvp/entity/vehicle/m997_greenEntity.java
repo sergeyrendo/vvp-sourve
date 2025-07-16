@@ -264,6 +264,25 @@ public class M997_greenEntity extends ContainerMobileVehicleEntity implements Ge
             s0 = -this.getDeltaMovement().horizontalDistance();
         }
 
+        int i;
+
+        if (entityData.get(L_WHEEL_DAMAGED) && entityData.get(R_WHEEL_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.93f);
+            i = 0;
+        } else if (entityData.get(L_WHEEL_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
+            i = 3;
+        } else if (entityData.get(R_WHEEL_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
+            i = -3;
+        } else {
+            i = 0;
+        }
+
+        if (entityData.get(ENGINE1_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.85f);
+        }
+
         this.setLeftWheelRot((float) ((this.getLeftWheelRot() - 1.25 * s0) - this.getDeltaMovement().horizontalDistance() * Mth.clamp(1.5f * this.entityData.get(DELTA_ROT), -5f, 5f)));
         this.setRightWheelRot((float) ((this.getRightWheelRot() - 1.25 * s0) + this.getDeltaMovement().horizontalDistance() * Mth.clamp(1.5f * this.entityData.get(DELTA_ROT), -5f, 5f)));
 
@@ -464,5 +483,15 @@ public class M997_greenEntity extends ContainerMobileVehicleEntity implements Ge
         this.obb6.setRotation(VectorTool.combineRotations(1, this));
 
 
-    }    
+    }
+
+    @Override
+    public float getWheelMaxHealth() {
+        return 50;
+    }
+
+    @Override
+    public float getEngineMaxHealth() {
+        return 75;
+    }
 }

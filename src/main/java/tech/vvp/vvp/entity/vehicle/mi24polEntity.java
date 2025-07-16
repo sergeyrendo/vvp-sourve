@@ -9,7 +9,7 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.AirEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition;
 import com.atsuishio.superbwarfare.entity.vehicle.base.WeaponVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
-import com.atsuishio.superbwarfare.entity.vehicle.weapon.HeliRocketWeapon;
+import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallRocketWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallCannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.VehicleWeapon;
 import com.atsuishio.superbwarfare.event.ClientMouseHandler;
@@ -216,13 +216,13 @@ public class Mi24polEntity extends ContainerMobileVehicleEntity implements GeoEn
                                 .sound3p(ModSounds.HELICOPTER_CANNON_FIRE_3P.get())
                                 .sound3pFar(ModSounds.HELICOPTER_CANNON_FAR.get())
                                 .sound3pVeryFar(ModSounds.HELICOPTER_CANNON_VERYFAR.get()),
-                        new HeliRocketWeapon()
+                        new SmallRocketWeapon()
                                 .damage(VehicleConfigVVP.MI_24_ROCKET_DAMAGE.get())
                                 .explosionDamage(VehicleConfigVVP.MI_24_ROCKET_EXPLOSION_DAMAGE.get())
                                 .explosionRadius(VehicleConfigVVP.MI_24_ROCKET_EXPLOSION_RADIUS.get())
                                 .sound(ModSounds.INTO_MISSILE.get())
-                                .sound1p(ModSounds.HELICOPTER_ROCKET_FIRE_1P.get())
-                                .sound3p(ModSounds.HELICOPTER_ROCKET_FIRE_3P.get()),
+                                .sound1p(ModSounds.SMALL_ROCKET_FIRE_1P.get())
+                                .sound3p(ModSounds.SMALL_ROCKET_FIRE_3P.get()),
                 }
         };
     }
@@ -269,7 +269,7 @@ public class Mi24polEntity extends ContainerMobileVehicleEntity implements GeoEn
     @Override
     public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getMainHandItem();
-        if (stack.getItem() == ModItems.ROCKET_70.get() && this.entityData.get(LOADED_ROCKET) < 25) {
+        if (stack.getItem() == ModItems.SMALL_ROCKET.get() && this.entityData.get(LOADED_ROCKET) < 25) {
             this.entityData.set(LOADED_ROCKET, this.entityData.get(LOADED_ROCKET) + 1);
             if (!player.isCreative()) {
                 stack.shrink(1);
@@ -290,11 +290,11 @@ public class Mi24polEntity extends ContainerMobileVehicleEntity implements GeoEn
             return false;
         }).mapToInt(Ammo.HEAVY::get).sum() + countItem(ModItems.SMALL_SHELL.get());
 
-        if ((hasItem(ModItems.ROCKET_70.get()) || InventoryTool.hasCreativeAmmoBox(player)) && reloadCoolDown == 0 && this.getEntityData().get(LOADED_ROCKET) < 25) {
+        if ((hasItem(ModItems.SMALL_ROCKET.get()) || InventoryTool.hasCreativeAmmoBox(player)) && reloadCoolDown == 0 && this.getEntityData().get(LOADED_ROCKET) < 25) {
             this.entityData.set(LOADED_ROCKET, this.getEntityData().get(LOADED_ROCKET) + 1);
             reloadCoolDown = 25;
             if (!InventoryTool.hasCreativeAmmoBox(player)) {
-                this.getItemStacks().stream().filter(stack -> stack.is(ModItems.ROCKET_70.get())).findFirst().ifPresent(stack -> stack.shrink(1));
+                this.getItemStacks().stream().filter(stack -> stack.is(ModItems.SMALL_ROCKET.get())).findFirst().ifPresent(stack -> stack.shrink(1));
             }
             this.level().playSound(null, this, ModSounds.MISSILE_RELOAD.get(), this.getSoundSource(), 1, 1);
         }
@@ -665,7 +665,7 @@ public class Mi24polEntity extends ContainerMobileVehicleEntity implements GeoEn
             y = 0.62f - 1.45f;
             z = 0.8f;
 
-            var heliRocketEntity = ((HeliRocketWeapon) getWeapon(0)).create(player);
+            var heliRocketEntity = ((SmallRocketWeapon) getWeapon(0)).create(player);
 
             Vector4f worldPosition;
             Vector4f worldPosition2;
