@@ -13,7 +13,6 @@ import com.atsuishio.superbwarfare.entity.vehicle.weapon.Agm65Weapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallRocketWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallCannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.VehicleWeapon;
-import com.atsuishio.superbwarfare.entity.vehicle.weapon.WgMissileWeapon;
 import com.atsuishio.superbwarfare.event.ClientMouseHandler;
 import com.atsuishio.superbwarfare.init.*;
 import com.atsuishio.superbwarfare.tools.*;
@@ -75,12 +74,12 @@ import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPit
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
-public class CobraSharkEntity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity {
+public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(CobraSharkEntity.class, EntityDataSerializers.FLOAT);
-    public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(CobraSharkEntity.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(CobraSharkEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.FLOAT);
+    public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.INT);
 
     public static final int RADAR_RANGE = 200;
 
@@ -97,7 +96,6 @@ public class CobraSharkEntity extends ContainerMobileVehicleEntity implements Ge
     public boolean locked;
     public String lockingTargetO = "none";
     public String lockingTarget = "none";
-    public int reloadCoolDown;
     
     public float delta_x;
     public float delta_y;
@@ -106,11 +104,11 @@ public class CobraSharkEntity extends ContainerMobileVehicleEntity implements Ge
     public OBB obb3;
     public OBB obb6;
 
-    public CobraSharkEntity(PlayMessages.SpawnEntity packet, Level world) {
-        this(ModEntities.COBRASHARK.get(), world);
+    public Uh60ModEntity(PlayMessages.SpawnEntity packet, Level world) {
+        this(ModEntities.UH60MOD.get(), world);
     }
 
-    public CobraSharkEntity(EntityType<CobraSharkEntity> type, Level world) {
+    public Uh60ModEntity(EntityType<Uh60ModEntity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
         // telo
@@ -135,29 +133,29 @@ public class CobraSharkEntity extends ContainerMobileVehicleEntity implements Ge
                 .add(Attributes.ARMOR_TOUGHNESS, 5.0D);
     }
 
-    private void handleRadar() {
-        // Эта часть остается без изменений
-        if (this.level().isClientSide() || !(this.getFirstPassenger() instanceof ServerPlayer player)) {
-            return;
-        }
+    // private void handleRadar() {
+    //     // Эта часть остается без изменений
+    //     if (this.level().isClientSide() || !(this.getFirstPassenger() instanceof ServerPlayer player)) {
+    //         return;
+    //     }
 
-        List<Vec3> targetPositions = new ArrayList<>();
+    //     List<Vec3> targetPositions = new ArrayList<>();
 
-        // Здесь мы изменяем условие поиска сущностей
-        List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
-            entity -> (entity instanceof HelicopterEntity || entity instanceof AirEntity) && entity != this);
+    //     // Здесь мы изменяем условие поиска сущностей
+    //     List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
+    //         entity -> (entity instanceof HelicopterEntity || entity instanceof AirEntity) && entity != this);
 
-        // Эта часть тоже остается без изменений
-        if (!potentialTargets.isEmpty()) {
-            for (Entity target : potentialTargets) {
-                targetPositions.add(target.position());
-            }
-            tech.vvp.vvp.network.VVPNetwork.VVP_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-        }
-    }
+    //     // Эта часть тоже остается без изменений
+    //     if (!potentialTargets.isEmpty()) {
+    //         for (Entity target : potentialTargets) {
+    //             targetPositions.add(target.position());
+    //         }
+    //         tech.vvp.vvp.network.VVPNetwork.VVP_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+    //     }
+    // }
 
     @SuppressWarnings("unchecked")
-    public static CobraSharkEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
+    public static Uh60ModEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
         EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
         if (entityTypeFromPacket == null) {
             Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
@@ -168,8 +166,8 @@ public class CobraSharkEntity extends ContainerMobileVehicleEntity implements Ge
              return null;
         }
 
-        EntityType<CobraSharkEntity> castedEntityType = (EntityType<CobraSharkEntity>) entityTypeFromPacket;
-        CobraSharkEntity entity = new CobraSharkEntity(castedEntityType, world);
+        EntityType<Uh60ModEntity> castedEntityType = (EntityType<Uh60ModEntity>) entityTypeFromPacket;
+        Uh60ModEntity entity = new Uh60ModEntity(castedEntityType, world);
         return entity;
     }
 
@@ -195,13 +193,8 @@ public class CobraSharkEntity extends ContainerMobileVehicleEntity implements Ge
                                 .sound(ModSounds.INTO_MISSILE.get())
                                 .sound1p(ModSounds.SMALL_ROCKET_FIRE_1P.get())
                                 .sound3p(ModSounds.SMALL_ROCKET_FIRE_3P.get()),
-                        new WgMissileWeapon()
-                                .damage(ExplosionConfig.WIRE_GUIDE_MISSILE_DAMAGE.get())
-                                .explosionDamage(ExplosionConfig.WIRE_GUIDE_MISSILE_EXPLOSION_DAMAGE.get())
-                                .explosionRadius(ExplosionConfig.WIRE_GUIDE_MISSILE_EXPLOSION_RADIUS.get())
-                                .sound(ModSounds.INTO_MISSILE.get())
-                                .sound1p(ModSounds.BMP_MISSILE_FIRE_1P.get())
-                                .sound3p(ModSounds.BMP_MISSILE_FIRE_3P.get()),
+                        new Agm65Weapon()
+                                .sound(ModSounds.INTO_MISSILE.get()),
                 }
         };
     }
@@ -267,9 +260,9 @@ public class CobraSharkEntity extends ContainerMobileVehicleEntity implements Ge
         super.baseTick();
         updateOBB();
 
-        if (this.tickCount % 20 == 0) {
-            handleRadar();
-        }
+        // if (this.tickCount % 20 == 0) {
+        //     handleRadar();
+        // }
 
         if (this.level() instanceof ServerLevel) {
             if (reloadCoolDown > 0) {
@@ -322,24 +315,13 @@ public class CobraSharkEntity extends ContainerMobileVehicleEntity implements Ge
             this.level().playSound(null, this, ModSounds.MISSILE_RELOAD.get(), this.getSoundSource(), 1, 1);
         }
 
-        // if ((hasItem(ModItems.AGM.get()) || InventoryTool.hasCreativeAmmoBox(player)) && reloadCoolDownMissile == 0 && this.getEntityData().get(LOADED_MISSILE) < 8) {
-        //     this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) + 1);
-        //     reloadCoolDownMissile = 100;
-        //     if (!InventoryTool.hasCreativeAmmoBox(player)) {
-        //         this.getItemStacks().stream().filter(stack -> stack.is(ModItems.AGM.get())).findFirst().ifPresent(stack -> stack.shrink(1));
-        //     }
-        //     this.level().playSound(null, this, ModSounds.BOMB_RELOAD.get(), this.getSoundSource(), 2, 1);
-        // }
-
-        if ((hasItem(ModItems.WIRE_GUIDE_MISSILE.get())
-                || InventoryTool.hasCreativeAmmoBox(player))
-                && this.reloadCoolDown <= 0 && this.getEntityData().get(LOADED_MISSILE) < 4) { // Изменено с 1 на 4
-            this.entityData.set(LOADED_MISSILE, this.entityData.get(LOADED_MISSILE) + 1);
-            this.reloadCoolDown = 160;
+        if ((hasItem(ModItems.AGM.get()) || InventoryTool.hasCreativeAmmoBox(player)) && reloadCoolDownMissile == 0 && this.getEntityData().get(LOADED_MISSILE) < 8) {
+            this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) + 1);
+            reloadCoolDownMissile = 100;
             if (!InventoryTool.hasCreativeAmmoBox(player)) {
-                this.getItemStacks().stream().filter(stack -> stack.is(ModItems.WIRE_GUIDE_MISSILE.get())).findFirst().ifPresent(stack -> stack.shrink(1));
+                this.getItemStacks().stream().filter(stack -> stack.is(ModItems.AGM.get())).findFirst().ifPresent(stack -> stack.shrink(1));
             }
-            this.level().playSound(null, this, ModSounds.BMP_MISSILE_RELOAD.get(), this.getSoundSource(), 1, 1);
+            this.level().playSound(null, this, ModSounds.BOMB_RELOAD.get(), this.getSoundSource(), 2, 1);
         }
 
         if (this.getWeaponIndex(0) == 0) {
@@ -531,33 +513,62 @@ public class CobraSharkEntity extends ContainerMobileVehicleEntity implements Ge
         if (!this.hasPassenger(passenger)) {
             return;
         }
-    
+
+        // Получаем базовую трансформацию техники и индекс пассажира
         Matrix4f transform = getVehicleTransform(1.0f);
         int i = this.getOrderedPassengers().indexOf(passenger);
+        
+        // Получаем стандартное смещение пассажира для корректной высоты камеры
         float riderOffset = (float) passenger.getMyRidingOffset();
+        
         Vector4f worldPosition;
-    
-        if (i == 0) { // Пилот (заднее сиденье)
-            float pilotX = 0.0f;
-            float pilotY = -0.43f + riderOffset;
-            float pilotZ = 1.3f;
-            worldPosition = transformPosition(transform, pilotX, pilotY, pilotZ);
-            passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
-            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);
-        } else if (i == 1) { // Стрелок (переднее сиденье)
-            float gunnerX = 0.0f;
-            float gunnerY = -0.60f + riderOffset;
-            float gunnerZ = 2.6f;
-            worldPosition = transformPosition(transform, gunnerX, gunnerY, gunnerZ);
-            passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
-            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);
+        float x, y, z;
+
+        // Используем switch для определения координат для каждого из 10 мест
+        switch (i) {
+            case 0: // 1 место
+                x = 0.734f; y = 0f; z = 3.250f;
+                break;
+            case 1: // 2 место
+                x = -0.703f;  y = 0f; z = 3.250f;
+                break;
+            case 2: // 3 место
+                x = 0.844f; y = 0f; z = 0.188f;
+                break;
+            case 3: // 4 место
+                x = 0.281f; y = 0f; z = 0.188f;
+                break;
+            case 4: // 5 место
+                x = -0.344f;  y = 0f; z = 0.188f;
+                break;
+            case 5: // 6 место
+                x = -0.906f;  y = 0f; z = 0.188f;
+                break;
+            case 6: // 7 место
+                x = 0.844f; y = 0f; z = -1.375f;
+                break;
+            case 7: // 8 место
+                x = 0.281f; y = 0f; z = -1.375f;
+                break;
+            case 8: // 9 место
+                x = -0.344f;  y = 0f; z = -1.375f;
+                break;
+            // case 9: // 10 место
+            //     x = 0.906f;  y = 1.516f; z = 1.375f;
+            //     break;
+            default: // Запасной вариант, если индекс будет некорректным
+                x = 0.0f;    y = 2.0f;   z = 0.0f;
+                break;
         }
-    
-    
-        if (passenger != this.getFirstPassenger()) {
-            passenger.setXRot(passenger.getXRot() + (getXRot() - xRotO));
-        }
-    
+
+        // Применяем смещение к координатам и вычисляем позицию в мире
+        worldPosition = transformPosition(transform, x, y + riderOffset, z);
+
+        // Устанавливаем позицию пассажира
+        passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
+        callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);
+        
+        // Копируем данные сущности (важно для правильного вращения камеры и т.д.)
         copyEntityData(passenger);
     }
 
@@ -729,28 +740,47 @@ public class CobraSharkEntity extends ContainerMobileVehicleEntity implements Ge
 
             this.entityData.set(LOADED_ROCKET, this.getEntityData().get(LOADED_ROCKET) - 1);
             reloadCoolDown = 30;
-        }  else if (getWeaponIndex(0) == 2 && this.getEntityData().get(LOADED_MISSILE) > 0) {
-
-            // Координаты для левой и правой стороны
-            // float x =  -0.98f;
-            // float y = -0.1f;
-            // float z = -0.32f;
-            
-            Vector4f worldPosition = transformPosition(transform, -0.98f, -0.1f, -0.32f);
-
-            var wgMissileEntity = ((WgMissileWeapon) getWeapon(0)).create(player);
-
-            wgMissileEntity.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
-            wgMissileEntity.shoot(getBarrelVector(1).x, getBarrelVector(1).y, getBarrelVector(1).z, 2f, 0f);
-            player.level().addFreshEntity(wgMissileEntity);
-
-            if (!player.level().isClientSide) {
-                playShootSound3p(player, 0, 6, 0, 0);
+        } else if (getWeaponIndex(0) == 2 && this.getEntityData().get(LOADED_MISSILE) > 0) {
+            var Agm65Entity = ((Agm65Weapon) getWeapon(0)).create(player);
+    
+            Vector4f worldPosition;
+    
+            if (this.getEntityData().get(LOADED_MISSILE) == 8) {
+                worldPosition = transformPosition(transform, 5.28f, -1.76f, 1.87f);
+            } else if (this.getEntityData().get(LOADED_MISSILE) == 7) {
+                worldPosition = transformPosition(transform, -5.28f, -1.76f, 1.87f);
+            } else if (this.getEntityData().get(LOADED_MISSILE) == 6) {
+                worldPosition = transformPosition(transform, 6.63f, -1.55f, 1.83f);
+            } else if (this.getEntityData().get(LOADED_MISSILE) == 5) {
+                worldPosition = transformPosition(transform, -6.63f, -1.55f, 1.83f);
+            } else if (this.getEntityData().get(LOADED_MISSILE) == 4) {
+                worldPosition = transformPosition(transform, 5.28f, -1.76f, 1.87f);
+            } else if (this.getEntityData().get(LOADED_MISSILE) == 3) {
+                worldPosition = transformPosition(transform, -5.28f, -1.76f, 1.87f);
+            } else if (this.getEntityData().get(LOADED_MISSILE) == 2) {
+                worldPosition = transformPosition(transform, 6.63f, -1.55f, 1.83f);
+            } else if (this.getEntityData().get(LOADED_MISSILE) == 1) {
+                worldPosition = transformPosition(transform, -6.63f, -1.55f, 1.83f);
+            } else {
+                worldPosition = transformPosition(transform, 5.28f, -1.76f, 1.87f);
             }
-
-            // Увеличиваем счетчик текущего ПТУРа
-            this.entityData.set(LOADED_MISSILE, this.entityData.get(LOADED_MISSILE) - 1);
-            reloadCoolDown = 160;
+    
+            if (locked) {
+                Agm65Entity.setTargetUuid(getTargetUuid());
+            }
+            Agm65Entity.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
+            Agm65Entity.shoot(shootVec(1).x, shootVec(1).y, shootVec(1).z, (float) getDeltaMovement().length() + 1, 1);
+            player.level().addFreshEntity(Agm65Entity);
+    
+            BlockPos pos = BlockPos.containing(new Vec3(worldPosition.x, worldPosition.y, worldPosition.z));
+    
+            this.level().playSound(null, pos, ModSounds.BOMB_RELEASE.get(), SoundSource.PLAYERS, 3, 1);
+    
+            if (this.getEntityData().get(LOADED_MISSILE) == 4) {
+                reloadCoolDownMissile = 23;
+            }
+    
+            this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) - 1);
         }
     }
 
@@ -822,12 +852,12 @@ public class CobraSharkEntity extends ContainerMobileVehicleEntity implements Ge
     }
 
     public int getMaxPassengers() {
-        return 2;
+        return 9;
     }
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/cobra_icon.png");
+        return VVP.loc("textures/vehicle_icon/uh60mod_icon.png");
     }
 
     @Override

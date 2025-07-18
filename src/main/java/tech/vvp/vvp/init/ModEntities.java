@@ -181,6 +181,15 @@ public class ModEntities {
                                     .sized(3.9f, 3.5f)
                                     .build("terminator_haki"));
 
+    public static final RegistryObject<EntityType<Uh60ModEntity>> UH60MOD = ENTITY_TYPES.register("uh60mod",
+                                () -> EntityType.Builder.<Uh60ModEntity>of(Uh60ModEntity::new, MobCategory.MISC)
+                                    .setTrackingRange(64)
+                                    .setUpdateInterval(1)
+                                    .setCustomClientFactory(Uh60ModEntity::clientSpawn)
+                                    .fireImmune()
+                                    .sized(3.9f, 3.5f)
+                                    .build("uh60mod"));
+
     public static final RegistryObject<EntityType<Mi24Entity>> MI24 = register("mi24",
             EntityType.Builder.<Mi24Entity>of(Mi24Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(Mi24Entity::new).fireImmune().sized(4.5f, 4.8f));
 

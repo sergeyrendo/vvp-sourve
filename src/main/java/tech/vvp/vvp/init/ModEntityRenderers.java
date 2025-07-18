@@ -28,6 +28,7 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.BTR_4.get(), btr4Renderer::new);
         event.registerEntityRenderer(ModEntities.TERMINATOR.get(), terminatorRenderer::new);
         event.registerEntityRenderer(ModEntities.TERMINATOR_HAKI.get(), terminatorHakiRenderer::new);
+        event.registerEntityRenderer(ModEntities.UH60MOD.get(), uh60ModRenderer::new);
 
 
 

@@ -42,6 +42,7 @@ public class ModTabs {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M997.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.COBRA.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.COBRASHARK.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.UH60MOD.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.F35.get()));
                 // Здесь будут добавляться новые единицы техники
             })
