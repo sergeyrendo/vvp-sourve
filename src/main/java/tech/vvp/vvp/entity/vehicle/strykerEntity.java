@@ -84,6 +84,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Comparator;
 
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
+import com.atsuishio.superbwarfare.config.server.VehicleConfig;
 
 public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity, OBBEntity {
 
@@ -161,9 +162,9 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
                         new CannonShellWeapon()
-                                .hitDamage(VehicleConfigVVP.STRYKER_M1128_CANNON_DAMAGE.get())
-                                .explosionRadius(VehicleConfigVVP.STRYKER_M1128_CANNON_EXPLOSION_RADIUS.get().floatValue())
-                                .explosionDamage(VehicleConfigVVP.STRYKER_M1128_CANNON_EXPLOSION_DAMAGE.get())
+                                .hitDamage(VehicleConfig.YX_100_AP_CANNON_DAMAGE.get())
+                                .explosionRadius(VehicleConfig.YX_100_AP_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .explosionDamage(VehicleConfig.YX_100_AP_CANNON_EXPLOSION_DAMAGE.get())
                                 .fireProbability(0)
                                 .fireTime(0)
                                 .durability(100)

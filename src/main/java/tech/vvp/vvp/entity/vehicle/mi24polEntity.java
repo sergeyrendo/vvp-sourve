@@ -71,6 +71,7 @@ import java.util.List;
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPitch;
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
+import com.atsuishio.superbwarfare.config.server.VehicleConfig;
 
 public class Mi24polEntity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity {
 
@@ -206,10 +207,10 @@ public class Mi24polEntity extends ContainerMobileVehicleEntity implements GeoEn
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
                         new SmallCannonShellWeapon()
-                                .blockInteraction(VehicleConfigVVP.MI_24_CANNON_DESTROY.get() ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP)
-                                .damage(VehicleConfigVVP.MI_24_CANNON_DAMAGE.get())
-                                .explosionDamage(VehicleConfigVVP.MI_24_CANNON_EXPLOSION_DAMAGE.get().floatValue())
-                                .explosionRadius(VehicleConfigVVP.MI_24_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .blockInteraction(VehicleConfig.AH_6_CANNON_DESTROY.get() ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP)
+                                .damage(VehicleConfig.AH_6_CANNON_DAMAGE.get().floatValue())
+                                .explosionDamage(VehicleConfig.AH_6_CANNON_EXPLOSION_DAMAGE.get().floatValue())
+                                .explosionRadius(VehicleConfig.AH_6_CANNON_EXPLOSION_RADIUS.get().floatValue())
                                 .sound(ModSounds.INTO_CANNON.get())
                                 .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_20mm.png"))
                                 .sound1p(ModSounds.HELICOPTER_CANNON_FIRE_1P.get())
@@ -217,9 +218,9 @@ public class Mi24polEntity extends ContainerMobileVehicleEntity implements GeoEn
                                 .sound3pFar(ModSounds.HELICOPTER_CANNON_FAR.get())
                                 .sound3pVeryFar(ModSounds.HELICOPTER_CANNON_VERYFAR.get()),
                         new SmallRocketWeapon()
-                                .damage(VehicleConfigVVP.MI_24_ROCKET_DAMAGE.get())
-                                .explosionDamage(VehicleConfigVVP.MI_24_ROCKET_EXPLOSION_DAMAGE.get())
-                                .explosionRadius(VehicleConfigVVP.MI_24_ROCKET_EXPLOSION_RADIUS.get())
+                                .damage(VehicleConfig.AH_6_ROCKET_DAMAGE.get().floatValue())
+                                .explosionDamage(VehicleConfig.AH_6_ROCKET_EXPLOSION_DAMAGE.get().floatValue())
+                                .explosionRadius(VehicleConfig.AH_6_ROCKET_EXPLOSION_RADIUS.get().floatValue())
                                 .sound(ModSounds.INTO_MISSILE.get())
                                 .sound1p(ModSounds.SMALL_ROCKET_FIRE_1P.get())
                                 .sound3p(ModSounds.SMALL_ROCKET_FIRE_3P.get()),
@@ -411,7 +412,7 @@ public class Mi24polEntity extends ContainerMobileVehicleEntity implements GeoEn
         this.entityData.set(PROPELLER_ROT, this.entityData.get(PROPELLER_ROT) * 0.9995f);
 
         if (engineStart) {
-            this.consumeEnergy((int) (VehicleConfigVVP.MI_24_MIN_ENERGY_COST.get() + this.entityData.get(POWER) * ((VehicleConfigVVP.MI_24_MAX_ENERGY_COST.get() - VehicleConfigVVP.MI_24_MIN_ENERGY_COST.get()) / 0.12)));
+            this.consumeEnergy((int) (VehicleConfig.AH_6_MIN_ENERGY_COST.get() + this.entityData.get(POWER) * ((VehicleConfig.AH_6_MIN_ENERGY_COST.get() - VehicleConfig.AH_6_MIN_ENERGY_COST.get()) / 0.12)));
         }
 
         Matrix4f transform = getVehicleTransform(1);

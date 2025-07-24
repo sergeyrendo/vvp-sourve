@@ -187,7 +187,7 @@ public class ModEntities {
                                     .setUpdateInterval(1)
                                     .setCustomClientFactory(Uh60ModEntity::clientSpawn)
                                     .fireImmune()
-                                    .sized(3.9f, 3.5f)
+                                    .sized(2f, 3.5f)
                                     .build("uh60mod"));
 
     public static final RegistryObject<EntityType<Mi24Entity>> MI24 = register("mi24",

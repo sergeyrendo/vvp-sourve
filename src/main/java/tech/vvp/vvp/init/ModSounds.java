@@ -22,7 +22,8 @@ public class ModSounds {
     public static final RegistryObject<SoundEvent> YX_100_FAR = register("yx_100_far");
     public static final RegistryObject<SoundEvent> YX_100_VERY_FAR = register("yx_100_veryfar");
     public static final RegistryObject<SoundEvent> YX_100_RELOAD = register("yx_100_reload");
-    
+    public static final RegistryObject<SoundEvent> DOOR = register("door");
+
     // Звуки для 30мм пушки ВДВ
     public static final RegistryObject<SoundEvent> M2_1P = register("m2_1p");
     public static final RegistryObject<SoundEvent> M2_3P = register("m2_3p");

@@ -11,8 +11,7 @@ public class uh60ModModel extends GeoModel<Uh60ModEntity> {
 
     @Override
     public ResourceLocation getAnimationResource(Uh60ModEntity entity) {
-        return null;
-//        return ModUtils.loc("animations/wheel_chair.animation.json");
+       return VVP.loc("animations/uh60mod.animation.json");
     }
 
     @Override

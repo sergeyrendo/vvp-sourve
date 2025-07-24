@@ -60,12 +60,19 @@ import org.joml.Vector4f;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.config.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
 import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
 import tech.vvp.vvp.network.VVPNetwork;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +80,7 @@ import java.util.List;
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPitch;
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
+import com.atsuishio.superbwarfare.config.server.VehicleConfig;
 
 public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity {
 
@@ -80,6 +88,8 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
     public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.INT);
+public static final EntityDataAccessor<Boolean> DOOR_RIGHT_OPEN = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.BOOLEAN);
+public static final EntityDataAccessor<Boolean> DOOR_LEFT_OPEN = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.BOOLEAN);
 
     public static final int RADAR_RANGE = 200;
 
@@ -99,10 +109,15 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
     
     public float delta_x;
     public float delta_y;
-    public OBB obb;
-    public OBB obb2;
-    public OBB obb3;
-    public OBB obb6;
+    public OBB obbNos;
+    public OBB obbCabina;
+    public OBB obbTelo;
+    public OBB obbWing1;
+    public OBB obbXvost;
+    public OBB obbWing2;
+    public OBB obbDoorRight;
+    public OBB obbDoorLeft;
+
 
     public Uh60ModEntity(PlayMessages.SpawnEntity packet, Level world) {
         this(ModEntities.UH60MOD.get(), world);
@@ -111,16 +126,14 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
     public Uh60ModEntity(EntityType<Uh60ModEntity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
-        // telo
-        this.obb = new OBB(this.position().toVector3f(), new Vector3f(1.7f, 1.18125f, 2.625f), new Quaternionf(), OBB.Part.BODY);
-        // cabina
-        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(0.575f, 0.9875f, 1.39375f), new Quaternionf(), OBB.Part.BODY);
-        // хвост
-        this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.60f, 0.5f, 2.7f), new Quaternionf(), OBB.Part.BODY);
-        // 
-        // this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.0625f, 1.15625f, 0.40625f), new Quaternionf(), OBB.Part.BODY);
-        // this.obb5 = new OBB(this.position().toVector3f(), new Vector3f(1f, 0.25f, 0.21875f), new Quaternionf(), OBB.Part.BODY);
-        this.obb6 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.40625f, 0.84375f), new Quaternionf(), OBB.Part.ENGINE1);
+        this.obbNos = new OBB(this.position().toVector3f(), new Vector3f(1.563f, 0.969f, 0.719f), new Quaternionf(), OBB.Part.BODY);
+        this.obbCabina = new OBB(this.position().toVector3f(), new Vector3f(1.563f, 1.406f, 0.531f), new Quaternionf(), OBB.Part.BODY);
+        this.obbTelo = new OBB(this.position().toVector3f(), new Vector3f(1.313f, 1.406f, 3.750f), new Quaternionf(), OBB.Part.BODY);
+        this.obbWing1 = new OBB(this.position().toVector3f(), new Vector3f(0.656f, 0.969f, 2.656f), new Quaternionf(), OBB.Part.ENGINE1);
+        this.obbXvost = new OBB(this.position().toVector3f(), new Vector3f(0.500f, 0.531f, 0.469f), new Quaternionf(), OBB.Part.BODY);
+        this.obbWing2 = new OBB(this.position().toVector3f(), new Vector3f(0.563f, 1.563f, 0.969f), new Quaternionf(), OBB.Part.ENGINE2);
+        this.obbDoorRight = new OBB(this.position().toVector3f(), new Vector3f(0.063f, 0.813f, 0.250f), new Quaternionf(), OBB.Part.INTERACTIVE);
+        this.obbDoorLeft = new OBB(this.position().toVector3f(), new Vector3f(0.063f, 0.813f, 0.250f), new Quaternionf(), OBB.Part.INTERACTIVE);
     }
 
      // Добавляем статический метод для создания атрибутов
@@ -176,10 +189,10 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
                         new SmallCannonShellWeapon()
-                                .blockInteraction(VehicleConfigVVP.MI_24_CANNON_DESTROY.get() ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP)
-                                .damage(VehicleConfigVVP.MI_24_CANNON_DAMAGE.get())
-                                .explosionDamage(VehicleConfigVVP.MI_24_CANNON_EXPLOSION_DAMAGE.get().floatValue())
-                                .explosionRadius(VehicleConfigVVP.MI_24_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .blockInteraction(VehicleConfig.AH_6_CANNON_DESTROY.get() ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP)
+                                .damage(VehicleConfig.AH_6_CANNON_DAMAGE.get().floatValue())
+                                .explosionDamage(VehicleConfig.AH_6_CANNON_EXPLOSION_DAMAGE.get().floatValue())
+                                .explosionRadius(VehicleConfig.AH_6_CANNON_EXPLOSION_RADIUS.get().floatValue())
                                 .sound(ModSounds.INTO_CANNON.get())
                                 .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_20mm.png"))
                                 .sound1p(ModSounds.HELICOPTER_CANNON_FIRE_1P.get())
@@ -187,9 +200,9 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
                                 .sound3pFar(ModSounds.HELICOPTER_CANNON_FAR.get())
                                 .sound3pVeryFar(ModSounds.HELICOPTER_CANNON_VERYFAR.get()),
                         new SmallRocketWeapon()
-                                .damage(VehicleConfigVVP.MI_24_ROCKET_DAMAGE.get())
-                                .explosionDamage(VehicleConfigVVP.MI_24_ROCKET_EXPLOSION_DAMAGE.get())
-                                .explosionRadius(VehicleConfigVVP.MI_24_ROCKET_EXPLOSION_RADIUS.get())
+                                .damage(VehicleConfig.AH_6_ROCKET_DAMAGE.get().floatValue())
+                                .explosionDamage(VehicleConfig.AH_6_ROCKET_EXPLOSION_DAMAGE.get().floatValue())
+                                .explosionRadius(VehicleConfig.AH_6_ROCKET_EXPLOSION_RADIUS.get().floatValue())
                                 .sound(ModSounds.INTO_MISSILE.get())
                                 .sound1p(ModSounds.SMALL_ROCKET_FIRE_1P.get())
                                 .sound3p(ModSounds.SMALL_ROCKET_FIRE_3P.get()),
@@ -210,6 +223,8 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
         this.entityData.define(PROPELLER_ROT, 0.0f);
         this.entityData.define(LOADED_ROCKET, 0);
         this.entityData.define(LOADED_MISSILE, 0);
+        this.entityData.define(DOOR_RIGHT_OPEN, false); // Новая строка
+        this.entityData.define(DOOR_LEFT_OPEN, false);  // Новая строка
     }
 
     @Override
@@ -218,6 +233,8 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
         compound.putInt("LoadedRocket", this.entityData.get(LOADED_ROCKET));
         compound.putFloat("PropellerRot", this.entityData.get(PROPELLER_ROT));
         compound.putInt("LoadedMissile", this.entityData.get(LOADED_MISSILE));
+        compound.putBoolean("DoorRightOpen", this.entityData.get(DOOR_RIGHT_OPEN)); // Новая строка
+        compound.putBoolean("DoorLeftOpen", this.entityData.get(DOOR_LEFT_OPEN));   // Новая строка
     }
 
     @Override
@@ -226,6 +243,8 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
         this.entityData.set(LOADED_ROCKET, compound.getInt("LoadedRocket"));
         this.entityData.set(PROPELLER_ROT, compound.getFloat("PropellerRot"));
         this.entityData.set(LOADED_MISSILE, compound.getInt("LoadedMissile"));
+        this.entityData.set(DOOR_RIGHT_OPEN, compound.getBoolean("DoorRightOpen")); // Новая строка
+        this.entityData.set(DOOR_LEFT_OPEN, compound.getBoolean("DoorLeftOpen"));   // Новая строка
     }
 
     @Override
@@ -244,6 +263,37 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
     @Override
     public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getMainHandItem();
+        OBB lookingObb = OBB.getLookingObb(player, player.getEntityReach());
+
+        // Обработка взаимодействия с правой дверью
+        if (lookingObb == obbDoorRight && stack.isEmpty()) {
+            if (level() instanceof ServerLevel serverLevel) {
+                boolean isOpen = this.entityData.get(DOOR_RIGHT_OPEN);
+                this.entityData.set(DOOR_RIGHT_OPEN, !isOpen); // Переключение состояния
+                Vec3 doorPos = new Vec3(obbDoorRight.center());
+                serverLevel.playSound(null, doorPos.x, doorPos.y, doorPos.z, 
+                    isOpen ? tech.vvp.vvp.init.ModSounds.DOOR.get() : tech.vvp.vvp.init.ModSounds.DOOR.get(),
+                    SoundSource.PLAYERS, 1.0f, 1.0f);
+            }
+            player.swing(hand);
+            return InteractionResult.sidedSuccess(this.level().isClientSide());
+        }
+
+        // Обработка взаимодействия с левой дверью
+        if (lookingObb == obbDoorLeft && stack.isEmpty()) {
+            if (level() instanceof ServerLevel serverLevel) {
+                boolean isOpen = this.entityData.get(DOOR_LEFT_OPEN);
+                this.entityData.set(DOOR_LEFT_OPEN, !isOpen); // Переключение состояния
+                Vec3 doorPos = new Vec3(obbDoorLeft.center());
+                serverLevel.playSound(null, doorPos.x, doorPos.y, doorPos.z, 
+                    isOpen ? tech.vvp.vvp.init.ModSounds.DOOR.get() : tech.vvp.vvp.init.ModSounds.DOOR.get(),
+                    SoundSource.PLAYERS, 1.0f, 1.0f);
+            }
+            player.swing(hand);
+            return InteractionResult.sidedSuccess(this.level().isClientSide());
+        }
+
+        // Обработка загрузки ракет
         if (stack.getItem() == ModItems.SMALL_ROCKET.get() && this.entityData.get(LOADED_ROCKET) < 25) {
             this.entityData.set(LOADED_ROCKET, this.entityData.get(LOADED_ROCKET) + 1);
             if (!player.isCreative()) {
@@ -252,6 +302,8 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
             this.level().playSound(null, this, ModSounds.MISSILE_RELOAD.get(), this.getSoundSource(), 2, 1);
             return InteractionResult.sidedSuccess(this.level().isClientSide());
         }
+
+        // Вызов родительского метода для стандартного взаимодействия (открытие инвентаря)
         return super.interact(player, hand);
     }
 
@@ -438,7 +490,7 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
         this.entityData.set(PROPELLER_ROT, this.entityData.get(PROPELLER_ROT) * 0.9995f);
 
         if (engineStart) {
-            this.consumeEnergy((int) (VehicleConfigVVP.MI_24_MIN_ENERGY_COST.get() + this.entityData.get(POWER) * ((VehicleConfigVVP.MI_24_MAX_ENERGY_COST.get() - VehicleConfigVVP.MI_24_MIN_ENERGY_COST.get()) / 0.12)));
+            this.consumeEnergy((int) (VehicleConfig.AH_6_MIN_ENERGY_COST.get() + this.entityData.get(POWER) * ((VehicleConfig.AH_6_MIN_ENERGY_COST.get() - VehicleConfig.AH_6_MIN_ENERGY_COST.get()) / 0.12)));
         }
 
         if (entityData.get(ENGINE1_DAMAGED)) {
@@ -527,35 +579,32 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
         // Используем switch для определения координат для каждого из 10 мест
         switch (i) {
             case 0: // 1 место
-                x = 0.734f; y = 0f; z = 3.250f;
+                x = 0.734f; y = 1.25f; z = 3.250f;
                 break;
             case 1: // 2 место
-                x = -0.703f;  y = 0f; z = 3.250f;
+                x = -0.703f;  y = 1.25f; z = 3.250f;
                 break;
             case 2: // 3 место
-                x = 0.844f; y = 0f; z = 0.188f;
+                x = 0.844f; y = 1.25f; z = 0.188f;
                 break;
             case 3: // 4 место
-                x = 0.281f; y = 0f; z = 0.188f;
+                x = 0.281f; y = 1.25f; z = 0.188f;
                 break;
             case 4: // 5 место
-                x = -0.344f;  y = 0f; z = 0.188f;
+                x = -0.344f;  y = 1.25f; z = 0.188f;
                 break;
             case 5: // 6 место
-                x = -0.906f;  y = 0f; z = 0.188f;
+                x = -0.906f;  y = 1.25f; z = 0.188f;
                 break;
             case 6: // 7 место
-                x = 0.844f; y = 0f; z = -1.375f;
+                x = 0.844f; y = 1.25f; z = -1.375f;
                 break;
             case 7: // 8 место
-                x = 0.281f; y = 0f; z = -1.375f;
+                x = 0.281f; y = 1.25f; z = -1.375f;
                 break;
             case 8: // 9 место
-                x = -0.344f;  y = 0f; z = -1.375f;
+                x = -0.344f;  y = 1.25f; z = -1.375f;
                 break;
-            // case 9: // 10 место
-            //     x = 0.906f;  y = 1.516f; z = 1.375f;
-            //     break;
             default: // Запасной вариант, если индекс будет некорректным
                 x = 0.0f;    y = 2.0f;   z = 0.0f;
                 break;
@@ -587,15 +636,15 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
         }
     }
 
-    @Override
-    public Matrix4f getVehicleTransform(float ticks) {
-        Matrix4f transform = new Matrix4f();
-        transform.translate((float) Mth.lerp(ticks, xo, getX()), (float) Mth.lerp(ticks, yo + 1.45f, getY() + 1.45f), (float) Mth.lerp(ticks, zo, getZ()));
-        transform.rotate(Axis.YP.rotationDegrees(-Mth.lerp(ticks, yRotO, getYRot())));
-        transform.rotate(Axis.XP.rotationDegrees(Mth.lerp(ticks, xRotO, getXRot())));
-        transform.rotate(Axis.ZP.rotationDegrees(Mth.lerp(ticks, prevRoll, getRoll())));
-        return transform;
-    }
+//    @Override
+//    public Matrix4f getVehicleTransform(float ticks) {
+//        Matrix4f transform = new Matrix4f();
+//        transform.translate((float) Mth.lerp(ticks, xo, getX()), (float) Mth.lerp(ticks, yo + 1.45f, getY() + 1.45f), (float) Mth.lerp(ticks, zo, getZ()));
+//        transform.rotate(Axis.YP.rotationDegrees(-Mth.lerp(ticks, yRotO, getYRot())));
+//        transform.rotate(Axis.XP.rotationDegrees(Mth.lerp(ticks, xRotO, getXRot())));
+//        transform.rotate(Axis.ZP.rotationDegrees(Mth.lerp(ticks, prevRoll, getRoll())));
+//        return transform;
+//    }
 
     @Override
     public void destroy() {
@@ -617,9 +666,9 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
         super.destroy();
     }
 
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar data) {
-    }
+    // @Override
+    // public void registerControllers(AnimatableManager.ControllerRegistrar data) {
+    // }
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
@@ -928,28 +977,78 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public List<OBB> getOBBs() {
-        return List.of(this.obb, this.obb2, this.obb3, this.obb6);
+        return List.of(this.obbNos, this.obbCabina, this.obbTelo, this.obbWing1, this.obbXvost, this.obbWing2, this.obbDoorRight, this.obbDoorLeft);
     }
 
     @Override
     public void updateOBB() {
         Matrix4f transform = getVehicleTransform(1);
 
-        Vector4f worldPosition = transformPosition(transform, 0, 1.86875f - 1.45f, -0.15625f);
-        this.obb.center().set(new Vector3f(worldPosition.x, worldPosition.y, worldPosition.z));
-        this.obb.setRotation(VectorTool.combineRotations(1, this));
+        Vector4f worldPosition = transformPosition(transform, 0, 0.5f, 4.734f);
+        this.obbNos.center().set(new Vector3f(worldPosition.x, worldPosition.y, worldPosition.z));
+        this.obbNos.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition2 = transformPosition(transform, 0, 1.5f - 1.45f, 1.90625f);
-        this.obb2.center().set(new Vector3f(worldPosition2.x, worldPosition2.y, worldPosition2.z));
-        this.obb2.setRotation(VectorTool.combineRotations(1, this));
+        Vector4f worldPosition2 = transformPosition(transform, 0, 0.5f, 3.469f);
+        this.obbCabina.center().set(new Vector3f(worldPosition2.x, worldPosition2.y, worldPosition2.z));
+        this.obbCabina.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition3 = transformPosition(transform, 0, -0.3f, -6.6f);
-        this.obb3.center().set(new Vector3f(worldPosition3.x, worldPosition3.y, worldPosition3.z));
-        this.obb3.setRotation(VectorTool.combineRotations(1, this));
+        Vector4f worldPosition3 = transformPosition(transform, 0, 0.5f, -0.813f);
+        this.obbTelo.center().set(new Vector3f(worldPosition3.x, worldPosition3.y, worldPosition3.z));
+        this.obbTelo.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition6 = transformPosition(transform, 0, 3.28125f - 1.45f, -0.53125f);
-        this.obb6.center().set(new Vector3f(worldPosition6.x, worldPosition6.y, worldPosition6.z));
-        this.obb6.setRotation(VectorTool.combineRotations(1, this));
+        Vector4f worldPosition6 = transformPosition(transform, 0.000f, 0.5f, -7.219f);
+        this.obbWing1.center().set(new Vector3f(worldPosition6.x, worldPosition6.y, worldPosition6.z));
+        this.obbWing1.setRotation(VectorTool.combineRotations(1, this));
 
+        Vector4f worldPosition8 = transformPosition(transform, 0.000f, 2.5f, -0.156f);
+        this.obbXvost.center().set(new Vector3f(worldPosition8.x, worldPosition8.y, worldPosition8.z));
+        this.obbXvost.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition7 = transformPosition(transform, 0.063f, 0.75f, -10.844f);
+        this.obbWing2.center().set(new Vector3f(worldPosition7.x, worldPosition7.y, worldPosition7.z));
+        this.obbWing2.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPositionR = transformPosition(transform, -1.563f, 0.5f, -0.875f);
+        this.obbDoorRight.center().set(new Vector3f(worldPositionR.x, worldPositionR.y, worldPositionR.z));
+        this.obbDoorRight.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPositionL = transformPosition(transform, 1.563f, 0.5f, -0.875f);
+        this.obbDoorLeft.center().set(new Vector3f(worldPositionL.x, worldPositionL.y, worldPositionL.z));
+        this.obbDoorLeft.setRotation(VectorTool.combineRotations(1, this));
+
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar data) {
+        data.add(new AnimationController<>(this, "door_right_controller", 0, this::doorRightAnimController));
+        data.add(new AnimationController<>(this, "door_left_controller", 0, this::doorLeftAnimController));
+    }
+
+    private PlayState doorRightAnimController(AnimationState<Uh60ModEntity> state) {
+        if (this.entityData.get(DOOR_RIGHT_OPEN)) {
+            state.getController().setAnimation(RawAnimation.begin().thenPlay("animation.uh60.door_right.open"));
+        } else {
+            state.getController().setAnimation(RawAnimation.begin().thenPlay("animation.uh60.door_right.close"));
+        }
+        return PlayState.CONTINUE;
+    }
+
+    private PlayState doorLeftAnimController(AnimationState<Uh60ModEntity> state) {
+        if (this.entityData.get(DOOR_LEFT_OPEN)) {
+            state.getController().setAnimation(RawAnimation.begin().thenPlay("animation.uh60.door_left.open"));
+        } else {
+            state.getController().setAnimation(RawAnimation.begin().thenPlay("animation.uh60.door_left.close"));
+        }
+        return PlayState.CONTINUE;
+    }
+
+    @Override
+    public Matrix4f getVehicleTransform(float ticks) {
+        Matrix4f transform = new Matrix4f();
+        transform.translate((float) Mth.lerp(ticks, xo, getX()), (float) Mth.lerp(ticks, yo + 1.45f, getY() + 1.45f), (float) Mth.lerp(ticks, zo, getZ()));
+        transform.rotate(Axis.YP.rotationDegrees(-Mth.lerp(ticks, yRotO, getYRot())));
+        transform.rotate(Axis.XP.rotationDegrees(Mth.lerp(ticks, xRotO, getXRot())));
+        transform.rotate(Axis.ZP.rotationDegrees(Mth.lerp(ticks, prevRoll, getRoll())));
+        return transform;
     }
 }
