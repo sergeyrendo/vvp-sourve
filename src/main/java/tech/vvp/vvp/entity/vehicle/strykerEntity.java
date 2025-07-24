@@ -16,8 +16,8 @@ import com.atsuishio.superbwarfare.event.ClientMouseHandler;
 import com.atsuishio.superbwarfare.init.ModDamageTypes;
 import com.atsuishio.superbwarfare.init.ModItems;
 import com.atsuishio.superbwarfare.init.ModSounds;
-import com.atsuishio.superbwarfare.network.message.receive.ShakeClientMessage;
 import com.atsuishio.superbwarfare.tools.*;
+import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 import com.mojang.math.Axis;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,6 +26,9 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -43,12 +46,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,11 +70,7 @@ import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.config.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Comparator;
 import java.util.List;
-
-import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
 public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity, OBBEntity {
 
@@ -124,7 +121,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         EntityType<StrykerEntity> castedEntityType = (EntityType<StrykerEntity>) entityTypeFromPacket;
         return new StrykerEntity(castedEntityType, world);
     }
-
+    
     @Override
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{
@@ -154,7 +151,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
                 }
         };
     }
-
+    
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
@@ -177,16 +174,15 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         this.entityData.set(LOADED_AMMO_TYPE, compound.getInt("LoadedAmmoType"));
         setWeaponIndex(0, compound.getInt("WeaponType"));
     }
-    
+
     @Override
     public void changeWeapon(int index, int value, boolean isScroll) {
         if (index != 0) return;
 
         var weapons = getAvailableWeapons(index);
         if (weapons.isEmpty()) return;
-        var count = weapons.size();
-
-        var typeIndex = isScroll ? (value + getWeaponIndex(index) + count) % count : value;
+        
+        var typeIndex = isScroll ? (value + getWeaponIndex(index) + weapons.size()) % weapons.size() : value;
 
         if (getWeaponIndex(0) == 0 && entityData.get(LOADED_AP) > 0 && typeIndex != 0) {
             if (this.getFirstPassenger() instanceof Player player && !InventoryTool.hasCreativeAmmoBox(player)) {
@@ -202,27 +198,34 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         }
 
         entityData.set(LOADED_AMMO_TYPE, typeIndex);
+        
+        if (this.getFirstPassenger() instanceof ServerPlayer player) {
+            var stopSoundPacket = new ClientboundStopSoundPacket(tech.vvp.vvp.init.ModSounds.M1128_RELOAD.get().getLocation(), SoundSource.PLAYERS);
+            player.connection.send(stopSoundPacket);
+        }
+
         WeaponVehicleEntity.super.changeWeapon(index, value, isScroll);
     }
-
+    
+    
     @Override
     public void baseTick() {
         super.baseTick();
         updateOBB();
 
         if (!this.level().isClientSide) {
-             boolean hasCreativeAmmo = false;
+            boolean hasCreativeAmmo = false;
             if (getFirstPassenger() instanceof Player pPlayer && InventoryTool.hasCreativeAmmoBox(pPlayer)) {
                 hasCreativeAmmo = true;
             }
             if (reloadCoolDown > 0) {
-                 if (entityData.get(LOADED_AMMO_TYPE) == 0 && (hasCreativeAmmo || hasItem(ModItems.AP_5_INCHES.get()))){
+                if (entityData.get(LOADED_AMMO_TYPE) == 0 && (hasCreativeAmmo || hasItem(ModItems.AP_5_INCHES.get()))) {
                     reloadCoolDown--;
-                 }
+                }
             }
             this.handleAmmo();
         }
-        
+
         if (reloadCoolDown == 70 && this.getFirstPassenger() instanceof Player player) {
             SoundTool.playLocalSound(player, tech.vvp.vvp.init.ModSounds.M1128_RELOAD.get());
         }
@@ -355,15 +358,14 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
             return this.entityData.get(AMMO);
         }
     }
-
+    
     @Override
     public ThirdPersonCameraPosition getThirdPersonCameraPosition(int index) {
         return new ThirdPersonCameraPosition(2.75 + ClientMouseHandler.custom3pDistanceLerp, 1, 0);
     }
 
     @Override
-    @ParametersAreNonnullByDefault
-    protected void playStepSound(BlockPos pPos, BlockState pState) {
+    public void playStepSound(BlockPos pPos, BlockState pState) {
         this.playSound(ModSounds.WHEEL_STEP.get(), (float) (getDeltaMovement().length() * 0.3), random.nextFloat() * 0.15f + 1.05f);
     }
 
