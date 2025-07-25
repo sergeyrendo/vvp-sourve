@@ -18,6 +18,7 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.M997_GREEN.get(), m997_greenRenderer::new);
         event.registerEntityRenderer(ModEntities.COBRA.get(), cobraRenderer::new);
         event.registerEntityRenderer(ModEntities.COBRASHARK.get(), cobrasharkRenderer::new);
+        event.registerEntityRenderer(ModEntities.UH60MOD.get(), uh60ModRenderer::new);
         event.registerEntityRenderer(ModEntities.BTR80A.get(), btr80aRenderer::new);
         event.registerEntityRenderer(ModEntities.BTR_80A_1.get(), btr80a_1Renderer::new);
         event.registerEntityRenderer(ModEntities.F35.get(), f35Renderer::new);
@@ -29,6 +30,8 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.TERMINATOR.get(), terminatorRenderer::new);
         event.registerEntityRenderer(ModEntities.TERMINATOR_HAKI.get(), terminatorHakiRenderer::new);
         event.registerEntityRenderer(ModEntities.UH60MOD.get(), uh60ModRenderer::new);
+        event.registerEntityRenderer(ModEntities.BRADLEY_UKR.get(), BradleyUkrRenderer::new);
+
 
 
 

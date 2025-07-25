@@ -181,6 +181,15 @@ public class ModEntities {
                                     .sized(3.9f, 3.5f)
                                     .build("terminator_haki"));
 
+    public static final RegistryObject<EntityType<BradleyUkrEntity>> BRADLEY_UKR = ENTITY_TYPES.register("bradley_ukr",
+            () -> EntityType.Builder.<BradleyUkrEntity>of(BradleyUkrEntity::new, MobCategory.MISC)
+                                    .setTrackingRange(64)
+                                    .setUpdateInterval(1)
+                                    .setCustomClientFactory(BradleyUkrEntity::clientSpawn)
+                                    .fireImmune()
+                                    .sized(3.9f, 3.5f)
+                                    .build("bradley_ukr"));
+
     public static final RegistryObject<EntityType<Uh60ModEntity>> UH60MOD = ENTITY_TYPES.register("uh60mod",
                                 () -> EntityType.Builder.<Uh60ModEntity>of(Uh60ModEntity::new, MobCategory.MISC)
                                     .setTrackingRange(64)
