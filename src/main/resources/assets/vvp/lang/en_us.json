@@ -28,11 +28,14 @@
 
   "//": "==================== EQUIPMENT & ITEMS ====================",
   "item.vvp.usahelmet": "ACH Helmet USA",
-  "item.vvp.usachest": "Chest USA",
+  "item.vvp.mangal_turret": "Mangal for turret",
+  "item.vvp.mangal_body": "Mangal for body",
+  "item.vvp.setka_body": "Folliage for body",
+  "item.vvp.setka_turret": "Folliage for turret",
   "item.vvp.music_disc_radiohead.desc": "Radiohead - Jigsaw Falling into Place",
 
   "//": "==================== UI ELEMENTS ====================",
-  "itemGroup.vvp_armor_tab": "[VVP] Armor",
+  "itemGroup.vvp_armor_tab": "[VVP] Items",
   "item_group.vvp.vvp": "[VVP] Military Vehicles",
   "tooltip.vvp.model_author": "Model by VVP Team",
   "tooltip.vvp.usage_restriction": "Usage of these models outside of the addon is prohibited"

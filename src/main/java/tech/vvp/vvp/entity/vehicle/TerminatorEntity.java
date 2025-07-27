@@ -93,6 +93,9 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> MISSILE_COUNT = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> CURRENT_MISSILE = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Boolean> HAS_MANGAL = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> HAS_FOLIAGE = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> HAS_FOLIAGE_BODY = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private boolean fireLeftBarrel = true;
@@ -101,6 +104,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
     public OBB obb3;
     public OBB obb4;
     public OBB obbTurret;
+    public OBB obbMangal;
 
     public TerminatorEntity(PlayMessages.SpawnEntity packet, Level world) {
         this(ModEntities.TERMINATOR.get(), world);
@@ -114,7 +118,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.34375f, 0.3984375f, 3.6171875f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
         this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.34375f, 0.3984375f, 3.6171875f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
         this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(1.2890625f, 0.5859375f, 1.3828125f), new Quaternionf(), OBB.Part.TURRET);
-
+        this.obbMangal = new OBB(this.position().toVector3f(), new Vector3f(1.600f, 0.044f, 1.413f), new Quaternionf(), OBB.Part.BODY);
     }
 
     // Добавляем статический метод для создания атрибутов
@@ -192,6 +196,9 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         this.entityData.define(LOADED_MISSILE, 0);
         this.entityData.define(MISSILE_COUNT, 0);
         this.entityData.define(CURRENT_MISSILE, 0);
+        this.entityData.define(HAS_MANGAL, false);
+        this.entityData.define(HAS_FOLIAGE, false);
+        this.entityData.define(HAS_FOLIAGE_BODY, false);
     }
 
     @Override
@@ -199,6 +206,9 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         super.addAdditionalSaveData(compound);
         compound.putInt("loaded_ap", this.entityData.get(LOADED_AP));
         compound.putInt("LoadedMissile", this.entityData.get(LOADED_MISSILE));
+        compound.putBoolean("HasMangal", this.entityData.get(HAS_MANGAL));
+        compound.putBoolean("HasFoliage", this.entityData.get(HAS_FOLIAGE));
+        compound.putBoolean("HasFoliageBody", this.entityData.get(HAS_FOLIAGE_BODY));
     }
 
     @Override
@@ -206,7 +216,10 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         super.readAdditionalSaveData(compound);
         this.entityData.set(LOADED_AP, compound.getInt("loaded_ap"));
         this.entityData.set(LOADED_MISSILE, compound.getInt("LoadedMissile"));
+        this.entityData.set(HAS_MANGAL, compound.getBoolean("HasMangal"));
+        this.entityData.set(HAS_FOLIAGE_BODY, compound.getBoolean("HasFoliageBody"));
     }
+
 
     @Override
     @ParametersAreNonnullByDefault
@@ -231,6 +244,27 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
 
         super.baseTick();
         updateOBB();
+
+        if (!this.level().isClientSide && this.tickCount % 20 == 0) {
+            List<ItemStack> items = this.getItemStacks();  // Получаем весь инвентарь (NonNullList<ItemStack>)
+
+            // Проверяем наличие хотя бы одного "мангала" в ЛЮБОМ слоте
+            boolean hasMangal = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get()));
+            if (this.entityData.get(HAS_MANGAL) != hasMangal) {
+                this.entityData.set(HAS_MANGAL, hasMangal);
+            }
+
+            // Проверяем наличие хотя бы одной "листвы" в ЛЮБОМ слоте
+            boolean hasFoliage = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(tech.vvp.vvp.init.ModItems.SETKA_TURRET.get()));
+            if (this.entityData.get(HAS_FOLIAGE) != hasFoliage) {
+                this.entityData.set(HAS_FOLIAGE, hasFoliage);
+            }
+
+            boolean hasFoliage_body = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(tech.vvp.vvp.init.ModItems.SETKA_BODY.get()));
+            if (this.entityData.get(HAS_FOLIAGE_BODY) != hasFoliage_body) {
+                this.entityData.set(HAS_FOLIAGE_BODY, hasFoliage_body);
+            }
+        }
 
 
         if (this.level() instanceof ServerLevel) {
@@ -852,7 +886,11 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
     }
 
     public List<OBB> getOBBs() {
-        return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret);
+        if (this.entityData.get(HAS_MANGAL)) {  // Если мангал "появился", добавляем obbMangal в список
+            return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret, this.obbMangal);
+        } else {
+            return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret);  // Оригинальный список без изменений
+        }
     }
 
     public void updateOBB() {
@@ -878,6 +916,12 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         Vector4f worldPositionT = transformPosition(transformT, 0.0f, 0.0f, 0.0f);
         this.obbTurret.center().set(new Vector3f(worldPositionT.x, worldPositionT.y, worldPositionT.z));
         this.obbTurret.setRotation(VectorTool.combineRotationsTurret(1, this));
+
+        if (this.entityData.get(HAS_MANGAL)) {
+            Vector4f worldPositionMangal = transformPosition(transformT, 0.2f, 1.2f, -0.2f);  // Примерная позиция мангала (относительно турели; подкорректируй x/y/z)
+            this.obbMangal.center().set(new Vector3f(worldPositionMangal.x, worldPositionMangal.y, worldPositionMangal.z));
+            this.obbMangal.setRotation(VectorTool.combineRotationsTurret(1, this));  // Ротация как у турели
+        }
     }
 
     @Override

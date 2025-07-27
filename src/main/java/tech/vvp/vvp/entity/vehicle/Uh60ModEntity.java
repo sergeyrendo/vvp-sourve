@@ -88,8 +88,8 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
     public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.INT);
-public static final EntityDataAccessor<Boolean> DOOR_RIGHT_OPEN = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.BOOLEAN);
-public static final EntityDataAccessor<Boolean> DOOR_LEFT_OPEN = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> DOOR_RIGHT_OPEN = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> DOOR_LEFT_OPEN = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.BOOLEAN);
 
     public static final int RADAR_RANGE = 200;
 
@@ -132,8 +132,8 @@ public static final EntityDataAccessor<Boolean> DOOR_LEFT_OPEN = SynchedEntityDa
         this.obbWing1 = new OBB(this.position().toVector3f(), new Vector3f(0.656f, 0.969f, 2.656f), new Quaternionf(), OBB.Part.ENGINE1);
         this.obbXvost = new OBB(this.position().toVector3f(), new Vector3f(0.500f, 0.531f, 0.469f), new Quaternionf(), OBB.Part.BODY);
         this.obbWing2 = new OBB(this.position().toVector3f(), new Vector3f(0.563f, 1.563f, 0.969f), new Quaternionf(), OBB.Part.ENGINE2);
-        this.obbDoorRight = new OBB(this.position().toVector3f(), new Vector3f(0.063f, 0.813f, 0.250f), new Quaternionf(), OBB.Part.INTERACTIVE);
-        this.obbDoorLeft = new OBB(this.position().toVector3f(), new Vector3f(0.063f, 0.813f, 0.250f), new Quaternionf(), OBB.Part.INTERACTIVE);
+        this.obbDoorRight = new OBB(this.position().toVector3f(), new Vector3f(0.188f, 0.875f, 1.063f), new Quaternionf(), OBB.Part.INTERACTIVE);
+        this.obbDoorLeft = new OBB(this.position().toVector3f(), new Vector3f(0.188f, 0.875f, 1.063f), new Quaternionf(), OBB.Part.INTERACTIVE);
     }
 
      // Добавляем статический метод для создания атрибутов
@@ -188,17 +188,6 @@ public static final EntityDataAccessor<Boolean> DOOR_LEFT_OPEN = SynchedEntityDa
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
-                        new SmallCannonShellWeapon()
-                                .blockInteraction(VehicleConfig.AH_6_CANNON_DESTROY.get() ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP)
-                                .damage(VehicleConfig.AH_6_CANNON_DAMAGE.get().floatValue())
-                                .explosionDamage(VehicleConfig.AH_6_CANNON_EXPLOSION_DAMAGE.get().floatValue())
-                                .explosionRadius(VehicleConfig.AH_6_CANNON_EXPLOSION_RADIUS.get().floatValue())
-                                .sound(ModSounds.INTO_CANNON.get())
-                                .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_20mm.png"))
-                                .sound1p(ModSounds.HELICOPTER_CANNON_FIRE_1P.get())
-                                .sound3p(ModSounds.HELICOPTER_CANNON_FIRE_3P.get())
-                                .sound3pFar(ModSounds.HELICOPTER_CANNON_FAR.get())
-                                .sound3pVeryFar(ModSounds.HELICOPTER_CANNON_VERYFAR.get()),
                         new SmallRocketWeapon()
                                 .damage(VehicleConfig.AH_6_ROCKET_DAMAGE.get().floatValue())
                                 .explosionDamage(VehicleConfig.AH_6_ROCKET_EXPLOSION_DAMAGE.get().floatValue())
@@ -351,13 +340,6 @@ public static final EntityDataAccessor<Boolean> DOOR_LEFT_OPEN = SynchedEntityDa
     private void handleAmmo() {
         if (!(this.getFirstPassenger() instanceof Player player)) return;
 
-        int ammoCount = this.getItemStacks().stream().filter(stack -> {
-            if (stack.is(ModItems.AMMO_BOX.get())) {
-                return Ammo.HEAVY.get(stack) > 0;
-            }
-            return false;
-        }).mapToInt(Ammo.HEAVY::get).sum() + countItem(ModItems.SMALL_SHELL.get());
-
         if ((hasItem(ModItems.SMALL_ROCKET.get()) || InventoryTool.hasCreativeAmmoBox(player)) && reloadCoolDown == 0 && this.getEntityData().get(LOADED_ROCKET) < 25) {
             this.entityData.set(LOADED_ROCKET, this.getEntityData().get(LOADED_ROCKET) + 1);
             reloadCoolDown = 18;
@@ -377,10 +359,8 @@ public static final EntityDataAccessor<Boolean> DOOR_LEFT_OPEN = SynchedEntityDa
         }
 
         if (this.getWeaponIndex(0) == 0) {
-            this.entityData.set(AMMO, ammoCount);
-        } else if (this.getWeaponIndex(0) == 1) {
             this.entityData.set(AMMO, this.getEntityData().get(LOADED_ROCKET));
-        } else if (this.getWeaponIndex(0) == 2) {
+        } else if (this.getWeaponIndex(0) == 1) {
             this.entityData.set(AMMO, this.getEntityData().get(LOADED_MISSILE));
         }
     }
@@ -579,31 +559,31 @@ public static final EntityDataAccessor<Boolean> DOOR_LEFT_OPEN = SynchedEntityDa
         // Используем switch для определения координат для каждого из 10 мест
         switch (i) {
             case 0: // 1 место
-                x = 0.734f; y = 1.25f; z = 3.250f;
+                x = 0.734f; y = -0.25f; z = 3.250f;
                 break;
             case 1: // 2 место
-                x = -0.703f;  y = 1.25f; z = 3.250f;
+                x = -0.703f;  y = -0.25f; z = 3.250f;
                 break;
             case 2: // 3 место
-                x = 0.844f; y = 1.25f; z = 0.188f;
+                x = 0.844f; y = -0.25f; z = 0.188f;
                 break;
             case 3: // 4 место
-                x = 0.281f; y = 1.25f; z = 0.188f;
+                x = 0.281f; y = -0.25f; z = 0.188f;
                 break;
             case 4: // 5 место
-                x = -0.344f;  y = 1.25f; z = 0.188f;
+                x = -0.344f;  y = -0.25f; z = 0.188f;
                 break;
             case 5: // 6 место
-                x = -0.906f;  y = 1.25f; z = 0.188f;
+                x = -0.906f;  y = -0.25f; z = 0.188f;
                 break;
             case 6: // 7 место
-                x = 0.844f; y = 1.25f; z = -1.375f;
+                x = 0.844f; y = -0.25f; z = -1.375f;
                 break;
             case 7: // 8 место
-                x = 0.281f; y = 1.25f; z = -1.375f;
+                x = 0.281f; y = -0.25f; z = -1.375f;
                 break;
             case 8: // 9 место
-                x = -0.344f;  y = 1.25f; z = -1.375f;
+                x = -0.344f;  y = -0.25f; z = -1.375f;
                 break;
             default: // Запасной вариант, если индекс будет некорректным
                 x = 0.0f;    y = 2.0f;   z = 0.0f;
@@ -693,74 +673,18 @@ public static final EntityDataAccessor<Boolean> DOOR_LEFT_OPEN = SynchedEntityDa
     @Override
     public void vehicleShoot(Player player, int type) {
         boolean hasCreativeAmmo = false;
-        for (int i = 0; i < getMaxPassengers() - 1; i++) {
-            if (getNthEntity(i) instanceof Player pPlayer && InventoryTool.hasCreativeAmmoBox(pPlayer)) {
-                hasCreativeAmmo = true;
-            }
-        }
 
         Matrix4f transform = getVehicleTransform(1);
+
         float x;
         float y;
         float z;
 
-        if (getWeaponIndex(0) == 0) {
-            if (this.cannotFire) return;
+        if (getWeaponIndex(0) == 0 && this.getEntityData().get(LOADED_ROCKET) > 0) {
 
-            x = 0.2f;
-            y = -0.8f;
-            z = 3.5f;
-
-            Vector4f worldPosition;
-            Vector4f worldPosition2;
-
-            if (fireIndex == 0) {
-                worldPosition = transformPosition(transform, -x, y, z);
-                worldPosition2 = transformPosition(transform, -x + 0.009f - 0.002f, y + 0.012f, z + 1.0f);
-                fireIndex = 1;
-            } else {
-                worldPosition = transformPosition(transform, x, y, z);
-                worldPosition2 = transformPosition(transform, x + 0.009f + 0.002f, y + 0.012f, z + 1.0f);
-                fireIndex = 0;
-            }
-
-            Vec3 shootVec = new Vec3(worldPosition.x, worldPosition.y, worldPosition.z).vectorTo(new Vec3(worldPosition2.x, worldPosition2.y, worldPosition2.z)).normalize();
-
-            if (this.entityData.get(AMMO) > 0 || hasCreativeAmmo) {
-                var entityToSpawn = ((SmallCannonShellWeapon) getWeapon(0)).create(player);
-
-                entityToSpawn.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
-                entityToSpawn.shoot(shootVec.x, shootVec.y, shootVec.z, 20, 0.15f);
-                level().addFreshEntity(entityToSpawn);
-
-                sendParticle((ServerLevel) this.level(), ParticleTypes.LARGE_SMOKE, worldPosition.x, worldPosition.y, worldPosition.z, 1, 0, 0, 0, 0, false);
-
-                if (!hasCreativeAmmo) {
-                    ItemStack ammoBox = this.getItemStacks().stream().filter(stack -> {
-                        if (stack.is(ModItems.AMMO_BOX.get())) {
-                            return Ammo.HEAVY.get(stack) > 0;
-                        }
-                        return false;
-                    }).findFirst().orElse(ItemStack.EMPTY);
-
-                    if (!ammoBox.isEmpty()) {
-                        Ammo.HEAVY.add(ammoBox, -1);
-                    } else {
-                        this.getItemStacks().stream().filter(stack -> stack.is(ModItems.SMALL_SHELL.get())).findFirst().ifPresent(stack -> stack.shrink(1));
-                    }
-                }
-            }
-
-            this.entityData.set(HEAT, this.entityData.get(HEAT) + 4);
-
-            if (!player.level().isClientSide) {
-                playShootSound3p(player, 0, 4, 12, 24);
-            }
-
-        } else if (getWeaponIndex(0) == 1 && this.getEntityData().get(LOADED_ROCKET) > 0) {
-            x = 1.7f;
-            y = 0.62f - 1.45f;
-            z = 0.8f;
+            x = -3.438f;
+            y = -0.8f; // 1.500f
+            z = 2.063f;
 
             var heliRocketEntity = ((SmallRocketWeapon) getWeapon(0)).create(player);
 
@@ -789,7 +713,7 @@ public static final EntityDataAccessor<Boolean> DOOR_LEFT_OPEN = SynchedEntityDa
 
             this.entityData.set(LOADED_ROCKET, this.getEntityData().get(LOADED_ROCKET) - 1);
             reloadCoolDown = 30;
-        } else if (getWeaponIndex(0) == 2 && this.getEntityData().get(LOADED_MISSILE) > 0) {
+        } else if (getWeaponIndex(0) == 1 && this.getEntityData().get(LOADED_MISSILE) > 0) {
             var Agm65Entity = ((Agm65Weapon) getWeapon(0)).create(player);
     
             Vector4f worldPosition;
@@ -835,21 +759,18 @@ public static final EntityDataAccessor<Boolean> DOOR_LEFT_OPEN = SynchedEntityDa
 
     @Override
     public int mainGunRpm(Player player) {
-        if (getWeaponIndex(0) == 0) {
-            return 600;
-        } else if (getWeaponIndex(0) == 2) {
-            return 120;
+    if (getWeaponIndex(0) == 1) {
+            return 180;
         }
         return 0;
     }
 
     @Override
     public boolean canShoot(Player player) {
-        if (getWeaponIndex(0) == 0) {
-            return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFire;
-        } else if (getWeaponIndex(0) == 1) {
+
+    if (getWeaponIndex(0) == 0) {
             return this.entityData.get(AMMO) > 0;
-        } else if (getWeaponIndex(0) == 2) {
+        } else if (getWeaponIndex(0) == 1) {
             return this.entityData.get(AMMO) > 0;
         }
         return false;
@@ -1008,11 +929,14 @@ public static final EntityDataAccessor<Boolean> DOOR_LEFT_OPEN = SynchedEntityDa
         this.obbWing2.center().set(new Vector3f(worldPosition7.x, worldPosition7.y, worldPosition7.z));
         this.obbWing2.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPositionR = transformPosition(transform, -1.563f, 0.5f, -0.875f);
+        // Обновление правой двери с сдвигом назад при открытии
+        float doorOffsetZRight = this.entityData.get(DOOR_RIGHT_OPEN) ? Mth.lerp(0.1f, 0.0f, -20.0f) : 0.0f;  // Сдвиг назад (1.0f — расстояние; подкорректируй)
+        Vector4f worldPositionR = transformPosition(transform, -1.422f, 0.5f, doorOffsetZRight);  // Сдвиг по Z (назад)
         this.obbDoorRight.center().set(new Vector3f(worldPositionR.x, worldPositionR.y, worldPositionR.z));
         this.obbDoorRight.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPositionL = transformPosition(transform, 1.563f, 0.5f, -0.875f);
+        float doorOffsetZLeft = this.entityData.get(DOOR_LEFT_OPEN) ? Mth.lerp(0.1f, 0.0f, -20.0f) : 0.0f;  // Сдвиг назад (1.0f — расстояние; подкорректируй)
+        Vector4f worldPositionL = transformPosition(transform, 1.422f, 0.5f, doorOffsetZLeft);  // Сдвиг по Z (назад)
         this.obbDoorLeft.center().set(new Vector3f(worldPositionL.x, worldPositionL.y, worldPositionL.z));
         this.obbDoorLeft.setRotation(VectorTool.combineRotations(1, this));
 

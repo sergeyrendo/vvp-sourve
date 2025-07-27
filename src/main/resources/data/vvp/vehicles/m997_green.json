@@ -97,6 +97,11 @@
       "Source": "@superbwarfare:mortar_shell"
     },
     {
+      "Type": "Multiply",
+      "Value": 100,
+      "Source": "@tacz:bullet"
+    },
+    {
       "Type": "Reduce",
       "Value": 2
     }

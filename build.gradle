@@ -20,10 +20,10 @@ plugins {
 //apply plugin: 'org.spongepowered.mixin'
 
 group = mod_group_id
-version = '0.1.5'
+version = '0.1.6'
 
 base {
-    archivesName = "vvp-beta"
+    archivesName = "vvp"
 }
 
 java {
@@ -178,6 +178,7 @@ dependencies {
     implementation fg.deobf("curse.maven:geckolib-388172:6658942")
     // implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.20.1:4.4.6')
     implementation fg.deobf("curse.maven:superb-warfare-1218165:6772768")
+    implementation fg.deobf("curse.maven:timeless-and-classics-zero-1028108:6654541")
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime

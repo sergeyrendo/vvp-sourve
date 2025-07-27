@@ -209,14 +209,6 @@ public class BradleyUkrRenderer extends GeoEntityRenderer<BradleyUkrEntity> {
                 bone.setRotX(-Mth.lerp(partialTick, getBoneRotX(tO2), getBoneRotX(t2)) * Mth.DEG_TO_RAD);
             }
 
-            if (name.equals(("mangal_turret" != null))) {
-                bone.setHidden(animatable.getEntityData().get(HAS_FOLIAGE) == false);
-            }
-
-            if (name.equals(("setka_turret" != null))) {
-                bone.setHidden(animatable.getEntityData().get(HAS_FOLIAGE) == false);
-            }
-
             if (name.equals("mangal_turret")) {
                 boolean hasMangal = animatable.getEntityData().get(BradleyUkrEntity.HAS_MANGAL);
                 bone.setHidden(!hasMangal);

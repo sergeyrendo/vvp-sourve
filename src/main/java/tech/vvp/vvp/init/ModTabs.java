@@ -56,6 +56,10 @@ public class ModTabs {
                             .displayItems((parameters, output) -> {
                                 output.accept(ModItems.USA_HELMET.get());
                                 output.accept(ModItems.USA_CHEST.get());
+                                output.accept(ModItems.MANGAL_TURRET.get());
+                                output.accept(ModItems.MANGAL_BODY.get());
+                                output.accept(ModItems.SETKA_BODY.get());
+                                output.accept(ModItems.SETKA_TURRET.get());
                             })
                             .build());
     

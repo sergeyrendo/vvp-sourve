@@ -17,6 +17,8 @@ import com.atsuishio.superbwarfare.init.ModDamageTypes;
 import com.atsuishio.superbwarfare.entity.OBBEntity;
 import com.atsuishio.superbwarfare.entity.projectile.SmallCannonShellEntity;
 
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.init.ModEntities;
 import com.atsuishio.superbwarfare.init.ModItems;
@@ -121,7 +123,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.4375f, 0.625f, 3.21875f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
         this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.4375f, 0.625f, 3.21875f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
         this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(1.406f, 0.469f, 1.688f), new Quaternionf(), OBB.Part.TURRET);
-        this.obbMangal = new OBB(this.position().toVector3f(), new Vector3f(1.906f, 0.094f, 1.594f), new Quaternionf(), OBB.Part.BODY);
+        this.obbMangal = new OBB(this.position().toVector3f(), new Vector3f(1.906f, 0.094f, 1.594f), new Quaternionf(), OBB.Part.EMPTY);
 
     }
 
@@ -165,8 +167,8 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
                                 .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_30mm.png"))
                                 .sound1p(tech.vvp.vvp.init.ModSounds.BUSHMASTER_1P.get())
                                 .sound3p(tech.vvp.vvp.init.ModSounds.BUSHMASTER_3P.get())
-                                .sound3pFar(tech.vvp.vvp.init.ModSounds.BUSHMASTER_FAR.get()),
-//                                .sound3pVeryFar(tech.vvp.init.ModSounds.BUSHMASTER_VERYFAR.get()),
+                                .sound3pFar(tech.vvp.vvp.init.ModSounds.BUSHMASTER_FAR.get())
+                                .sound3pVeryFar(tech.vvp.vvp.init.ModSounds.BUSHMASTER_VERYFAR.get()),
                         new ProjectileWeapon()
                                 .damage(9.5f)
                                 .headShot(2)
@@ -252,18 +254,18 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
             List<ItemStack> items = this.getItemStacks();  // Получаем весь инвентарь (NonNullList<ItemStack>)
 
             // Проверяем наличие хотя бы одного "мангала" в ЛЮБОМ слоте
-            boolean hasMangal = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(ModItems.AP_5_INCHES.get()));
+            boolean hasMangal = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get()));
             if (this.entityData.get(HAS_MANGAL) != hasMangal) {
                 this.entityData.set(HAS_MANGAL, hasMangal);
             }
 
             // Проверяем наличие хотя бы одной "листвы" в ЛЮБОМ слоте
-            boolean hasFoliage = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(ModItems.ARMOR_PLATE.get()));
+            boolean hasFoliage = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(tech.vvp.vvp.init.ModItems.SETKA_TURRET.get()));
             if (this.entityData.get(HAS_FOLIAGE) != hasFoliage) {
                 this.entityData.set(HAS_FOLIAGE, hasFoliage);
             }
 
-            boolean hasFoliage_body = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(ModItems.HE_5_INCHES.get()));
+            boolean hasFoliage_body = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(tech.vvp.vvp.init.ModItems.SETKA_BODY.get()));
             if (this.entityData.get(HAS_FOLIAGE_BODY) != hasFoliage_body) {
                 this.entityData.set(HAS_FOLIAGE_BODY, hasFoliage_body);
             }
@@ -897,6 +899,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
             this.obbMangal.setRotation(VectorTool.combineRotationsTurret(1, this));  // Ротация как у турели
         }
     }
+
 
     public float rotateYOffset() {
         return 3.5f;
