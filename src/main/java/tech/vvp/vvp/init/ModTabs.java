@@ -60,6 +60,9 @@ public class ModTabs {
                                 output.accept(ModItems.MANGAL_BODY.get());
                                 output.accept(ModItems.SETKA_BODY.get());
                                 output.accept(ModItems.SETKA_TURRET.get());
+                                output.accept(ModItems.KOROBKI.get());
+                                output.accept(ModItems.WRENCH.get());
+
                             })
                             .build());
     

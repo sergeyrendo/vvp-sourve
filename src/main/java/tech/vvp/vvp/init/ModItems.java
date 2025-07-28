@@ -10,10 +10,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.item.armor.usahelmet;
 import tech.vvp.vvp.item.armor.usachest;
-import tech.vvp.vvp.item.varies.MangalBodyItem;
-import tech.vvp.vvp.item.varies.MangalTurretItem;
-import tech.vvp.vvp.item.varies.SetkaBodyItem;
-import tech.vvp.vvp.item.varies.SetkaTurretItem;
+import tech.vvp.vvp.item.varies.*;
 
 
 public class ModItems {
@@ -40,6 +37,8 @@ public class ModItems {
     public static final RegistryObject<Item> MANGAL_TURRET = REGISTRY.register("mangal_turret", MangalTurretItem::new);
     public static final RegistryObject<Item> SETKA_BODY = REGISTRY.register("setka_body", SetkaBodyItem::new);
     public static final RegistryObject<Item> SETKA_TURRET = REGISTRY.register("setka_turret", SetkaTurretItem::new);
+    public static final RegistryObject<Item> WRENCH = REGISTRY.register("wrench", WrenchItem::new);
+    public static final RegistryObject<Item> KOROBKI = REGISTRY.register("korobki", KorobkiItem::new);
 
 
     public static final RegistryObject<Item> RADIOHEAD = REGISTRY.register("music_disc_radiohead",

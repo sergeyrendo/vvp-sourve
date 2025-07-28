@@ -153,5 +153,10 @@
     "sounds": [
       "vvp:door"
     ]
+  },
+  "remont": {
+    "sounds": [
+      "vvp:remont"
+    ]
   }
 }

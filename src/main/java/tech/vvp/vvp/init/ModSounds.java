@@ -82,7 +82,11 @@ public class ModSounds {
     public static final RegistryObject<SoundEvent> HUMVEE_ENGINE = register("humvee_engine");
 
     public static final RegistryObject<SoundEvent> COBRA_ENGINE = register("cobra_engine");
-    public static final RegistryObject<SoundEvent> VAZIK_ENGINE = register("vazik_engine");
+
+
+    public static final RegistryObject<SoundEvent> REMONT = register("remont");
+
+
     /**
      * Вспомогательный метод для регистрации звуков
      * @param name Название звука (без пространства имен)

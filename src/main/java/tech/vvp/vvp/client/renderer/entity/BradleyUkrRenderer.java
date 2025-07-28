@@ -225,6 +225,11 @@ public class BradleyUkrRenderer extends GeoEntityRenderer<BradleyUkrEntity> {
                 bone.setHidden(!hasFoliage_body);
             }
 
+            if (name.equals("korobki")) {
+                boolean hasFoliage_body = animatable.getEntityData().get(BradleyUkrEntity.KOROBKI);
+                bone.setHidden(!hasFoliage_body);
+            }
+
         }
         super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
     }

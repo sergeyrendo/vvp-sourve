@@ -1,6 +1,7 @@
 package tech.vvp.vvp.client.renderer.entity;
 
 import tech.vvp.vvp.entity.vehicle.Btr4Entity;
+import tech.vvp.vvp.entity.vehicle.TerminatorEntity;
 import tech.vvp.vvp.entity.vehicle.TerminatorHakiEntity;
 import tech.vvp.vvp.client.model.terminatorHakiModel;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
@@ -179,6 +180,17 @@ public class terminatorHakiRenderer extends GeoEntityRenderer<TerminatorHakiEnti
 
             if (name.equals("trackRRot" + i)) {
                 bone.setRotX(-Mth.lerp(partialTick, getBoneRotX(tO2), getBoneRotX(t2)) * Mth.DEG_TO_RAD);
+            }
+
+            if (name.equals("mangal_turret")) {
+                boolean hasMangal = animatable.getEntityData().get(TerminatorHakiEntity.HAS_MANGAL);
+                bone.setHidden(!hasMangal);
+            }
+
+            if (name.equals("setka_turret")) {
+                boolean hasMangal = animatable.getEntityData().get(TerminatorHakiEntity.HAS_MANGAL);
+                boolean hasFoliage = animatable.getEntityData().get(TerminatorHakiEntity.HAS_FOLIAGE);
+                bone.setHidden(!(hasMangal && hasFoliage));
             }
 
         }

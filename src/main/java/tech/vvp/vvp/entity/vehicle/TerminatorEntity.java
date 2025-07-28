@@ -17,6 +17,10 @@ import com.atsuishio.superbwarfare.init.ModDamageTypes;
 import com.atsuishio.superbwarfare.entity.OBBEntity;
 import com.atsuishio.superbwarfare.entity.projectile.SmallCannonShellEntity;
 
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.init.ModEntities;
 import com.atsuishio.superbwarfare.init.ModItems;
@@ -118,7 +122,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.34375f, 0.3984375f, 3.6171875f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
         this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.34375f, 0.3984375f, 3.6171875f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
         this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(1.2890625f, 0.5859375f, 1.3828125f), new Quaternionf(), OBB.Part.TURRET);
-        this.obbMangal = new OBB(this.position().toVector3f(), new Vector3f(1.600f, 0.044f, 1.413f), new Quaternionf(), OBB.Part.BODY);
+        this.obbMangal = new OBB(this.position().toVector3f(), new Vector3f(1.600f, 0.044f, 1.413f), new Quaternionf(), OBB.Part.EMPTY);
     }
 
     // Добавляем статический метод для создания атрибутов
@@ -244,27 +248,6 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
 
         super.baseTick();
         updateOBB();
-
-        if (!this.level().isClientSide && this.tickCount % 20 == 0) {
-            List<ItemStack> items = this.getItemStacks();  // Получаем весь инвентарь (NonNullList<ItemStack>)
-
-            // Проверяем наличие хотя бы одного "мангала" в ЛЮБОМ слоте
-            boolean hasMangal = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get()));
-            if (this.entityData.get(HAS_MANGAL) != hasMangal) {
-                this.entityData.set(HAS_MANGAL, hasMangal);
-            }
-
-            // Проверяем наличие хотя бы одной "листвы" в ЛЮБОМ слоте
-            boolean hasFoliage = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(tech.vvp.vvp.init.ModItems.SETKA_TURRET.get()));
-            if (this.entityData.get(HAS_FOLIAGE) != hasFoliage) {
-                this.entityData.set(HAS_FOLIAGE, hasFoliage);
-            }
-
-            boolean hasFoliage_body = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(tech.vvp.vvp.init.ModItems.SETKA_BODY.get()));
-            if (this.entityData.get(HAS_FOLIAGE_BODY) != hasFoliage_body) {
-                this.entityData.set(HAS_FOLIAGE_BODY, hasFoliage_body);
-            }
-        }
 
 
         if (this.level() instanceof ServerLevel) {
@@ -921,6 +904,63 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
             Vector4f worldPositionMangal = transformPosition(transformT, 0.2f, 1.2f, -0.2f);  // Примерная позиция мангала (относительно турели; подкорректируй x/y/z)
             this.obbMangal.center().set(new Vector3f(worldPositionMangal.x, worldPositionMangal.y, worldPositionMangal.z));
             this.obbMangal.setRotation(VectorTool.combineRotationsTurret(1, this));  // Ротация как у турели
+        }
+    }
+
+    @Override
+    public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+
+        // Загрузка модулей (отдельные if для каждого, как раньше)
+        if (stack.is(tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get()) && !this.entityData.get(HAS_MANGAL)) {
+            return loadModule(player, stack, HAS_MANGAL, tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get());  // Универсальная функция (см. ниже)
+        }
+        if (stack.is(tech.vvp.vvp.init.ModItems.SETKA_TURRET.get()) && !this.entityData.get(HAS_FOLIAGE)) {
+            return loadModule(player, stack, HAS_FOLIAGE, tech.vvp.vvp.init.ModItems.SETKA_TURRET.get());
+        }
+
+        // Универсальное удаление с ключом (один if для всех флагов)
+        if (stack.is(tech.vvp.vvp.init.ModItems.WRENCH.get())) {
+            // Проверяем флаги по порядку (можно сделать цикл для всех)
+            if (this.entityData.get(HAS_MANGAL)) {
+                return removeModule(player, HAS_MANGAL, tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get());
+            } else if (this.entityData.get(HAS_FOLIAGE)) {
+                return removeModule(player, HAS_FOLIAGE, tech.vvp.vvp.init.ModItems.SETKA_TURRET.get());
+            }
+        }
+
+        // Если ничего не подошло — базовая логика (вход/инвентарь)
+        return super.interact(player, hand);
+    }
+
+    // Новая функция для загрузки (чтобы избежать дубликатов)
+    private InteractionResult loadModule(Player player, ItemStack stack, EntityDataAccessor<Boolean> flag, Item returnItem) {
+        if (!this.level().isClientSide) {
+            if (!player.isCreative()) {
+                stack.shrink(1);
+            }
+            this.entityData.set(flag, true);
+            this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.REMONT.get(), this.getSoundSource(), 2, 1);
+            return InteractionResult.CONSUME;
+        } else {
+            return InteractionResult.SUCCESS;
+        }
+    }
+
+    // Новая функция для удаления (чтобы избежать дубликатов)
+    private InteractionResult removeModule(Player player, EntityDataAccessor<Boolean> flag, Item returnItem) {
+        if (!this.level().isClientSide) {
+            this.entityData.set(flag, false);
+            ItemStack returnedItem = new ItemStack(returnItem, 1);
+            boolean addedToInventory = player.getInventory().add(returnedItem);
+            if (!addedToInventory) {
+                ItemEntity droppedItem = new ItemEntity(this.level(), this.getX(), this.getY() + 1, this.getZ(), returnedItem);
+                this.level().addFreshEntity(droppedItem);
+            }
+            this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.REMONT.get(), this.getSoundSource(), 2, 1);
+            return InteractionResult.CONSUME;
+        } else {
+            return InteractionResult.SUCCESS;
         }
     }
 

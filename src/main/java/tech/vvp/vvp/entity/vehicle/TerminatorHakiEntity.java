@@ -17,6 +17,10 @@ import com.atsuishio.superbwarfare.init.ModDamageTypes;
 import com.atsuishio.superbwarfare.entity.OBBEntity;
 import com.atsuishio.superbwarfare.entity.projectile.SmallCannonShellEntity;
 
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.init.ModEntities;
 import com.atsuishio.superbwarfare.init.ModItems;
@@ -93,6 +97,9 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(TerminatorHakiEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> MISSILE_COUNT = SynchedEntityData.defineId(TerminatorHakiEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> CURRENT_MISSILE = SynchedEntityData.defineId(TerminatorHakiEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Boolean> HAS_MANGAL = SynchedEntityData.defineId(TerminatorHakiEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> HAS_FOLIAGE = SynchedEntityData.defineId(TerminatorHakiEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> HAS_FOLIAGE_BODY = SynchedEntityData.defineId(TerminatorHakiEntity.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private boolean fireLeftBarrel = true;
@@ -101,11 +108,12 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
     public OBB obb3;
     public OBB obb4;
     public OBB obbTurret;
+    public OBB obbMangal;
 
     public TerminatorHakiEntity(PlayMessages.SpawnEntity packet, Level world) {
         this(ModEntities.TERMINATOR_HAKI.get(), world);
     }
-    
+
     public TerminatorHakiEntity(EntityType<TerminatorHakiEntity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
@@ -114,7 +122,7 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
         this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.34375f, 0.3984375f, 3.6171875f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
         this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.34375f, 0.3984375f, 3.6171875f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
         this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(1.2890625f, 0.5859375f, 1.3828125f), new Quaternionf(), OBB.Part.TURRET);
-
+        this.obbMangal = new OBB(this.position().toVector3f(), new Vector3f(1.600f, 0.044f, 1.413f), new Quaternionf(), OBB.Part.EMPTY);
     }
 
     // Добавляем статический метод для создания атрибутов
@@ -132,11 +140,11 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
         EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
         if (entityTypeFromPacket == null) {
             Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null; 
+            return null;
         }
         if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-             Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-             return null;
+            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
+            return null;
         }
 
         EntityType<TerminatorHakiEntity> castedEntityType = (EntityType<TerminatorHakiEntity>) entityTypeFromPacket;
@@ -192,6 +200,9 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
         this.entityData.define(LOADED_MISSILE, 0);
         this.entityData.define(MISSILE_COUNT, 0);
         this.entityData.define(CURRENT_MISSILE, 0);
+        this.entityData.define(HAS_MANGAL, false);
+        this.entityData.define(HAS_FOLIAGE, false);
+        this.entityData.define(HAS_FOLIAGE_BODY, false);
     }
 
     @Override
@@ -199,6 +210,9 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
         super.addAdditionalSaveData(compound);
         compound.putInt("loaded_ap", this.entityData.get(LOADED_AP));
         compound.putInt("LoadedMissile", this.entityData.get(LOADED_MISSILE));
+        compound.putBoolean("HasMangal", this.entityData.get(HAS_MANGAL));
+        compound.putBoolean("HasFoliage", this.entityData.get(HAS_FOLIAGE));
+        compound.putBoolean("HasFoliageBody", this.entityData.get(HAS_FOLIAGE_BODY));
     }
 
     @Override
@@ -206,7 +220,10 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
         super.readAdditionalSaveData(compound);
         this.entityData.set(LOADED_AP, compound.getInt("loaded_ap"));
         this.entityData.set(LOADED_MISSILE, compound.getInt("LoadedMissile"));
+        this.entityData.set(HAS_MANGAL, compound.getBoolean("HasMangal"));
+        this.entityData.set(HAS_FOLIAGE_BODY, compound.getBoolean("HasFoliageBody"));
     }
+
 
     @Override
     @ParametersAreNonnullByDefault
@@ -330,17 +347,17 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
 
         Matrix4f transform = getBarrelTransform(1);
 
-    if (this.getWeaponIndex(0) == 0) {
+        if (this.getWeaponIndex(0) == 0) {
             if (this.cannotFire) {
                 return;
             }
-                float x = fireLeftBarrel ? -0.215075f :0.215075f; // 左右切り替え -0.215075f, 2.769725f, -1.207226f
-                float y = 0.0f;
-                float z = 1.207226f;
-                fireLeftBarrel = !fireLeftBarrel; // 次回は逆側
+            float x = fireLeftBarrel ? -0.215075f :0.215075f; // 左右切り替え -0.215075f, 2.769725f, -1.207226f
+            float y = 0.0f;
+            float z = 1.207226f;
+            fireLeftBarrel = !fireLeftBarrel; // 次回は逆側
 
-                Vector4f worldPosition = this.transformPosition(transform, x, y, z);
-                SmallCannonShellEntity smallCannonShell = ((SmallCannonShellWeapon)this.getWeapon(0)).create(player);
+            Vector4f worldPosition = this.transformPosition(transform, x, y, z);
+            SmallCannonShellEntity smallCannonShell = ((SmallCannonShellWeapon)this.getWeapon(0)).create(player);
             smallCannonShell.setPos(
                     (double)worldPosition.x - 1.1 * this.getDeltaMovement().x,
                     (double)worldPosition.y,
@@ -354,16 +371,16 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
                     35.0F,
                     0.0F  // 反動やブレを完全になくしたいなら0.0Fに
             );
-                this.level().addFreshEntity(smallCannonShell);
+            this.level().addFreshEntity(smallCannonShell);
 
-                ParticleTool.sendParticle(
-                        (ServerLevel)this.level(),
-                        ParticleTypes.LARGE_SMOKE,
-                        (double)worldPosition.x - 1.1 * this.getDeltaMovement().x,
-                        (double)worldPosition.y,
-                        (double)worldPosition.z - 1.1 * this.getDeltaMovement().z,
-                        1, 0.02, 0.02, 0.02, 0.0F, false
-                );
+            ParticleTool.sendParticle(
+                    (ServerLevel)this.level(),
+                    ParticleTypes.LARGE_SMOKE,
+                    (double)worldPosition.x - 1.1 * this.getDeltaMovement().x,
+                    (double)worldPosition.y,
+                    (double)worldPosition.z - 1.1 * this.getDeltaMovement().z,
+                    1, 0.02, 0.02, 0.02, 0.0F, false
+            );
 
             if (!player.level().isClientSide) {
                 this.playShootSound3p(player, 0, 4, 12, 24);
@@ -389,7 +406,7 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
             if (hasCreativeAmmo) return;
             this.getItemStacks().stream().filter(stack -> stack.is(ModItems.SMALL_SHELL.get())).findFirst().ifPresent(stack -> stack.shrink(1));
         }
-        
+
         else if (getWeaponIndex(0) == 1) {
             if (this.cannotFireCoax) return;
             float x = 0.0f;
@@ -437,7 +454,7 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
             float x = isLeftSide ? -0.98f : 0.98f;
             float y = -0.1f;
             float z = -0.32f;
-            
+
             Matrix4f transformT = getBarrelTransform(1);
             Vector4f worldPosition = transformPosition(transformT, x, y, z);
 
@@ -455,7 +472,7 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
             this.entityData.set(CURRENT_MISSILE, (currentMissile + 1) % 4);
             this.entityData.set(LOADED_MISSILE, this.entityData.get(LOADED_MISSILE) - 1);
             reloadCoolDown = 160;
-}
+        }
     }
 
     @Override
@@ -762,7 +779,7 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/terminator_haki_icon.png");
+        return VVP.loc("textures/vehicle_icon/terminator_icon.png");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -852,7 +869,11 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
     }
 
     public List<OBB> getOBBs() {
-        return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret);
+        if (this.entityData.get(HAS_MANGAL)) {  // Если мангал "появился", добавляем obbMangal в список
+            return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret, this.obbMangal);
+        } else {
+            return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret);  // Оригинальный список без изменений
+        }
     }
 
     public void updateOBB() {
@@ -878,6 +899,69 @@ public class TerminatorHakiEntity extends ContainerMobileVehicleEntity implement
         Vector4f worldPositionT = transformPosition(transformT, 0.0f, 0.0f, 0.0f);
         this.obbTurret.center().set(new Vector3f(worldPositionT.x, worldPositionT.y, worldPositionT.z));
         this.obbTurret.setRotation(VectorTool.combineRotationsTurret(1, this));
+
+        if (this.entityData.get(HAS_MANGAL)) {
+            Vector4f worldPositionMangal = transformPosition(transformT, 0.2f, 1.2f, -0.2f);  // Примерная позиция мангала (относительно турели; подкорректируй x/y/z)
+            this.obbMangal.center().set(new Vector3f(worldPositionMangal.x, worldPositionMangal.y, worldPositionMangal.z));
+            this.obbMangal.setRotation(VectorTool.combineRotationsTurret(1, this));  // Ротация как у турели
+        }
+    }
+
+    @Override
+    public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+
+        // Загрузка модулей (отдельные if для каждого, как раньше)
+        if (stack.is(tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get()) && !this.entityData.get(HAS_MANGAL)) {
+            return loadModule(player, stack, HAS_MANGAL, tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get());  // Универсальная функция (см. ниже)
+        }
+        if (stack.is(tech.vvp.vvp.init.ModItems.SETKA_TURRET.get()) && !this.entityData.get(HAS_FOLIAGE)) {
+            return loadModule(player, stack, HAS_FOLIAGE, tech.vvp.vvp.init.ModItems.SETKA_TURRET.get());
+        }
+
+        // Универсальное удаление с ключом (один if для всех флагов)
+        if (stack.is(tech.vvp.vvp.init.ModItems.WRENCH.get())) {
+            // Проверяем флаги по порядку (можно сделать цикл для всех)
+            if (this.entityData.get(HAS_MANGAL)) {
+                return removeModule(player, HAS_MANGAL, tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get());
+            } else if (this.entityData.get(HAS_FOLIAGE)) {
+                return removeModule(player, HAS_FOLIAGE, tech.vvp.vvp.init.ModItems.SETKA_TURRET.get());
+            }
+        }
+
+        // Если ничего не подошло — базовая логика (вход/инвентарь)
+        return super.interact(player, hand);
+    }
+
+    // Новая функция для загрузки (чтобы избежать дубликатов)
+    private InteractionResult loadModule(Player player, ItemStack stack, EntityDataAccessor<Boolean> flag, Item returnItem) {
+        if (!this.level().isClientSide) {
+            if (!player.isCreative()) {
+                stack.shrink(1);
+            }
+            this.entityData.set(flag, true);
+            this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.REMONT.get(), this.getSoundSource(), 2, 1);
+            return InteractionResult.CONSUME;
+        } else {
+            return InteractionResult.SUCCESS;
+        }
+    }
+
+    // Новая функция для удаления (чтобы избежать дубликатов)
+    private InteractionResult removeModule(Player player, EntityDataAccessor<Boolean> flag, Item returnItem) {
+        if (!this.level().isClientSide) {
+            this.entityData.set(flag, false);
+            ItemStack returnedItem = new ItemStack(returnItem, 1);
+            boolean addedToInventory = player.getInventory().add(returnedItem);
+            if (!addedToInventory) {
+                ItemEntity droppedItem = new ItemEntity(this.level(), this.getX(), this.getY() + 1, this.getZ(), returnedItem);
+                this.level().addFreshEntity(droppedItem);
+            }
+            this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.REMONT.get(), this.getSoundSource(), 2, 1);
+            return InteractionResult.CONSUME;
+        } else {
+            return InteractionResult.SUCCESS;
+        }
     }
 
     @Override

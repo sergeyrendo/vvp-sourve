@@ -191,11 +191,6 @@ public class terminatorRenderer extends GeoEntityRenderer<TerminatorEntity> {
                 bone.setHidden(!(hasMangal && hasFoliage));
             }
 
-            if (name.equals("setka_body")) {
-                boolean hasFoliage_body = animatable.getEntityData().get(TerminatorEntity.HAS_FOLIAGE_BODY);
-                bone.setHidden(!hasFoliage_body);
-            }
-
 
         }
         super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);

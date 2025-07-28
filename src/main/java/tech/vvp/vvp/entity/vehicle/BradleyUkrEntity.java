@@ -19,6 +19,8 @@ import com.atsuishio.superbwarfare.entity.projectile.SmallCannonShellEntity;
 
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.init.ModEntities;
 import com.atsuishio.superbwarfare.init.ModItems;
@@ -94,7 +96,11 @@ import java.util.List;
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
 public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity, OBBEntity {
-
+// это там оно? неа, я сам хуй знает, ща буду проверять все, кароче надо будет найти где ивент сажания на технику, и просто добавить условие
+    // в пизду этих китайцев с нуля уже написать было бы не так мучительно мы ещё же новички
+    // тут или у китайцев спрашивать или я хуй знает
+    // ща еще одну хуйню чекну // та это пиздец
+    // чек дс
     public static final EntityDataAccessor<Integer> LOADED_AP = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> MISSILE_COUNT = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.INT);
@@ -102,6 +108,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
     public static final EntityDataAccessor<Boolean> HAS_MANGAL = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> HAS_FOLIAGE = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> HAS_FOLIAGE_BODY = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> KOROBKI = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public OBB obb1;
@@ -205,6 +212,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         this.entityData.define(HAS_MANGAL, false);
         this.entityData.define(HAS_FOLIAGE, false);
         this.entityData.define(HAS_FOLIAGE_BODY, false);
+        this.entityData.define(KOROBKI, false);
     }
 
     @Override
@@ -215,6 +223,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         compound.putBoolean("HasMangal", this.entityData.get(HAS_MANGAL));
         compound.putBoolean("HasFoliage", this.entityData.get(HAS_FOLIAGE));
         compound.putBoolean("HasFoliageBody", this.entityData.get(HAS_FOLIAGE_BODY));
+        compound.putBoolean("Korobki", this.entityData.get(KOROBKI));
     }
 
     @Override
@@ -224,6 +233,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         this.entityData.set(LOADED_MISSILE, compound.getInt("LoadedMissile"));
         this.entityData.set(HAS_MANGAL, compound.getBoolean("HasMangal"));
         this.entityData.set(HAS_FOLIAGE_BODY, compound.getBoolean("HasFoliageBody"));
+        this.entityData.set(KOROBKI, compound.getBoolean("Korobki"));
     }
 
     @Override
@@ -250,27 +260,10 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         super.baseTick();
         updateOBB();
 
-        if (!this.level().isClientSide && this.tickCount % 20 == 0) {
-            List<ItemStack> items = this.getItemStacks();  // Получаем весь инвентарь (NonNullList<ItemStack>)
-
-            // Проверяем наличие хотя бы одного "мангала" в ЛЮБОМ слоте
-            boolean hasMangal = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get()));
-            if (this.entityData.get(HAS_MANGAL) != hasMangal) {
-                this.entityData.set(HAS_MANGAL, hasMangal);
-            }
-
-            // Проверяем наличие хотя бы одной "листвы" в ЛЮБОМ слоте
-            boolean hasFoliage = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(tech.vvp.vvp.init.ModItems.SETKA_TURRET.get()));
-            if (this.entityData.get(HAS_FOLIAGE) != hasFoliage) {
-                this.entityData.set(HAS_FOLIAGE, hasFoliage);
-            }
-
-            boolean hasFoliage_body = items.stream().anyMatch(stack -> !stack.isEmpty() && stack.is(tech.vvp.vvp.init.ModItems.SETKA_BODY.get()));
-            if (this.entityData.get(HAS_FOLIAGE_BODY) != hasFoliage_body) {
-                this.entityData.set(HAS_FOLIAGE_BODY, hasFoliage_body);
-            }
-        }
-
+        // так хитбоксы тож изи сделал, следи за мной
+// йооо а как ты этот хитбокс реализовал
+        // ну по такой логике можно действительно и с камуфляжами шота придумать
+        // слеж слежу
 
         if (this.level() instanceof ServerLevel) {
             if (reloadCoolDown > 0) {
@@ -500,7 +493,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
 
     @Override
     public void travel() {
-        Entity passenger0 = this.getFirstPassenger();
+        Entity passenger0 = this.getFirstPassenger(); // тут оно УЖЕ использует пассажира, походу не в этом файле точно логике саждения
 
         if (this.getEnergy() <= 0) return;
 
@@ -721,11 +714,11 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
     @Override
     public int mainGunRpm(Player player) {
         if (getWeaponIndex(0) == 0) {
-            return 250;
+            return 175;
         } else if (getWeaponIndex(0) == 1) {
             return 750;
         }
-        return 250;
+        return 175;
     }
 
     @Override
@@ -867,7 +860,36 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         } else {
             return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret);  // Оригинальный список без изменений
         }
-    }
+    } // вот крч, когда правда оно показывает определенный список, а когда не правда оно показывает другой список
+    // уловил уловил чисто добавляет в список мангал когда он есть как раз таки, умно. так можно реально камуфляж будет реализовать, хотелось бы чтобы был какой то отдельный
+    // фордж ивент, который бы чекал не каждый тик (т.к нагружает немного), а только когда изменение в слотах есть.
+    // то есть как я сделал через тики нагружает?
+    // как я понял то это всё ты через слоты делаешь? типо 
+    // могу посоветовать разве что если будут какие то комплексные модули с сложной логикой то делать это чисто через ивент нажатия ПКМ, единоразово поставило дату и не будет чекать
+    // да ты прав, как я посоветовал это тогда хз только отдельными снималками потом снимать, но если какой то неснимаемый модуль то и так можно
+    // щас поищу есть ли ивент на изенение инвентаря
+    // бляя, ну тип я хочу еще сделать впринципе ящики и камуфляжи попробовать
+    // тоже самое через дату сделать ток в моделе уже проверять 
+    // да, по другому никак
+    // у каждой техники есть свой инвентарь типо
+    // это что сейчас сделал очень сыро, а как ты написал то да хочу так сделать. ток хз как снимать, мб свой предмет сделать и все
+    // знаешь как можно сделать? что если челик смотрит на обб данного модуля то он снимается
+    // а, ну так если оно так будет работать то вообще нет проблем, я тож изначально это подумал но учитывая то что это всё одна энтити чет промолчал, но можно и так вроде же
+    // вот вот, если ты такое сделал то тут проблем вообще не будєт
+    // та да, как идея, так вообще же тогда чисто можно будет переделать на right click и серверу лучше будет по нагрузке
+    // ибо представь 10 единиц техники и каждая тикает в секунду 20 раз проверяя это всё, та не лютая но мне кажется есть какая-то, можно будет через мод spark проверить
+
+    // это надо будет тогда кэнселить ивент mounting на технику, я хз как тут это прописано у китайцев, ща посмотрю этот файл где тут это видно
+    // ток проблема будет с листвой
+    // я же сделал двери рабочие, могу на демке показать (для блекхавка)
+    // по поводу листві для нее тоже можно захуярить обб маленько и все
+    // ну да, нагрузка лютая происходит
+    // поможешь мне сделать что бы можно было типа ставить при помощь кнопки
+    // а блять и знаешь что надо сделать, чтобы было типа приоритет чтобы когда челик с предметом нажи
+    // ну то что ты там сделал это лишь проверка даты этой, ты сделал лаконично поэтому не нагружает, но если добавлять функционала то считай каждую секунду оно 20 раз будет чекать это
+    // тут нету, сразу говорю
+
+    // сейчас в дс скину где это возможно есть
     public void updateOBB() {
         Matrix4f transform = getVehicleTransform(1);
 
@@ -892,7 +914,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         this.obbTurret.center().set(new Vector3f(worldPositionT.x, worldPositionT.y, worldPositionT.z));
         this.obbTurret.setRotation(VectorTool.combineRotationsTurret(1, this));
 
-        // Обновляем OBB для мангала, если флаг true (привязываем к турели — подкорректируй координаты)
+        // а тут чисто тоже самое ток это уже позиция тип
         if (this.entityData.get(HAS_MANGAL)) {
             Vector4f worldPositionMangal = transformPosition(transformT, 0.2f, 1.2f, -0.2f);  // Примерная позиция мангала (относительно турели; подкорректируй x/y/z)
             this.obbMangal.center().set(new Vector3f(worldPositionMangal.x, worldPositionMangal.y, worldPositionMangal.z));
@@ -900,6 +922,72 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         }
     }
 
+    @Override
+    public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+
+        // Загрузка модулей (отдельные if для каждого, как раньше)
+        if (stack.is(tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get()) && !this.entityData.get(HAS_MANGAL)) {
+            return loadModule(player, stack, HAS_MANGAL, tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get());  // Универсальная функция (см. ниже)
+        }
+        if (stack.is(tech.vvp.vvp.init.ModItems.SETKA_TURRET.get()) && !this.entityData.get(HAS_FOLIAGE)) {
+            return loadModule(player, stack, HAS_FOLIAGE, tech.vvp.vvp.init.ModItems.SETKA_TURRET.get());
+        }
+        if (stack.is(tech.vvp.vvp.init.ModItems.SETKA_BODY.get()) && !this.entityData.get(HAS_FOLIAGE_BODY)) {
+            return loadModule(player, stack, HAS_FOLIAGE_BODY, tech.vvp.vvp.init.ModItems.SETKA_BODY.get());
+        }
+        if (stack.is(tech.vvp.vvp.init.ModItems.KOROBKI.get()) && !this.entityData.get(KOROBKI)) {
+            return loadModule(player, stack, KOROBKI, tech.vvp.vvp.init.ModItems.KOROBKI.get());
+        }
+
+        // Универсальное удаление с ключом (один if для всех флагов)
+        if (stack.is(tech.vvp.vvp.init.ModItems.WRENCH.get())) {
+            // Проверяем флаги по порядку (можно сделать цикл для всех)
+            if (this.entityData.get(HAS_MANGAL)) {
+                return removeModule(player, HAS_MANGAL, tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get());
+            } else if (this.entityData.get(HAS_FOLIAGE)) {
+                return removeModule(player, HAS_FOLIAGE, tech.vvp.vvp.init.ModItems.SETKA_TURRET.get());
+            } else if (this.entityData.get(HAS_FOLIAGE_BODY)) {
+                return removeModule(player, HAS_FOLIAGE_BODY, tech.vvp.vvp.init.ModItems.SETKA_BODY.get());
+            } else if (this.entityData.get(KOROBKI)) {
+                return removeModule(player, KOROBKI, tech.vvp.vvp.init.ModItems.KOROBKI.get());
+            }
+        }
+
+        // Если ничего не подошло — базовая логика (вход/инвентарь)
+        return super.interact(player, hand);
+    }
+
+    // Новая функция для загрузки (чтобы избежать дубликатов)
+    private InteractionResult loadModule(Player player, ItemStack stack, EntityDataAccessor<Boolean> flag, Item returnItem) {
+        if (!this.level().isClientSide) {
+            if (!player.isCreative()) {
+                stack.shrink(1);
+            }
+            this.entityData.set(flag, true);
+            this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.REMONT.get(), this.getSoundSource(), 2, 1);
+            return InteractionResult.CONSUME;
+        } else {
+            return InteractionResult.SUCCESS;
+        }
+    }
+
+    // Новая функция для удаления (чтобы избежать дубликатов)
+    private InteractionResult removeModule(Player player, EntityDataAccessor<Boolean> flag, Item returnItem) {
+        if (!this.level().isClientSide) {
+            this.entityData.set(flag, false);
+            ItemStack returnedItem = new ItemStack(returnItem, 1);
+            boolean addedToInventory = player.getInventory().add(returnedItem);
+            if (!addedToInventory) {
+                ItemEntity droppedItem = new ItemEntity(this.level(), this.getX(), this.getY() + 1, this.getZ(), returnedItem);
+                this.level().addFreshEntity(droppedItem);
+            }
+            this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.REMONT.get(), this.getSoundSource(), 2, 1);
+            return InteractionResult.CONSUME;
+        } else {
+            return InteractionResult.SUCCESS;
+        }
+    }
 
     public float rotateYOffset() {
         return 3.5f;
