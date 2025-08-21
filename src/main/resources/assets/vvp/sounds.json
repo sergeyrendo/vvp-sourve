@@ -158,5 +158,70 @@
     "sounds": [
       "vvp:remont"
     ]
+  },
+  "spray": {
+    "sounds": [
+      "vvp:spray"
+    ]
+  },
+  "2a72_1p": {
+    "sounds": [
+      "vvp:2a72_1p"
+    ]
+  },
+  "2a72_3p": {
+    "sounds": [
+      "vvp:2a72_3p"
+    ]
+  },
+  "2a72_far": {
+    "sounds": [
+      "vvp:2a72_far"
+    ]
+  },
+  "2a72_veryfar": {
+    "sounds": [
+      "vvp:2a72_veryfar"
+    ]
+  },
+  "abrams_1p": {
+    "sounds": [
+      "vvp:abrams_1p"
+    ]
+  },
+  "abrams_3p": {
+    "sounds": [
+      "vvp:abrams_3p"
+    ]
+  },
+  "abrams_far": {
+    "sounds": [
+      "vvp:abrams_far"
+    ]
+  },
+  "abrams_veryfar": {
+    "sounds": [
+      "vvp:abrams_veryfar"
+    ]
+  },
+  "abrams_coax_1p": {
+    "sounds": [
+      "vvp:abrams_coax_1p"
+    ]
+  },
+  "abrams_coax_3p": {
+    "sounds": [
+      "vvp:abrams_coax_3p"
+    ]
+  },
+  "abrams_coax_far": {
+    "sounds": [
+      "vvp:abrams_coax_far"
+    ]
+  },
+  "abrams_coax_veryfar": {
+    "sounds": [
+      "vvp:abrams_coax_veryfar"
+    ]
   }
 }

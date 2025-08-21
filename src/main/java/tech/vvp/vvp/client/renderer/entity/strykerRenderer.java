@@ -17,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import tech.vvp.vvp.entity.vehicle.Stryker_1Entity;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.base.MobileVehicleEntity.YAW;
 
@@ -143,6 +144,11 @@ public class strykerRenderer extends GeoEntityRenderer<StrykerEntity> {
         }
         if (name.equals("flare2")) {
             bone.setRotZ((float) (0.5 * (Math.random() - 0.5)));
+        }
+
+        if (name.equals("mangal")) {
+            boolean has_mangal = animatable.getEntityData().get(StrykerEntity.HAS_MANGAL);
+            bone.setHidden(!has_mangal);
         }
 
         super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);

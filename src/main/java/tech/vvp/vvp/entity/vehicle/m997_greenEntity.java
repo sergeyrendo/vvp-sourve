@@ -3,8 +3,15 @@ package tech.vvp.vvp.entity.vehicle;
 import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 
+import com.atsuishio.superbwarfare.config.server.VehicleConfig;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.config.VehicleConfigVVP;
 
 import com.atsuishio.superbwarfare.entity.OBBEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ArmedVehicleEntity;
@@ -66,6 +73,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.Mob;
 
 public class M997_greenEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, ArmedVehicleEntity, OBBEntity {
+
+    public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(M997_greenEntity.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public OBB obb;
@@ -139,18 +148,19 @@ public class M997_greenEntity extends ContainerMobileVehicleEntity implements Ge
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+        this.entityData.define(CAMOUFLAGE_TYPE, 0);
     }
 
     @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag compound) {
+    public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        // Добавьте здесь любые дополнительные данные для сохранения, если они есть
+        compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
     }
 
     @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag compound) {
+    public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        // Восстановите здесь любые дополнительные данные, если они есть
+        this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
     }
 
     @Override
@@ -161,31 +171,7 @@ public class M997_greenEntity extends ContainerMobileVehicleEntity implements Ge
     @Override
     public DamageModifier getDamageModifier() {
         return super.getDamageModifier()
-                .multiply(0.2f)
-                .multiply(1.5f, DamageTypes.ARROW)
-                .multiply(1.5f, DamageTypes.TRIDENT)
-                .multiply(2.5f, DamageTypes.MOB_ATTACK)
-                .multiply(2f, DamageTypes.MOB_ATTACK_NO_AGGRO)
-                .multiply(1.5f, DamageTypes.MOB_PROJECTILE)
-                .multiply(12.5f, DamageTypes.LAVA)
-                .multiply(6f, DamageTypes.EXPLOSION)
-                .multiply(6f, DamageTypes.PLAYER_EXPLOSION)
-                .multiply(2.4f, ModDamageTypes.CUSTOM_EXPLOSION)
-                .multiply(2f, ModDamageTypes.PROJECTILE_BOOM)
-                .multiply(0.75f, ModDamageTypes.MINE)
-                .multiply(1.5f, ModDamageTypes.CANNON_FIRE)
-                .multiply(0.25f, ModTags.DamageTypes.PROJECTILE)
-                .multiply(0.85f, ModTags.DamageTypes.PROJECTILE_ABSOLUTE)
-                .multiply(10f, ModDamageTypes.VEHICLE_STRIKE)
-                .reduce(7);
-    }
-
-    public double getSubmergedHeight(Entity entity) {
-        for (FluidType fluidType : ForgeRegistries.FLUID_TYPES.get().getValues()) {
-            if (entity.level().getFluidState(entity.blockPosition()).getFluidType() == fluidType)
-                return entity.getFluidTypeHeight(fluidType);
-        }
-        return 0;
+                .custom((source, damage) -> getSourceAngle(source, 0.4f) * damage);
     }
 
     @Override
@@ -249,7 +235,7 @@ public class M997_greenEntity extends ContainerMobileVehicleEntity implements Ge
         }
 
         if (this.forwardInputDown || this.backInputDown) {
-            this.consumeEnergy(VehicleConfigVVP.TYPHOON_ENERGY_COST.get());
+            this.consumeEnergy(VehicleConfig.LAV_150_ENERGY_COST.get());
         }
 
         this.entityData.set(POWER, this.entityData.get(POWER) * (upInputDown ? 0.5f : (rightInputDown || leftInputDown) ? 0.977f : 0.99f));
@@ -483,6 +469,33 @@ public class M997_greenEntity extends ContainerMobileVehicleEntity implements Ge
         this.obb6.setRotation(VectorTool.combineRotations(1, this));
 
 
+    }
+
+    @Override
+    public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
+
+        ItemStack stack = player.getItemInHand(hand);
+
+        if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
+            if (!this.level().isClientSide) {  // Только на сервере
+                int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
+                int maxTypes = 2;  // Количество типов (default=0, desert=1, forest=2)
+                int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
+                this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
+
+                // Опционально: Звук и эффект (например, частицы)
+                this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.SPRAY.get(), this.getSoundSource(), 1.0F, 1.0F);  // Пример звука (замени на свой)
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 1, this.getZ(), 10, 1.0, 1.0, 1.0, 0.1);  // Частицы успеха
+                }
+
+                return InteractionResult.CONSUME;  // Consume — прерываем, не даём войти
+            } else {
+                return InteractionResult.SUCCESS;  // Success на клиенте для отклика
+            }
+        }
+
+        return super.interact(player, hand);
     }
 
     @Override

@@ -15,6 +15,11 @@ import com.atsuishio.superbwarfare.event.ClientMouseHandler;
 import com.atsuishio.superbwarfare.init.ModDamageTypes;
 import com.atsuishio.superbwarfare.entity.OBBEntity;
 
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.init.ModEntities;
 import com.atsuishio.superbwarfare.init.ModItems;
@@ -88,6 +93,8 @@ import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 public class Stryker_1Entity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity, OBBEntity {
 
     public static final EntityDataAccessor<Integer> LOADED_AP = SynchedEntityData.defineId(Stryker_1Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Boolean> HAS_DECORATION = SynchedEntityData.defineId(Stryker_1Entity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(Stryker_1Entity.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public OBB obb;
@@ -192,18 +199,24 @@ public class Stryker_1Entity extends ContainerMobileVehicleEntity implements Geo
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(LOADED_AP, 0);
+        this.entityData.define(HAS_DECORATION, false);
+        this.entityData.define(CAMOUFLAGE_TYPE, 0);  // 0 по умолчанию
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("loaded_ap", this.entityData.get(LOADED_AP));
+        compound.putBoolean("has_decoration", this.entityData.get(HAS_DECORATION));
+        compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.entityData.set(LOADED_AP, compound.getInt("loaded_ap"));
+        this.entityData.set(HAS_DECORATION, compound.getBoolean("has_decoration"));
+        this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
     }
 
     @Override
@@ -825,6 +838,78 @@ public class Stryker_1Entity extends ContainerMobileVehicleEntity implements Geo
         Vector4f worldPositionT = transformPosition(transformT, 0, -0.25f, 0.0f);
         this.obbTurret.center().set(new Vector3f(worldPositionT.x, worldPositionT.y, worldPositionT.z));
         this.obbTurret.setRotation(VectorTool.combineRotationsTurret(1, this));
+    }
+
+    @Override
+    public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+
+        // Загрузка модулей (отдельные if для каждого, как раньше)
+        if (stack.is(tech.vvp.vvp.init.ModItems.KOROBKI.get()) && !this.entityData.get(HAS_DECORATION)) {
+            return loadModule(player, stack, HAS_DECORATION, tech.vvp.vvp.init.ModItems.KOROBKI.get());  // Универсальная функция (см. ниже)
+        }
+
+
+        // Универсальное удаление с ключом (один if для всех флагов)
+        if (stack.is(tech.vvp.vvp.init.ModItems.WRENCH.get())) {
+            // Проверяем флаги по порядку (можно сделать цикл для всех)
+            if (this.entityData.get(HAS_DECORATION)) {
+                return removeModule(player, HAS_DECORATION, tech.vvp.vvp.init.ModItems.KOROBKI.get());
+            }
+        }
+
+        if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
+            if (!this.level().isClientSide) {  // Только на сервере
+                int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
+                int maxTypes = 2;  // Количество типов (default=0, desert=1, forest=2)
+                int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
+                this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
+
+                // Опционально: Звук и эффект (например, частицы)
+                this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.SPRAY.get(), this.getSoundSource(), 1.0F, 1.0F);  // Пример звука (замени на свой)
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 1, this.getZ(), 10, 1.0, 1.0, 1.0, 0.1);  // Частицы успеха
+                }
+
+                return InteractionResult.CONSUME;  // Consume — прерываем, не даём войти
+            } else {
+                return InteractionResult.SUCCESS;  // Success на клиенте для отклика
+            }
+        }
+
+        // Если ничего не подошло — базовая логика (вход/инвентарь)
+        return super.interact(player, hand);
+    }
+
+    // Новая функция для загрузки (чтобы избежать дубликатов)
+    private InteractionResult loadModule(Player player, ItemStack stack, EntityDataAccessor<Boolean> flag, Item returnItem) {
+        if (!this.level().isClientSide) {
+            if (!player.isCreative()) {
+                stack.shrink(1);
+            }
+            this.entityData.set(flag, true);
+            this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.REMONT.get(), this.getSoundSource(), 2, 1);
+            return InteractionResult.CONSUME;
+        } else {
+            return InteractionResult.SUCCESS;
+        }
+    }
+
+    // Новая функция для удаления (чтобы избежать дубликатов)
+    private InteractionResult removeModule(Player player, EntityDataAccessor<Boolean> flag, Item returnItem) {
+        if (!this.level().isClientSide) {
+            this.entityData.set(flag, false);
+            ItemStack returnedItem = new ItemStack(returnItem, 1);
+            boolean addedToInventory = player.getInventory().add(returnedItem);
+            if (!addedToInventory) {
+                ItemEntity droppedItem = new ItemEntity(this.level(), this.getX(), this.getY() + 1, this.getZ(), returnedItem);
+                this.level().addFreshEntity(droppedItem);
+            }
+            this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.REMONT.get(), this.getSoundSource(), 2, 1);
+            return InteractionResult.CONSUME;
+        } else {
+            return InteractionResult.SUCCESS;
+        }
     }
 
     @Override

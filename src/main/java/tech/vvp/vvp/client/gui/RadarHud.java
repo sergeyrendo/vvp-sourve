@@ -2,7 +2,6 @@ package tech.vvp.vvp.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -10,11 +9,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.entity.vehicle.Mi24Entity;
-import tech.vvp.vvp.entity.vehicle.CobraSharkEntity;
-import tech.vvp.vvp.entity.vehicle.F35Entity;
-import tech.vvp.vvp.entity.vehicle.Mi24ukrEntity;
-import tech.vvp.vvp.entity.vehicle.Mi24polEntity;
-import tech.vvp.vvp.entity.vehicle.CobraEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 

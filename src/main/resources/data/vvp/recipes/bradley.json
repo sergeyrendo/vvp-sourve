@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BMC",
+    "SSS",
+    "TAT"
+  ],
+  "key": {
+    "B": {
+      "item": "superbwarfare:large_battery_pack"
+    },
+    "M": {
+      "item": "superbwarfare:medium_armament_module"
+    },
+    "S": {
+      "tag": "forge:storage_blocks/steel"
+    },
+    "T": {
+      "item": "superbwarfare:track"
+    },
+    "A": {
+      "item": "superbwarfare:large_motor"
+    },
+    "C": {
+      "item": "superbwarfare:cemented_carbide_ingot"
+    }
+  },
+  "result": {
+    "item": "superbwarfare:container",
+    "nbt": "{BlockEntityTag: {EntityType: \"vvp:bradley\", id: \"superbwarfare:container\"}}"
+  }
+}

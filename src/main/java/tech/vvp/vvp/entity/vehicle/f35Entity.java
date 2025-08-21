@@ -642,7 +642,7 @@ public class F35Entity extends ContainerMobileVehicleEntity implements GeoEntity
         super.move(movementType, movement);
         if (level() instanceof ServerLevel) {
             if (this.horizontalCollision) {
-                collideBlock();
+                collideNormalBlock();
                 if (canCollideHardBlock()) {
                     collideHardBlock();
                 }
@@ -652,7 +652,7 @@ public class F35Entity extends ContainerMobileVehicleEntity implements GeoEntity
             Entity driver = EntityFindUtil.findEntity(this.level(), this.entityData.get(LAST_DRIVER_UUID));
 
             if ((verticalCollision)) {
-                if (entityData.get(GEAR_ROT) > 10 || (Mth.abs(getRoll()) > 20)) {
+                if (entityData.get(GEAR_ROT) > 10 || Mth.abs(getRoll()) > 20 || Mth.abs(getXRot()) > 30) {
                     this.hurt(ModDamageTypes.causeVehicleStrikeDamage(this.level().registryAccess(), this, driver == null ? this : driver), (float) ((8 + Mth.abs(getRoll() * 0.2f)) * (lastTickSpeed - 0.3) * (lastTickSpeed - 0.3)));
                     if (!this.level().isClientSide) {
                         this.level().playSound(null, this, ModSounds.VEHICLE_STRIKE.get(), this.getSoundSource(), 1, 1);
@@ -681,6 +681,7 @@ public class F35Entity extends ContainerMobileVehicleEntity implements GeoEntity
             }
         }
     }
+
 
     @Override
     public SoundEvent getEngineSound() {

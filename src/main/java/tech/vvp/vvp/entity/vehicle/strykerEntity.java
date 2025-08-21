@@ -17,10 +17,16 @@ import com.atsuishio.superbwarfare.init.ModDamageTypes;
 import com.atsuishio.superbwarfare.init.ModItems;
 import com.atsuishio.superbwarfare.init.ModSounds;
 import com.atsuishio.superbwarfare.tools.*;
+
+import static com.atsuishio.superbwarfare.client.RenderHelper.preciseBlit;
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
+
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Axis;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -28,6 +34,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -36,12 +43,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
@@ -71,6 +82,7 @@ import tech.vvp.vvp.config.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
 
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
+
 import com.atsuishio.superbwarfare.config.server.VehicleConfig;
 
 import java.util.List;
@@ -79,6 +91,8 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     public static final EntityDataAccessor<Integer> LOADED_AMMO_TYPE = SynchedEntityData.defineId(StrykerEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LOADED_AP = SynchedEntityData.defineId(StrykerEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(StrykerEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Boolean> HAS_MANGAL = SynchedEntityData.defineId(StrykerEntity.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public OBB obb, obb1, obb2, obb3, obb4, obb5, obb6, obb7, obb8, obb9, obb10, obb11, obb12, obbTurret;
@@ -130,14 +144,21 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
                         new CannonShellWeapon()
-                        .hitDamage(VehicleConfig.YX_100_AP_CANNON_DAMAGE.get())
-                        .explosionRadius(VehicleConfig.YX_100_AP_CANNON_EXPLOSION_RADIUS.get().floatValue())
-                        .explosionDamage(VehicleConfig.YX_100_AP_CANNON_EXPLOSION_DAMAGE.get())
-                        .fireProbability(0)
-                        .fireTime(0)
-                        .durability(100)
-                        .velocity(40)
-                        .gravity(0.1f),
+                                .hitDamage(VehicleConfig.YX_100_AP_CANNON_DAMAGE.get())
+                                .explosionRadius(VehicleConfig.YX_100_AP_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .explosionDamage(VehicleConfig.YX_100_AP_CANNON_EXPLOSION_DAMAGE.get())
+                                .fireProbability(0)
+                                .fireTime(0)
+                                .durability(100)
+                                .velocity(40)
+                                .gravity(0.1f)
+                                .sound(ModSounds.INTO_MISSILE.get())
+                                .ammo(ModItems.AP_5_INCHES.get())
+                                .icon(Mod.loc("textures/screens/vehicle_weapon/ap_shell.png"))
+                                .sound1p(tech.vvp.vvp.init.ModSounds.M1128_1P.get())
+                                .sound3p(tech.vvp.vvp.init.ModSounds.M1128_3P.get())
+                                .sound3pFar(tech.vvp.vvp.init.ModSounds.M1128_FAR.get())
+                                .sound3pVeryFar(tech.vvp.vvp.init.ModSounds.M1128_VERYFAR.get()),
                 new ProjectileWeapon()
                         .damage(VehicleConfig.LAV_150_MACHINE_GUN_DAMAGE.get())
                         .headShot(2).zoom(false)
@@ -156,6 +177,8 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         super.defineSynchedData();
         this.entityData.define(LOADED_AP, 0);
         this.entityData.define(LOADED_AMMO_TYPE, 0);
+        this.entityData.define(CAMOUFLAGE_TYPE, 0);
+        this.entityData.define(HAS_MANGAL, false);
     }
 
     @Override
@@ -164,6 +187,8 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         compound.putInt("LoadedAP", this.entityData.get(LOADED_AP));
         compound.putInt("LoadedAmmoType", this.entityData.get(LOADED_AMMO_TYPE));
         compound.putInt("WeaponType", getWeaponIndex(0));
+        compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
+        compound.putBoolean("has_mangal", this.entityData.get(HAS_MANGAL));
     }
 
     @Override
@@ -172,6 +197,8 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         this.entityData.set(LOADED_AP, compound.getInt("LoadedAP"));
         this.entityData.set(LOADED_AMMO_TYPE, compound.getInt("LoadedAmmoType"));
         setWeaponIndex(0, compound.getInt("WeaponType"));
+        this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
+        this.entityData.set(HAS_MANGAL, compound.getBoolean("has_mangal"));
     }
 
     @Override
@@ -633,7 +660,25 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
     @OnlyIn(Dist.CLIENT)
     @Override
     public void renderFirstPersonOverlay(GuiGraphics guiGraphics, Font font, Player player, int screenWidth, int screenHeight, float scale) {
-        super.renderFirstPersonOverlay(guiGraphics, font, player, screenWidth, screenHeight, scale);
+        float minWH = (float) Math.min(screenWidth, screenHeight);
+        float scaledMinWH = Mth.floor(minWH * scale);
+        float centerW = ((screenWidth - scaledMinWH) / 2);
+        float centerH = ((screenHeight - scaledMinWH) / 2);
+
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
+        RenderSystem.enableBlend();
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+
+        // 准心
+        if (this.getWeaponIndex(0) == 0) {
+            preciseBlit(guiGraphics, Mod.loc("textures/screens/land/tank_cannon_cross_ap.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH);
+        } else if (this.getWeaponIndex(0) == 1) {
+            preciseBlit(guiGraphics, Mod.loc("textures/screens/land/lav_gun_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH);
+        }
+
         if (this.getWeaponIndex(0) == 0) {
             double heat = 1 - this.entityData.get(HEAT) / 100.0F;
             guiGraphics.drawString(font, Component.literal("M68A1E4 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
@@ -754,6 +799,77 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         Vector4f worldPositionT = transformPosition(transformT, 0, 0f, 0f);
         this.obbTurret.center().set(new Vector3f(worldPositionT.x, worldPositionT.y, worldPositionT.z));
         this.obbTurret.setRotation(VectorTool.combineRotationsTurret(1, this));
+    }
+
+    @Override
+    public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
+
+        ItemStack stack = player.getItemInHand(hand);
+
+        // Загрузка модулей (отдельные if для каждого, как раньше)
+        if (stack.is(tech.vvp.vvp.init.ModItems.MANGAL_BODY.get()) && !this.entityData.get(HAS_MANGAL)) {
+            return loadModule(player, stack, HAS_MANGAL, tech.vvp.vvp.init.ModItems.MANGAL_BODY.get());  // Универсальная функция (см. ниже)
+        }
+
+        // Универсальное удаление с ключом (один if для всех флагов)
+        if (stack.is(tech.vvp.vvp.init.ModItems.WRENCH.get())) {
+            // Проверяем флаги по порядку (можно сделать цикл для всех)
+            if (this.entityData.get(HAS_MANGAL)) {
+                return removeModule(player, HAS_MANGAL, tech.vvp.vvp.init.ModItems.MANGAL_BODY.get());
+            }
+        }
+
+        if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
+            if (!this.level().isClientSide) {  // Только на сервере
+                int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
+                int maxTypes = 2;  // Количество типов (default=0, desert=1, forest=2)
+                int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
+                this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
+
+                // Опционально: Звук и эффект (например, частицы)
+                this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.SPRAY.get(), this.getSoundSource(), 1.0F, 1.0F);  // Пример звука (замени на свой)
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 1, this.getZ(), 10, 1.0, 1.0, 1.0, 0.1);  // Частицы успеха
+                }
+
+                return InteractionResult.CONSUME;  // Consume — прерываем, не даём войти
+            } else {
+                return InteractionResult.SUCCESS;  // Success на клиенте для отклика
+            }
+        }
+
+        return super.interact(player, hand);
+    }
+
+    // Новая функция для загрузки (чтобы избежать дубликатов)
+    private InteractionResult loadModule(Player player, ItemStack stack, EntityDataAccessor<Boolean> flag, Item returnItem) {
+        if (!this.level().isClientSide) {
+            if (!player.isCreative()) {
+                stack.shrink(1);
+            }
+            this.entityData.set(flag, true);
+            this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.REMONT.get(), this.getSoundSource(), 2, 1);
+            return InteractionResult.CONSUME;
+        } else {
+            return InteractionResult.SUCCESS;
+        }
+    }
+
+    // Новая функция для удаления (чтобы избежать дубликатов)
+    private InteractionResult removeModule(Player player, EntityDataAccessor<Boolean> flag, Item returnItem) {
+        if (!this.level().isClientSide) {
+            this.entityData.set(flag, false);
+            ItemStack returnedItem = new ItemStack(returnItem, 1);
+            boolean addedToInventory = player.getInventory().add(returnedItem);
+            if (!addedToInventory) {
+                ItemEntity droppedItem = new ItemEntity(this.level(), this.getX(), this.getY() + 1, this.getZ(), returnedItem);
+                this.level().addFreshEntity(droppedItem);
+            }
+            this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.REMONT.get(), this.getSoundSource(), 2, 1);
+            return InteractionResult.CONSUME;
+        } else {
+            return InteractionResult.SUCCESS;
+        }
     }
 
     @Override

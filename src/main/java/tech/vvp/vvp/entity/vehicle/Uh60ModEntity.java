@@ -90,6 +90,7 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Boolean> DOOR_RIGHT_OPEN = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> DOOR_LEFT_OPEN = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.INT);
 
     public static final int RADAR_RANGE = 200;
 
@@ -214,6 +215,7 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
         this.entityData.define(LOADED_MISSILE, 0);
         this.entityData.define(DOOR_RIGHT_OPEN, false); // Новая строка
         this.entityData.define(DOOR_LEFT_OPEN, false);  // Новая строка
+        this.entityData.define(CAMOUFLAGE_TYPE, 0);
     }
 
     @Override
@@ -224,6 +226,7 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
         compound.putInt("LoadedMissile", this.entityData.get(LOADED_MISSILE));
         compound.putBoolean("DoorRightOpen", this.entityData.get(DOOR_RIGHT_OPEN)); // Новая строка
         compound.putBoolean("DoorLeftOpen", this.entityData.get(DOOR_LEFT_OPEN));   // Новая строка
+        compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
     }
 
     @Override
@@ -232,8 +235,9 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
         this.entityData.set(LOADED_ROCKET, compound.getInt("LoadedRocket"));
         this.entityData.set(PROPELLER_ROT, compound.getFloat("PropellerRot"));
         this.entityData.set(LOADED_MISSILE, compound.getInt("LoadedMissile"));
-        this.entityData.set(DOOR_RIGHT_OPEN, compound.getBoolean("DoorRightOpen")); // Новая строка
-        this.entityData.set(DOOR_LEFT_OPEN, compound.getBoolean("DoorLeftOpen"));   // Новая строка
+        this.entityData.set(DOOR_RIGHT_OPEN, compound.getBoolean("DoorRightOpen"));
+        this.entityData.set(DOOR_LEFT_OPEN, compound.getBoolean("DoorLeftOpen"));
+        this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
     }
 
     @Override
@@ -290,6 +294,25 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
             }
             this.level().playSound(null, this, ModSounds.MISSILE_RELOAD.get(), this.getSoundSource(), 2, 1);
             return InteractionResult.sidedSuccess(this.level().isClientSide());
+        }
+
+        if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
+            if (!this.level().isClientSide) {  // Только на сервере
+                int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
+                int maxTypes = 3;  // Количество типов (default=0, desert=1, forest=2)
+                int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
+                this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
+
+                // Опционально: Звук и эффект (например, частицы)
+                this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.SPRAY.get(), this.getSoundSource(), 1.0F, 1.0F);  // Пример звука (замени на свой)
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 1, this.getZ(), 10, 1.0, 1.0, 1.0, 0.1);  // Частицы успеха
+                }
+
+                return InteractionResult.CONSUME;  // Consume — прерываем, не даём войти
+            } else {
+                return InteractionResult.SUCCESS;  // Success на клиенте для отклика
+            }
         }
 
         // Вызов родительского метода для стандартного взаимодействия (открытие инвентаря)
@@ -827,7 +850,7 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/uh60mod_icon.png");
+        return VVP.loc("textures/vehicle_icon/uh60_icon.png");
     }
 
     @Override

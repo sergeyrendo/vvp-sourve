@@ -2,6 +2,7 @@ package tech.vvp.vvp.client.renderer.entity;
 
 // import tech.vvp.vvp.client.layer.vehicle.btr80aLayer;
 import tech.vvp.vvp.client.model.stryker_1Model;
+import tech.vvp.vvp.entity.vehicle.HumveeEntity;
 import tech.vvp.vvp.entity.vehicle.Stryker_1Entity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -143,6 +144,11 @@ public class stryker_1Renderer extends GeoEntityRenderer<Stryker_1Entity> {
         }
         if (name.equals("flare2")) {
             bone.setRotZ((float) (0.5 * (Math.random() - 0.5)));
+        }
+
+        if (name.equals("decoration")) {
+            boolean has_decoration = animatable.getEntityData().get(Stryker_1Entity.HAS_DECORATION);
+            bone.setHidden(!has_decoration);
         }
 
         super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);

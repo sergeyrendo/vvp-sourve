@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "LVP",
+    "SSS",
+    " B "
+  ],
+  "key": {
+    "L": { "item": "superbwarfare:large_propeller" },
+    "V": { "item": "superbwarfare:large_motor" },
+    "P": { "item": "superbwarfare:propeller" },
+    "S": { "tag": "forge:storage_blocks/steel" },
+    "B": { "item": "superbwarfare:large_battery_pack" }
+  },
+  "result": {
+    "item": "superbwarfare:container",
+    "nbt": "{BlockEntityTag:{EntityType:\"vvp:uh60\",id:\"superbwarfare:container\"}}"
+  }
+}

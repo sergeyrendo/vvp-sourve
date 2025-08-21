@@ -16,6 +16,8 @@ import com.atsuishio.superbwarfare.event.ClientMouseHandler;
 import com.atsuishio.superbwarfare.init.ModDamageTypes;
 import com.atsuishio.superbwarfare.entity.OBBEntity;
 
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.init.ModEntities;
 import com.atsuishio.superbwarfare.init.ModItems;
@@ -92,6 +94,8 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
     public static final EntityDataAccessor<Integer> CANNON_FIRE_TIME = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> MISSILE_COUNT = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> MISSILE_FIRE_COOLDOWN = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public OBB obb;
@@ -201,18 +205,24 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
         this.entityData.define(CANNON_FIRE_TIME, 0);
         this.entityData.define(LOADED_MISSILE, 0);
         this.entityData.define(MISSILE_COUNT, 0);
+        this.entityData.define(CAMOUFLAGE_TYPE, 0);
+        this.entityData.define(MISSILE_FIRE_COOLDOWN, 0); // <-- ДОБАВЬ ЭТУ СТРОКУ
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("LoadedMissile", this.entityData.get(LOADED_MISSILE));
+        compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
+        compound.putInt("MissileFireCooldown", this.entityData.get(MISSILE_FIRE_COOLDOWN)); // <-- ДОБАВЬ ЭТУ СТРОКУ
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.entityData.set(LOADED_MISSILE, compound.getInt("LoadedMissile"));
+        this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
+        this.entityData.set(MISSILE_FIRE_COOLDOWN, compound.getInt("MissileFireCooldown")); // <-- ДОБАВЬ ЭТУ СТРОКУ
     }
 
     @Override
@@ -243,6 +253,10 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
         if (this.level() instanceof ServerLevel) {
             if (reloadCoolDown > 0) {
                 reloadCoolDown--;
+            }
+            int missileCooldown = this.entityData.get(MISSILE_FIRE_COOLDOWN);
+            if (missileCooldown > 0) {
+                this.entityData.set(MISSILE_FIRE_COOLDOWN, missileCooldown - 1);
             }
             this.handleAmmo();
         }
@@ -406,6 +420,9 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
                 playShootSound3p(player, 0, 3, 6, 12);
             }
         } else if (getWeaponIndex(0) == 2 && this.getEntityData().get(LOADED_MISSILE) > 0) {
+            if (this.entityData.get(MISSILE_FIRE_COOLDOWN) > 0) {
+                return; // Если кулдаун активен, прерываем выстрел
+            }
 
             float x = -0.98f;
             float y = -0.1f;
@@ -424,6 +441,7 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
             }
 
             this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) - 1);
+            this.entityData.set(MISSILE_FIRE_COOLDOWN, 100); // Устанавливаем кулдаун 4 секунды (4 * 20 тиков)
             reloadCoolDown = 160;
         }
     }
@@ -693,7 +711,7 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
         } else if (getWeaponIndex(0) == 1) {
             return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFireCoax;
         } else if (getWeaponIndex(0) == 2) {
-            return (this.entityData.get(LOADED_MISSILE) > 0);
+            return (this.entityData.get(LOADED_MISSILE) > 0) && this.entityData.get(MISSILE_FIRE_COOLDOWN) <= 0;
         }
         return false;
     }
@@ -740,12 +758,12 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
         if (this.getWeaponIndex(0) == 0) {
             double heat = 1 - this.getEntityData().get(HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal(" 30MM 2A42 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal(" 30MM 2A72 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
         } else if (this.getWeaponIndex(0) == 1) {
             double heat = 1 - this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal(" 7.62MM ПКТ " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal(" 7.62MM PKT " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
         } else {
-            guiGraphics.drawString(font, Component.literal("    9M113  " + this.getEntityData().get(LOADED_MISSILE) + " " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getEntityData().get(MISSILE_COUNT))), screenWidth / 2 - 33, screenHeight - 65, 0x66FF00, false);
+            guiGraphics.drawString(font, Component.literal("    PTRK  " + this.getEntityData().get(LOADED_MISSILE) + " " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getEntityData().get(MISSILE_COUNT))), screenWidth / 2 - 33, screenHeight - 65, 0x66FF00, false);
         }
     }
 
@@ -754,12 +772,12 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
     public void renderThirdPersonOverlay(GuiGraphics guiGraphics, Font font, Player player, int screenWidth, int screenHeight, float scale) {
         if (this.getWeaponIndex(0) == 0) {
             double heat = this.getEntityData().get(HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("30MM 2A42 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("30MM 2A72 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
         } else if (this.getWeaponIndex(0) == 1) {
             double heat2 = this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("7.62MM ПКТ " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("7.62MM PKT " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
         } else {
-            guiGraphics.drawString(font, Component.literal("9M113 " + this.getEntityData().get(LOADED_MISSILE) + " " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getEntityData().get(MISSILE_COUNT))), 30, -9, -1, false);
+            guiGraphics.drawString(font, Component.literal("PTRK " + this.getEntityData().get(LOADED_MISSILE) + " " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getEntityData().get(MISSILE_COUNT))), 30, -9, -1, false);
         }
     }
 
@@ -871,6 +889,33 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
         Vector4f worldPositionT = transformPosition(transformT, 0.0f, 0.0f, 0.0f);
         this.obbTurret.center().set(new Vector3f(worldPositionT.x, worldPositionT.y, worldPositionT.z));
         this.obbTurret.setRotation(VectorTool.combineRotationsTurret(1, this));
+    }
+
+    @Override
+    public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
+
+        ItemStack stack = player.getItemInHand(hand);
+
+        if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
+            if (!this.level().isClientSide) {  // Только на сервере
+                int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
+                int maxTypes = 2;  // Количество типов (default=0, desert=1, forest=2)
+                int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
+                this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
+
+                // Опционально: Звук и эффект (например, частицы)
+                this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.SPRAY.get(), this.getSoundSource(), 1.0F, 1.0F);  // Пример звука (замени на свой)
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 1, this.getZ(), 10, 1.0, 1.0, 1.0, 0.1);  // Частицы успеха
+                }
+
+                return InteractionResult.CONSUME;  // Consume — прерываем, не даём войти
+            } else {
+                return InteractionResult.SUCCESS;  // Success на клиенте для отклика
+            }
+        }
+
+        return super.interact(player, hand);
     }
 
     @Override

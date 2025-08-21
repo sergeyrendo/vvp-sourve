@@ -2,7 +2,7 @@
     "type": "minecraft:crafting_shaped",
     "pattern": [
       "BMC",
-      "SGS",
+      "SSS",
       "WAW"
     ],
     "key": {
@@ -17,9 +17,6 @@
       },
       "S": {
         "tag": "forge:storage_blocks/steel"
-      },
-      "G": {
-        "item": "minecraft:green_dye"
       },
       "W": {
         "item": "superbwarfare:wheel"

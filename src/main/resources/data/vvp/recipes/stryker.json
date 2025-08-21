@@ -19,7 +19,7 @@
         "tag": "forge:storage_blocks/steel"
       },
       "I": {
-        "item": "minecraft:iron_bars"
+        "item": "superbwarfare:large_motor"
       },
       "W": {
         "item": "superbwarfare:wheel"

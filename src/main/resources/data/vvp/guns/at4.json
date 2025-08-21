@@ -1,0 +1,27 @@
+{
+  "ID": "vvp:at4",
+  "Spread": 5,
+  "RecoilX": 0.008,
+  "RecoilY": 0.018,
+  "Damage": 250,
+  "ExplosionDamage": 150,
+  "ExplosionRadius": 11,
+  "Velocity": 4,
+  "Magazine": 1,
+  "Weight": 7,
+  "EmptyReloadTime": 100,
+  "RPM": 120,
+  "Gravity": 0.03,
+  "AmmoType": [
+    {
+      "Ammo": "superbwarfare:rpg_rocket_standard",
+      "Override": {
+        "Damage": 340,
+        "ExplosionDamage": 80,
+        "ExplosionRadius": 5,
+        "Velocity": 6,
+        "Gravity": 0.015
+      }
+    }
+  ]
+}

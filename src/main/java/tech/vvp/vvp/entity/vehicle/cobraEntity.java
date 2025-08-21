@@ -81,6 +81,7 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
     public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(CobraEntity.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(CobraEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(CobraEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(CobraEntity.class, EntityDataSerializers.INT);
 
     public static final int RADAR_RANGE = 200;
 
@@ -211,6 +212,7 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
         this.entityData.define(PROPELLER_ROT, 0.0f);
         this.entityData.define(LOADED_ROCKET, 0);
         this.entityData.define(LOADED_MISSILE, 0);
+        this.entityData.define(CAMOUFLAGE_TYPE, 0);
     }
 
     @Override
@@ -219,6 +221,7 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
         compound.putInt("LoadedRocket", this.entityData.get(LOADED_ROCKET));
         compound.putFloat("PropellerRot", this.entityData.get(PROPELLER_ROT));
         compound.putInt("LoadedMissile", this.entityData.get(LOADED_MISSILE));
+        compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
     }
 
     @Override
@@ -227,6 +230,7 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
         this.entityData.set(LOADED_ROCKET, compound.getInt("LoadedRocket"));
         this.entityData.set(PROPELLER_ROT, compound.getFloat("PropellerRot"));
         this.entityData.set(LOADED_MISSILE, compound.getInt("LoadedMissile"));
+        this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
     }
 
     @Override
@@ -253,6 +257,25 @@ public class CobraEntity extends ContainerMobileVehicleEntity implements GeoEnti
             this.level().playSound(null, this, ModSounds.MISSILE_RELOAD.get(), this.getSoundSource(), 2, 1);
             return InteractionResult.sidedSuccess(this.level().isClientSide());
         }
+
+            if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
+                if (!this.level().isClientSide) {  // Только на сервере
+                    int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
+                    int maxTypes = 2;  // Количество типов (default=0, desert=1, forest=2)
+                    int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
+                    this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
+
+                    // Опционально: Звук и эффект (например, частицы)
+                    this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.SPRAY.get(), this.getSoundSource(), 1.0F, 1.0F);  // Пример звука (замени на свой)
+                    if (this.level() instanceof ServerLevel serverLevel) {
+                        serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 1, this.getZ(), 10, 1.0, 1.0, 1.0, 0.1);  // Частицы успеха
+                    }
+
+                    return InteractionResult.CONSUME;  // Consume — прерываем, не даём войти
+                } else {
+                    return InteractionResult.SUCCESS;  // Success на клиенте для отклика
+                }
+            }
         return super.interact(player, hand);
     }
 

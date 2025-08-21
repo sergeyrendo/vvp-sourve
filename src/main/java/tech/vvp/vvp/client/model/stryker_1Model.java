@@ -18,7 +18,11 @@ public class stryker_1Model extends GeoModel<Stryker_1Entity> {
     }
 
     @Override
-    public ResourceLocation getTextureResource(Stryker_1Entity entity) {
-        return new ResourceLocation(VVP.MOD_ID, "textures/entity/stryker_1.png");
+    public ResourceLocation getTextureResource(Stryker_1Entity animatable) {
+        int camoType = animatable.getEntityData().get(Stryker_1Entity.CAMOUFLAGE_TYPE);
+        switch (camoType) {
+            case 1: return new ResourceLocation("vvp", "textures/entity/stryker_1_haki.png");  // Песчаный
+            default: return new ResourceLocation("vvp", "textures/entity/stryker_1.png");  // Лесной
+        }
     }
 } 

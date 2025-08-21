@@ -17,6 +17,7 @@ import com.atsuishio.superbwarfare.init.ModDamageTypes;
 import com.atsuishio.superbwarfare.entity.OBBEntity;
 import com.atsuishio.superbwarfare.entity.projectile.SmallCannonShellEntity;
 
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -100,6 +101,9 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
     public static final EntityDataAccessor<Boolean> HAS_MANGAL = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> HAS_FOLIAGE = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> HAS_FOLIAGE_BODY = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> MISSILE_FIRE_COOLDOWN = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.INT);
+
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private boolean fireLeftBarrel = true;
@@ -203,6 +207,8 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         this.entityData.define(HAS_MANGAL, false);
         this.entityData.define(HAS_FOLIAGE, false);
         this.entityData.define(HAS_FOLIAGE_BODY, false);
+        this.entityData.define(CAMOUFLAGE_TYPE, 0);
+        this.entityData.define(MISSILE_FIRE_COOLDOWN, 0); // <-- ДОБАВЬ ЭТУ СТРОКУ
     }
 
     @Override
@@ -212,7 +218,8 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         compound.putInt("LoadedMissile", this.entityData.get(LOADED_MISSILE));
         compound.putBoolean("HasMangal", this.entityData.get(HAS_MANGAL));
         compound.putBoolean("HasFoliage", this.entityData.get(HAS_FOLIAGE));
-        compound.putBoolean("HasFoliageBody", this.entityData.get(HAS_FOLIAGE_BODY));
+        compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
+        compound.putInt("MissileFireCooldown", this.entityData.get(MISSILE_FIRE_COOLDOWN)); // <-- ДОБАВЬ ЭТУ СТРОКУ
     }
 
     @Override
@@ -221,7 +228,9 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         this.entityData.set(LOADED_AP, compound.getInt("loaded_ap"));
         this.entityData.set(LOADED_MISSILE, compound.getInt("LoadedMissile"));
         this.entityData.set(HAS_MANGAL, compound.getBoolean("HasMangal"));
-        this.entityData.set(HAS_FOLIAGE_BODY, compound.getBoolean("HasFoliageBody"));
+        this.entityData.set(HAS_FOLIAGE, compound.getBoolean("HasFoliage"));
+        this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
+        this.entityData.set(MISSILE_FIRE_COOLDOWN, compound.getInt("MissileFireCooldown")); // <-- ДОБАВЬ ЭТУ СТРОКУ
     }
 
 
@@ -253,6 +262,10 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         if (this.level() instanceof ServerLevel) {
             if (reloadCoolDown > 0) {
                 reloadCoolDown--;
+            }
+            int missileCooldown = this.entityData.get(MISSILE_FIRE_COOLDOWN);
+            if (missileCooldown > 0) {
+                this.entityData.set(MISSILE_FIRE_COOLDOWN, missileCooldown - 1);
             }
             this.handleAmmo();
         }
@@ -446,33 +459,37 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
             if (!player.level().isClientSide) {
                 playShootSound3p(player, 0, 3, 6, 12);
             }
-        }  else if (getWeaponIndex(0) == 2 && this.getEntityData().get(LOADED_MISSILE) > 0) {
-            int currentMissile = this.entityData.get(CURRENT_MISSILE);
-            boolean isLeftSide = currentMissile % 2 == 0; // Четные (0,2) - левая сторона, нечетные (1,3) - правая
+    }  else if (getWeaponIndex(0) == 2 && this.getEntityData().get(LOADED_MISSILE) > 0) {
+        if (this.entityData.get(MISSILE_FIRE_COOLDOWN) > 0) {
+            return; // Если кулдаун активен, прерываем выстрел
+        }
+        int currentMissile = this.entityData.get(CURRENT_MISSILE);
+        boolean isLeftSide = currentMissile % 2 == 0; // Четные (0,2) - левая сторона, нечетные (1,3) - правая
 
-            // Координаты для левой и правой стороны
-            float x = isLeftSide ? -0.98f : 0.98f;
-            float y = -0.1f;
-            float z = -0.32f;
-            
-            Matrix4f transformT = getBarrelTransform(1);
-            Vector4f worldPosition = transformPosition(transformT, x, y, z);
+        // Координаты для левой и правой стороны
+        float x = isLeftSide ? -0.98f : 0.98f;
+        float y = -0.1f;
+        float z = -0.32f;
 
-            var wgMissileEntity = ((WgMissileWeapon) getWeapon(0)).create(player);
+        Matrix4f transformT = getBarrelTransform(1);
+        Vector4f worldPosition = transformPosition(transformT, x, y, z);
 
-            wgMissileEntity.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
-            wgMissileEntity.shoot(getBarrelVector(1).x, getBarrelVector(1).y, getBarrelVector(1).z, 2f, 0f);
-            player.level().addFreshEntity(wgMissileEntity);
+        var wgMissileEntity = ((WgMissileWeapon) getWeapon(0)).create(player);
 
-            if (!player.level().isClientSide) {
-                playShootSound3p(player, 0, 6, 0, 0);
-            }
+        wgMissileEntity.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
+        wgMissileEntity.shoot(getBarrelVector(1).x, getBarrelVector(1).y, getBarrelVector(1).z, 2f, 0f);
+        player.level().addFreshEntity(wgMissileEntity);
 
-            // Увеличиваем счетчик текущего ПТУРа
-            this.entityData.set(CURRENT_MISSILE, (currentMissile + 1) % 4);
-            this.entityData.set(LOADED_MISSILE, this.entityData.get(LOADED_MISSILE) - 1);
-            reloadCoolDown = 160;
-}
+        if (!player.level().isClientSide) {
+            playShootSound3p(player, 0, 6, 0, 0);
+        }
+
+        // Увеличиваем счетчик текущего ПТУРа
+        this.entityData.set(CURRENT_MISSILE, (currentMissile + 1) % 4);
+        this.entityData.set(LOADED_MISSILE, this.entityData.get(LOADED_MISSILE) - 1);
+        this.entityData.set(MISSILE_FIRE_COOLDOWN, 80); // Устанавливаем кулдаун 4 секунды (4 * 20 тиков)
+        reloadCoolDown = 160;
+        }
     }
 
     @Override
@@ -742,7 +759,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         } else if (getWeaponIndex(0) == 1) {
             return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFireCoax;
         } else if (getWeaponIndex(0) == 2) {
-            return (this.entityData.get(LOADED_MISSILE) > 0);
+            return (this.entityData.get(LOADED_MISSILE) > 0) && this.entityData.get(MISSILE_FIRE_COOLDOWN) <= 0;
         }
         return false;
     }
@@ -926,6 +943,25 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
                 return removeModule(player, HAS_MANGAL, tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get());
             } else if (this.entityData.get(HAS_FOLIAGE)) {
                 return removeModule(player, HAS_FOLIAGE, tech.vvp.vvp.init.ModItems.SETKA_TURRET.get());
+            }
+        }
+
+        if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
+            if (!this.level().isClientSide) {  // Только на сервере
+                int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
+                int maxTypes = 2;  // Количество типов (default=0, desert=1, forest=2)
+                int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
+                this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
+
+                // Опционально: Звук и эффект (например, частицы)
+                this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.SPRAY.get(), this.getSoundSource(), 1.0F, 1.0F);  // Пример звука (замени на свой)
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 1, this.getZ(), 10, 1.0, 1.0, 1.0, 0.1);  // Частицы успеха
+                }
+
+                return InteractionResult.CONSUME;  // Consume — прерываем, не даём войти
+            } else {
+                return InteractionResult.SUCCESS;  // Success на клиенте для отклика
             }
         }
 

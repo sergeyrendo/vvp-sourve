@@ -1,6 +1,6 @@
 package tech.vvp.vvp.client.renderer.entity;
 
-// import tech.vvp.vvp.client.layer.vehicle.btr80aLayer;
+ import tech.vvp.vvp.client.layer.vehicle.Btr80aLayer;
 import tech.vvp.vvp.client.model.btr80aModel;
 import tech.vvp.vvp.entity.vehicle.Btr80aEntity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
@@ -24,7 +24,7 @@ public class btr80aRenderer extends GeoEntityRenderer<Btr80aEntity> {
 
     public btr80aRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new btr80aModel());
-        // this.addRenderLayer(new btr80aLayer(this));
+         this.addRenderLayer(new Btr80aLayer(this));
     }
 
     @Override
@@ -63,22 +63,22 @@ public class btr80aRenderer extends GeoEntityRenderer<Btr80aEntity> {
             bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
         }
         if (name.equals("wheel3")) {
-            bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
+            bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
         }
         if (name.equals("wheel4")) {
-            bone.setRotX(1.5f *  Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
+            bone.setRotX(1.5f *  -Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
         }
         if (name.equals("wheel5")) {
-            bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
+            bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
         }
         if (name.equals("wheel6")) {
-            bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
+            bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
         }
         if (name.equals("wheel7")) {
-            bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
+            bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
         }
         if (name.equals("wheel8")) {
-            bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
+            bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
         }
 
         if (name.equals("base")) {
@@ -138,6 +138,21 @@ public class btr80aRenderer extends GeoEntityRenderer<Btr80aEntity> {
                     - r2 * animatable.getRoll(partialTick) * Mth.DEG_TO_RAD
             );
         }
+
+        if (name.equals("dulo")) {
+            // Только для оружия под индексом 0
+            if (animatable.getWeaponIndex(0) == 0) {
+                int fire = animatable.getEntityData().get(Btr80aEntity.FIRE_ANIM); // или статический импорт FIRE_ANIM
+                if (fire > 1) {
+                    float maxBack = 0.45f; // глубина отката "назад" (подбери под модель)
+                    // "Назад" по локальной оси -Z; если у тебя другая ось — замени на setPosX/setPosY и/или знак
+                    bone.setPosZ(bone.getPosZ() - maxBack);
+                }
+            }
+        }
+
+
+
         if (name.equals("flare")) {
             bone.setRotZ((float) (0.5 * (Math.random() - 0.5)));
         }

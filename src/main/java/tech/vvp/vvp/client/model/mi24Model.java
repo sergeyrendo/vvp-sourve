@@ -37,7 +37,11 @@ public class mi24Model extends GeoModel<Mi24Entity> {
     }
 
     @Override
-    public ResourceLocation getTextureResource(Mi24Entity entity) {
-        return VVP.loc("textures/entity/mi24rf.png");
+    public ResourceLocation getTextureResource(Mi24Entity animatable) {
+        int camoType = animatable.getEntityData().get(Mi24Entity.CAMOUFLAGE_TYPE);
+        switch (camoType) {
+            case 1: return new ResourceLocation("vvp", "textures/entity/mi24ukr.png");  // Песчаный
+            default: return new ResourceLocation("vvp", "textures/entity/mi24rf.png");  // Лесной
+        }
     }
 }

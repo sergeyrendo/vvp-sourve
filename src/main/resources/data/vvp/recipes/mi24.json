@@ -2,7 +2,7 @@
     "type": "minecraft:crafting_shaped",
     "pattern": [
       "LVP",
-      "CGS",
+      "CSS",
       "MBM"
     ],
     "key": {
@@ -17,9 +17,6 @@
       },
       "C": {
         "item": "minecraft:compass"
-      },
-      "G": {
-        "item": "minecraft:lime_dye"
       },
       "S": {
         "tag": "forge:storage_blocks/steel"

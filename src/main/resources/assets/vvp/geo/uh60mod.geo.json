@@ -7720,7 +7720,7 @@
 					]
 				},
 				{
-					"name": "tairPropeller",
+					"name": "tailPropeller",
 					"pivot": [-6.4366, 72.79642, 192.46014],
 					"rotation": [0, 0, 12.5],
 					"cubes": [

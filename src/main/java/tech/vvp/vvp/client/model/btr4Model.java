@@ -18,7 +18,11 @@ public class btr4Model extends GeoModel<Btr4Entity> {
     }
 
     @Override
-    public ResourceLocation getTextureResource(Btr4Entity entity) {
-        return new ResourceLocation(VVP.MOD_ID, "textures/entity/btr4.png");
+    public ResourceLocation getTextureResource(Btr4Entity animatable) {
+        int camoType = animatable.getEntityData().get(Btr4Entity.CAMOUFLAGE_TYPE);
+        switch (camoType) {
+            case 1: return new ResourceLocation("vvp", "textures/entity/btr4.png");  // Песчаный
+            default: return new ResourceLocation("vvp", "textures/entity/btr4_camo.png");  // Лесной
+        }
     }
 } 

@@ -15,6 +15,11 @@ import com.atsuishio.superbwarfare.entity.vehicle.weapon.VehicleWeapon;
 import com.atsuishio.superbwarfare.event.ClientMouseHandler;
 import com.atsuishio.superbwarfare.init.ModDamageTypes;
 
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.init.ModEntities;
 import com.atsuishio.superbwarfare.init.ModItems;
@@ -74,7 +79,6 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 // import net.minecraftforge.api.distmarker.Dist;
 // import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.client.Minecraft;
-import tech.vvp.vvp.config.VehicleConfigVVP;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Comparator;
@@ -85,17 +89,19 @@ import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity, OBBEntity {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(Btr80aEntity.class, EntityDataSerializers.INT);
     public OBB obb;
     public OBB obb1;
     public OBB obb2;
     public OBB obb3;
-    public OBB obb4;
+    public OBB obbTurret;
     public OBB obb5;
     public OBB obb6;
     public OBB obb7;
     public OBB obb8;
     public OBB obb9;
     public OBB obb10;
+    public OBB obb11;
 
     public Btr80aEntity(PlayMessages.SpawnEntity packet, Level world) {
         this(ModEntities.BTR80A.get(), world);
@@ -104,18 +110,19 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
     public Btr80aEntity(EntityType<Btr80aEntity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
-        this.obb = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_LEFT);    // OBB6
-        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_LEFT);    // OBB7
-        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_LEFT);    // OBB8
-        this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_LEFT);    // OBB9
-        this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.90625f, 0.453125f, 0.867188f), new Quaternionf(), OBB.Part.TURRET);   // OBBTURRET
-        this.obb5 = new OBB(this.position().toVector3f(), new Vector3f(1.78125f, 0.625f, 3.25f), new Quaternionf(), OBB.Part.BODY);          // OBB
-        this.obb6 = new OBB(this.position().toVector3f(), new Vector3f(1.78125f, 0.625f, 0.796875f), new Quaternionf(), OBB.Part.ENGINE1);      // OBB1
-        this.obb7 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);    // OBB5
-        this.obb8 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);    // OBB4
-        this.obb9 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);    // OBB3
-        this.obb10 = new OBB(this.position().toVector3f(), new Vector3f(0.3125f, 0.421875f, 0.445312f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);    // OBB2
-        
+        this.obb = new OBB(this.position().toVector3f(), new Vector3f(1.656f, 0.477f, 2.875f), new Quaternionf(), OBB.Part.BODY);
+        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(1.656f, 0.477f, 1.344f), new Quaternionf(), OBB.Part.ENGINE1);
+        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(1.156f, 0.477f, 4.250f), new Quaternionf(), OBB.Part.BODY);
+        this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(0.938f, 0.477f, 0.844f), new Quaternionf(), OBB.Part.TURRET);
+        this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.289f, 0.453f, 0.406f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
+        this.obb5 = new OBB(this.position().toVector3f(), new Vector3f(0.289f, 0.453f, 0.406f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
+        this.obb6 = new OBB(this.position().toVector3f(), new Vector3f(0.289f, 0.453f, 0.406f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
+        this.obb7 = new OBB(this.position().toVector3f(), new Vector3f(0.289f, 0.453f, 0.406f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
+        this.obb8 = new OBB(this.position().toVector3f(), new Vector3f(0.289f, 0.453f, 0.406f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
+        this.obb9 = new OBB(this.position().toVector3f(), new Vector3f(0.289f, 0.453f, 0.406f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
+        this.obb10 = new OBB(this.position().toVector3f(), new Vector3f(0.289f, 0.453f, 0.406f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
+        this.obb11 = new OBB(this.position().toVector3f(), new Vector3f(0.289f, 0.453f, 0.406f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
+
 
     }
 
@@ -157,10 +164,10 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
                         .explosionRadius(VehicleConfig.BMP_2_CANNON_EXPLOSION_RADIUS.get().floatValue())
                         .sound(ModSounds.INTO_MISSILE.get())
                         .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_30mm.png"))
-                        .sound1p(ModSounds.BMP_CANNON_FIRE_1P.get())
-                        .sound3p(ModSounds.BMP_CANNON_FIRE_3P.get())
-                        .sound3pFar(ModSounds.LAV_CANNON_FAR.get())
-                        .sound3pVeryFar(ModSounds.LAV_CANNON_VERYFAR.get()),
+                        .sound1p(tech.vvp.vvp.init.ModSounds.BTR80_1P.get())
+                        .sound3p(tech.vvp.vvp.init.ModSounds.BTR80_3P.get())
+                        .sound3pFar(tech.vvp.vvp.init.ModSounds.BTR80_FAR.get())
+                        .sound3pVeryFar(tech.vvp.vvp.init.ModSounds.BTR80_VERYFAR.get()),
                         new ProjectileWeapon()
                                 .damage(VehicleConfig.LAV_150_MACHINE_GUN_DAMAGE.get())
                                 .headShot(2)
@@ -183,16 +190,19 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+        this.entityData.define(CAMOUFLAGE_TYPE, 0);
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
     }
 
     @Override
@@ -297,9 +307,9 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
         Matrix4f transform = getBarrelTransform(1);
         if (getWeaponIndex(0) == 0) {
             if (this.cannotFire) return;
-            float x = 0.0609375f;
-            float y = 0.0517f;
-            float z = 3.0927625f;
+            float x = 0f;
+            float y = -2.3f;
+            float z = 1.35f;
 
             Vector4f worldPosition = transformPosition(transform, x, y, z);
             var smallCannonShell = ((SmallCannonShellWeapon) getWeapon(0)).create(player);
@@ -336,9 +346,9 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
 
         } else if (getWeaponIndex(0) == 1) {
             if (this.cannotFireCoax) return;
-            float x = -0.5f;
-            float y = 0.2f;
-            float z = 0.7f;
+            float x = -0.65f;
+            float y = -2.4f;
+            float z = -1f;
 
             Vector4f worldPosition = transformPosition(transform, x, y, z);
 
@@ -405,7 +415,7 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
         }
 
         if (this.forwardInputDown || this.backInputDown) {
-            this.consumeEnergy(VehicleConfigVVP.TYPHOON_ENERGY_COST.get());
+            this.consumeEnergy(VehicleConfig.LAV_150_ENERGY_COST.get());
         }
 
         int i;
@@ -499,7 +509,7 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
         Matrix4f transformT = getTurretTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, 0f, 0.35f, 0.8f); // подберите под свою модель
+        Vector4f worldPosition = transformPosition(transform, 0.000f, 2.594f, 0.938f); // подберите под свою модель
 
         transformT.translate(worldPosition.x, worldPosition.y, worldPosition.z);
 
@@ -538,7 +548,7 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
         Matrix4f transformV = getVehicleTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, -0.015625f, 2.703125f, 0.648438f);
+        Vector4f worldPosition = transformPosition(transform, 0.000f, 2.805f, 0.969f);
 
         transformV.translate(worldPosition.x, worldPosition.y, worldPosition.z);
         transformV.rotate(Axis.YP.rotationDegrees(Mth.lerp(ticks, turretYRotO, getTurretYRot())));
@@ -751,7 +761,7 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
     }
 
     public List<OBB> getOBBs() {
-        return List.of(this.obb, this.obb1, this.obb2, this.obb3, this.obb4, this.obb5, this.obb6, this.obb7, this.obb8, this.obb9, this.obb10);
+        return List.of(this.obb, this.obb1, this.obb2, this.obb3, this.obbTurret, this.obb5, this.obb6, this.obb7, this.obb8, this.obb9, this.obb10, this.obb11);
     }
 
     // @Override
@@ -759,61 +769,100 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
         Matrix4f transform = getVehicleTransform(1);
 
     // OBB6
-    Vector4f worldPosition = transformPosition(transform, 1.445f, 0.699f, 2.282f);
+    Vector4f worldPosition = transformPosition(transform, 0.031f, 1.836f, 0.563f);
     this.obb.center().set(new Vector3f(worldPosition.x, worldPosition.y, worldPosition.z));
     this.obb.setRotation(VectorTool.combineRotations(1, this));
 
     // OBB7
-    Vector4f worldPosition1 = transformPosition(transform, 1.445f, 0.699f, 0.469f);
+    Vector4f worldPosition1 = transformPosition(transform, 0.031f, 1.836f, -3.656f);
     this.obb1.center().set(new Vector3f(worldPosition1.x, worldPosition1.y, worldPosition1.z));
     this.obb1.setRotation(VectorTool.combineRotations(1, this));
 
     // OBB8
-    Vector4f worldPosition2 = transformPosition(transform, 1.445f, 0.699f, -1.406f);
+    Vector4f worldPosition2 = transformPosition(transform, 0.031f, 0.898f, -0.750f);
     this.obb2.center().set(new Vector3f(worldPosition2.x, worldPosition2.y, worldPosition2.z));
     this.obb2.setRotation(VectorTool.combineRotations(1, this));
 
+
+
+
+
     // OBB9
-    Vector4f worldPosition3 = transformPosition(transform, 1.445f, 0.699f, -3.124f);
+    Vector4f worldPosition3 = transformPosition(transform, 1.539f, 0.703f, 2.281f);
     this.obb3.center().set(new Vector3f(worldPosition3.x, worldPosition3.y, worldPosition3.z));
     this.obb3.setRotation(VectorTool.combineRotations(1, this));
 
-    // OBBTURRET
-    Matrix4f transformT = getTurretTransform(1);
-    Vector4f worldPosition4 = transformPosition(transformT, 0.0f, 0.0f, 0.0f);
-    this.obb4.center().set(new Vector3f(worldPosition4.x, worldPosition4.y, worldPosition4.z));
-    this.obb4.setRotation(VectorTool.combineRotationsTurret(1, this));
-
     // OBB
-    Vector4f worldPosition5 = transformPosition(transform, 0f, 1.8125f, -0.125f);
+    Vector4f worldPosition5 = transformPosition(transform, 1.539f, 0.703f, 0.422f);
     this.obb5.center().set(new Vector3f(worldPosition5.x, worldPosition5.y, worldPosition5.z));
     this.obb5.setRotation(VectorTool.combineRotations(1, this));
 
     // OBB1
-    Vector4f worldPosition6 = transformPosition(transform, 0f, 1.8125f, -3.921875f);
+    Vector4f worldPosition6 = transformPosition(transform, 1.539f, 0.703f, -1.469f);
     this.obb6.center().set(new Vector3f(worldPosition6.x, worldPosition6.y, worldPosition6.z));
     this.obb6.setRotation(VectorTool.combineRotations(1, this));
 
     // OBB5
-    Vector4f worldPosition7 = transformPosition(transform, -1.445f, 0.699f, 2.282f);
+    Vector4f worldPosition7 = transformPosition(transform, 1.539f, 0.703f, -3.344f);
     this.obb7.center().set(new Vector3f(worldPosition7.x, worldPosition7.y, worldPosition7.z));
     this.obb7.setRotation(VectorTool.combineRotations(1, this));
 
+
+
+
     // OBB4
-    Vector4f worldPosition8 = transformPosition(transform, -1.445f, 0.699f, 0.469f);
+    Vector4f worldPosition8 = transformPosition(transform, -1.539f, 0.703f, 2.281f);
     this.obb8.center().set(new Vector3f(worldPosition8.x, worldPosition8.y, worldPosition8.z));
     this.obb8.setRotation(VectorTool.combineRotations(1, this));
 
     // OBB3
-    Vector4f worldPosition9 = transformPosition(transform, -1.445f, 0.699f, -1.406f);
+    Vector4f worldPosition9 = transformPosition(transform, -1.539f, 0.703f, 0.422f);
     this.obb9.center().set(new Vector3f(worldPosition9.x, worldPosition9.y, worldPosition9.z));
     this.obb9.setRotation(VectorTool.combineRotations(1, this));
 
     // OBB2
-    Vector4f worldPosition10 = transformPosition(transform, -1.445f, 0.699f, -3.124f);
+    Vector4f worldPosition10 = transformPosition(transform, -1.539f, 0.703f, -1.469f);
     this.obb10.center().set(new Vector3f(worldPosition10.x, worldPosition10.y, worldPosition10.z));
     this.obb10.setRotation(VectorTool.combineRotations(1, this));
 
+        // OBB2
+        Vector4f worldPosition11 = transformPosition(transform, -1.539f, 0.703f, -3.344f);
+        this.obb11.center().set(new Vector3f(worldPosition11.x, worldPosition11.y, worldPosition11.z));
+        this.obb11.setRotation(VectorTool.combineRotations(1, this));
+
+    // OBBTURRET
+        Matrix4f transformT = getTurretTransform(1);
+        Vector4f worldPosition4 = transformPosition(transformT, 0.0f, 0f, 0.0f);
+        this.obbTurret.center().set(new Vector3f(worldPosition4.x, worldPosition4.y, worldPosition4.z));
+        this.obbTurret.setRotation(VectorTool.combineRotationsTurret(1, this));
+
+    }
+
+    @Override
+    public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
+
+        ItemStack stack = player.getItemInHand(hand);
+
+        if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
+            if (!this.level().isClientSide) {  // Только на сервере
+                int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
+                int maxTypes = 4;  // Количество типов (default=0, desert=1, forest=2)
+                int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
+                this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
+
+                // Опционально: Звук и эффект (например, частицы)
+                this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.SPRAY.get(), this.getSoundSource(), 1.0F, 1.0F);  // Пример звука (замени на свой)
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 1, this.getZ(), 10, 1.0, 1.0, 1.0, 0.1);  // Частицы успеха
+                }
+
+                return InteractionResult.CONSUME;  // Consume — прерываем, не даём войти
+            } else {
+                return InteractionResult.SUCCESS;  // Success на клиенте для отклика
+            }
+        }
+
+        return super.interact(player, hand);
     }
 
     @Override

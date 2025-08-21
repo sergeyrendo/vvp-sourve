@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BLM",
+    "SOS",
+    "WAW"
+  ],
+  "key": {
+    "B": {
+      "item": "superbwarfare:large_battery_pack"
+    },
+    "L": {
+      "item": "superbwarfare:light_armament_module"
+    },
+    "M": {
+      "item": "superbwarfare:medium_armament_module"
+    },
+    "S": {
+      "tag": "forge:storage_blocks/steel"
+    },
+    "W": {
+      "item": "superbwarfare:track"
+    },
+    "A": {
+      "item": "superbwarfare:large_motor"
+    },
+    "O": {
+      "item": "superbwarfare:cemented_carbide_block"
+    }
+  },
+  "result": {
+    "item": "superbwarfare:container",
+    "nbt": "{BlockEntityTag: {EntityType: \"vvp:m60\", id: \"superbwarfare:container\"}}"
+  }
+}

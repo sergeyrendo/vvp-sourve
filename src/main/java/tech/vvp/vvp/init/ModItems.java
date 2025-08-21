@@ -11,6 +11,7 @@ import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.item.armor.usahelmet;
 import tech.vvp.vvp.item.armor.usachest;
 import tech.vvp.vvp.item.varies.*;
+import tech.vvp.vvp.item.gun.launcher.At4Item;
 
 
 public class ModItems {
@@ -39,6 +40,11 @@ public class ModItems {
     public static final RegistryObject<Item> SETKA_TURRET = REGISTRY.register("setka_turret", SetkaTurretItem::new);
     public static final RegistryObject<Item> WRENCH = REGISTRY.register("wrench", WrenchItem::new);
     public static final RegistryObject<Item> KOROBKI = REGISTRY.register("korobki", KorobkiItem::new);
+    public static final RegistryObject<Item> SPRAY = REGISTRY.register("spray", SprayItem::new);
+    public static final RegistryObject<Item> TENT = REGISTRY.register("tent", TentItem::new);
+
+    public static final RegistryObject<Item> AT4 = REGISTRY.register("at4", At4Item::new);
+
 
 
     public static final RegistryObject<Item> RADIOHEAD = REGISTRY.register("music_disc_radiohead",

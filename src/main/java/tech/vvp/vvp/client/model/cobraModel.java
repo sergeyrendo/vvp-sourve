@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import software.bernie.geckolib.model.GeoModel;
+import tech.vvp.vvp.entity.vehicle.FMTVEntity;
 
 public class cobraModel extends GeoModel<CobraEntity> {
 
@@ -37,7 +38,11 @@ public class cobraModel extends GeoModel<CobraEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureResource(CobraEntity entity) {
-        return VVP.loc("textures/entity/cobra_basic.png");
+    public ResourceLocation getTextureResource(CobraEntity animatable) {
+        int camoType = animatable.getEntityData().get(CobraEntity.CAMOUFLAGE_TYPE);
+        switch (camoType) {
+            case 1: return new ResourceLocation("vvp", "textures/entity/cobra_shark.png");  // Песчаный
+            default: return new ResourceLocation("vvp", "textures/entity/cobra_basic.png");  // Лесной
+        }
     }
 }

@@ -85,6 +85,23 @@ public class ModSounds {
 
 
     public static final RegistryObject<SoundEvent> REMONT = register("remont");
+    public static final RegistryObject<SoundEvent> SPRAY = register("spray");
+
+    public static final RegistryObject<SoundEvent> BTR80_1P = register("2a72_1p");
+    public static final RegistryObject<SoundEvent> BTR80_3P = register("2a72_3p");
+    public static final RegistryObject<SoundEvent> BTR80_FAR = register("2a72_far");
+    public static final RegistryObject<SoundEvent> BTR80_VERYFAR = register("2a72_veryfar");
+
+
+    public static final RegistryObject<SoundEvent> ABRAMS_1P = register("abrams_1p");
+    public static final RegistryObject<SoundEvent> ABRAMS_3P = register("abrams_3p");
+    public static final RegistryObject<SoundEvent> ABRAMS_FAR = register("abrams_far");
+    public static final RegistryObject<SoundEvent> ABRAMS_VERYFAR = register("abrams_veryfar");
+
+    public static final RegistryObject<SoundEvent> ABRAMS_COAX_1P = register("abrams_coax_1p");
+    public static final RegistryObject<SoundEvent> ABRAMS_COAX_3P = register("abrams_coax_3p");
+    public static final RegistryObject<SoundEvent> ABRAMS_COAX_FAR = register("abrams_coax_far");
+    public static final RegistryObject<SoundEvent> ABRAMS_COAX_VERYFAR = register("abrams_coax_veryfar");
 
 
     /**

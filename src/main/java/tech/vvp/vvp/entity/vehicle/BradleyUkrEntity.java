@@ -109,6 +109,8 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
     public static final EntityDataAccessor<Boolean> HAS_FOLIAGE = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> HAS_FOLIAGE_BODY = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> KOROBKI = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> MISSILE_FIRE_COOLDOWN = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public OBB obb1;
@@ -191,8 +193,9 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
                                 .explosionDamage(ExplosionConfig.WIRE_GUIDE_MISSILE_EXPLOSION_DAMAGE.get())
                                 .explosionRadius(ExplosionConfig.WIRE_GUIDE_MISSILE_EXPLOSION_RADIUS.get())
                                 .sound(ModSounds.INTO_MISSILE.get())
-                                .sound1p(ModSounds.BMP_MISSILE_FIRE_1P.get())
-                                .sound3p(ModSounds.BMP_MISSILE_FIRE_3P.get()),
+                                .sound1p(tech.vvp.vvp.init.ModSounds.TOW_1P.get())
+                                .sound3p(tech.vvp.vvp.init.ModSounds.TOW_1P.get())
+                                .sound3pFar(tech.vvp.vvp.init.ModSounds.TOW_FAR.get()),
                 }
         };
     }
@@ -213,6 +216,8 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         this.entityData.define(HAS_FOLIAGE, false);
         this.entityData.define(HAS_FOLIAGE_BODY, false);
         this.entityData.define(KOROBKI, false);
+        this.entityData.define(CAMOUFLAGE_TYPE, 0);
+        this.entityData.define(MISSILE_FIRE_COOLDOWN, 0);
     }
 
     @Override
@@ -224,6 +229,8 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         compound.putBoolean("HasFoliage", this.entityData.get(HAS_FOLIAGE));
         compound.putBoolean("HasFoliageBody", this.entityData.get(HAS_FOLIAGE_BODY));
         compound.putBoolean("Korobki", this.entityData.get(KOROBKI));
+        compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
+        compound.putInt("MissileFireCooldown", this.entityData.get(MISSILE_FIRE_COOLDOWN));
     }
 
     @Override
@@ -234,6 +241,8 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         this.entityData.set(HAS_MANGAL, compound.getBoolean("HasMangal"));
         this.entityData.set(HAS_FOLIAGE_BODY, compound.getBoolean("HasFoliageBody"));
         this.entityData.set(KOROBKI, compound.getBoolean("Korobki"));
+        this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
+        this.entityData.set(MISSILE_FIRE_COOLDOWN, compound.getInt("MissileFireCooldown"));
     }
 
     @Override
@@ -268,6 +277,10 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         if (this.level() instanceof ServerLevel) {
             if (reloadCoolDown > 0) {
                 reloadCoolDown--;
+            }
+            int missileCooldown = this.entityData.get(MISSILE_FIRE_COOLDOWN);
+            if (missileCooldown > 0) {
+                this.entityData.set(MISSILE_FIRE_COOLDOWN, missileCooldown - 1);
             }
             this.handleAmmo();
         }
@@ -369,7 +382,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
             // Убираем переключение и всегда используем левую сторону
             float x = -0.1f; // Фиксированная левая позиция
             float y = -0.2f;
-            float z = 3.1f;
+            float z = 2.9f;
 
             Vector4f worldPosition = this.transformPosition(transform, x, y, z);
             SmallCannonShellEntity smallCannonShell = ((SmallCannonShellWeapon)this.getWeapon(0)).create(player);
@@ -461,6 +474,9 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
                 playShootSound3p(player, 0, 3, 6, 12);
             }
         }  else if (getWeaponIndex(0) == 2 && this.getEntityData().get(LOADED_MISSILE) > 0) {
+            if (this.entityData.get(MISSILE_FIRE_COOLDOWN) > 0) {
+                return; // Если кулдаун активен, прерываем выстрел
+            }
             int currentMissile = this.entityData.get(CURRENT_MISSILE);
             // Определяем, верхняя или нижняя ракета. Четные (0, 2) - сверху, нечетные (1, 3) - снизу.
             boolean isTopSide = currentMissile % 2 == 0;
@@ -487,17 +503,18 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
             // Увеличиваем счетчик текущего ПТУРа
             this.entityData.set(CURRENT_MISSILE, (currentMissile + 1) % 4);
             this.entityData.set(LOADED_MISSILE, this.entityData.get(LOADED_MISSILE) - 1);
+            this.entityData.set(MISSILE_FIRE_COOLDOWN, 120); // Устанавливаем кулдаун 4 секунды (4 * 20 тиков)
             reloadCoolDown = 160;
         }
     }
 
     @Override
     public void travel() {
-        Entity passenger0 = this.getFirstPassenger(); // тут оно УЖЕ использует пассажира, походу не в этом файле точно логике саждения
+        Entity passenger0 = this.getFirstPassenger();
 
         if (this.getEnergy() <= 0) return;
 
-        if (passenger0 == null) {
+        if (!(passenger0 instanceof Player)) {
             this.leftInputDown = false;
             this.rightInputDown = false;
             this.forwardInputDown = false;
@@ -506,37 +523,67 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         }
 
         if (forwardInputDown) {
-            this.entityData.set(POWER, Math.min(this.entityData.get(POWER) + (this.entityData.get(POWER) < 0 ? 0.012f : 0.0024f), 0.18f));
+            this.entityData.set(POWER, Math.min(this.entityData.get(POWER) + (this.entityData.get(POWER) < 0 ? 0.004f : 0.0024f) * (1 + getXRot() / 55), 0.21f));
         }
 
         if (backInputDown) {
-            this.entityData.set(POWER, Math.max(this.entityData.get(POWER) - (this.entityData.get(POWER) > 0 ? 0.012f : 0.0024f), -0.13f));
-        }
-
-        if (rightInputDown) {
-            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.1f);
-        } else if (this.leftInputDown) {
-            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.2f);
+            this.entityData.set(POWER, Math.max(this.entityData.get(POWER) - (this.entityData.get(POWER) > 0 ? 0.004f : 0.0024f) * (1 - getXRot() / 55), -0.16f));
+            if (rightInputDown) {
+                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.1f);
+            } else if (this.leftInputDown) {
+                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.1f);
+            }
+        } else {
+            if (rightInputDown) {
+                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.1f);
+            } else if (this.leftInputDown) {
+                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.1f);
+            }
         }
 
         if (this.forwardInputDown || this.backInputDown) {
-            this.consumeEnergy(VehicleConfig.BMP_2_ENERGY_COST.get());
+            this.consumeEnergy(VehicleConfig.YX_100_ENERGY_COST.get());
         }
 
-        this.entityData.set(POWER, this.entityData.get(POWER) * (upInputDown ? 0.5f : (rightInputDown || leftInputDown) ? 0.977f : 0.99f));
+        this.entityData.set(POWER, this.entityData.get(POWER) * (upInputDown ? 0.5f : (rightInputDown || leftInputDown) ? 0.947f : 0.96f));
         this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) * (float) Math.max(0.76f - 0.1f * this.getDeltaMovement().horizontalDistance(), 0.3));
 
         double s0 = getDeltaMovement().dot(this.getViewVector(1));
 
-        this.setLeftWheelRot((float) ((this.getLeftWheelRot() - 1.25 * s0) - this.getDeltaMovement().horizontalDistance() * Mth.clamp(1.5f * this.entityData.get(DELTA_ROT), -5f, 5f)));
-        this.setRightWheelRot((float) ((this.getRightWheelRot() - 1.25 * s0) + this.getDeltaMovement().horizontalDistance() * Mth.clamp(1.5f * this.entityData.get(DELTA_ROT), -5f, 5f)));
+        this.setLeftWheelRot((float) ((this.getLeftWheelRot() - 1.25 * s0) + Mth.clamp(0.75f * this.entityData.get(DELTA_ROT), -5f, 5f)));
+        this.setRightWheelRot((float) ((this.getRightWheelRot() - 1.25 * s0) - Mth.clamp(0.75f * this.entityData.get(DELTA_ROT), -5f, 5f)));
 
-        this.setRudderRot(Mth.clamp(this.getRudderRot() - this.entityData.get(DELTA_ROT), -0.8f, 0.8f) * 0.75f);
+        setLeftTrack((float) ((getLeftTrack() - 1.5 * Math.PI * s0) + Mth.clamp(0.4f * Math.PI * this.entityData.get(DELTA_ROT), -5f, 5f)));
+        setRightTrack((float) ((getRightTrack() - 1.5 * Math.PI * s0) - Mth.clamp(0.4f * Math.PI * this.entityData.get(DELTA_ROT), -5f, 5f)));
 
-        this.setYRot((float) (this.getYRot() - Math.max((isInWater() && !onGround() ? 5 : 10) * this.getDeltaMovement().horizontalDistance(), 0) * this.getRudderRot() * (this.entityData.get(POWER) > 0 ? 1 : -1)));
+        int i;
+
+        if (entityData.get(L_WHEEL_DAMAGED) && entityData.get(R_WHEEL_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.93f);
+            i = 0;
+        } else if (entityData.get(L_WHEEL_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
+            i = 3;
+        } else if (entityData.get(R_WHEEL_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
+            i = -3;
+        } else {
+            i = 0;
+        }
+
+        if (entityData.get(ENGINE1_DAMAGED)) {
+            this.entityData.set(POWER, this.entityData.get(POWER) * 0.85f);
+        }
+
+        this.setYRot((float) (this.getYRot() - (isInWater() && !onGround() ? 2.5 : 6) * entityData.get(DELTA_ROT) - i * s0));
         if (this.isInWater() || onGround()) {
-            float power = this.entityData.get(POWER) * Mth.clamp(1 + (s0 > 0 ? 1 : -1) * getXRot() / 35, 0 , 2);
-            this.setDeltaMovement(this.getDeltaMovement().add(getViewVector(1).scale((!isInWater() && !onGround() ? 0.05f : (isInWater() && !onGround() ? 0.3f : 1)) * power)));
+            this.setDeltaMovement(this.getDeltaMovement().add(getViewVector(1).scale((!isInWater() && !onGround() ? 0.13f : (isInWater() && !onGround() ? 0 : 2.4f)) * this.entityData.get(POWER))));
+        }
+
+        // Добавлено: тонуть в воде, если не на земле
+        if (this.isInWater() && !this.onGround()) {
+            Vec3 movement = this.getDeltaMovement();
+            this.setDeltaMovement(movement.add(0, -0.05, 0)); // Скорость погружения (можно скорректировать значение)
         }
     }
 
@@ -728,7 +775,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         } else if (getWeaponIndex(0) == 1) {
             return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(player)) && !cannotFireCoax;
         } else if (getWeaponIndex(0) == 2) {
-            return (this.entityData.get(LOADED_MISSILE) > 0);
+            return (this.entityData.get(LOADED_MISSILE) > 0) && this.entityData.get(MISSILE_FIRE_COOLDOWN) <= 0;
         }
         return false;
     }
@@ -765,7 +812,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/bradley_ukr_icon.png");
+        return VVP.loc("textures/vehicle_icon/bradley__icon.png");
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -775,13 +822,13 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
 
         if (this.getWeaponIndex(0) == 0) {
             double heat = 1 - this.getEntityData().get(HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("2А42 30MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("M242 25MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
         } else if (this.getWeaponIndex(0) == 1) {
             double heat = 1 - this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("7.62MM ПКТМ " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("7.62MM M240C " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
         } else if (this.getWeaponIndex(0) == 2) {
             double heat = 1 - this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("9М120-1 ПТУР " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("BGM-71 TOW " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, Mth.hsvToRgb((float) heat / 3.745318352059925F, 1.0F, 1.0F), false);
         }
     }
 
@@ -792,13 +839,13 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
 
         if (this.getWeaponIndex(0) == 0) {
             double heat = this.getEntityData().get(HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("2А42 30MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("M242 25MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
         } else if (this.getWeaponIndex(0) == 1) {
             double heat2 = this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("7.62MM ПКТМ " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("7.62MM M240C " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
         } else if (this.getWeaponIndex(0) == 2) {
             double heat2 = this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("9М120-1 ПТУР " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
+            guiGraphics.drawString(font, Component.literal("BGM-71 TOW " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
         }
     }
 
@@ -860,34 +907,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
         } else {
             return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret);  // Оригинальный список без изменений
         }
-    } // вот крч, когда правда оно показывает определенный список, а когда не правда оно показывает другой список
-    // уловил уловил чисто добавляет в список мангал когда он есть как раз таки, умно. так можно реально камуфляж будет реализовать, хотелось бы чтобы был какой то отдельный
-    // фордж ивент, который бы чекал не каждый тик (т.к нагружает немного), а только когда изменение в слотах есть.
-    // то есть как я сделал через тики нагружает?
-    // как я понял то это всё ты через слоты делаешь? типо 
-    // могу посоветовать разве что если будут какие то комплексные модули с сложной логикой то делать это чисто через ивент нажатия ПКМ, единоразово поставило дату и не будет чекать
-    // да ты прав, как я посоветовал это тогда хз только отдельными снималками потом снимать, но если какой то неснимаемый модуль то и так можно
-    // щас поищу есть ли ивент на изенение инвентаря
-    // бляя, ну тип я хочу еще сделать впринципе ящики и камуфляжи попробовать
-    // тоже самое через дату сделать ток в моделе уже проверять 
-    // да, по другому никак
-    // у каждой техники есть свой инвентарь типо
-    // это что сейчас сделал очень сыро, а как ты написал то да хочу так сделать. ток хз как снимать, мб свой предмет сделать и все
-    // знаешь как можно сделать? что если челик смотрит на обб данного модуля то он снимается
-    // а, ну так если оно так будет работать то вообще нет проблем, я тож изначально это подумал но учитывая то что это всё одна энтити чет промолчал, но можно и так вроде же
-    // вот вот, если ты такое сделал то тут проблем вообще не будєт
-    // та да, как идея, так вообще же тогда чисто можно будет переделать на right click и серверу лучше будет по нагрузке
-    // ибо представь 10 единиц техники и каждая тикает в секунду 20 раз проверяя это всё, та не лютая но мне кажется есть какая-то, можно будет через мод spark проверить
-
-    // это надо будет тогда кэнселить ивент mounting на технику, я хз как тут это прописано у китайцев, ща посмотрю этот файл где тут это видно
-    // ток проблема будет с листвой
-    // я же сделал двери рабочие, могу на демке показать (для блекхавка)
-    // по поводу листві для нее тоже можно захуярить обб маленько и все
-    // ну да, нагрузка лютая происходит
-    // поможешь мне сделать что бы можно было типа ставить при помощь кнопки
-    // а блять и знаешь что надо сделать, чтобы было типа приоритет чтобы когда челик с предметом нажи
-    // ну то что ты там сделал это лишь проверка даты этой, ты сделал лаконично поэтому не нагружает, но если добавлять функционала то считай каждую секунду оно 20 раз будет чекать это
-    // тут нету, сразу говорю
+    }
 
     // сейчас в дс скину где это возможно есть
     public void updateOBB() {
@@ -953,6 +973,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
                 return removeModule(player, KOROBKI, tech.vvp.vvp.init.ModItems.KOROBKI.get());
             }
         }
+
 
         // Если ничего не подошло — базовая логика (вход/инвентарь)
         return super.interact(player, hand);

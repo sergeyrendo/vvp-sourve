@@ -3,7 +3,7 @@
     "pattern": [
       "LMP",
       "CSO",
-      "BHT"
+      "BHB"
     ],
     "key": {
       "L": {
@@ -29,9 +29,6 @@
       },
       "H": {
         "item": "superbwarfare:heavy_armament_module"
-      },
-      "T": {
-        "item": "minecraft:light_gray_dye"
       }
     },
     "result": {

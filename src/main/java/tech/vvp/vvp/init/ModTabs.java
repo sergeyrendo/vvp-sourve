@@ -26,24 +26,22 @@ public class ModTabs {
             .displayItems((parameters, output) -> {
                 // Добавляем всю технику
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BTR80A.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_80A_1.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.M997.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HUMVEE.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M997_GREEN.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.FMTV.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_HAKI.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_1.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_1_HAKI.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_4.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.TERMINATOR.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.TERMINATOR_HAKI.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BRADLEY_UKR.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BRADLEY.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2_SEP.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M60.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI24.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.MI24POL.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.MI24UKR.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.M997.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.COBRA.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.COBRASHARK.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.UH60MOD.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.UH60.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.F35.get()));
                 // Здесь будут добавляться новые единицы техники
             })
@@ -60,7 +58,9 @@ public class ModTabs {
                                 output.accept(ModItems.MANGAL_BODY.get());
                                 output.accept(ModItems.SETKA_BODY.get());
                                 output.accept(ModItems.SETKA_TURRET.get());
+                                output.accept(ModItems.TENT.get());
                                 output.accept(ModItems.KOROBKI.get());
+                                output.accept(ModItems.SPRAY.get());
                                 output.accept(ModItems.WRENCH.get());
 
                             })
@@ -75,7 +75,6 @@ public class ModTabs {
         public static void register(BuildCreativeModeTabContentsEvent event) {
             if (event.getTabKey() == ModTabs.VEHICLES.getKey()) {
                 // Добавляем технику
-                event.accept(ContainerBlockItem.createInstance(ModEntities.M997.get()));
             }
         }
     }

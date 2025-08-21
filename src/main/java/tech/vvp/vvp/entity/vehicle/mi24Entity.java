@@ -28,6 +28,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -78,6 +79,7 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(Mi24Entity.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(Mi24Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(Mi24Entity.class, EntityDataSerializers.INT);
 
     public static final int RADAR_RANGE = 150;
 
@@ -238,6 +240,7 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         super.defineSynchedData();
         this.entityData.define(LOADED_ROCKET, 0);
         this.entityData.define(PROPELLER_ROT, 0f);
+        this.entityData.define(CAMOUFLAGE_TYPE, 0);
     }
 
     @Override
@@ -245,6 +248,7 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         super.addAdditionalSaveData(compound);
         compound.putInt("LoadedRocket", this.entityData.get(LOADED_ROCKET));
         compound.putFloat("PropellerRot", this.entityData.get(PROPELLER_ROT));
+        compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
     }
 
     @Override
@@ -252,6 +256,7 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         super.readAdditionalSaveData(compound);
         this.entityData.set(LOADED_ROCKET, compound.getInt("LoadedRocket"));
         this.entityData.set(PROPELLER_ROT, compound.getFloat("PropellerRot"));
+        this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
     }
 
     @Override
@@ -277,6 +282,25 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
             }
             this.level().playSound(null, this, ModSounds.MISSILE_RELOAD.get(), this.getSoundSource(), 2, 1);
             return InteractionResult.sidedSuccess(this.level().isClientSide());
+        }
+
+        if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
+            if (!this.level().isClientSide) {  // Только на сервере
+                int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
+                int maxTypes = 2;  // Количество типов (default=0, desert=1, forest=2)
+                int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
+                this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
+
+                // Опционально: Звук и эффект (например, частицы)
+                this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.SPRAY.get(), this.getSoundSource(), 1.0F, 1.0F);  // Пример звука (замени на свой)
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 1, this.getZ(), 10, 1.0, 1.0, 1.0, 0.1);  // Частицы успеха
+                }
+
+                return InteractionResult.CONSUME;  // Consume — прерываем, не даём войти
+            } else {
+                return InteractionResult.SUCCESS;  // Success на клиенте для отклика
+            }
         }
         return super.interact(player, hand);
     }
@@ -490,17 +514,17 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
             callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);
         } else if (i == 1) { // Стрелок/Второй пассажир (заднее сиденье)
             float gunnerX = 0.0f;
-            float gunnerY = -0.25f + riderOffset;
-            float gunnerZ = 1.5f;
+            float gunnerY = 0f + riderOffset;
+            float gunnerZ = 2f;
             worldPosition = transformPosition(transform, gunnerX, gunnerY, gunnerZ);
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
             callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);
         } else if (i == 2) {
-            worldPosition = transformPosition(transform, -0.51f, -0.3f, -1.4f);
+            worldPosition = transformPosition(transform, -0.56f, -0.3f, -1.4f);
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
             callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);       
         } else if (i == 3) {
-            worldPosition = transformPosition(transform, 0.43f, -0.3f, -1.4f);      
+            worldPosition = transformPosition(transform, 0.48f, -0.3f, -1.4f);
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
             callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);        
         } else if (i == 4) {
@@ -611,9 +635,9 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         if (getWeaponIndex(0) == 0) {
             if (this.cannotFire) return;
 
-            x = 0.0f;
-            y = -0.8f;
-            z = 3.0f;
+            x = 0.578125f;
+            y = 0f;
+            z = 2.953125f;
 
             Vector4f worldPosition;
             Vector4f worldPosition2;
@@ -662,9 +686,9 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
             }
 
         } else if (getWeaponIndex(0) == 1 && this.getEntityData().get(LOADED_ROCKET) > 0) {
-            x = 1.7f;
-            y = 0.62f - 1.45f;
-            z = 0.8f;
+            x = 1.90625f;
+            y = 0.2f;
+            z = -3.703125f;
 
             var heliRocketEntity = ((SmallRocketWeapon) getWeapon(0)).create(player);
 
@@ -762,7 +786,7 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public ResourceLocation getVehicleIcon() {
-        return VVP.loc("textures/vehicle_icon/mi24pl_icon.png");
+        return VVP.loc("textures/vehicle_icon/mi24_icon.png");
     }
 
     @Override

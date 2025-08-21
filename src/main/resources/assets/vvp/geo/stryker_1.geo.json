@@ -1718,7 +1718,7 @@
 					]
 				},
 				{
-					"name": "Things",
+					"name": "decoration",
 					"parent": "Dragunm1296",
 					"pivot": [20.61165, 38.53358, 43.88062],
 					"rotation": [0, 90, 0],

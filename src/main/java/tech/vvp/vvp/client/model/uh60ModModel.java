@@ -1,6 +1,7 @@
 package tech.vvp.vvp.client.model;
 
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.entity.vehicle.Uh60Entity;
 import tech.vvp.vvp.entity.vehicle.Uh60ModEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -36,7 +37,12 @@ public class uh60ModModel extends GeoModel<Uh60ModEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureResource(Uh60ModEntity entity) {
-        return VVP.loc("textures/entity/uh60mod.png");
+    public ResourceLocation getTextureResource(Uh60ModEntity animatable) {
+        int camoType = animatable.getEntityData().get(Uh60ModEntity.CAMOUFLAGE_TYPE);
+        switch (camoType) {
+            case 1: return new ResourceLocation("vvp", "textures/entity/uh60mod.png");  // Песчаный
+            case 2: return new ResourceLocation("vvp", "textures/entity/uh60med.png");  // Песчаный
+            default: return new ResourceLocation("vvp", "textures/entity/uh60black.png");  // Лесной
+        }
     }
 }
