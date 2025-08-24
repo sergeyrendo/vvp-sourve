@@ -10,6 +10,8 @@ import net.minecraftforge.network.NetworkDirection;
 import java.util.Optional;
 
 import org.slf4j.Logger;
+import tech.vvp.vvp.config.server.VehicleConfigVVP;
+import tech.vvp.vvp.config.server.ExplosionConfigVVP;
 import tech.vvp.vvp.init.*;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraft.world.item.BlockItem;
@@ -18,6 +20,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import tech.vvp.vvp.network.VVPNetwork;
 import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
 
 @Mod(VVP.MOD_ID)
 public class VVP {
@@ -31,7 +35,13 @@ public class VVP {
         ModEntities.register(modEventBus);
         ModVehicleItems.register(modEventBus);
         ModSounds.REGISTRY.register(modEventBus);
-        ModTabs.TABS.register(modEventBus);  // Регистрируем вкладки
+        ModTabs.TABS.register(modEventBus);
+
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, VehicleConfigVVP.SPEC, "vvp-vehicle.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ExplosionConfigVVP.SPEC, "vvp-explosion.toml");
+
+
+
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::setup);

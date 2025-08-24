@@ -1,7 +1,6 @@
 package tech.vvp.vvp.entity.vehicle;
 
 import com.atsuishio.superbwarfare.Mod;
-import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 import com.atsuishio.superbwarfare.config.server.VehicleConfig;
 import com.atsuishio.superbwarfare.entity.OBBEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
@@ -13,7 +12,6 @@ import com.atsuishio.superbwarfare.entity.vehicle.weapon.CannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.ProjectileWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.VehicleWeapon;
 import com.atsuishio.superbwarfare.event.ClientMouseHandler;
-import com.atsuishio.superbwarfare.init.ModDamageTypes;
 import com.atsuishio.superbwarfare.init.ModItems;
 import com.atsuishio.superbwarfare.init.ModSounds;
 import com.atsuishio.superbwarfare.tools.*;
@@ -34,7 +32,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -54,7 +51,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
@@ -78,12 +74,10 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.config.VehicleConfigVVP;
+import tech.vvp.vvp.config.server.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
 
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
-
-import com.atsuishio.superbwarfare.config.server.VehicleConfig;
 
 import java.util.List;
 
@@ -144,9 +138,9 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
                         new CannonShellWeapon()
-                                .hitDamage(VehicleConfig.YX_100_AP_CANNON_DAMAGE.get())
-                                .explosionRadius(VehicleConfig.YX_100_AP_CANNON_EXPLOSION_RADIUS.get().floatValue())
-                                .explosionDamage(VehicleConfig.YX_100_AP_CANNON_EXPLOSION_DAMAGE.get())
+                                .hitDamage(VehicleConfigVVP.STRYKER_M1128_CANNON_DAMAGE.get())
+                                .explosionRadius(VehicleConfigVVP.STRYKER_M1128_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .explosionDamage(VehicleConfigVVP.STRYKER_M1128_CANNON_EXPLOSION_DAMAGE.get())
                                 .fireProbability(0)
                                 .fireTime(0)
                                 .durability(100)
@@ -275,7 +269,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
             sendParticle(serverLevel, ParticleTypes.BUBBLE_COLUMN_UP, this.getX() + 0.5 * this.getDeltaMovement().x, this.getY() + getSubmergedHeight(this) - 0.2, this.getZ() + 0.5 * this.getDeltaMovement().z, (int) (2 + 10 * this.getDeltaMovement().length()), 0.65, 0, 0.65, 0, true);
         }
 
-        turretAngle(15, 12.5f);
+        turretAngle(2.5f, 4f);
         lowHealthWarning();
         this.terrainCompact(2.7f, 3.61f);
         inertiaRotate(1.25f);
@@ -318,8 +312,8 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
             if (this.cannotFire || this.entityData.get(LOADED_AP) <= 0) return;
 
             float x = 0.0609375f;
-            float y = 0.0517f;
-            float z = 3.0927625f;
+            float y = -0.4f;
+            float z = 3.9f;
             Vector4f worldPosition = transformPosition(transform, x, y, z);
             var cannonShell = ((CannonShellWeapon) getWeapon(0)).create(player);
 
@@ -416,56 +410,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public void travel() {
-        Entity passenger0 = this.getFirstPassenger();
-        if (this.getEnergy() <= 0) return;
-        if (passenger0 == null) {
-            this.leftInputDown = false;
-            this.rightInputDown = false;
-            this.forwardInputDown = false;
-            this.backInputDown = false;
-            this.entityData.set(POWER, 0f);
-        }
-        if (forwardInputDown) {
-            this.entityData.set(POWER, Math.min(this.entityData.get(POWER) + (this.entityData.get(POWER) < 0 ? 0.012f : 0.0024f), 0.18f));
-        }
-        if (backInputDown) {
-            this.entityData.set(POWER, Math.max(this.entityData.get(POWER) - (this.entityData.get(POWER) > 0 ? 0.012f : 0.0024f), -0.13f));
-        }
-        if (rightInputDown) {
-            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.1f);
-        } else if (this.leftInputDown) {
-            this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.2f);
-        }
-        if (this.forwardInputDown || this.backInputDown) {
-            this.consumeEnergy(VehicleConfigVVP.TYPHOON_ENERGY_COST.get());
-        }
-        int i;
-        if (entityData.get(L_WHEEL_DAMAGED) && entityData.get(R_WHEEL_DAMAGED)) {
-            this.entityData.set(POWER, this.entityData.get(POWER) * 0.93f);
-            i = 0;
-        } else if (entityData.get(L_WHEEL_DAMAGED)) {
-            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
-            i = 3;
-        } else if (entityData.get(R_WHEEL_DAMAGED)) {
-            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
-            i = -3;
-        } else {
-            i = 0;
-        }
-        if (entityData.get(ENGINE1_DAMAGED)) {
-            this.entityData.set(POWER, this.entityData.get(POWER) * 0.85f);
-        }
-        this.entityData.set(POWER, this.entityData.get(POWER) * (upInputDown ? 0.5f : (rightInputDown || leftInputDown) ? 0.977f : 0.99f));
-        this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) * (float) Math.max(0.76f - 0.1f * this.getDeltaMovement().horizontalDistance(), 0.3));
-        double s0 = getDeltaMovement().dot(this.getViewVector(1));
-        this.setLeftWheelRot((float) ((this.getLeftWheelRot() - 1.25 * s0) - this.getDeltaMovement().horizontalDistance() * Mth.clamp(1.5f * this.entityData.get(DELTA_ROT), -5f, 5f)));
-        this.setRightWheelRot((float) ((this.getRightWheelRot() - 1.25 * s0) + this.getDeltaMovement().horizontalDistance() * Mth.clamp(1.5f * this.entityData.get(DELTA_ROT), -5f, 5f)));
-        this.setRudderRot(Mth.clamp(this.getRudderRot() - this.entityData.get(DELTA_ROT), -0.8f, 0.8f) * 0.75f);
-        this.setYRot((float) (this.getYRot() - Math.max((isInWater() && !onGround() ? 5 : 10) * this.getDeltaMovement().horizontalDistance(), 0) * this.getRudderRot() * (this.entityData.get(POWER) > 0 ? 1 : -1)));
-        if (this.isInWater() || onGround()) {
-            float power = this.entityData.get(POWER) * Mth.clamp(1 + (s0 > 0 ? 1 : -1) * getXRot() / 35, 0, 2);
-            this.setDeltaMovement(this.getDeltaMovement().add(getViewVector(1).scale((!isInWater() && !onGround() ? 0.05f : (isInWater() && !onGround() ? 0.3f : 1)) * power)));
-        }
+        wheelEngine(true, 0.052, VehicleConfigVVP.STRYKER_M1296_ENERGY_COST.get(), 1.25, 1.5, 0.18f, -0.13f, 0.0024f, 0.0024f, 0.1f);
     }
 
     @Override
@@ -555,21 +500,6 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         return transformV;
     }
 
-    @Override
-    public void destroy() {
-        if (level() instanceof ServerLevel) {
-            CustomExplosion explosion = new CustomExplosion(this.level(), this,
-                    ModDamageTypes.causeCustomExplosionDamage(this.level().registryAccess(), getAttacker(), getAttacker()), 80f,
-                    this.getX(), this.getY(), this.getZ(), 5f, ExplosionConfig.EXPLOSION_DESTROY.get() ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP, true).setDamageMultiplier(1);
-            explosion.explode();
-            net.minecraftforge.event.ForgeEventFactory.onExplosionStart(this.level(), explosion);
-            explosion.finalizeExplosion(false);
-            ParticleTool.spawnMediumExplosionParticles(this.level(), this.position());
-        }
-        explodePassengers();
-        super.destroy();
-    }
-
     protected void clampRotation(Entity entity) {
         float a = getTurretYaw(1);
         float r = (Mth.abs(a) - 90f) / 90f;
@@ -583,8 +513,8 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
                 r2 = (180f - a) / 90f;
             }
         }
-        float min = -32.5f - r * getXRot() - r2 * getRoll();
-        float max = 15f - r * getXRot() - r2 * getRoll();
+        float min = -11f - r * getXRot() - r2 * getRoll();
+        float max = 4.6f - r * getXRot() - r2 * getRoll();
         float f = Mth.wrapDegrees(entity.getXRot());
         float f1 = Mth.clamp(f, min, max);
         entity.xRotO += f1 - f;
@@ -674,7 +604,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
         // 准心
         if (this.getWeaponIndex(0) == 0) {
-            preciseBlit(guiGraphics, Mod.loc("textures/screens/land/tank_cannon_cross_ap.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH);
+            preciseBlit(guiGraphics, Mod.loc("textures/screens/land/tank_cannon_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH);
         } else if (this.getWeaponIndex(0) == 1) {
             preciseBlit(guiGraphics, Mod.loc("textures/screens/land/lav_gun_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH);
         }

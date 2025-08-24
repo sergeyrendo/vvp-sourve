@@ -1,8 +1,8 @@
 package tech.vvp.vvp.client.renderer.entity;
 
- import tech.vvp.vvp.client.layer.vehicle.Btr80aLayer;
 import tech.vvp.vvp.client.model.btr80aModel;
-import tech.vvp.vvp.entity.vehicle.Btr80aEntity;
+ import tech.vvp.vvp.entity.vehicle.BradleyUkrEntity;
+ import tech.vvp.vvp.entity.vehicle.Btr80aEntity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -24,7 +24,6 @@ public class btr80aRenderer extends GeoEntityRenderer<Btr80aEntity> {
 
     public btr80aRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new btr80aModel());
-         this.addRenderLayer(new Btr80aLayer(this));
     }
 
     @Override
@@ -139,18 +138,18 @@ public class btr80aRenderer extends GeoEntityRenderer<Btr80aEntity> {
             );
         }
 
+
         if (name.equals("dulo")) {
             // Только для оружия под индексом 0
             if (animatable.getWeaponIndex(0) == 0) {
                 int fire = animatable.getEntityData().get(Btr80aEntity.FIRE_ANIM); // или статический импорт FIRE_ANIM
                 if (fire > 1) {
-                    float maxBack = 0.45f; // глубина отката "назад" (подбери под модель)
+                    float maxBack = 0.92f; // глубина отката "назад" (подбери под модель)
                     // "Назад" по локальной оси -Z; если у тебя другая ось — замени на setPosX/setPosY и/или знак
                     bone.setPosZ(bone.getPosZ() - maxBack);
                 }
             }
         }
-
 
 
         if (name.equals("flare")) {

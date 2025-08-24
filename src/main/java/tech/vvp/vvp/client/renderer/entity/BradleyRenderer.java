@@ -17,6 +17,8 @@ import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import tech.vvp.vvp.entity.vehicle.BradleyUkrEntity;
+import tech.vvp.vvp.entity.vehicle.Btr80aEntity;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.Yx100Entity.YAW;
 
@@ -56,10 +58,10 @@ public class BradleyRenderer extends GeoEntityRenderer<BradleyEntity> {
         String name = bone.getName();
         for (int i = 0; i < 9; i++) {
             if (name.equals("wheelL" + i)) {
-                bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
+                bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
             }
             if (name.equals("wheelR" + i)) {
-                bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
+                bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
             }
         }
 
@@ -115,6 +117,18 @@ public class BradleyRenderer extends GeoEntityRenderer<BradleyEntity> {
                             - r2 * animatable.getRoll(partialTick) * Mth.DEG_TO_RAD,
                     -10 * Mth.DEG_TO_RAD, 60 * Mth.DEG_TO_RAD)
             );
+        }
+
+        if (name.equals("dulo")) {
+            // Только для оружия под индексом 0
+            if (animatable.getWeaponIndex(0) == 0) {
+                int fire = animatable.getEntityData().get(BradleyEntity.FIRE_ANIM); // или статический импорт FIRE_ANIM
+                if (fire > 1) {
+                    float maxBack = 0.95f; // глубина отката "назад" (подбери под модель)
+                    // "Назад" по локальной оси -Z; если у тебя другая ось — замени на setPosX/setPosY и/или знак
+                    bone.setPosZ(bone.getPosZ() - maxBack);
+                }
+            }
         }
 
         if (name.equals("flare")) {
@@ -206,7 +220,6 @@ public class BradleyRenderer extends GeoEntityRenderer<BradleyEntity> {
             if (name.equals("trackRRot" + i)) {
                 bone.setRotX(-Mth.lerp(partialTick, getBoneRotX(tO2), getBoneRotX(t2)) * Mth.DEG_TO_RAD);
             }
-
 
         }
         super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);

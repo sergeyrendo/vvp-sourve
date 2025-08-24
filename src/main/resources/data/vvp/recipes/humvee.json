@@ -1,20 +1,15 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "PBC",
-    "SSS",
-    "WLW"
+  "type": "superbwarfare:vehicle_assembling",
+  "category": "land",
+  "inputs": [
+    "superbwarfare:light_armament_module",
+    "superbwarfare:medium_battery_pack",
+    "minecraft:chest",
+    "3 #forge:storage_blocks/steel",
+    "4 superbwarfare:wheel",
+    "superbwarfare:large_motor"
   ],
-  "key": {
-    "L": { "item": "superbwarfare:large_motor" },
-    "B": { "item": "superbwarfare:medium_battery_pack" },
-    "C": { "item": "minecraft:chest" },
-    "S": { "tag": "forge:storage_blocks/steel" },
-    "W": { "item": "superbwarfare:wheel" },
-    "P": { "item": "superbwarfare:light_armament_module" }
-  },
   "result": {
-    "item": "superbwarfare:container",
-    "nbt": "{BlockEntityTag:{EntityType:\"vvp:humvee\",id:\"superbwarfare:container\"}}"
+    "entity": "vvp:humvee"
   }
 }

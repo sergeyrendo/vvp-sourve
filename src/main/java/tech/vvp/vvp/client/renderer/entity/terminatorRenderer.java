@@ -1,5 +1,6 @@
 package tech.vvp.vvp.client.renderer.entity;
 
+import tech.vvp.vvp.entity.vehicle.Btr80aEntity;
 import tech.vvp.vvp.entity.vehicle.TerminatorEntity;
 import tech.vvp.vvp.client.model.terminatorModel;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
@@ -19,6 +20,7 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.base.MobileVehicleEntity.YAW;
+import static tech.vvp.vvp.entity.vehicle.TerminatorEntity.LOADED_MISSILE;
 
 public class terminatorRenderer extends GeoEntityRenderer<TerminatorEntity> {
 
@@ -94,6 +96,28 @@ public class terminatorRenderer extends GeoEntityRenderer<TerminatorEntity> {
                             - r2 * animatable.getRoll(partialTick) * Mth.DEG_TO_RAD
             );
         }
+
+        if (name.equals("dulo") || name.equals("dulo2")) {
+            // Оружие с индексом 0
+            if (animatable.getWeaponIndex(0) == 0) {
+                int fire = animatable.getEntityData().get(TerminatorEntity.FIRE_ANIM);
+                if (fire > 1) {
+                    float maxBack = 0.95f; // глубина отката
+                    boolean leftBarrelFired = animatable.getEntityData().get(TerminatorEntity.LAST_BARREL_LEFT);
+
+                    // Если кость "dulo" — она отвечает за левое дуло
+                    if (name.equals("dulo") && leftBarrelFired) {
+                        bone.setPosZ(bone.getPosZ() - maxBack);
+                    }
+
+                    // Если кость "dulo2" — она отвечает за правое дуло
+                    if (name.equals("dulo2") && !leftBarrelFired) {
+                        bone.setPosZ(bone.getPosZ() - maxBack);
+                    }
+                }
+            }
+        }
+
 
         if (name.equals("flare")) {
             bone.setRotZ((float) (0.5 * (Math.random() - 0.5)));
@@ -189,6 +213,22 @@ public class terminatorRenderer extends GeoEntityRenderer<TerminatorEntity> {
                 boolean hasMangal = animatable.getEntityData().get(TerminatorEntity.HAS_MANGAL);
                 boolean hasFoliage = animatable.getEntityData().get(TerminatorEntity.HAS_FOLIAGE);
                 bone.setHidden(!(hasMangal && hasFoliage));
+            }
+
+            if (name.equals("ptur1")) {
+                bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 2);
+            }
+
+            if (name.equals("ptur2")) {
+                bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 4);
+            }
+
+            if (name.equals("ptur3")) {
+                bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 1);
+            }
+
+            if (name.equals("ptur4")) {
+                bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 3);
             }
 
 

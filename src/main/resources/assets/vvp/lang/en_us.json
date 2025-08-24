@@ -49,5 +49,40 @@
   "itemGroup.vvp_armor_tab": "[VVP] Items",
   "item_group.vvp.vvp": "[VVP] Military Vehicles",
   "tooltip.vvp.model_author": "Model by VVP Team",
-  "tooltip.vvp.usage_restriction": "Usage of these models outside of the addon is prohibited"
+  "tooltip.vvp.usage_restriction": "Usage of these models outside of the addon is prohibited",
+
+  "info.vvp.btr_80a": "The BTR-80A is a Russian eight-wheeled armored personnel carrier equipped with a turret-mounted 30 mm automatic cannon. It is designed for transporting troops and engaging in combat with high mobility and protection.",
+
+  "info.vvp.btr_4": "The BTR-4 is a Ukrainian next-generation eight-wheeled armored personnel carrier designed for troop transport and battlefield fire support. It can be fitted with various combat modules, including a 30 mm cannon, anti-tank missiles, and machine guns.",
+
+  "info.vvp.m1a2": "The M1A2 Abrams is an American main battle tank with a powerful 120 mm smoothbore gun and strong armor protection. It combines firepower, advanced electronics, and maneuverability for effective combat performance.",
+
+  "info.vvp.m1a2_sep": "The M1A2 SEP (System Enhancement Package) is an upgraded version of the M1A2 tank featuring enhanced armor, thermal imaging systems, and digital battle management tools. This version improves survivability and operational effectiveness in modern conditions.",
+
+  "info.vvp.terminator": "The BMPT 'Terminator' is a Russian tank support fighting vehicle armed with cannons, grenade launchers, and anti-tank missiles. It is designed to accompany armored units and eliminate enemy personnel and equipment.",
+
+  "info.vvp.stryker_m1296": "The Stryker M1296 'Dragoon' is an upgraded version of the Stryker vehicle fitted with a 30 mm automatic cannon. It provides greater firepower while maintaining high mobility.",
+
+  "info.vvp.stryker": "The Stryker M1128 is an American wheeled combat vehicle armed with a 105 mm gun, designed to support infantry with direct fire. It combines the mobility of the Stryker platform with powerful armament.",
+
+  "info.vvp.bradley": "The M2 Bradley is an American infantry fighting vehicle armed with a 25 mm cannon, TOW anti-tank missiles, and a machine gun. It is designed for troop transport and providing fire support in battle.",
+
+  "info.vvp.m60": "The M60 is an American Cold War-era main battle tank armed with a 105 mm gun. It combined simplicity and reliability, remaining in service with many countries.",
+
+  "info.vvp.fmtv": "The FMTV (Family of Medium Tactical Vehicles) is a series of American medium-duty military trucks used for transporting troops, cargo, and equipment. They are known for their versatility and off-road capability.",
+
+  "info.vvp.humvee": "The Humvee MK19 is a light military vehicle equipped with a 40 mm automatic grenade launcher. It combines mobility with strong firepower against infantry and light vehicles.",
+
+  "info.vvp.m997_green": "The Humvee M997 is the ambulance variant of the multipurpose HMMWV, designed for casualty evacuation and medical support. It is equipped with a medical compartment for stretchers and medical personnel.",
+
+  "info.vvp.uh60": "The UH-60 Black Hawk is an American multi-role tactical helicopter used for troop transport, cargo, and fire support. It is known for its reliability, maneuverability, and widespread use by armed forces worldwide.",
+
+  "info.vvp.uh60mod": "The MH-60L is a modified variant of the Black Hawk helicopter adapted for special operations. It is equipped with additional weapons, communication, and protection systems for complex missions.",
+
+  "info.vvp.cobra": "The AH-1 Cobra is an American attack helicopter armed with a cannon, rockets, and anti-tank missiles. It was the first dedicated attack helicopter and saw extensive use during the Vietnam War.",
+
+  "info.vvp.mi24": "The Mi-24 is a Soviet attack and transport helicopter that combines the functions of a gunship and an armored personnel carrier. It is armed with a cannon, rockets, and can carry infantry troops.",
+
+  "info.vvp.f35": "The F-35 is an American fifth-generation multirole stealth fighter designed for air superiority, ground attack, and reconnaissance. It features advanced detection systems, avionics, and weapons."
+
 }

@@ -1,20 +1,15 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "LVP",
-    "SSS",
-    "MBM"
+  "type": "superbwarfare:vehicle_assembling",
+  "category": "aircraft",
+  "inputs": [
+    "superbwarfare:large_propeller",
+    "superbwarfare:large_motor",
+    "superbwarfare:propeller",
+    "3 #forge:storage_blocks/steel",
+    "superbwarfare:large_battery_pack",
+    "2 superbwarfare:heavy_armament_module"
   ],
-  "key": {
-    "L": { "item": "superbwarfare:large_propeller" },
-    "V": { "item": "superbwarfare:large_motor" },
-    "P": { "item": "superbwarfare:propeller" },
-    "S": { "tag": "forge:storage_blocks/steel" },
-    "B": { "item": "superbwarfare:large_battery_pack" },
-    "M": { "item": "superbwarfare:heavy_armament_module" }
-  },
   "result": {
-    "item": "superbwarfare:container",
-    "nbt": "{BlockEntityTag:{EntityType:\"vvp:uh60mod\",id:\"superbwarfare:container\"}}"
+    "entity": "vvp:uh60mod"
   }
 }

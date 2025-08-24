@@ -17,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import tech.vvp.vvp.entity.vehicle.Btr80aEntity;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.base.MobileVehicleEntity.YAW;
 
@@ -138,6 +139,8 @@ public class btr4Renderer extends GeoEntityRenderer<Btr4Entity> {
                     - r2 * animatable.getRoll(partialTick) * Mth.DEG_TO_RAD
             );
         }
+
+
         if (name.equals("flare")) {
             bone.setRotZ((float) (0.5 * (Math.random() - 0.5)));
         }

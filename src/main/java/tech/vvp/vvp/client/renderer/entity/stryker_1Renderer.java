@@ -1,7 +1,9 @@
 package tech.vvp.vvp.client.renderer.entity;
 
 // import tech.vvp.vvp.client.layer.vehicle.btr80aLayer;
+import org.stringtemplate.v4.ST;
 import tech.vvp.vvp.client.model.stryker_1Model;
+import tech.vvp.vvp.entity.vehicle.Btr80aEntity;
 import tech.vvp.vvp.entity.vehicle.HumveeEntity;
 import tech.vvp.vvp.entity.vehicle.Stryker_1Entity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
@@ -139,6 +141,19 @@ public class stryker_1Renderer extends GeoEntityRenderer<Stryker_1Entity> {
                     - r2 * animatable.getRoll(partialTick) * Mth.DEG_TO_RAD
             );
         }
+
+        if (name.equals("dulo")) {
+            // Только для оружия под индексом 0
+            if (animatable.getWeaponIndex(0) == 0) {
+                int fire = animatable.getEntityData().get(Stryker_1Entity.FIRE_ANIM); // или статический импорт FIRE_ANIM
+                if (fire > 1) {
+                    float maxBack = 0.57f; // глубина отката "назад" (подбери под модель)
+                    // "Назад" по локальной оси -Z; если у тебя другая ось — замени на setPosX/setPosY и/или знак
+                    bone.setPosZ(bone.getPosZ() - maxBack);
+                }
+            }
+        }
+
         if (name.equals("flare")) {
             bone.setRotZ((float) (0.5 * (Math.random() - 0.5)));
         }

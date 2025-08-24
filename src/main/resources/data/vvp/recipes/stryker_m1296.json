@@ -1,32 +1,15 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-      "BMC",
-      "SSS",
-      "WAW"
-    ],
-    "key": {
-      "B": {
-        "item": "superbwarfare:medium_battery_pack"
-      },
-      "M": {
-        "item": "superbwarfare:medium_armament_module"
-      },
-      "C": {
-        "item": "superbwarfare:cemented_carbide_ingot"
-      },
-      "S": {
-        "tag": "forge:storage_blocks/steel"
-      },
-      "W": {
-        "item": "superbwarfare:wheel"
-      },
-      "A": {
-        "item": "superbwarfare:large_motor"
-      }
-    },
-    "result": {
-      "item": "superbwarfare:container",
-      "nbt": "{BlockEntityTag: {EntityType: \"vvp:stryker_m1296\", id: \"superbwarfare:container\"}}"
-    }
+  "type": "superbwarfare:vehicle_assembling",
+  "category": "land",
+  "inputs": [
+    "superbwarfare:medium_battery_pack",
+    "superbwarfare:medium_armament_module",
+    "superbwarfare:cemented_carbide_ingot",
+    "6 #forge:storage_blocks/steel",
+    "8 superbwarfare:wheel",
+    "superbwarfare:large_motor"
+  ],
+  "result": {
+    "entity": "vvp:stryker_m1296"
   }
+}

@@ -9,7 +9,7 @@ public class HumveeModel extends GeoModel<HumveeEntity> {
 
     @Override
     public ResourceLocation getAnimationResource(HumveeEntity animatable) {
-        return new ResourceLocation(VVP.MOD_ID, "animations/lav.animation.json");
+        return new ResourceLocation(VVP.MOD_ID, "animations/humvee.animation.json");
     }
 
     @Override

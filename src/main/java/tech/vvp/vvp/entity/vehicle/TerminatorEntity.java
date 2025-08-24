@@ -17,12 +17,13 @@ import com.atsuishio.superbwarfare.init.ModDamageTypes;
 import com.atsuishio.superbwarfare.entity.OBBEntity;
 import com.atsuishio.superbwarfare.entity.projectile.SmallCannonShellEntity;
 
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.config.server.ExplosionConfigVVP;
+import tech.vvp.vvp.config.server.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
 import com.atsuishio.superbwarfare.init.ModItems;
 import com.atsuishio.superbwarfare.init.ModSounds;
@@ -83,8 +84,6 @@ import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 // import net.minecraftforge.api.distmarker.Dist;
 // import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraft.client.Minecraft;
-import tech.vvp.vvp.config.VehicleConfigVVP;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Comparator;
@@ -103,6 +102,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
     public static final EntityDataAccessor<Boolean> HAS_FOLIAGE_BODY = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> MISSILE_FIRE_COOLDOWN = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Boolean> LAST_BARREL_LEFT = SynchedEntityData.defineId(TerminatorEntity.class, EntityDataSerializers.BOOLEAN);
 
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -162,9 +162,9 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
                         new SmallCannonShellWeapon()
-                                .damage(VehicleConfig.BMP_2_CANNON_DAMAGE.get())
-                                .explosionDamage(VehicleConfig.BMP_2_CANNON_EXPLOSION_DAMAGE.get())
-                                .explosionRadius(VehicleConfig.BMP_2_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .damage(VehicleConfigVVP.TERMINATOR_CANNON_DAMAGE.get())
+                                .explosionDamage(VehicleConfigVVP.TERMINATOR_CANNON_EXPLOSION_DAMAGE.get())
+                                .explosionRadius(VehicleConfigVVP.TERMINATOR_CANNON_EXPLOSION_RADIUS.get().floatValue())
                                 .sound(ModSounds.INTO_MISSILE.get())
                                 .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_30mm.png"))
                                 .sound1p(tech.vvp.vvp.init.ModSounds.BUSHMASTER_1P.get())
@@ -182,9 +182,9 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
                                 .sound3pFar(ModSounds.M_60_FAR.get())
                                 .sound3pVeryFar(ModSounds.M_60_VERYFAR.get()),
                         new WgMissileWeapon()
-                                .damage(ExplosionConfig.WIRE_GUIDE_MISSILE_DAMAGE.get())
-                                .explosionDamage(ExplosionConfig.WIRE_GUIDE_MISSILE_EXPLOSION_DAMAGE.get())
-                                .explosionRadius(ExplosionConfig.WIRE_GUIDE_MISSILE_EXPLOSION_RADIUS.get())
+                                .damage(ExplosionConfigVVP.TERMINATOR_MISSILE_DAMAGE.get())
+                                .explosionDamage(ExplosionConfigVVP.TERMINATOR_MISSILE_EXPLOSION_DAMAGE.get())
+                                .explosionRadius(ExplosionConfigVVP.TERMINATOR_MISSILE_EXPLOSION_RADIUS.get())
                                 .sound(ModSounds.INTO_MISSILE.get())
                                 .sound1p(ModSounds.BMP_MISSILE_FIRE_1P.get())
                                 .sound3p(ModSounds.BMP_MISSILE_FIRE_3P.get()),
@@ -208,7 +208,8 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         this.entityData.define(HAS_FOLIAGE, false);
         this.entityData.define(HAS_FOLIAGE_BODY, false);
         this.entityData.define(CAMOUFLAGE_TYPE, 0);
-        this.entityData.define(MISSILE_FIRE_COOLDOWN, 0); // <-- ДОБАВЬ ЭТУ СТРОКУ
+        this.entityData.define(MISSILE_FIRE_COOLDOWN, 0);
+        this.entityData.define(LAST_BARREL_LEFT, true);
     }
 
     @Override
@@ -367,7 +368,10 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
                 float x = fireLeftBarrel ? -0.215075f :0.215075f; // 左右切り替え -0.215075f, 2.769725f, -1.207226f
                 float y = 0.0f;
                 float z = 1.207226f;
-                fireLeftBarrel = !fireLeftBarrel; // 次回は逆側
+
+                fireLeftBarrel = !fireLeftBarrel;
+                this.entityData.set(LAST_BARREL_LEFT, fireLeftBarrel);
+
 
                 Vector4f worldPosition = this.transformPosition(transform, x, y, z);
                 SmallCannonShellEntity smallCannonShell = ((SmallCannonShellWeapon)this.getWeapon(0)).create(player);
@@ -487,88 +491,14 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         // Увеличиваем счетчик текущего ПТУРа
         this.entityData.set(CURRENT_MISSILE, (currentMissile + 1) % 4);
         this.entityData.set(LOADED_MISSILE, this.entityData.get(LOADED_MISSILE) - 1);
-        this.entityData.set(MISSILE_FIRE_COOLDOWN, 80); // Устанавливаем кулдаун 4 секунды (4 * 20 тиков)
+        this.entityData.set(MISSILE_FIRE_COOLDOWN, 40); // Устанавливаем кулдаун 4 секунды (4 * 20 тиков)
         reloadCoolDown = 160;
         }
     }
 
     @Override
     public void travel() {
-        Entity passenger0 = this.getFirstPassenger();
-
-        if (this.getEnergy() <= 0) return;
-
-        if (!(passenger0 instanceof Player)) {
-            this.leftInputDown = false;
-            this.rightInputDown = false;
-            this.forwardInputDown = false;
-            this.backInputDown = false;
-            this.entityData.set(POWER, 0f);
-        }
-
-        if (forwardInputDown) {
-            this.entityData.set(POWER, Math.min(this.entityData.get(POWER) + (this.entityData.get(POWER) < 0 ? 0.004f : 0.0024f) * (1 + getXRot() / 55), 0.21f));
-        }
-
-        if (backInputDown) {
-            this.entityData.set(POWER, Math.max(this.entityData.get(POWER) - (this.entityData.get(POWER) > 0 ? 0.004f : 0.0024f) * (1 - getXRot() / 55), -0.16f));
-            if (rightInputDown) {
-                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.1f);
-            } else if (this.leftInputDown) {
-                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.1f);
-            }
-        } else {
-            if (rightInputDown) {
-                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.1f);
-            } else if (this.leftInputDown) {
-                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.1f);
-            }
-        }
-
-        if (this.forwardInputDown || this.backInputDown) {
-            this.consumeEnergy(VehicleConfig.YX_100_ENERGY_COST.get());
-        }
-
-        this.entityData.set(POWER, this.entityData.get(POWER) * (upInputDown ? 0.5f : (rightInputDown || leftInputDown) ? 0.947f : 0.96f));
-        this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) * (float) Math.max(0.76f - 0.1f * this.getDeltaMovement().horizontalDistance(), 0.3));
-
-        double s0 = getDeltaMovement().dot(this.getViewVector(1));
-
-        this.setLeftWheelRot((float) ((this.getLeftWheelRot() - 1.25 * s0) + Mth.clamp(0.75f * this.entityData.get(DELTA_ROT), -5f, 5f)));
-        this.setRightWheelRot((float) ((this.getRightWheelRot() - 1.25 * s0) - Mth.clamp(0.75f * this.entityData.get(DELTA_ROT), -5f, 5f)));
-
-        setLeftTrack((float) ((getLeftTrack() - 1.5 * Math.PI * s0) + Mth.clamp(0.4f * Math.PI * this.entityData.get(DELTA_ROT), -5f, 5f)));
-        setRightTrack((float) ((getRightTrack() - 1.5 * Math.PI * s0) - Mth.clamp(0.4f * Math.PI * this.entityData.get(DELTA_ROT), -5f, 5f)));
-
-        int i;
-
-        if (entityData.get(L_WHEEL_DAMAGED) && entityData.get(R_WHEEL_DAMAGED)) {
-            this.entityData.set(POWER, this.entityData.get(POWER) * 0.93f);
-            i = 0;
-        } else if (entityData.get(L_WHEEL_DAMAGED)) {
-            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
-            i = 3;
-        } else if (entityData.get(R_WHEEL_DAMAGED)) {
-            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
-            i = -3;
-        } else {
-            i = 0;
-        }
-
-        if (entityData.get(ENGINE1_DAMAGED)) {
-            this.entityData.set(POWER, this.entityData.get(POWER) * 0.85f);
-        }
-
-        this.setYRot((float) (this.getYRot() - (isInWater() && !onGround() ? 2.5 : 6) * entityData.get(DELTA_ROT) - i * s0));
-        if (this.isInWater() || onGround()) {
-            this.setDeltaMovement(this.getDeltaMovement().add(getViewVector(1).scale((!isInWater() && !onGround() ? 0.13f : (isInWater() && !onGround() ? 0 : 2.4f)) * this.entityData.get(POWER))));
-        }
-
-        // Добавлено: тонуть в воде, если не на земле
-        if (this.isInWater() && !this.onGround()) {
-            Vec3 movement = this.getDeltaMovement();
-            this.setDeltaMovement(movement.add(0, -0.05, 0)); // Скорость погружения (можно скорректировать значение)
-        }
+        trackEngine(true, 0.052, VehicleConfigVVP.TERMINATOR_ENERGY_COST.get(), 0.75, 0.5, 1.9, 0.8, 0.21f, -0.16f, 0.0024f, 0.0024f, 0.1f);
     }
 
     @Override

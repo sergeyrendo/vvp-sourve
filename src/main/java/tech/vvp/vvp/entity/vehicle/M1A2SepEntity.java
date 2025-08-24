@@ -70,6 +70,7 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.config.server.VehicleConfigVVP;
 
 import java.util.List;
 
@@ -271,7 +272,7 @@ public class M1A2SepEntity extends ContainerMobileVehicleEntity implements GeoEn
             sendParticle(serverLevel, ParticleTypes.CLOUD, this.getX() + 0.5 * this.getDeltaMovement().x, this.getY() + getSubmergedHeight(this) - 0.2, this.getZ() + 0.5 * this.getDeltaMovement().z, (int) (2 + 4 * this.getDeltaMovement().length()), 0.65, 0, 0.65, 0, true);
             sendParticle(serverLevel, ParticleTypes.BUBBLE_COLUMN_UP, this.getX() + 0.5 * this.getDeltaMovement().x, this.getY() + getSubmergedHeight(this) - 0.2, this.getZ() + 0.5 * this.getDeltaMovement().z, (int) (2 + 10 * this.getDeltaMovement().length()), 0.65, 0, 0.65, 0, true);
         }
-        turretAngle(3f, 3f);
+        turretAngle(3f, 8f);
         lowHealthWarning();
         terrainCompact(4.375f, 6.3125f);
         inertiaRotate(1.2f);
@@ -381,80 +382,7 @@ public class M1A2SepEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public void travel() {
-        Entity passenger0 = this.getFirstPassenger();
-
-        if (this.getEnergy() <= 0) return;
-
-        if (!(passenger0 instanceof Player)) {
-            this.leftInputDown = false;
-            this.rightInputDown = false;
-            this.forwardInputDown = false;
-            this.backInputDown = false;
-            this.entityData.set(POWER, 0f);
-        }
-
-        if (forwardInputDown) {
-            this.entityData.set(POWER, Math.min(this.entityData.get(POWER) + (this.entityData.get(POWER) < 0 ? 0.003f : 0.0018f) * (1 + getXRot() / 55), 0.15f));
-        }
-
-        if (backInputDown) {
-            this.entityData.set(POWER, Math.max(this.entityData.get(POWER) - (this.entityData.get(POWER) > 0 ? 0.003f : 0.0018f) * (1 - getXRot() / 55), -0.12f));
-            if (rightInputDown) {
-                // <<< ИЗМЕНЕНО: Сила поворота уменьшена с 0.1f до 0.07f
-                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.07f);
-            } else if (this.leftInputDown) {
-                // <<< ИЗМЕНЕНО: Сила поворота уменьшена с 0.1f до 0.07f
-                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.07f);
-            }
-        } else {
-            if (rightInputDown) {
-                // <<< ИЗМЕНЕНО: Сила поворота уменьшена с 0.1f до 0.07f
-                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) - 0.07f);
-            } else if (this.leftInputDown) {
-                // <<< ИЗМЕНЕНО: Сила поворота уменьшена с 0.1f до 0.07f
-                this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) + 0.07f);
-            }
-        }
-
-        if (this.forwardInputDown || this.backInputDown) {
-            this.consumeEnergy(VehicleConfig.YX_100_ENERGY_COST.get());
-        }
-
-        this.entityData.set(POWER, this.entityData.get(POWER) * (upInputDown ? 0.5f : (rightInputDown || leftInputDown) ? 0.947f : 0.96f));
-        this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) * (float) Math.max(0.76f - 0.1f * this.getDeltaMovement().horizontalDistance(), 0.3));
-
-        double s0 = getDeltaMovement().dot(this.getViewVector(1));
-
-        this.setLeftWheelRot((float) ((this.getLeftWheelRot() - 1.25 * s0) + Mth.clamp(0.75f * this.entityData.get(DELTA_ROT), -5f, 5f)));
-        this.setRightWheelRot((float) ((this.getRightWheelRot() - 1.25 * s0) - Mth.clamp(0.75f * this.entityData.get(DELTA_ROT), -5f, 5f)));
-
-        setLeftTrack((float) ((getLeftTrack() - 1.5 * Math.PI * s0) + Mth.clamp(0.4f * Math.PI * this.entityData.get(DELTA_ROT), -5f, 5f)));
-        setRightTrack((float) ((getRightTrack() - 1.5 * Math.PI * s0) - Mth.clamp(0.4f * Math.PI * this.entityData.get(DELTA_ROT), -5f, 5f)));
-
-        int i;
-
-        if (entityData.get(L_WHEEL_DAMAGED) && entityData.get(R_WHEEL_DAMAGED)) {
-            this.entityData.set(POWER, this.entityData.get(POWER) * 0.93f);
-            i = 0;
-        } else if (entityData.get(L_WHEEL_DAMAGED)) {
-            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
-            i = 3;
-        } else if (entityData.get(R_WHEEL_DAMAGED)) {
-            this.entityData.set(POWER, this.entityData.get(POWER) * 0.975f);
-            i = -3;
-        } else {
-            i = 0;
-        }
-
-        if (entityData.get(ENGINE1_DAMAGED)) {
-            this.entityData.set(POWER, this.entityData.get(POWER) * 0.85f);
-        }
-
-        // <<< ИЗМЕНЕНО: Множитель скорости поворота уменьшен с 6 до 4.5f
-        this.setYRot((float) (this.getYRot() - (isInWater() && !onGround() ? 2.5f : 4.5f) * entityData.get(DELTA_ROT) - i * s0));
-        if (this.isInWater() || onGround()) {
-            this.setDeltaMovement(this.getDeltaMovement().add(getViewVector(1).scale((!isInWater() && !onGround() ? 0.13f : (isInWater() && !onGround() ? 2 : 1.8f)) * this.entityData.get(POWER))));
-        }
+        trackEngine(false, 0, VehicleConfigVVP.M1A2_ENERGY_COST.get(), 1.25, 0.75, 1.3, 0.6, 0.25f, -0.2f, 0.0026f, 0.002f, 0.1f);
     }
 
     @Override
@@ -623,21 +551,6 @@ public class M1A2SepEntity extends ContainerMobileVehicleEntity implements GeoEn
         return 3.5f;
     }
 
-    @Override
-    public void destroy() {
-        if (level() instanceof ServerLevel) {
-            CustomExplosion explosion = new CustomExplosion(this.level(), this,
-                    ModDamageTypes.causeCustomExplosionDamage(this.level().registryAccess(), getAttacker(), getAttacker()), 80f,
-                    this.getX(), this.getY(), this.getZ(), 5f, ExplosionConfig.EXPLOSION_DESTROY.get() ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP, true).setDamageMultiplier(1);
-            explosion.explode();
-            ForgeEventFactory.onExplosionStart(this.level(), explosion);
-            explosion.finalizeExplosion(false);
-            ParticleTool.spawnMediumExplosionParticles(this.level(), this.position());
-        }
-
-        explodePassengers();
-        super.destroy();
-    }
 
     protected void clampRotation(Entity entity) {
         Minecraft mc = Minecraft.getInstance();
@@ -657,8 +570,8 @@ public class M1A2SepEntity extends ContainerMobileVehicleEntity implements GeoEn
                 }
             }
 
-            float min = -30f - r * getXRot() - r2 * getRoll();
-            float max = 10f - r * getXRot() - r2 * getRoll();
+            float min = -11f - r * getXRot() - r2 * getRoll();
+            float max = 4.6f - r * getXRot() - r2 * getRoll();
 
             float f = Mth.wrapDegrees(entity.getXRot());
             float f1 = Mth.clamp(f, min, max);
@@ -866,7 +779,7 @@ public class M1A2SepEntity extends ContainerMobileVehicleEntity implements GeoEn
 
         // 准心
         if (this.getWeaponIndex(0) == 0) {
-            preciseBlit(guiGraphics, Mod.loc("textures/screens/land/tank_cannon_cross_ap.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH);
+            preciseBlit(guiGraphics, Mod.loc("textures/screens/land/tank_cannon_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH);
         } else if (this.getWeaponIndex(0) == 1) {
             preciseBlit(guiGraphics, Mod.loc("textures/screens/land/lav_gun_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH);
         }

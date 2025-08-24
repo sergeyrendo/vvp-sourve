@@ -1,35 +1,16 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-      "LVP",
-      "CSS",
-      "MBM"
-    ],
-    "key": {
-      "L": {
-        "item": "superbwarfare:large_propeller"
-      },
-      "V": {
-        "item": "superbwarfare:large_motor"
-      },
-      "P": {
-        "item": "superbwarfare:propeller"
-      },
-      "C": {
-        "item": "minecraft:compass"
-      },
-      "S": {
-        "tag": "forge:storage_blocks/steel"
-      },
-      "B": {
-        "item": "superbwarfare:large_battery_pack"
-      },
-      "M": {
-        "item": "superbwarfare:medium_armament_module"
-      }
-    },
-    "result": {
-      "item": "superbwarfare:container",
-      "nbt": "{BlockEntityTag: {EntityType: \"vvp:mi24\", id: \"superbwarfare:container\"}}"
-    }
+  "type": "superbwarfare:vehicle_assembling",
+  "category": "aircraft",
+  "inputs": [
+    "superbwarfare:large_propeller",
+    "superbwarfare:large_motor",
+    "superbwarfare:propeller",
+    "minecraft:compass",
+    "2 #forge:storage_blocks/steel",
+    "superbwarfare:large_battery_pack",
+    "2 superbwarfare:medium_armament_module"
+  ],
+  "result": {
+    "entity": "vvp:mi24"
   }
+}

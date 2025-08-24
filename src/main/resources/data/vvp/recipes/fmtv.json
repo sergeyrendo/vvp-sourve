@@ -1,26 +1,13 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "B  ",
-    "SSS",
-    "WMW"
+  "type": "superbwarfare:vehicle_assembling",
+  "category": "civilian",
+  "inputs": [
+    "superbwarfare:medium_battery_pack",
+    "4 #forge:storage_blocks/steel",
+    "6 superbwarfare:wheel",
+    "superbwarfare:large_motor"
   ],
-  "key": {
-    "B": {
-      "item": "superbwarfare:medium_battery_pack"
-    },
-    "S": {
-      "tag": "forge:storage_blocks/steel"
-    },
-    "W": {
-      "item": "superbwarfare:wheel"
-    },
-    "M": {
-      "item": "superbwarfare:large_motor"
-    }
-  },
   "result": {
-    "item": "superbwarfare:container",
-    "nbt": "{BlockEntityTag: {EntityType: \"vvp:fmtv\", id: \"superbwarfare:container\"}}"
+    "entity": "vvp:fmtv"
   }
 }

@@ -90,6 +90,9 @@ public class F35Entity extends ContainerMobileVehicleEntity implements GeoEntity
     private boolean wasFiring = false;
     public float delta_x;
     public float delta_y;
+    public Vec3 bombLandingPosO;
+    public Vec3 bombLandingPos;
+    public Vec3 deltaMovementO;
     // public OBB obb;
     public OBB obb2;
     // public OBB obb3;
@@ -261,14 +264,12 @@ public class F35Entity extends ContainerMobileVehicleEntity implements GeoEntity
         this.wasFiring = this.isFiring();
 
         this.lockingTargetO = getTargetUuid();
-
-        if (this.tickCount % 20 == 0) {
-            handleRadar();
-        }
+        bombLandingPosO = bombLandingPos;
+        deltaMovementO = getDeltaMovement();
 
         super.baseTick();
         this.updateOBB();
-        float f = (float) Mth.clamp(Math.max((onGround() ? 0.819f : 0.82f) - 0.0035 * getDeltaMovement().length(), 0.5) + 0.001f * Mth.abs(90 - (float) calculateAngle(this.getDeltaMovement(), this.getViewVector(1))) / 90, 0.01, 0.99);
+        float f = (float) Mth.clamp(Math.max((onGround() ? 0.819f : 0.82f) - 0.005 * getDeltaMovement().length(), 0.5) + 0.001f * Mth.abs(90 - (float) calculateAngle(this.getDeltaMovement(), this.getViewVector(1))) / 90, 0.01, 0.99);
 
         boolean forward = getDeltaMovement().dot(getViewVector(1)) > 0;
         this.setDeltaMovement(this.getDeltaMovement().add(this.getViewVector(1).scale((forward ? 0.227 : 0.1) * getDeltaMovement().dot(getViewVector(1)))));
@@ -320,6 +321,12 @@ public class F35Entity extends ContainerMobileVehicleEntity implements GeoEntity
         lowHealthWarning();
 
         releaseDecoy();
+
+        //  计算航弹落点
+        if (level().isClientSide) {
+            bombLandingPos = ProjectileCalculator.calculatePreciseImpactPoint(level(), shootPos(1), shootVec(1), -0.06);
+        }
+
         this.refreshDimensions();
     }
 
@@ -734,26 +741,6 @@ public class F35Entity extends ContainerMobileVehicleEntity implements GeoEntity
         transform.rotate(Axis.XP.rotationDegrees(Mth.lerp(ticks, xRotO, getXRot())));
         transform.rotate(Axis.ZP.rotationDegrees(Mth.lerp(ticks, prevRoll, getRoll())));
         return transform;
-    }
-
-    @Override
-    public void destroy() {
-        if (this.crash) {
-            crashPassengers();
-        } else {
-            explodePassengers();
-        }
-
-        if (level() instanceof ServerLevel) {
-            CustomExplosion explosion = new CustomExplosion(this.level(), this,
-                    ModDamageTypes.causeCustomExplosionDamage(this.level().registryAccess(), this, getAttacker()), 300.0f,
-                    this.getX(), this.getY(), this.getZ(), 8f, ExplosionConfig.EXPLOSION_DESTROY.get() ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP, true).setDamageMultiplier(1);
-            explosion.explode();
-            ForgeEventFactory.onExplosionStart(this.level(), explosion);
-            explosion.finalizeExplosion(false);
-            ParticleTool.spawnHugeExplosionParticles(this.level(), this.position());
-        }
-        super.destroy();
     }
 
     @Override

@@ -20,6 +20,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
+import tech.vvp.vvp.entity.vehicle.Btr80aEntity;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.Yx100Entity.YAW;
 import static tech.vvp.vvp.entity.vehicle.BradleyUkrEntity.HAS_FOLIAGE;
@@ -62,10 +63,10 @@ public class BradleyUkrRenderer extends GeoEntityRenderer<BradleyUkrEntity> {
         String name = bone.getName();
         for (int i = 0; i < 9; i++) {
             if (name.equals("wheelL" + i)) {
-                bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
+                bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
             }
             if (name.equals("wheelR" + i)) {
-                bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
+                bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
             }
         }
 
@@ -121,6 +122,18 @@ public class BradleyUkrRenderer extends GeoEntityRenderer<BradleyUkrEntity> {
                             - r2 * animatable.getRoll(partialTick) * Mth.DEG_TO_RAD,
                     -10 * Mth.DEG_TO_RAD, 60 * Mth.DEG_TO_RAD)
             );
+        }
+
+        if (name.equals("dulo")) {
+            // Только для оружия под индексом 0
+            if (animatable.getWeaponIndex(0) == 0) {
+                int fire = animatable.getEntityData().get(BradleyUkrEntity.FIRE_ANIM); // или статический импорт FIRE_ANIM
+                if (fire > 1) {
+                    float maxBack = 0.95f; // глубина отката "назад" (подбери под модель)
+                    // "Назад" по локальной оси -Z; если у тебя другая ось — замени на setPosX/setPosY и/или знак
+                    bone.setPosZ(bone.getPosZ() - maxBack);
+                }
+            }
         }
 
         if (name.equals("flare")) {

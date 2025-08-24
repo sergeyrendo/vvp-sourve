@@ -1,5 +1,6 @@
 package tech.vvp.vvp.client.renderer.entity;
 
+import tech.vvp.vvp.entity.vehicle.BradleyUkrEntity;
 import tech.vvp.vvp.entity.vehicle.M1A2Entity;
 import tech.vvp.vvp.client.model.M1A2Model;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
@@ -94,6 +95,7 @@ public class M1A2Renderer extends GeoEntityRenderer<M1A2Entity> {
                             - r2 * animatable.getRoll(partialTick) * Mth.DEG_TO_RAD
             );
         }
+
 
         if (name.equals("flare")) {
             bone.setRotZ((float) (0.5 * (Math.random() - 0.5)));

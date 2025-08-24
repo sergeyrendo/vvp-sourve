@@ -1,32 +1,15 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "BMC",
-    "SSS",
-    "TAT"
+  "type": "superbwarfare:vehicle_assembling",
+  "category": "land",
+  "inputs": [
+    "superbwarfare:large_battery_pack",
+    "superbwarfare:medium_armament_module",
+    "6 #forge:storage_blocks/steel",
+    "2 superbwarfare:track",
+    "superbwarfare:large_motor",
+    "superbwarfare:cemented_carbide_ingot"
   ],
-  "key": {
-    "B": {
-      "item": "superbwarfare:large_battery_pack"
-    },
-    "M": {
-      "item": "superbwarfare:medium_armament_module"
-    },
-    "S": {
-      "tag": "forge:storage_blocks/steel"
-    },
-    "T": {
-      "item": "superbwarfare:track"
-    },
-    "A": {
-      "item": "superbwarfare:large_motor"
-    },
-    "C": {
-      "item": "superbwarfare:cemented_carbide_ingot"
-    }
-  },
   "result": {
-    "item": "superbwarfare:container",
-    "nbt": "{BlockEntityTag: {EntityType: \"vvp:bradley\", id: \"superbwarfare:container\"}}"
+    "entity": "vvp:bradley"
   }
 }

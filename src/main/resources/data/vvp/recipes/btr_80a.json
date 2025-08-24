@@ -1,32 +1,15 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-      "BLG",
-      "SSS",
-      "WMW"
-    ],
-    "key": {
-      "B": {
-        "item": "superbwarfare:medium_battery_pack"
-      },
-      "L": {
-        "item": "superbwarfare:medium_armament_module"
-      },
-      "G": {
-        "item": "minecraft:green_dye"
-      },
-      "S": {
-        "tag": "forge:storage_blocks/steel"
-      },
-      "W": {
-        "item": "superbwarfare:wheel"
-      },
-      "M": {
-        "item": "superbwarfare:large_motor"
-      }
-    },
-    "result": {
-      "item": "superbwarfare:container",
-      "nbt": "{BlockEntityTag: {EntityType: \"vvp:btr_80a\", id: \"superbwarfare:container\"}}"
-    }
+  "type": "superbwarfare:vehicle_assembling",
+  "category": "land",
+  "inputs": [
+    "superbwarfare:medium_battery_pack",
+    "superbwarfare:medium_armament_module",
+    "minecraft:green_dye",
+    "3 #forge:storage_blocks/steel",
+    "8 superbwarfare:wheel",
+    "superbwarfare:large_motor"
+  ],
+  "result": {
+    "entity": "vvp:btr_80a"
   }
+}

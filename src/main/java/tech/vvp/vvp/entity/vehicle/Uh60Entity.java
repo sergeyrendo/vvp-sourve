@@ -61,6 +61,7 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.config.server.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
 
 import java.util.List;
@@ -446,7 +447,7 @@ public class Uh60Entity extends ContainerMobileVehicleEntity implements GeoEntit
         this.entityData.set(PROPELLER_ROT, this.entityData.get(PROPELLER_ROT) * 0.9995f);
 
         if (engineStart) {
-            this.consumeEnergy((int) (VehicleConfig.AH_6_MIN_ENERGY_COST.get() + this.entityData.get(POWER) * ((VehicleConfig.AH_6_MIN_ENERGY_COST.get() - VehicleConfig.AH_6_MIN_ENERGY_COST.get()) / 0.12)));
+            this.consumeEnergy((int) (VehicleConfigVVP.BLACKHAWK_MIN_ENERGY_COST.get() + this.entityData.get(POWER) * ((VehicleConfigVVP.BLACKHAWK_MIN_ENERGY_COST.get() - VehicleConfigVVP.BLACKHAWK_MIN_ENERGY_COST.get()) / 0.12)));
         }
 
         if (entityData.get(ENGINE1_DAMAGED)) {
@@ -602,25 +603,6 @@ public class Uh60Entity extends ContainerMobileVehicleEntity implements GeoEntit
 //        return transform;
 //    }
 
-    @Override
-    public void destroy() {
-        if (this.crash) {
-            crashPassengers();
-        } else {
-            explodePassengers();
-        }
-
-        if (level() instanceof ServerLevel) {
-            CustomExplosion explosion = new CustomExplosion(this.level(), this,
-                    ModDamageTypes.causeCustomExplosionDamage(this.level().registryAccess(), this, getAttacker()), 300.0f,
-                    this.getX(), this.getY(), this.getZ(), 8f, ExplosionConfig.EXPLOSION_DESTROY.get() ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.KEEP, true).setDamageMultiplier(1);
-            explosion.explode();
-            ForgeEventFactory.onExplosionStart(this.level(), explosion);
-            explosion.finalizeExplosion(false);
-            ParticleTool.spawnHugeExplosionParticles(this.level(), this.position());
-        }
-        super.destroy();
-    }
 
     // @Override
     // public void registerControllers(AnimatableManager.ControllerRegistrar data) {
