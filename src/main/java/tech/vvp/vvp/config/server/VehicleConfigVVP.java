@@ -75,6 +75,8 @@ public class VehicleConfigVVP {
 
         public static ForgeConfigSpec.IntValue FMTV_ENERGY_COST;
 
+        public static ForgeConfigSpec.IntValue M2_GUN_DAMAGE;
+
         static {
 
             BUILDER.push("mi_24");
@@ -111,7 +113,7 @@ public class VehicleConfigVVP {
             BUILDER.push("stryker_m1128");
 
             BUILDER.comment("The cannon damage of Stryker M1128");
-            STRYKER_M1128_CANNON_DAMAGE = BUILDER.defineInRange("stryker_m1128_cannon_damage", 225, 1, 10000000);
+            STRYKER_M1128_CANNON_DAMAGE = BUILDER.defineInRange("stryker_m1128_cannon_damage", 300, 1, 10000000);
     
             BUILDER.comment("The cannon explosion damage of Stryker M1128");
             STRYKER_M1128_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("stryker_m1128_cannon_explosion_damage", 32, 1, 10000000);
@@ -193,7 +195,7 @@ public class VehicleConfigVVP {
             M1A2_ENERGY_COST = BUILDER.defineInRange("m1a2_energy_cost", 96, 0, 2147483647);
 
             BUILDER.comment("The cannon damage of M1A2");
-            M1A2_CANNON_DAMAGE = BUILDER.defineInRange("m1a2_cannon_damage", 395, 1, 10000000);
+            M1A2_CANNON_DAMAGE = BUILDER.defineInRange("m1a2_cannon_damage", 415, 1, 10000000);
 
             BUILDER.comment("The cannon explosion damage of M1A2");
             M1A2_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("m1a2_cannon_explosion_damage", 70, 1, 10000000);
@@ -254,7 +256,7 @@ public class VehicleConfigVVP {
             M60_ENERGY_COST = BUILDER.defineInRange("m60_energy_cost", 88, 0, 2147483647);
 
             BUILDER.comment("The cannon damage of M60");
-            M60_CANNON_DAMAGE = BUILDER.defineInRange("m60_cannon_damage", 256, 1, 10000000);
+            M60_CANNON_DAMAGE = BUILDER.defineInRange("m60_cannon_damage", 325, 1, 10000000);
 
             BUILDER.comment("The cannon explosion damage of M60");
             M60_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("m60_cannon_explosion_damage", 42, 1, 10000000);
@@ -293,14 +295,21 @@ public class VehicleConfigVVP {
             BUILDER.push("humvee");
 
             BUILDER.comment("The energy cost of Humvee M997 and Humvee MK19 per tick");
-            HUMVEE_ENERGY_COST = BUILDER.defineInRange("humvee_energy_cost", 60, 0, 2147483647);
+            HUMVEE_ENERGY_COST = BUILDER.defineInRange("humvee_energy_cost", 68, 0, 2147483647);
 
             BUILDER.pop();
 
             BUILDER.push("fmtv");
 
             BUILDER.comment("The energy cost of FMTV per tick");
-            FMTV_ENERGY_COST = BUILDER.defineInRange("fmtv_energy_cost", 69, 0, 2147483647);
+            FMTV_ENERGY_COST = BUILDER.defineInRange("fmtv_energy_cost", 70, 0, 2147483647);
+
+            BUILDER.pop();
+
+            BUILDER.push("M2 Gun");
+
+            BUILDER.comment("The gun damage of M2 for Humvee");
+            M2_GUN_DAMAGE = BUILDER.defineInRange("m2_gun_damage", 33, 1, 10000000);
 
             BUILDER.pop();
 

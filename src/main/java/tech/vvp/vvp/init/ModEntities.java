@@ -10,7 +10,6 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.entity.projectile.Mk19GrenadeEntity;
 import tech.vvp.vvp.entity.vehicle.*;
 
 public class ModEntities {
@@ -90,11 +89,6 @@ public class ModEntities {
 //                         .fireImmune()
 //                         .sized(0.9f, 1.2f)
 //                         .build("bikered"));
-
-    public static final RegistryObject<EntityType<Mk19GrenadeEntity>> MK_19 = ENTITY_TYPES.register("mk_19",
-            () -> EntityType.Builder.<Mk19GrenadeEntity>of(Mk19GrenadeEntity::new, MobCategory.MISC)
-                    .sized(0.5f, 0.5f)
-                    .build("mk_19"));
 
     public static final RegistryObject<EntityType<SmallCannonShellEntity>> SMALL_CANNON_SHELL = ENTITY_TYPES.register("small_cannon_shell",
                     () -> EntityType.Builder.<SmallCannonShellEntity>of(SmallCannonShellEntity::new, MobCategory.MISC)

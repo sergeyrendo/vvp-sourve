@@ -16,7 +16,7 @@
   "entity.vvp.btr_4": "BTR-4",
   "entity.vvp.bradley_ukr": "M2 Bradley Ukrainian",
   "entity.vvp.bradley": "M2 Bradley",
-  "entity.vvp.humvee": "Humvee MK19",
+  "entity.vvp.humvee": "Humvee M2",
   "entity.vvp.m60": "M60",
   "entity.vvp.m1a2": "M1A2",
   "entity.vvp.m1a2_sep": "M1A2 SEP",
@@ -27,7 +27,7 @@
 
   "//": "==================== EQUIPMENT & ITEMS ====================",
   "item.vvp.usahelmet": "ACH Helmet USA",
-  "item.vvp.usaсhest": "Body Armor USA",
+  "item.vvp.usachest": "Body Armor USA",
   "item.vvp.mangal_turret": "Mangal for turret",
   "item.vvp.mangal_body": "Mangal for body",
   "item.vvp.setka_body": "Foliage camouflage for body",
@@ -67,11 +67,13 @@
 
   "info.vvp.bradley": "The M2 Bradley is an American infantry fighting vehicle armed with a 25 mm cannon, TOW anti-tank missiles, and a machine gun. It is designed for troop transport and providing fire support in battle.",
 
+  "info.vvp.bradley_ukr": "The M2 Bradley Ukrainian Version is an American infantry fighting vehicle armed with a 25 mm cannon, TOW anti-tank missiles, and a machine gun. It is designed for troop transport and providing fire support in battle.",
+
   "info.vvp.m60": "The M60 is an American Cold War-era main battle tank armed with a 105 mm gun. It combined simplicity and reliability, remaining in service with many countries.",
 
   "info.vvp.fmtv": "The FMTV (Family of Medium Tactical Vehicles) is a series of American medium-duty military trucks used for transporting troops, cargo, and equipment. They are known for their versatility and off-road capability.",
 
-  "info.vvp.humvee": "The Humvee MK19 is a light military vehicle equipped with a 40 mm automatic grenade launcher. It combines mobility with strong firepower against infantry and light vehicles.",
+  "info.vvp.humvee": "The Humvee M2 is a light military off-road vehicle equipped with a 12.7 mm heavy machine gun. It combines mobility with high firepower against manpower and light equipment.",
 
   "info.vvp.m997_green": "The Humvee M997 is the ambulance variant of the multipurpose HMMWV, designed for casualty evacuation and medical support. It is equipped with a medical compartment for stretchers and medical personnel.",
 

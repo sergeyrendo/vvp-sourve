@@ -148,9 +148,8 @@ public class HumveeEntity extends ContainerMobileVehicleEntity implements GeoEnt
 
                 },
                 new VehicleWeapon[]{
-                        // 机枪
                         new ProjectileWeapon()
-                                .damage(VehicleConfig.HEAVY_MACHINE_GUN_DAMAGE.get())
+                                .damage(VehicleConfigVVP.M2_GUN_DAMAGE.get())
                                 .headShot(2)
                                 .zoom(false)
                                 .bypassArmorRate(0.4f)
@@ -310,7 +309,7 @@ public class HumveeEntity extends ContainerMobileVehicleEntity implements GeoEnt
 
     @Override
     public void travel() {
-        wheelEngine(true, 0.052, VehicleConfigVVP.HUMVEE_ENERGY_COST.get(), 1.25, 1.5, 0.18f, -0.13f, 0.0024f, 0.0024f, 0.1f);
+        wheelEngine(true, 0.052, VehicleConfigVVP.HUMVEE_ENERGY_COST.get(), 1.25, 1.5, 0.24f, -0.17f, 0.0050f, 0.0024f, 0.3f);
     }
 
 
@@ -340,7 +339,7 @@ public class HumveeEntity extends ContainerMobileVehicleEntity implements GeoEnt
                 worldPosition = transformPosition(transform, 0.8f, 0.28f, 0.2f);
                 break;
             case 1: // Пассажир рядом с водителем
-                worldPosition = transformPosition(transform, 0.0f, 1.5f, 0.0f);
+                worldPosition = transformPosition(transform, 0.0f, 1.5f, -0.3f);
                 break;
             case 2: // Пассажир сзади слева
                 worldPosition = transformPosition(transform, 0.8f, 0.28f, -0.8f);

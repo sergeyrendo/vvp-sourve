@@ -20,6 +20,8 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.config.server.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
@@ -91,6 +93,9 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(Btr80aEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Boolean> HAS_MANGAL_TURRET = SynchedEntityData.defineId(Btr80aEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> HAS_MANGAL_BODY = SynchedEntityData.defineId(Btr80aEntity.class, EntityDataSerializers.BOOLEAN);
+
     public OBB obb;
     public OBB obb1;
     public OBB obb2;
@@ -192,18 +197,24 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(CAMOUFLAGE_TYPE, 0);
+        this.entityData.define(HAS_MANGAL_TURRET, false);
+        this.entityData.define(HAS_MANGAL_BODY, false);
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
+        compound.putBoolean("HasMangalTurret", this.entityData.get(HAS_MANGAL_TURRET));
+        compound.putBoolean("HasMangalBody", this.entityData.get(HAS_MANGAL_BODY));
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
+        this.entityData.set(HAS_MANGAL_TURRET, compound.getBoolean("HasMangalTurret"));
+        this.entityData.set(HAS_MANGAL_BODY, compound.getBoolean("HasMangalBody"));
     }
 
     @Override
@@ -784,7 +795,52 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
             }
         }
 
+        if (stack.is(tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get()) && !this.entityData.get(HAS_MANGAL_TURRET)) {
+            return loadModule(player, stack, HAS_MANGAL_TURRET, tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get());  // Универсальная функция (см. ниже)
+        }
+        if (stack.is(tech.vvp.vvp.init.ModItems.MANGAL_BODY.get()) && !this.entityData.get(HAS_MANGAL_BODY)) {
+            return loadModule(player, stack,  HAS_MANGAL_BODY, tech.vvp.vvp.init.ModItems.MANGAL_BODY.get());
+        }
+
+        if (stack.is(tech.vvp.vvp.init.ModItems.WRENCH.get())) {
+            if (this.entityData.get(HAS_MANGAL_TURRET)) {
+                return removeModule(player, HAS_MANGAL_TURRET, tech.vvp.vvp.init.ModItems.MANGAL_TURRET.get());
+            } else if (this.entityData.get(HAS_MANGAL_BODY)) {
+                return removeModule(player, HAS_MANGAL_BODY, tech.vvp.vvp.init.ModItems.MANGAL_BODY.get());
+            }
+        }
+
         return super.interact(player, hand);
+    }
+
+    private InteractionResult loadModule(Player player, ItemStack stack, EntityDataAccessor<Boolean> flag, Item returnItem) {
+        if (!this.level().isClientSide) {
+            if (!player.isCreative()) {
+                stack.shrink(1);
+            }
+            this.entityData.set(flag, true);
+            this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.REMONT.get(), this.getSoundSource(), 2, 1);
+            return InteractionResult.CONSUME;
+        } else {
+            return InteractionResult.SUCCESS;
+        }
+    }
+
+    // Новая функция для удаления (чтобы избежать дубликатов)
+    private InteractionResult removeModule(Player player, EntityDataAccessor<Boolean> flag, Item returnItem) {
+        if (!this.level().isClientSide) {
+            this.entityData.set(flag, false);
+            ItemStack returnedItem = new ItemStack(returnItem, 1);
+            boolean addedToInventory = player.getInventory().add(returnedItem);
+            if (!addedToInventory) {
+                ItemEntity droppedItem = new ItemEntity(this.level(), this.getX(), this.getY() + 1, this.getZ(), returnedItem);
+                this.level().addFreshEntity(droppedItem);
+            }
+            this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.REMONT.get(), this.getSoundSource(), 2, 1);
+            return InteractionResult.CONSUME;
+        } else {
+            return InteractionResult.SUCCESS;
+        }
     }
 
     @Override

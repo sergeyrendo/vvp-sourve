@@ -491,7 +491,7 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
         // Увеличиваем счетчик текущего ПТУРа
         this.entityData.set(CURRENT_MISSILE, (currentMissile + 1) % 4);
         this.entityData.set(LOADED_MISSILE, this.entityData.get(LOADED_MISSILE) - 1);
-        this.entityData.set(MISSILE_FIRE_COOLDOWN, 120); // Устанавливаем кулдаун 4 секунды (4 * 20 тиков)
+        this.entityData.set(MISSILE_FIRE_COOLDOWN, 40);
         reloadCoolDown = 160;
         }
     }

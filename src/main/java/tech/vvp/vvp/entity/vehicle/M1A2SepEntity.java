@@ -408,8 +408,8 @@ public class M1A2SepEntity extends ContainerMobileVehicleEntity implements GeoEn
 
         var worldPosition = switch (i) {
             case 0 -> transformPosition(transform, 1f, 0f, 0);
-            case 1 -> transformPosition(transform, -0.50f, 0.3f, -1f);
-            case 2 -> transformPosition(transform, 0.6669625f, 0.07f, -1f);
+            case 1 -> transformPosition(transform, -0.53f, 0.3f, -1f);
+            case 2 -> transformPosition(transform, 0.6669625f, -0.6f, -1f);
             default -> throw new IllegalStateException("Unexpected value: " + i);
         };
 
@@ -862,17 +862,17 @@ public class M1A2SepEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public float getTurretMaxHealth() {
-        return 100;
+        return 150;
     }
 
     @Override
     public float getWheelMaxHealth() {
-        return 100;
+        return 135;
     }
 
     @Override
     public float getEngineMaxHealth() {
-        return 150;
+        return 175;
     }
 
     @Override

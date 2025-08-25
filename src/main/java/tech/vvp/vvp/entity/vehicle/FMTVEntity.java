@@ -4,6 +4,7 @@ import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 import com.atsuishio.superbwarfare.config.server.VehicleConfig;
 
+import com.atsuishio.superbwarfare.entity.vehicle.base.*;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -16,10 +17,6 @@ import net.minecraft.world.item.ItemStack;
 import tech.vvp.vvp.VVP;
 
 import com.atsuishio.superbwarfare.entity.OBBEntity;
-import com.atsuishio.superbwarfare.entity.vehicle.base.ArmedVehicleEntity;
-import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
-import com.atsuishio.superbwarfare.entity.vehicle.base.LandArmorEntity;
-import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
 import com.atsuishio.superbwarfare.init.*;
 import com.atsuishio.superbwarfare.tools.CustomExplosion;
@@ -216,7 +213,7 @@ public class FMTVEntity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public void travel() {
-        wheelEngine(true, 0.052, VehicleConfigVVP.HUMVEE_ENERGY_COST.get(), 1.25, 1.5, 0.18f, -0.13f, 0.0024f, 0.0024f, 0.1f);
+        wheelEngine(true, 0.052, VehicleConfigVVP.HUMVEE_ENERGY_COST.get(), 1.25, 1.5, 0.25f, -0.13f, 0.0024f, 0.0024f, 0.1f);
     }
 
 
@@ -249,22 +246,22 @@ public class FMTVEntity extends ContainerMobileVehicleEntity implements GeoEntit
                 worldPosition = transformPosition(transform, -0.625f, 1.27f, 2.828f);
                 break;
             case 2:
-                worldPosition = transformPosition(transform, -1.063f, 1.6f, 0.203f);
+                worldPosition = transformPosition(transform, -1.063f, 1.8f, 0.203f);
                 break;
             case 3:
-                worldPosition = transformPosition(transform, -1.063f, 1.6f, -0.984f);
+                worldPosition = transformPosition(transform, -1.063f, 1.8f, -0.984f);
                 break;
             case 4:
-                worldPosition = transformPosition(transform, -1.063f, 1.6f, -2.047f);
+                worldPosition = transformPosition(transform, -1.063f, 1.8f, -2.047f);
                 break;
             case 5:
-                worldPosition = transformPosition(transform, 1.063f, 1.6f, 0.203f);
+                worldPosition = transformPosition(transform, 1.063f, 1.8f, 0.203f);
                 break;
             case 6:
-                worldPosition = transformPosition(transform, 1.063f, 1.6f, -0.984f);
+                worldPosition = transformPosition(transform, 1.063f, 1.8f, -0.984f);
                 break;
             case 7:
-                worldPosition = transformPosition(transform, 1.063f, 1.6f, -2.047f);
+                worldPosition = transformPosition(transform, 1.063f, 1.8f, -2.047f);
                 break;
             default:
                 worldPosition = transformPosition(transform, 0, 1, 0);

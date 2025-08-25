@@ -428,7 +428,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
             if (this.cannotFireCoax) return;
             float x = 0.0f;
             float y = 0.0f;
-            float z = -0.2f;
+            float z = -0.7f;
 
             Vector4f worldPosition = transformPosition(transform, x, y, z);
 
@@ -491,7 +491,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         // Увеличиваем счетчик текущего ПТУРа
         this.entityData.set(CURRENT_MISSILE, (currentMissile + 1) % 4);
         this.entityData.set(LOADED_MISSILE, this.entityData.get(LOADED_MISSILE) - 1);
-        this.entityData.set(MISSILE_FIRE_COOLDOWN, 40); // Устанавливаем кулдаун 4 секунды (4 * 20 тиков)
+        this.entityData.set(MISSILE_FIRE_COOLDOWN, 30); // Устанавливаем кулдаун 4 секунды (4 * 20 тиков)
         reloadCoolDown = 160;
         }
     }
@@ -634,8 +634,8 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
             }
         }
 
-        float min = -32.5f - r * getXRot() - r2 * getRoll();
-        float max = 15f - r * getXRot() - r2 * getRoll();
+        float min = -20f - r * getXRot() - r2 * getRoll();
+        float max = 4.6f - r * getXRot() - r2 * getRoll();
 
         float f = Mth.wrapDegrees(entity.getXRot());
         float f1 = Mth.clamp(f, min, max);

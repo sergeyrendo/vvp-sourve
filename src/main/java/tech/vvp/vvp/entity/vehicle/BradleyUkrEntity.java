@@ -103,6 +103,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
     // тут или у китайцев спрашивать или я хуй знает
     // ща еще одну хуйню чекну // та это пиздец
     // чек дс
+
     public static final EntityDataAccessor<Integer> LOADED_AP = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> MISSILE_COUNT = SynchedEntityData.defineId(BradleyUkrEntity.class, EntityDataSerializers.INT);
@@ -505,7 +506,7 @@ public class BradleyUkrEntity extends ContainerMobileVehicleEntity implements Ge
             // Увеличиваем счетчик текущего ПТУРа
             this.entityData.set(CURRENT_MISSILE, (currentMissile + 1) % 4);
             this.entityData.set(LOADED_MISSILE, this.entityData.get(LOADED_MISSILE) - 1);
-            this.entityData.set(MISSILE_FIRE_COOLDOWN, 120); // Устанавливаем кулдаун 4 секунды (4 * 20 тиков)
+            this.entityData.set(MISSILE_FIRE_COOLDOWN, 40); // Устанавливаем кулдаун 4 секунды (4 * 20 тиков)
             reloadCoolDown = 160;
         }
     }

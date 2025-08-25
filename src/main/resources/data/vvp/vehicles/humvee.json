@@ -3,7 +3,7 @@
   "MaxHealth": 150,
   "MaxEnergy": 4500000,
   "UpStep": 2.2,
-  "Mass": 16.6,
+  "Mass": 10.6,
   "DamageModifiers": [
     "All * 0.2",
     "minecraft:arrow * 1.5",

@@ -432,7 +432,7 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
             }
 
             this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) - 1);
-            this.entityData.set(MISSILE_FIRE_COOLDOWN, 100); // Устанавливаем кулдаун 4 секунды (4 * 20 тиков)
+            this.entityData.set(MISSILE_FIRE_COOLDOWN, 40); // Устанавливаем кулдаун 4 секунды (4 * 20 тиков)
             reloadCoolDown = 160;
         }
     }

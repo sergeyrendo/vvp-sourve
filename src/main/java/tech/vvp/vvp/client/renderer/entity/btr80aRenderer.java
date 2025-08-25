@@ -17,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import software.bernie.geckolib.core.animation.AnimationState;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.base.MobileVehicleEntity.YAW;
 
@@ -157,6 +158,16 @@ public class btr80aRenderer extends GeoEntityRenderer<Btr80aEntity> {
         }
         if (name.equals("flare2")) {
             bone.setRotZ((float) (0.5 * (Math.random() - 0.5)));
+        }
+
+        if (name.equals("mangal_body")) {
+            boolean hasMangal_body = animatable.getEntityData().get(Btr80aEntity.HAS_MANGAL_BODY);
+            bone.setHidden(!hasMangal_body);
+        }
+
+        if (name.equals("mangal_turret")) {
+            boolean hasMangal_turret = animatable.getEntityData().get(Btr80aEntity.HAS_MANGAL_TURRET);
+            bone.setHidden(!hasMangal_turret);
         }
 
         super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
