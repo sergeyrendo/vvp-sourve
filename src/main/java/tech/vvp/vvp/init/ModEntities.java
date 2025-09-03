@@ -10,6 +10,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.entity.projectile.Fab500Entity;
 import tech.vvp.vvp.entity.vehicle.*;
 
 public class ModEntities {
@@ -220,6 +221,33 @@ public class ModEntities {
                     .sized(4f, 3f)
                     .build("m1a2_sep"));
 
+    public static final RegistryObject<EntityType<T90Entity>> T90 = ENTITY_TYPES.register("t90",
+            () -> EntityType.Builder.<T90Entity>of(T90Entity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(T90Entity::clientSpawn)
+                    .fireImmune()
+                    .sized(4f, 3f)
+                    .build("t90"));
+
+    public static final RegistryObject<EntityType<T90_24Entity>> T90_2024 = ENTITY_TYPES.register("t90_24",
+            () -> EntityType.Builder.<T90_24Entity>of(T90_24Entity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(T90_24Entity::clientSpawn)
+                    .fireImmune()
+                    .sized(4f, 3f)
+                    .build("t90_24"));
+
+    public static final RegistryObject<EntityType<Mi28Entity>> MI_28 = ENTITY_TYPES.register("mi_28",
+            () -> EntityType.Builder.<Mi28Entity>of(Mi28Entity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(Mi28Entity::clientSpawn)
+                    .fireImmune()
+                    .sized(3f, 4f)
+                    .build("mi_28"));
+
     public static final RegistryObject<EntityType<Mi24Entity>> MI24 = register("mi24",
             EntityType.Builder.<Mi24Entity>of(Mi24Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(Mi24Entity::new).fireImmune().sized(4.5f, 4.8f));
 
@@ -230,6 +258,9 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<F35Entity>> F35 = register("f35",
             EntityType.Builder.<F35Entity>of(F35Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(F35Entity::new).fireImmune().sized(4.5f, 4.8f));
+
+    public static final RegistryObject<EntityType<Fab500Entity>> FAB_500 = register("fab_500",
+            EntityType.Builder.<Fab500Entity>of(Fab500Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(Fab500Entity::new).noSave().sized(0.8f, 0.8f));
 
         private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
                 return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));

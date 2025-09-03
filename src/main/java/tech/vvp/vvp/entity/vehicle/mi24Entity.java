@@ -69,13 +69,16 @@ import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPit
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 import com.atsuishio.superbwarfare.config.server.VehicleConfig;
+import tech.vvp.vvp.radar.IRadarVehicle;
 
-public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity {
+public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity, IRadarVehicle {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(Mi24Entity.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(Mi24Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(Mi24Entity.class, EntityDataSerializers.INT);
+    // Добавить рядом с остальными EntityDataAccessor:
+    public static final EntityDataAccessor<Boolean> RADAR_ENABLED = SynchedEntityData.defineId(Mi24Entity.class, EntityDataSerializers.BOOLEAN);
 
     public static final int RADAR_RANGE = 150;
 
@@ -103,11 +106,11 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         // КАБИНА
         this.obb = new OBB(this.position().toVector3f(), new Vector3f(0.85f, 1.177f, 1.398f), new Quaternionf(), OBB.Part.BODY);
         // КОРПУС
-        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(0.85f, 1.45f, 4.289f), new Quaternionf(), OBB.Part.BODY); 
+        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(0.85f, 1.45f, 4.289f), new Quaternionf(), OBB.Part.BODY);
         // ВИНТ
-        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(0.85f, 0.239f, 2.742f), new Quaternionf(), OBB.Part.BODY); 
+        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(0.85f, 0.239f, 2.742f), new Quaternionf(), OBB.Part.BODY);
         // ХВОСТ
-        this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.85f, 1.0515625f, 2.7421875f), new Quaternionf(), OBB.Part.ENGINE1); 
+        this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.85f, 1.0515625f, 2.7421875f), new Quaternionf(), OBB.Part.ENGINE1);
     }
 
     // Добавляем статический метод для создания атрибутов
@@ -125,11 +128,11 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
         if (entityTypeFromPacket == null) {
             Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null; 
+            return null;
         }
         if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-             Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-             return null;
+            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
+            return null;
         }
 
         EntityType<Mi24Entity> castedEntityType = (EntityType<Mi24Entity>) entityTypeFromPacket;
@@ -137,25 +140,19 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         return entity;
     }
 
-    private void handleRadar() {
-        // Эта часть остается без изменений
-        if (this.level().isClientSide() || !(this.getFirstPassenger() instanceof ServerPlayer player)) {
-            return;
+    @Override
+    public int getRadarRange() {
+        return 225;
+    }
+
+    @Override
+    public boolean consumeRadarEnergy() {
+        int cost = Math.max(1, getRadarEnergyCostPerScan());
+        if (this.getEnergy() >= cost) {
+            this.consumeEnergy(cost);
+            return true;
         }
-
-        List<Vec3> targetPositions = new ArrayList<>();
-
-        // Здесь мы изменяем условие поиска сущностей
-        List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
-            entity -> (entity instanceof HelicopterEntity || entity instanceof AirEntity) && entity != this);
-
-        // Эта часть тоже остается без изменений
-        if (!potentialTargets.isEmpty()) {
-            for (Entity target : potentialTargets) {
-                targetPositions.add(target.position());
-            }
-            VVPNetwork.VVP_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-        }
+        return false;
     }
 
     @Override
@@ -163,9 +160,6 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         super.baseTick();
         updateOBB();
 
-        if (this.tickCount % 20 == 0) {
-            handleRadar();
-        }
 
         if (this.level() instanceof ServerLevel) {
             if (reloadCoolDown > 0) {
@@ -237,6 +231,7 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         this.entityData.define(LOADED_ROCKET, 0);
         this.entityData.define(PROPELLER_ROT, 0f);
         this.entityData.define(CAMOUFLAGE_TYPE, 0);
+        this.entityData.define(RADAR_ENABLED, true); // по умолчанию ВКЛ
     }
 
     @Override
@@ -245,6 +240,7 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         compound.putInt("LoadedRocket", this.entityData.get(LOADED_ROCKET));
         compound.putFloat("PropellerRot", this.entityData.get(PROPELLER_ROT));
         compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
+        compound.putBoolean("RadarEnabled", this.entityData.get(RADAR_ENABLED)); // NEW
     }
 
     @Override
@@ -253,6 +249,9 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         this.entityData.set(LOADED_ROCKET, compound.getInt("LoadedRocket"));
         this.entityData.set(PROPELLER_ROT, compound.getFloat("PropellerRot"));
         this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
+        if (compound.contains("RadarEnabled")) {
+            this.entityData.set(RADAR_ENABLED, compound.getBoolean("RadarEnabled")); // NEW
+        }
     }
 
     @Override
@@ -518,19 +517,19 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
         } else if (i == 2) {
             worldPosition = transformPosition(transform, -0.56f, -0.3f, -1.4f);
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
-            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);       
+            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);
         } else if (i == 3) {
             worldPosition = transformPosition(transform, 0.48f, -0.3f, -1.4f);
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
-            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);        
+            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);
         } else if (i == 4) {
-            worldPosition = transformPosition(transform, -0.51f, -0.3f, -4.0f);   
+            worldPosition = transformPosition(transform, -0.51f, -0.3f, -4.0f);
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
-            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);           
+            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);
         } else if (i == 5) {
-            worldPosition = transformPosition(transform, 0.43f, -0.3f, -4.0f);  
+            worldPosition = transformPosition(transform, 0.43f, -0.3f, -4.0f);
             passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
-            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);            
+            callback.accept(passenger, worldPosition.x, worldPosition.y, worldPosition.z);
         }
 
         if (passenger != this.getFirstPassenger()) {
@@ -835,7 +834,7 @@ public class Mi24Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public List<OBB> getOBBs() {
-        return List.of(this.obb, this.obb1, this.obb2, this.obb3); 
+        return List.of(this.obb, this.obb1, this.obb2, this.obb3);
     }
 
     @Override

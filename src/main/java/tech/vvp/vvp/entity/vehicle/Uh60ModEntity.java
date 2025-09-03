@@ -67,8 +67,9 @@ import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPit
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 import com.atsuishio.superbwarfare.config.server.VehicleConfig;
+import tech.vvp.vvp.radar.IRadarVehicle;
 
-public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity {
+public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity, IRadarVehicle {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(Uh60ModEntity.class, EntityDataSerializers.FLOAT);
@@ -133,26 +134,20 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
                 .add(Attributes.ARMOR_TOUGHNESS, 5.0D);
     }
 
-    // private void handleRadar() {
-    //     // Эта часть остается без изменений
-    //     if (this.level().isClientSide() || !(this.getFirstPassenger() instanceof ServerPlayer player)) {
-    //         return;
-    //     }
+    @Override
+    public int getRadarRange() {
+        return 300;
+    }
 
-    //     List<Vec3> targetPositions = new ArrayList<>();
-
-    //     // Здесь мы изменяем условие поиска сущностей
-    //     List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
-    //         entity -> (entity instanceof HelicopterEntity || entity instanceof AirEntity) && entity != this);
-
-    //     // Эта часть тоже остается без изменений
-    //     if (!potentialTargets.isEmpty()) {
-    //         for (Entity target : potentialTargets) {
-    //             targetPositions.add(target.position());
-    //         }
-    //         tech.vvp.vvp.network.VVPNetwork.VVP_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-    //     }
-    // }
+    @Override
+    public boolean consumeRadarEnergy() {
+        int cost = Math.max(1, getRadarEnergyCostPerScan());
+        if (this.getEnergy() >= cost) {
+            this.consumeEnergy(cost);
+            return true;
+        }
+        return false;
+    }
 
     @SuppressWarnings("unchecked")
     public static Uh60ModEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {

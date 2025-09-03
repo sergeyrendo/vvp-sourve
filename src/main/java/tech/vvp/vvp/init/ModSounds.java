@@ -103,6 +103,8 @@ public class ModSounds {
     public static final RegistryObject<SoundEvent> ABRAMS_COAX_FAR = register("abrams_coax_far");
     public static final RegistryObject<SoundEvent> ABRAMS_COAX_VERYFAR = register("abrams_coax_veryfar");
 
+    public static final RegistryObject<SoundEvent> T90_AUTORELOAD = register("t90_autoreload");
+
 
     /**
      * Вспомогательный метод для регистрации звуков

@@ -63,13 +63,14 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.config.server.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
+import tech.vvp.vvp.radar.IRadarVehicle;
 
 import java.util.List;
 
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPitch;
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
 
-public class Uh60Entity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity {
+public class Uh60Entity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity, IRadarVehicle {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(Uh60Entity.class, EntityDataSerializers.FLOAT);
@@ -134,26 +135,21 @@ public class Uh60Entity extends ContainerMobileVehicleEntity implements GeoEntit
                 .add(Attributes.ARMOR_TOUGHNESS, 5.0D);
     }
 
-    // private void handleRadar() {
-    //     // Эта часть остается без изменений
-    //     if (this.level().isClientSide() || !(this.getFirstPassenger() instanceof ServerPlayer player)) {
-    //         return;
-    //     }
+    @Override
+    public int getRadarRange() {
+        return 300;
+    }
 
-    //     List<Vec3> targetPositions = new ArrayList<>();
+    @Override
+    public boolean consumeRadarEnergy() {
+        int cost = Math.max(1, getRadarEnergyCostPerScan());
+        if (this.getEnergy() >= cost) {
+            this.consumeEnergy(cost);
+            return true;
+        }
+        return false;
+    }
 
-    //     // Здесь мы изменяем условие поиска сущностей
-    //     List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
-    //         entity -> (entity instanceof HelicopterEntity || entity instanceof AirEntity) && entity != this);
-
-    //     // Эта часть тоже остается без изменений
-    //     if (!potentialTargets.isEmpty()) {
-    //         for (Entity target : potentialTargets) {
-    //             targetPositions.add(target.position());
-    //         }
-    //         tech.vvp.vvp.network.VVPNetwork.VVP_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-    //     }
-    // }
 
     @SuppressWarnings("unchecked")
     public static Uh60Entity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {

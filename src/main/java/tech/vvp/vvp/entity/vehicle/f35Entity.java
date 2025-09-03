@@ -55,6 +55,7 @@ import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
+import tech.vvp.vvp.radar.IRadarVehicle;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -66,7 +67,7 @@ import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPit
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
-public class F35Entity extends ContainerMobileVehicleEntity implements GeoEntity, WeaponVehicleEntity, AircraftEntity, OBBEntity {
+public class F35Entity extends ContainerMobileVehicleEntity implements GeoEntity, WeaponVehicleEntity, AircraftEntity, OBBEntity, IRadarVehicle {
 
     public static final int RADAR_RANGE = 150;
 
@@ -159,25 +160,19 @@ public class F35Entity extends ContainerMobileVehicleEntity implements GeoEntity
         return new ThirdPersonCameraPosition(17, 3, 0);
     }
 
-    private void handleRadar() {
-        // Эта часть остается без изменений
-        if (this.level().isClientSide() || !(this.getFirstPassenger() instanceof ServerPlayer player)) {
-            return;
+    @Override
+    public int getRadarRange() {
+        return 300;
+    }
+
+    @Override
+    public boolean consumeRadarEnergy() {
+        int cost = Math.max(1, getRadarEnergyCostPerScan());
+        if (this.getEnergy() >= cost) {
+            this.consumeEnergy(cost);
+            return true;
         }
-
-        List<Vec3> targetPositions = new ArrayList<>();
-
-        // Здесь мы изменяем условие поиска сущностей
-        List<Entity> potentialTargets = this.level().getEntities(this, this.getBoundingBox().inflate(RADAR_RANGE),
-            entity -> (entity instanceof HelicopterEntity || entity instanceof AirEntity) && entity != this);
-
-        // Эта часть тоже остается без изменений
-        if (!potentialTargets.isEmpty()) {
-            for (Entity target : potentialTargets) {
-                targetPositions.add(target.position());
-            }
-            tech.vvp.vvp.network.VVPNetwork.VVP_HANDLER.sendTo(new S2CRadarSyncPacket(targetPositions), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-        }
+        return false;
     }
 
     @Override

@@ -223,5 +223,10 @@
     "sounds": [
       "vvp:abrams_coax_veryfar"
     ]
+  },
+  "t90_autoreload": {
+    "sounds": [
+      "vvp:t90_autoreload"
+    ]
   }
 }

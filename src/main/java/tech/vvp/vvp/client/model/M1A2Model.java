@@ -3,6 +3,7 @@ package tech.vvp.vvp.client.model;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.GeoModel;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.entity.vehicle.BradleyUkrEntity;
 import tech.vvp.vvp.entity.vehicle.M1A2Entity;
 
 public class M1A2Model extends GeoModel<M1A2Entity> {
@@ -18,11 +19,7 @@ public class M1A2Model extends GeoModel<M1A2Entity> {
     }
 
     @Override
-    public ResourceLocation getTextureResource(M1A2Entity animatable) {
-        int camoType = animatable.getEntityData().get(M1A2Entity.CAMOUFLAGE_TYPE);
-        switch (camoType) {
-            case 1: return new ResourceLocation("vvp", "textures/entity/m1a2_iraq.png");  // Песчаный
-            default: return new ResourceLocation("vvp", "textures/entity/m1a2_camo.png");  // Лесной
-        }
+    public ResourceLocation getTextureResource(M1A2Entity entity) {
+        return new ResourceLocation(VVP.MOD_ID, "textures/entity/m1a2_camo.png");
     }
 }

@@ -34,10 +34,11 @@ public class S2CRadarSyncPacket {
         }
     }
 
-    public static void handler(S2CRadarSyncPacket message, Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context context = supplier.get();
+    public static void handler(S2CRadarSyncPacket message, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> supplier) {
+        net.minecraftforge.network.NetworkEvent.Context context = supplier.get();
         context.enqueueWork(() -> {
-            RadarHud.radarTargets = message.targets;
+            // Копируем список, чтобы не держать ссылку на внутреннюю коллекцию пакета
+            tech.vvp.vvp.client.gui.RadarHud.onServerTargetsUpdate(new java.util.ArrayList<>(message.targets));
         });
         context.setPacketHandled(true);
     }

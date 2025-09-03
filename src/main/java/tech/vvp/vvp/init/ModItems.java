@@ -8,6 +8,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.eventbus.api.IEventBus;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.item.armor.multicamchest;
+import tech.vvp.vvp.item.armor.multicamhelmet;
 import tech.vvp.vvp.item.armor.usahelmet;
 import tech.vvp.vvp.item.armor.usachest;
 import tech.vvp.vvp.item.varies.*;
@@ -33,6 +35,12 @@ public class ModItems {
     public static final RegistryObject<Item> USA_CHEST = REGISTRY.register("usachest",
             () -> new usachest());
 
+    public static final RegistryObject<Item> MULTICAM_HELMET = REGISTRY.register("multicamhelmet",
+            () -> new multicamhelmet());
+
+    public static final RegistryObject<Item> MULTICAM_CHEST = REGISTRY.register("multicamchest",
+            () -> new multicamchest());
+
 
     public static final RegistryObject<Item> MANGAL_BODY = REGISTRY.register("mangal_body", MangalBodyItem::new);
     public static final RegistryObject<Item> MANGAL_TURRET = REGISTRY.register("mangal_turret", MangalTurretItem::new);
@@ -42,6 +50,7 @@ public class ModItems {
     public static final RegistryObject<Item> KOROBKI = REGISTRY.register("korobki", KorobkiItem::new);
     public static final RegistryObject<Item> SPRAY = REGISTRY.register("spray", SprayItem::new);
     public static final RegistryObject<Item> TENT = REGISTRY.register("tent", TentItem::new);
+    public static final RegistryObject<Item> FAB_500_ITEM = REGISTRY.register("fab_500_item", Fab500Item::new);
 
     public static final RegistryObject<Item> AT4 = REGISTRY.register("at4", At4Item::new);
 

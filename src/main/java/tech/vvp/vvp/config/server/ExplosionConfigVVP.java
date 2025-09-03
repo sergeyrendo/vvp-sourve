@@ -18,6 +18,9 @@ public class ExplosionConfigVVP {
     public static ForgeConfigSpec.IntValue TERMINATOR_MISSILE_EXPLOSION_DAMAGE;
     public static ForgeConfigSpec.IntValue TERMINATOR_MISSILE_EXPLOSION_RADIUS;
 
+    public static ForgeConfigSpec.IntValue FAB_500_EXPLOSION_DAMAGE;
+    public static ForgeConfigSpec.DoubleValue FAB_500_EXPLOSION_RADIUS;
+
     static {
         BUILDER.push("tow_missile");
 
@@ -55,6 +58,16 @@ public class ExplosionConfigVVP {
 
         BUILDER.comment("The explosion radius of BMPT Terminator missile");
         TERMINATOR_MISSILE_EXPLOSION_RADIUS = BUILDER.defineInRange("terminatir_missile_explosion_radius", 3, 1, Integer.MAX_VALUE);
+
+        BUILDER.pop();
+
+        BUILDER.push("FAB-500");
+
+        BUILDER.comment("The explosion damage of FAB-500");
+        FAB_500_EXPLOSION_DAMAGE = BUILDER.defineInRange("fab_500_explosion_damage", 855, 1, Integer.MAX_VALUE);
+
+        BUILDER.comment("The explosion radius of FAB-500");
+        FAB_500_EXPLOSION_RADIUS = BUILDER.defineInRange("fab_500_explosion_radius", 46d, 1, Integer.MAX_VALUE);
 
         BUILDER.pop();
 

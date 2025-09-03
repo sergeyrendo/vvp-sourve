@@ -3,187 +3,205 @@ package tech.vvp.vvp.client.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.entity.vehicle.Mi24Entity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import tech.vvp.vvp.radar.IRadarVehicle;
 
 import java.util.*;
 
 public class RadarHud {
+    public static boolean hudEnabled = true;
+
+    public enum Position { TOP_LEFT, TOP_RIGHT, MID_RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT, MID_LEFT }
+    public static Position position = Position.TOP_LEFT;
+
     public static List<Vec3> radarTargets = new ArrayList<>();
 
     private static final ResourceLocation RADAR_BACKGROUND = new ResourceLocation(VVP.MOD_ID, "textures/gui/radar_bg.png");
-    private static final ResourceLocation RADAR_TARGET = new ResourceLocation(VVP.MOD_ID, "textures/gui/radar_target.png");
-    private static final ResourceLocation RADAR_SWEEP = new ResourceLocation(VVP.MOD_ID, "textures/gui/radar_sweep.png"); // Текстура 1x47
-    
-    private static final List<String> SUPPORTED_HELICOPTERS = Arrays.asList(
-        "Mi24Entity",
-        "CobraEntity",
-        "F35Entity",
-        "CobraSharkEntity",
-        "Mi24ukrEntity", 
-        "Mi24polEntity"
-    );
-    
-    // Переменные для эффекта сканирования
-    private static float sweepAngle = 0.0f;
-    private static final float SWEEP_SPEED = 2.0f; // Увеличенная скорость вращения развертки
-    private static final int TRAIL_LENGTH = 3; // Только 3 сегмента шлейфа
-    
-    // Карта для отслеживания времени обнаружения целей
-    private static final Map<Vec3, Long> targetDetectionTime = new HashMap<>();
-    private static final long TARGET_VISIBILITY_TIME = 1000; 
-    private static final long FADE_TIME = 1000;
+    private static final ResourceLocation RADAR_TARGET     = new ResourceLocation(VVP.MOD_ID, "textures/gui/radar_target.png");
+
+    private static final int RADAR_SIZE = 96;
+    private static final int MARGIN     = 10;
+
+    // Fade-out памяти точки
+    private static final long HOLD_TIME_MS = 500;
+    private static final long FADE_TIME_MS = 800;
+    private static final float MIN_ALPHA   = 0.06f;
+
+    // Мигание: 1.5s OFF, 2.5s ON. Плавные края BLINK_FADE_MS.
+    private static final long BLINK_OFF_MS  = 1500L;
+    private static final long BLINK_ON_MS   = 2500L;
+    private static final long BLINK_TOTAL   = BLINK_OFF_MS + BLINK_ON_MS;
+    private static final long BLINK_FADE_MS = 350L; // время сглаживания краёв
+
+    private static final Map<Long, Long> lastSeen = new HashMap<>();
+    private static final Map<Long, Vec3> lastPos  = new HashMap<>();
+
+    // Вызывай из S2C-пакета
+    public static void onServerTargetsUpdate(List<Vec3> targetsFromServer) {
+        radarTargets = targetsFromServer;
+        long now = System.currentTimeMillis();
+        for (Vec3 pos : targetsFromServer) {
+            long key = cellKey(pos);
+            lastSeen.put(key, now);
+            lastPos.put(key, pos);
+        }
+    }
 
     public static final IGuiOverlay HUD_RADAR = (gui, guiGraphics, partialTick, screenWidth, screenHeight) -> {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
-
-        if (player == null || !player.isAlive() || mc.level == null) {
-            return;
-        }
+        if (player == null || !player.isAlive() || mc.level == null) return;
 
         Entity vehicle = player.getVehicle();
+        if (!(vehicle instanceof IRadarVehicle rv)) return;
+        if (!hudEnabled) return;
 
-        if (vehicle != null && isRadarHelicopter(vehicle)) {
-            int radarSize = 96;
-            int radarX = 10;
-            int radarY = 10;
-            int radarCenterX = radarX + radarSize / 2;
-            int radarCenterY = radarY + radarSize / 2;
-            // ИЗМЕНЕНО: Дальность отображения на радаре увеличена в два раза (было 150f)
-            float radarDisplayRange = 300f;
-
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-
-            // Рисуем фон радара
-            guiGraphics.blit(RADAR_BACKGROUND, radarX, radarY, 0, 0, radarSize, radarSize, radarSize, radarSize);
-
-            // Обновляем угол развертки
-            sweepAngle = (sweepAngle + SWEEP_SPEED * partialTick) % 360;
-            
-            // Сохраняем текущую матрицу
-            PoseStack poseStack = guiGraphics.pose();
-            poseStack.pushPose();
-            
-            // Перемещаемся в центр радара
-            poseStack.translate(radarCenterX, radarCenterY, 0);
-            
-            // Рисуем шлейф развертки (3 сегмента с разной прозрачностью)
-            for (int i = TRAIL_LENGTH - 1; i >= 0; i--) {
-                float trailAngle = sweepAngle - (i * 20); // Каждый сегмент отстает на 20 градусов
-                float alpha = 0.15f - (i * 0.05f); // Прозрачность уменьшается: 0.15, 0.10, 0.05
-                
-                poseStack.pushPose();
-                poseStack.mulPose(Axis.ZP.rotationDegrees(trailAngle));
-                
-                RenderSystem.setShaderColor(0.0f, 1.0f, 0.0f, alpha);
-                guiGraphics.blit(RADAR_SWEEP, -1, -47, 0, 0, 1, 47, 1, 47);
-                
-                poseStack.popPose();
-            }
-            
-            // Рисуем основную линию развертки
-            poseStack.pushPose();
-            poseStack.mulPose(Axis.ZP.rotationDegrees(sweepAngle));
-            
-            RenderSystem.setShaderColor(0.0f, 1.0f, 0.0f, 0.7f);
-            guiGraphics.blit(RADAR_SWEEP, -1, -47, 0, 0, 1, 47, 1, 47);
-            
-            poseStack.popPose();
-            
-            // Восстанавливаем матрицу
-            poseStack.popPose();
-            
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-
-            // Текущее время
-            long currentTime = System.currentTimeMillis();
-            
-            // Очищаем старые цели
-            targetDetectionTime.entrySet().removeIf(entry -> 
-                currentTime - entry.getValue() > TARGET_VISIBILITY_TIME + FADE_TIME);
-
-            // Рисуем цели
-            for (Vec3 targetPos : radarTargets) {
-                Vec3 relativePos = targetPos.subtract(player.position());
-                double distance = Math.sqrt(relativePos.x * relativePos.x + relativePos.z * relativePos.z);
-
-                // Примечание: фактическая дальность обнаружения по-прежнему зависит от mi24Entity.RADAR_RANGE.
-                // Если там стоит 150, то цели дальше 150 блоков не появятся, даже если радар показывает 300.
-                if (distance > Mi24Entity.RADAR_RANGE) continue;
-
-                float playerYaw = (player.getViewYRot(1.0f) % 360 + 360) % 360;
-                double angleToTarget = Math.toDegrees(Math.atan2(relativePos.z, relativePos.x)) - 90;
-                double rotatedAngle = Math.toRadians(angleToTarget - playerYaw - 90);
-
-                double displayDist = (distance / radarDisplayRange) * (radarSize / 2.0 - 4);
-                displayDist = Math.min(displayDist, radarSize / 2.0 - 4);
-
-                int targetX = radarCenterX + (int) (Math.cos(rotatedAngle) * displayDist);
-                int targetY = radarCenterY + (int) (Math.sin(rotatedAngle) * displayDist);
-
-                // Проверяем угол между развёрткой и целью
-                float targetAngle = (float) (Math.toDegrees(rotatedAngle) + 90) % 360;
-                float angleDiff = Math.abs(normalizeAngle(targetAngle - sweepAngle));
-                
-                // Если развёртка проходит через цель, отмечаем время обнаружения
-                if (angleDiff < 5 && !targetDetectionTime.containsKey(targetPos)) {
-                    targetDetectionTime.put(targetPos, currentTime);
-                }
-                
-                // Показываем цель только если она была обнаружена
-                if (targetDetectionTime.containsKey(targetPos)) {
-                    long detectionTime = targetDetectionTime.get(targetPos);
-                    long timeSinceDetection = currentTime - detectionTime;
-                    
-                    float alpha = 1.0f;
-                    
-                    if (timeSinceDetection < TARGET_VISIBILITY_TIME) {
-                        // Цель полностью видима
-                        alpha = 1.0f;
-                        
-                        // Эффект пульсации в первую секунду после обнаружения
-                        if (timeSinceDetection < 1000) {
-                            float pulse = (float) (Math.sin(timeSinceDetection * 0.01) * 0.3 + 0.7);
-                            alpha *= pulse;
-                        }
-                    } else if (timeSinceDetection < TARGET_VISIBILITY_TIME + FADE_TIME) {
-                        // Цель затухает
-                        alpha = 1.0f - ((float)(timeSinceDetection - TARGET_VISIBILITY_TIME) / FADE_TIME);
-                    } else {
-                        // Цель больше не видна
-                        continue;
-                    }
-                    
-                    RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
-                    // ИЗМЕНЕНО: Размер цели уменьшен ~в 1.5 раза (с 4x4 до 3x3) для лучшей читаемости
-                    int targetSize = 3;
-                    guiGraphics.blit(RADAR_TARGET, targetX - (targetSize / 2), targetY - (targetSize / 2), 0, 0, targetSize, targetSize, targetSize, targetSize);
-                }
-            }
-            
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-            RenderSystem.disableBlend();
+        int radarX, radarY;
+        switch (position) {
+            case TOP_RIGHT   -> { radarX = screenWidth - RADAR_SIZE - MARGIN; radarY = MARGIN; }
+            case MID_RIGHT   -> { radarX = screenWidth - RADAR_SIZE - MARGIN; radarY = (screenHeight - RADAR_SIZE) / 2; }
+            case BOTTOM_RIGHT-> { radarX = screenWidth - RADAR_SIZE - MARGIN; radarY = screenHeight - RADAR_SIZE - MARGIN; }
+            case BOTTOM_LEFT -> { radarX = MARGIN; radarY = screenHeight - RADAR_SIZE - MARGIN; }
+            case MID_LEFT    -> { radarX = MARGIN; radarY = (screenHeight - RADAR_SIZE) / 2; }
+            default          -> { radarX = MARGIN; radarY = MARGIN; }
         }
+        int radarCenterX = radarX + RADAR_SIZE / 2;
+        int radarCenterY = radarY + RADAR_SIZE / 2;
+
+        int   radarRange        = Math.max(rv.getRadarRange(), 1);
+        float radarDisplayRange = radarRange * 2.0f;
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+
+        // Фон
+        guiGraphics.blit(RADAR_BACKGROUND, radarX, radarY, 0, 0, RADAR_SIZE, RADAR_SIZE, RADAR_SIZE, RADAR_SIZE);
+
+        long now = System.currentTimeMillis();
+
+        // Чистим полностью погасшие
+        lastSeen.entrySet().removeIf(e -> now - e.getValue() > HOLD_TIME_MS + FADE_TIME_MS);
+        lastPos.keySet().retainAll(lastSeen.keySet());
+
+        // Мягкое мигание: общий множитель прозрачности для всех меток
+        float blink = computeBlinkAlpha(now);
+        if (blink <= 0.01f) {
+            RenderSystem.setShaderColor(1, 1, 1, 1);
+            RenderSystem.disableBlend();
+            return; // в глухой OFF-фазе
+        }
+
+        // Подготовка проекции
+        Vec3 origin = vehicle.position();
+        double yawRad = Math.toRadians(vehicle.getYRot());
+
+        for (Map.Entry<Long, Vec3> entry : lastPos.entrySet()) {
+            Vec3 pos = entry.getValue();
+            long seen = lastSeen.getOrDefault(entry.getKey(), now);
+
+            // Альфа памяти точки
+            float alpha;
+            long dt = now - seen;
+            if (dt <= HOLD_TIME_MS) alpha = 1.0f;
+            else {
+                float k = Math.min(1f, (float)(dt - HOLD_TIME_MS) / (float)FADE_TIME_MS);
+                alpha = 1.0f - (1.0f - MIN_ALPHA) * k;
+            }
+
+            // Относительный вектор
+            Vec3 rel = pos.subtract(origin);
+            double dx = rel.x, dz = rel.z;
+            double distance = Math.sqrt(dx*dx + dz*dz);
+            if (distance < 1e-6 || distance > radarRange) continue;
+
+            // В локальные оси техники (без зеркалирования)
+            double localX = -(dx * Math.cos(yawRad) + dz * Math.sin(yawRad)); // вправо +
+            double localZ =  (-dx * Math.sin(yawRad) + dz * Math.cos(yawRad)); // вперёд +
+
+            // Экранные координаты
+            double displayDist = Math.min((distance / radarDisplayRange) * (RADAR_SIZE / 2.0 - 4), RADAR_SIZE / 2.0 - 4);
+            double nx = localX / distance, nz = localZ / distance;
+
+            int targetX = radarCenterX + (int)(nx * displayDist);
+            int targetY = radarCenterY - (int)(nz * displayDist);
+
+            // Итоговая прозрачность с учётом мигания
+            float finalAlpha = alpha * blink;
+            RenderSystem.setShaderColor(1f, 1f, 1f, finalAlpha);
+            int s = 3;
+            guiGraphics.blit(RADAR_TARGET, targetX - (s / 2), targetY - (s / 2), 0, 0, s, s, s, s);
+        }
+
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        RenderSystem.disableBlend();
     };
-    
-    // Нормализация угла в диапазон 0-180
-    private static float normalizeAngle(float angle) {
-        angle = angle % 360;
-        if (angle < 0) angle += 360;
-        if (angle > 180) angle = 360 - angle;
+
+    public static Position cyclePosition() {
+        switch (position) {
+            case TOP_LEFT   -> position = Position.TOP_RIGHT;
+            case TOP_RIGHT  -> position = Position.MID_RIGHT;
+            case MID_RIGHT  -> position = Position.BOTTOM_RIGHT;
+            case BOTTOM_RIGHT-> position = Position.BOTTOM_LEFT;
+            case BOTTOM_LEFT-> position = Position.MID_LEFT;
+            case MID_LEFT   -> position = Position.TOP_LEFT;
+        }
+        return position;
+    }
+
+    public static String positionId(Position p) {
+        return switch (p) {
+            case TOP_LEFT -> "top_left";
+            case TOP_RIGHT -> "top_right";
+            case MID_RIGHT -> "mid_right";
+            case BOTTOM_RIGHT -> "bottom_right";
+            case BOTTOM_LEFT -> "bottom_left";
+            case MID_LEFT -> "mid_left";
+        };
+    }
+
+    private static float normalize360(float angle) {
+        angle %= 360f;
+        if (angle < 0f) angle += 360f;
         return angle;
     }
-    
-    private static boolean isRadarHelicopter(Entity vehicle) {
-        String vehicleClassName = vehicle.getClass().getSimpleName();
-        return SUPPORTED_HELICOPTERS.contains(vehicleClassName);
+
+    private static long cellKey(Vec3 pos) {
+        int cx = Mth.floor(pos.x * 2.0);
+        int cz = Mth.floor(pos.z * 2.0);
+        return ((long) cx << 32) ^ (cz & 0xffffffffL);
+    }
+
+    // Мягкий коэффициент мигания [0..1] с плавными краями (smoothstep)
+    private static float computeBlinkAlpha(long nowMs) {
+        long phase = nowMs % BLINK_TOTAL;
+
+        // OFF зона с fade-in в конце
+        long offHard = Math.max(0, (int)(BLINK_OFF_MS - BLINK_FADE_MS));
+        if (phase < offHard) return 0f;
+        if (phase < BLINK_OFF_MS) {
+            float x = (float)(phase - offHard) / (float)BLINK_FADE_MS; // 0..1
+            return smooth01(x); // плавный вход
+        }
+
+        // ON зона с fade-out в конце
+        long onPhase = phase - BLINK_OFF_MS;
+        long onHard = Math.max(0, (int)(BLINK_ON_MS - BLINK_FADE_MS));
+        if (onPhase < onHard) return 1f;
+        if (onPhase < BLINK_ON_MS) {
+            float x = 1f - (float)(onPhase - onHard) / (float)BLINK_FADE_MS; // 1..0
+            return smooth01(x); // плавный выход
+        }
+        return 0f;
+    }
+
+    // Smoothstep (0..1) -> (0..1) с S‑кривой
+    private static float smooth01(float x) {
+        x = Mth.clamp(x, 0f, 1f);
+        return x * x * (3f - 2f * x);
     }
 }

@@ -38,7 +38,10 @@ public class ModTabs {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2_SEP.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M60.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.T90.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.T90_2024.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI24.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.COBRA.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.UH60MOD.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.UH60.get()));
@@ -54,6 +57,8 @@ public class ModTabs {
                             .displayItems((parameters, output) -> {
                                 output.accept(ModItems.USA_HELMET.get());
                                 output.accept(ModItems.USA_CHEST.get());
+                                output.accept(ModItems.MULTICAM_HELMET.get());
+                                output.accept(ModItems.MULTICAM_CHEST.get());
                                 output.accept(ModItems.MANGAL_TURRET.get());
                                 output.accept(ModItems.MANGAL_BODY.get());
                                 output.accept(ModItems.SETKA_BODY.get());
@@ -62,6 +67,7 @@ public class ModTabs {
                                 output.accept(ModItems.KOROBKI.get());
                                 output.accept(ModItems.SPRAY.get());
                                 output.accept(ModItems.WRENCH.get());
+                                output.accept(ModItems.FAB_500_ITEM.get());
 
                             })
                             .build());

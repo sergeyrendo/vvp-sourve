@@ -10,6 +10,7 @@ import net.minecraftforge.network.NetworkDirection;
 import java.util.Optional;
 
 import org.slf4j.Logger;
+import tech.vvp.vvp.client.PassengerScaleHandler;
 import tech.vvp.vvp.config.server.VehicleConfigVVP;
 import tech.vvp.vvp.config.server.ExplosionConfigVVP;
 import tech.vvp.vvp.init.*;
@@ -22,6 +23,8 @@ import tech.vvp.vvp.network.VVPNetwork;
 import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
+import tech.vvp.vvp.network.message.C2SRadarTogglePacket;
+
 
 @Mod(VVP.MOD_ID)
 public class VVP {
@@ -40,6 +43,9 @@ public class VVP {
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, VehicleConfigVVP.SPEC, "vvp-vehicle.toml");
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ExplosionConfigVVP.SPEC, "vvp-explosion.toml");
 
+        MinecraftForge.EVENT_BUS.addListener(PassengerScaleHandler::onRenderLivingPre);
+        MinecraftForge.EVENT_BUS.addListener(PassengerScaleHandler::onRenderLivingPost);
+
 
 
 
@@ -53,11 +59,35 @@ public class VVP {
 
     private void setup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            // Some common setup code
-            LOGGER.info("HELLO FROM COMMON SETUP");
-            LOGGER.info("DIRT BLOCK >> {}", net.minecraft.world.level.block.Blocks.DIRT);
+            // Уже зарегистрированные пакеты...
+
+            // C2S: переключение радара
+            VVPNetwork.addNetworkMessage(
+                    tech.vvp.vvp.network.message.C2SRadarTogglePacket.class,
+                    tech.vvp.vvp.network.message.C2SRadarTogglePacket::encode,
+                    tech.vvp.vvp.network.message.C2SRadarTogglePacket::decode,
+                    tech.vvp.vvp.network.message.C2SRadarTogglePacket::handle,
+                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
+            );
+
+            // S2C: синхронизация списка целей
+            VVPNetwork.addNetworkMessage(
+                    tech.vvp.vvp.network.message.S2CRadarSyncPacket.class,
+                    tech.vvp.vvp.network.message.S2CRadarSyncPacket::buffer,
+                    tech.vvp.vvp.network.message.S2CRadarSyncPacket::new,
+                    tech.vvp.vvp.network.message.S2CRadarSyncPacket::handler,
+                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
+            );
+
+            // NEW: S2C: синхронизация состояния радара (для HUD)
+            VVPNetwork.addNetworkMessage(
+                    tech.vvp.vvp.network.message.S2CRadarStatePacket.class,
+                    tech.vvp.vvp.network.message.S2CRadarStatePacket::buffer,
+                    tech.vvp.vvp.network.message.S2CRadarStatePacket::new,
+                    tech.vvp.vvp.network.message.S2CRadarStatePacket::handler,
+                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
+            );
         });
-        VVPNetwork.addNetworkMessage(S2CRadarSyncPacket.class, S2CRadarSyncPacket::buffer, S2CRadarSyncPacket::new, S2CRadarSyncPacket::handler, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 
     private void onItemTooltip(ItemTooltipEvent event) {
