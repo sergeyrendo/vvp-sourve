@@ -17,6 +17,19 @@ public class VehicleConfigVVP {
         public static ForgeConfigSpec.IntValue MI_24_ROCKET_EXPLOSION_RADIUS;
         public static ForgeConfigSpec.BooleanValue MI_24_CANNON_DESTROY;
 
+        public static ForgeConfigSpec.IntValue MI_28_MAX_ENERGY_COST;
+        public static ForgeConfigSpec.IntValue MI_28_MIN_ENERGY_COST;
+        public static ForgeConfigSpec.IntValue MI_28_CANNON_DAMAGE;
+        public static ForgeConfigSpec.IntValue MI_28_CANNON_EXPLOSION_DAMAGE;
+        public static ForgeConfigSpec.DoubleValue MI_28_CANNON_EXPLOSION_RADIUS;
+        public static ForgeConfigSpec.IntValue MI_28_ROCKET_DAMAGE;
+        public static ForgeConfigSpec.IntValue MI_28_ROCKET_EXPLOSION_DAMAGE;
+        public static ForgeConfigSpec.IntValue MI_28_ROCKET_EXPLOSION_RADIUS;
+        public static ForgeConfigSpec.IntValue MI_28_MEDIUM_ROCKET_DAMAGE;
+        public static ForgeConfigSpec.IntValue MI_28_MEDIUM_ROCKET_EXPLOSION_DAMAGE;
+        public static ForgeConfigSpec.IntValue MI_28_MEDIUM_ROCKET_EXPLOSION_RADIUS;
+        public static ForgeConfigSpec.BooleanValue MI_28_CANNON_DESTROY;
+
 
         public static ForgeConfigSpec.IntValue STRYKER_M1128_CANNON_DAMAGE;
         public static ForgeConfigSpec.IntValue STRYKER_M1128_CANNON_EXPLOSION_DAMAGE;
@@ -109,6 +122,58 @@ public class VehicleConfigVVP {
             MI_24_CANNON_DESTROY = BUILDER.define("mi_24_cannon_destroy", true);
 
             BUILDER.pop();
+
+
+
+            BUILDER.push("mi_28");
+
+            BUILDER.comment("The max energy cost of MI-28 per tick");
+            MI_28_MAX_ENERGY_COST = BUILDER.defineInRange("mi_24_max_energy_cost", 138, 0, 2147483647);
+
+            BUILDER.comment("The min energy cost of MI-28 per tick");
+            MI_28_MIN_ENERGY_COST = BUILDER.defineInRange("mi_28_min_energy_cost", 64, 0, 2147483647);
+
+            BUILDER.comment("The cannon damage of MI-28");
+            MI_28_CANNON_DAMAGE = BUILDER.defineInRange("mi_28_cannon_damage", 25, 1, 10000000);
+
+            BUILDER.comment("The cannon explosion damage of MI-28");
+            MI_28_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("mi_28_cannon_explosion_damage", 15, 1, 10000000);
+
+            BUILDER.comment("The cannon explosion damage of MI-28");
+            MI_28_CANNON_EXPLOSION_RADIUS = BUILDER.defineInRange("mi_28_cannon_explosion_damage", 5d, 1, 10000000);
+
+
+
+            BUILDER.comment("The rocket damage of MI-28");
+            MI_28_ROCKET_DAMAGE = BUILDER.defineInRange("mi_28_rocket_damage", 35, 1, 10000000);
+
+            BUILDER.comment("The rocket explosion damage of MI-28");
+            MI_28_ROCKET_EXPLOSION_DAMAGE = BUILDER.defineInRange("mi_28_rocket_explosion_damage", 33, 1, 10000000);
+
+            BUILDER.comment("The rocket explosion radius of MI-28");
+            MI_28_ROCKET_EXPLOSION_RADIUS = BUILDER.defineInRange("mi_28_rocket_explosion_radius", 5, 1, 10000000);
+
+
+
+            BUILDER.comment("The medium rocket damage of MI-28");
+            MI_28_MEDIUM_ROCKET_DAMAGE = BUILDER.defineInRange("mi_28_medium_rocket_damage", 55, 1, 10000000);
+
+            BUILDER.comment("The medium rocket explosion damage of MI-28");
+            MI_28_MEDIUM_ROCKET_EXPLOSION_DAMAGE = BUILDER.defineInRange("mi_28_medium_rocket_explosion_damage", 40, 1, 10000000);
+
+            BUILDER.comment("The medium rocket explosion radius of MI-28");
+            MI_28_MEDIUM_ROCKET_EXPLOSION_RADIUS = BUILDER.defineInRange("mi_28_medium_rocket_explosion_radius", 8, 1, 10000000);
+
+
+
+            BUILDER.comment("Whether to destroy the block when cannon of MI-28 hits a block");
+            MI_28_CANNON_DESTROY = BUILDER.define("mi_28_cannon_destroy", true);
+
+
+
+            BUILDER.pop();
+
+
 
             BUILDER.push("stryker_m1128");
 

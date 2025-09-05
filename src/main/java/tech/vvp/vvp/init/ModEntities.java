@@ -10,6 +10,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.entity.projectile.Fab250Entity;
 import tech.vvp.vvp.entity.projectile.Fab500Entity;
 import tech.vvp.vvp.entity.vehicle.*;
 
@@ -248,6 +249,15 @@ public class ModEntities {
                     .sized(3f, 4f)
                     .build("mi_28"));
 
+    public static final RegistryObject<EntityType<Mi28_1Entity>> MI_28_1 = ENTITY_TYPES.register("mi_28_1",
+            () -> EntityType.Builder.<Mi28_1Entity>of(Mi28_1Entity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(Mi28_1Entity::clientSpawn)
+                    .fireImmune()
+                    .sized(3f, 4f)
+                    .build("mi_28_1"));
+
     public static final RegistryObject<EntityType<Mi24Entity>> MI24 = register("mi24",
             EntityType.Builder.<Mi24Entity>of(Mi24Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(Mi24Entity::new).fireImmune().sized(4.5f, 4.8f));
 
@@ -261,6 +271,9 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<Fab500Entity>> FAB_500 = register("fab_500",
             EntityType.Builder.<Fab500Entity>of(Fab500Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(Fab500Entity::new).noSave().sized(0.8f, 0.8f));
+
+    public static final RegistryObject<EntityType<Fab250Entity>> FAB_250 = register("fab_250",
+            EntityType.Builder.<Fab250Entity>of(Fab250Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(Fab250Entity::new).noSave().sized(0.8f, 0.8f));
 
         private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
                 return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));

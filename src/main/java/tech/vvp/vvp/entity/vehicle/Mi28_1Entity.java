@@ -13,13 +13,17 @@ import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallCannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallRocketWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.VehicleWeapon;
 import com.atsuishio.superbwarfare.event.ClientMouseHandler;
-import com.atsuishio.superbwarfare.init.*;
+import com.atsuishio.superbwarfare.init.ModDamageTypes;
+import com.atsuishio.superbwarfare.init.ModItems;
+import com.atsuishio.superbwarfare.init.ModSounds;
+import com.atsuishio.superbwarfare.init.ModTags;
 import com.atsuishio.superbwarfare.network.message.receive.ShakeClientMessage;
 import com.atsuishio.superbwarfare.tools.*;
 import com.mojang.math.Axis;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -28,7 +32,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -41,18 +44,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Math;
 import org.joml.*;
+import org.joml.Math;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -60,27 +61,23 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.config.server.VehicleConfigVVP;
 import tech.vvp.vvp.entity.vehicle.weapon.Fab500Weapon;
 import tech.vvp.vvp.radar.IRadarVehicle;
-import net.minecraft.core.BlockPos;
+
+import java.util.List;
 
 import static com.atsuishio.superbwarfare.event.ClientEventHandler.zoomVehicle;
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPitch;
 import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
-
-import java.util.Comparator;
-import java.util.List;
-
-import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraPitch;
-import static com.atsuishio.superbwarfare.event.ClientMouseHandler.freeCameraYaw;
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
-public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity, IRadarVehicle
+public class Mi28_1Entity extends ContainerMobileVehicleEntity implements GeoEntity, HelicopterEntity, WeaponVehicleEntity, OBBEntity, IRadarVehicle
 {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(Mi28Entity.class, EntityDataSerializers.FLOAT);
-    public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(Mi28Entity.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer> FIRE_TIME = SynchedEntityData.defineId(Mi28Entity.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer> LOADED_BOMB = SynchedEntityData.defineId(Mi28Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(Mi28_1Entity.class, EntityDataSerializers.FLOAT);
+    public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(Mi28_1Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> LOADED_MEDIUM_ROCKET = SynchedEntityData.defineId(Mi28_1Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> FIRE_TIME = SynchedEntityData.defineId(Mi28_1Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> LOADED_BOMB = SynchedEntityData.defineId(Mi28_1Entity.class, EntityDataSerializers.INT);
     public boolean engineStart;
     public boolean engineStartOver;
 
@@ -104,11 +101,11 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
     public OBB obb7;
 
 
-    public Mi28Entity(PlayMessages.SpawnEntity packet, Level world) {
-        this(tech.vvp.vvp.init.ModEntities.MI_28.get(), world);
+    public Mi28_1Entity(PlayMessages.SpawnEntity packet, Level world) {
+        this(tech.vvp.vvp.init.ModEntities.MI_28_1.get(), world);
     }
 
-    public Mi28Entity(EntityType<Mi28Entity> type, Level world) {
+    public Mi28_1Entity(EntityType<Mi28_1Entity> type, Level world) {
         super(type, world);
         this.obb = new OBB(this.position().toVector3f(), new Vector3f(0.5781f, 1.2813f, 2.4375f), new Quaternionf(), OBB.Part.BODY);
         this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(0.9938f, 1.0625f, 1.3125f), new Quaternionf(), OBB.Part.BODY);
@@ -134,7 +131,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
     }
 
     @SuppressWarnings("unchecked")
-    public static Mi28Entity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
+    public static Mi28_1Entity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
         EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
         if (entityTypeFromPacket == null) {
             Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
@@ -145,8 +142,8 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
             return null;
         }
 
-        EntityType<Mi28Entity> castedEntityType = (EntityType<Mi28Entity>) entityTypeFromPacket;
-        Mi28Entity entity = new Mi28Entity(castedEntityType, world);
+        EntityType<Mi28_1Entity> castedEntityType = (EntityType<Mi28_1Entity>) entityTypeFromPacket;
+        Mi28_1Entity entity = new Mi28_1Entity(castedEntityType, world);
         return entity;
     }
 
@@ -172,8 +169,13 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
                                 .sound(ModSounds.INTO_MISSILE.get())
                                 .sound1p(ModSounds.SMALL_ROCKET_FIRE_1P.get())
                                 .sound3p(ModSounds.SMALL_ROCKET_FIRE_3P.get()),
-                        new Fab500Weapon()
-                                .sound(ModSounds.INTO_MISSILE.get()),
+                        new SmallRocketWeapon()
+                                .damage(VehicleConfigVVP.MI_28_MEDIUM_ROCKET_DAMAGE.get().floatValue())
+                                .explosionDamage(VehicleConfigVVP.MI_28_MEDIUM_ROCKET_EXPLOSION_DAMAGE.get().floatValue())
+                                .explosionRadius(VehicleConfigVVP.MI_28_MEDIUM_ROCKET_EXPLOSION_RADIUS.get().floatValue())
+                                .sound(ModSounds.INTO_MISSILE.get())
+                                .sound1p(ModSounds.SMALL_ROCKET_FIRE_1P.get())
+                                .sound3p(ModSounds.SMALL_ROCKET_FIRE_3P.get()),
                 }
         };
     }
@@ -187,6 +189,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(LOADED_ROCKET, 0);
+        this.entityData.define(LOADED_MEDIUM_ROCKET, 0);
         this.entityData.define(PROPELLER_ROT, 0f);
         this.entityData.define(FIRE_TIME, 0);
         this.entityData.define(LOADED_BOMB, 0);
@@ -196,6 +199,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("LoadedRocket", this.entityData.get(LOADED_ROCKET));
+        compound.putInt("LoadedRocketMedium", this.entityData.get(LOADED_MEDIUM_ROCKET));
         compound.putFloat("PropellerRot", this.entityData.get(PROPELLER_ROT));
         compound.putInt("LoadedBomb", this.entityData.get(LOADED_BOMB));
     }
@@ -204,6 +208,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.entityData.set(LOADED_ROCKET, compound.getInt("LoadedRocket"));
+        this.entityData.set(LOADED_MEDIUM_ROCKET, compound.getInt("LoadedMediumRocket"));
         this.entityData.set(PROPELLER_ROT, compound.getFloat("PropellerRot"));
         this.entityData.set(LOADED_BOMB, compound.getInt("LoadedBomb"));
     }
@@ -227,6 +232,16 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
         if (stack.getItem() == ModItems.SMALL_ROCKET.get() && this.entityData.get(LOADED_ROCKET) < 44) {
             // 装载火箭
             this.entityData.set(LOADED_ROCKET, this.entityData.get(LOADED_ROCKET) + 1);
+            if (!player.isCreative()) {
+                stack.shrink(1);
+            }
+            this.level().playSound(null, this, ModSounds.MISSILE_RELOAD.get(), this.getSoundSource(), 2, 1);
+            return InteractionResult.sidedSuccess(this.level().isClientSide());
+        }
+
+        if (stack.getItem() == tech.vvp.vvp.init.ModItems.S_13.get() && this.entityData.get(LOADED_MEDIUM_ROCKET) < 10) {
+            // 装载火箭
+            this.entityData.set(LOADED_MEDIUM_ROCKET, this.entityData.get(LOADED_MEDIUM_ROCKET) + 1);
             if (!player.isCreative()) {
                 stack.shrink(1);
             }
@@ -291,13 +306,13 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
             this.level().playSound(null, this, ModSounds.MISSILE_RELOAD.get(), this.getSoundSource(), 1, 1);
         }
 
-        if ((hasItem(tech.vvp.vvp.init.ModItems.FAB_500_ITEM.get()) || InventoryTool.hasCreativeAmmoBox(player)) && reloadCoolDownBomb == 0 && this.getEntityData().get(LOADED_BOMB) < 2) {
-            this.entityData.set(LOADED_BOMB, this.getEntityData().get(LOADED_BOMB) + 1);
-            reloadCoolDownBomb = 300;
+        if ((hasItem(tech.vvp.vvp.init.ModItems.S_13.get()) || InventoryTool.hasCreativeAmmoBox(player)) && reloadCoolDown == 0 && this.getEntityData().get(LOADED_MEDIUM_ROCKET) < 10) {
+            this.entityData.set(LOADED_MEDIUM_ROCKET, this.getEntityData().get(LOADED_MEDIUM_ROCKET) + 1);
+            reloadCoolDown = 80;
             if (!InventoryTool.hasCreativeAmmoBox(player)) {
-                this.getItemStacks().stream().filter(stack -> stack.is(tech.vvp.vvp.init.ModItems.FAB_500_ITEM.get())).findFirst().ifPresent(stack -> stack.shrink(1));
+                this.getItemStacks().stream().filter(stack -> stack.is(tech.vvp.vvp.init.ModItems.S_13.get())).findFirst().ifPresent(stack -> stack.shrink(1));
             }
-            this.level().playSound(null, this, ModSounds.BOMB_RELOAD.get(), this.getSoundSource(), 2, 1);
+            this.level().playSound(null, this, ModSounds.MISSILE_RELOAD.get(), this.getSoundSource(), 1, 1);
         }
 
         if (this.getWeaponIndex(0) == 0) {
@@ -305,7 +320,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
         } else if (this.getWeaponIndex(0) == 1) {
             this.entityData.set(AMMO, this.getEntityData().get(LOADED_ROCKET));
         } else if (this.getWeaponIndex(0) == 2) {
-            this.entityData.set(AMMO, this.getEntityData().get(LOADED_BOMB));
+            this.entityData.set(AMMO, this.getEntityData().get(LOADED_MEDIUM_ROCKET));
         }
     }
 
@@ -674,9 +689,9 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
         if (getWeaponIndex(0) == 0) {
             if (this.cannotFire) return;
 
-            Vector4f worldPosition  = transformPosition(transform, 0.1321625f, 0.56446875f, 3.5f);
+            Vector4f worldPosition  = transformPosition(transform, 0.1321625f, 0.0f, 3.5f);
             // сдвиг вперёд по оси Z, чтобы стрелять прямо
-            Vector4f worldPosition2 = transformPosition(transform, 0.1321625f, 0.56446875f, 4.5f);
+            Vector4f worldPosition2 = transformPosition(transform, 0.1321625f, 0.0f, 4.5f);
 
             Vec3 shootVec = new Vec3(worldPosition.x, worldPosition.y, worldPosition.z)
                     .vectorTo(new Vec3(worldPosition2.x, worldPosition2.y, worldPosition2.z))
@@ -733,44 +748,54 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
             this.entityData.set(LOADED_ROCKET, this.getEntityData().get(LOADED_ROCKET) - 1);
             reloadCoolDown = 30;
-        } else if (getWeaponIndex(0) == 2 && this.getEntityData().get(LOADED_BOMB) > 0) {
-            var Mk82Entity = ((Fab500Weapon) getWeapon(0)).create(player);
+        } else if (getWeaponIndex(0) == 2 && this.getEntityData().get(LOADED_MEDIUM_ROCKET) > 0) {
+
+            var heliRocketEntity = ((SmallRocketWeapon) getWeapon(0)).create(player);
 
             Vector4f worldPosition;
+            Vector4f worldPosition2;
 
-            if (this.getEntityData().get(LOADED_BOMB) == 2) {
-                worldPosition = transformPosition(transform, 2.447f, 1.527f, -2.022f);
+            if (fireIndex == 0) {
+                worldPosition = transformPosition(transform, 1.7f, -0.83f, 0.8f);
+                worldPosition2 = transformPosition(transform, 1.7f + 0.009f - 0.0025f, -0.83f + 0.012f, 1.8f);
+                fireIndex = 1;
             } else {
-                worldPosition = transformPosition(transform, -2.447f, 1.527f, -2.022f);
+                worldPosition = transformPosition(transform, -1.7f, -0.83f, 0.8f);
+                worldPosition2 = transformPosition(transform, -1.7f + 0.009f + 0.0025f, -0.83f + 0.012f, 1.8f);
+                fireIndex = 0;
             }
 
-            Mk82Entity.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
-            Mk82Entity.shoot(getDeltaMovement().x, getDeltaMovement().y, getDeltaMovement().z, (float) getDeltaMovement().scale(0.75).length(), 0.5f);
-            player.level().addFreshEntity(Mk82Entity);
+            Vec3 shootVec = new Vec3(worldPosition.x, worldPosition.y, worldPosition.z).vectorTo(new Vec3(worldPosition2.x, worldPosition2.y, worldPosition2.z)).normalize();
 
-            BlockPos pos = BlockPos.containing(new Vec3(worldPosition.x, worldPosition.y, worldPosition.z));
+            heliRocketEntity.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
+            heliRocketEntity.shoot(shootVec.x, shootVec.y, shootVec.z, 7, 0.25f);
+            player.level().addFreshEntity(heliRocketEntity);
 
-            this.level().playSound(null, pos, ModSounds.BOMB_RELEASE.get(), SoundSource.PLAYERS, 3, 1);
-
-            if (this.getEntityData().get(LOADED_BOMB) == 2) {
-                reloadCoolDownBomb = 300;
+            if (!player.level().isClientSide) {
+                playShootSound3p(player, 0, 6, 6, 6);
             }
-            this.entityData.set(LOADED_BOMB, this.getEntityData().get(LOADED_BOMB) - 1);
+
+            this.entityData.set(LOADED_MEDIUM_ROCKET, this.getEntityData().get(LOADED_MEDIUM_ROCKET) - 1);
+            reloadCoolDown = 80;
         }
     }
 
     @Override
     public int mainGunRpm(Player player) {
 
+        if (getWeaponIndex(0) == 0) {
+            return 500;
+        }
+
         if (getWeaponIndex(0) == 1) {
             return 300;
         }
 
         if (getWeaponIndex(0) == 2) {
-            return 600;
+            return 100;
         }
 
-        return 500;
+        return 0;
     }
 
     @Override
@@ -901,26 +926,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
     @OnlyIn(Dist.CLIENT)
     @Override
     public @Nullable Vec2 getCameraRotation(float partialTicks, Player player, boolean zoom, boolean isFirstPerson) {
-
-        Minecraft mc = Minecraft.getInstance();
-        Camera camera = mc.gameRenderer.getMainCamera();
-        Vec3 cameraPos = camera.getPosition();
-
-        Vec3 p0 = bombLandingPosO;
-        Vec3 p1 = bombLandingPos;
-        Vec3 p2 = getViewVector(partialTicks);
-        if (p0 != null && p1 != null) {
-            p2 = cameraPos.vectorTo(p0.lerp(p1, partialTicks));
-        }
-
         if (this.getSeatIndex(player) == 0) {
-            return new Vec2((float) (getRotY(partialTicks) - freeCameraYaw), (float) (getRotX(partialTicks) + freeCameraPitch));
-        }
-
-        if (this.getSeatIndex(player) == 0) {
-            if (getWeaponIndex(0) == 2 && zoomVehicle) {
-                return new Vec2((float) (-getYRotFromVector(p2) - freeCameraYaw), (float) (-getXRotFromVector(p2) + freeCameraPitch));
-            }
             return new Vec2((float) (getRotY(partialTicks) - freeCameraYaw), (float) (getRotX(partialTicks) + freeCameraPitch));
         }
 
@@ -931,11 +937,6 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
     @Override
     public Vec3 getCameraPosition(float partialTicks, Player player, boolean zoom, boolean isFirstPerson) {
         if (this.getSeatIndex(player) == 0) {
-
-            if (getWeaponIndex(0) == 2 && zoomVehicle) {
-                return shootPos(partialTicks);
-            }
-
             Matrix4f transform = getClientVehicleTransform(partialTicks);
             Vector4f maxCameraPosition = transformPosition(transform, -2.1f, 1, -10 - (float) ClientMouseHandler.custom3pDistanceLerp);
             Vec3 finalPos = CameraTool.getMaxZoom(transform, maxCameraPosition);
@@ -945,7 +946,6 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
             } else {
                 return finalPos;
             }
-
         }
         return super.getCameraPosition(partialTicks, player, false, false);
     }

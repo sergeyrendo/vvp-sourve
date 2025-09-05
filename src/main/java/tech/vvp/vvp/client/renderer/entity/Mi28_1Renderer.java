@@ -1,10 +1,5 @@
 package tech.vvp.vvp.client.renderer.entity;
 
-import com.atsuishio.superbwarfare.event.ClientEventHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
-import tech.vvp.vvp.client.model.Mi28Model;
-import tech.vvp.vvp.entity.vehicle.Mi28Entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -17,23 +12,23 @@ import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import tech.vvp.vvp.client.model.Mi28_1Model;
+import tech.vvp.vvp.entity.vehicle.Mi28_1Entity;
 
-import static tech.vvp.vvp.entity.vehicle.Mi28Entity.LOADED_BOMB;
+public class Mi28_1Renderer extends GeoEntityRenderer<Mi28_1Entity> {
 
-public class Mi28Renderer extends GeoEntityRenderer<Mi28Entity> {
-
-    public Mi28Renderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new Mi28Model());
+    public Mi28_1Renderer(EntityRendererProvider.Context renderManager) {
+        super(renderManager, new Mi28_1Model());
         this.shadowRadius = 0.5f;
     }
 
     @Override
-    public RenderType getRenderType(Mi28Entity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(Mi28_1Entity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 
     @Override
-    public void preRender(PoseStack poseStack, Mi28Entity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
+    public void preRender(PoseStack poseStack, Mi28_1Entity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
                           float blue, float alpha) {
         float scale = 1f;
         this.scaleHeight = scale;
@@ -42,7 +37,7 @@ public class Mi28Renderer extends GeoEntityRenderer<Mi28Entity> {
     }
 
     @Override
-    public void render(Mi28Entity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
+    public void render(Mi28_1Entity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
         Vec3 root = new Vec3(0, 1.45, 0);
         poseStack.rotateAround(Axis.YP.rotationDegrees(-entityYaw), (float) root.x, (float) root.y, (float) root.z);
@@ -53,7 +48,7 @@ public class Mi28Renderer extends GeoEntityRenderer<Mi28Entity> {
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, Mi28Entity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(PoseStack poseStack, Mi28_1Entity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         String name = bone.getName();
         if (name.equals("propeller")) {
             bone.setRotY(Mth.lerp(partialTick, animatable.propellerRotO, animatable.getPropellerRot()));
@@ -63,13 +58,6 @@ public class Mi28Renderer extends GeoEntityRenderer<Mi28Entity> {
         }
         if (name.equals("tailPropeller_2")) {
             bone.setRotX(-6 * Mth.lerp(partialTick, animatable.propellerRotO, animatable.getPropellerRot()));
-        }
-
-        if (name.equals("fab500_0")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_BOMB) < 2);
-        }
-        if (name.equals("fab500_1")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_BOMB) < 1);
         }
 
 

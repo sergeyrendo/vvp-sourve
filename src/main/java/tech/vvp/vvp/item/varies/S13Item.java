@@ -12,15 +12,15 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-public class Fab500Item extends Item {
+public class S13Item extends Item {
 
-    public Fab500Item() {
-        super(new Properties().stacksTo(4));
+    public S13Item() {
+        super(new Properties().stacksTo(64));
     }
 
     @Override
     @ParametersAreNonnullByDefault
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, @NotNull List<Component> pTooltipComponents, @NotNull TooltipFlag pIsAdvanced) {
-        pTooltipComponents.add(Component.translatable("des.vvp.fab_500").withStyle(ChatFormatting.GRAY));
+        pTooltipComponents.add(Component.translatable("des.vvp.s_13").withStyle(ChatFormatting.GRAY));
     }
 }

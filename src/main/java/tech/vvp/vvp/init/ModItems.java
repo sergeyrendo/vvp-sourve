@@ -51,6 +51,7 @@ public class ModItems {
     public static final RegistryObject<Item> SPRAY = REGISTRY.register("spray", SprayItem::new);
     public static final RegistryObject<Item> TENT = REGISTRY.register("tent", TentItem::new);
     public static final RegistryObject<Item> FAB_500_ITEM = REGISTRY.register("fab_500_item", Fab500Item::new);
+    public static final RegistryObject<Item> S_13 = REGISTRY.register("s_13", S13Item::new);
 
     public static final RegistryObject<Item> AT4 = REGISTRY.register("at4", At4Item::new);
 

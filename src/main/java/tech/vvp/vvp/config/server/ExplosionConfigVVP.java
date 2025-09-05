@@ -21,6 +21,9 @@ public class ExplosionConfigVVP {
     public static ForgeConfigSpec.IntValue FAB_500_EXPLOSION_DAMAGE;
     public static ForgeConfigSpec.DoubleValue FAB_500_EXPLOSION_RADIUS;
 
+    public static ForgeConfigSpec.IntValue FAB_250_EXPLOSION_DAMAGE;
+    public static ForgeConfigSpec.DoubleValue FAB_250_EXPLOSION_RADIUS;
+
     static {
         BUILDER.push("tow_missile");
 
@@ -68,6 +71,16 @@ public class ExplosionConfigVVP {
 
         BUILDER.comment("The explosion radius of FAB-500");
         FAB_500_EXPLOSION_RADIUS = BUILDER.defineInRange("fab_500_explosion_radius", 46d, 1, Integer.MAX_VALUE);
+
+        BUILDER.pop();
+
+        BUILDER.push("FAB-250");
+
+        BUILDER.comment("The explosion damage of FAB-250");
+        FAB_250_EXPLOSION_DAMAGE = BUILDER.defineInRange("fab_250_explosion_damage", 450, 1, Integer.MAX_VALUE);
+
+        BUILDER.comment("The explosion radius of FAB-250");
+        FAB_250_EXPLOSION_RADIUS = BUILDER.defineInRange("fab_250_explosion_radius", 23d, 1, Integer.MAX_VALUE);
 
         BUILDER.pop();
 

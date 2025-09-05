@@ -42,6 +42,7 @@ public class ModTabs {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.T90_2024.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI24.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28_1.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.COBRA.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.UH60MOD.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.UH60.get()));
@@ -68,6 +69,7 @@ public class ModTabs {
                                 output.accept(ModItems.SPRAY.get());
                                 output.accept(ModItems.WRENCH.get());
                                 output.accept(ModItems.FAB_500_ITEM.get());
+                                output.accept(ModItems.S_13.get());
 
                             })
                             .build());
