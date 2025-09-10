@@ -30,8 +30,10 @@
   "entity.vvp.fmtv": "FMTV",
 
   "//": "==================== EQUIPMENT & ITEMS ====================",
-  "item.vvp.usahelmet": "ACH Helmet USA",
-  "item.vvp.usachest": "Body Armor USA",
+  "item.vvp.multicamhelmet": "ACH Helmet USA",
+  "item.vvp.multicamchest": "Body Armor USA",
+  "item.vvp.mi28helmet": "Mi-28N pilot helmet",
+  "item.vvp.mi28chest": "Mi-28N pilot unloading",
   "item.vvp.mangal_turret": "Mangal for turret",
   "item.vvp.mangal_body": "Mangal for body",
   "item.vvp.setka_body": "Foliage camouflage for body",
@@ -41,6 +43,7 @@
   "item.vvp.spray": "Spray",
   "item.vvp.tent": "Tent",
   "item.vvp.fab_500_item": "FAB-500",
+  "item.vvp.s_13": "Rocket S-13",
   "des.vvp.mangal_body": "Mangal for the vehicle base.",
   "des.vvp.mangal_turret": "Mangal for the vehicle turret.",
   "des.vvp.setka_body": "Foliage camouflage for the vehicle base.",
@@ -87,6 +90,9 @@
   "msg.vvp.radar_pos.mid_right": "Radar: middle-right",
   "msg.vvp.radar_pos.bottom_right": "Radar: bottom-right",
   "msg.vvp.radar_pos.bottom_left": "Radar: bottom-left",
-  "msg.vvp.radar_pos.mid_left": "Radar: middle-left"
+  "msg.vvp.radar_pos.mid_left": "Radar: middle-left",
 
+  "tips.vvp.m224.range": "Range: ",
+  "tips.vvp.m224.yaw": "Yaw: ",
+  "tips.vvp.m224.pitch": "Pitch: "
 }

@@ -812,9 +812,8 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return Mod.loc("textures/gui/vehicle/type/land.png");
+        return VVP.loc("textures/gui/vehicle/type/ru.png");
     }
-
     public List<OBB> getOBBs() {
         if (this.entityData.get(HAS_MANGAL)) {  // Если мангал "появился", добавляем obbMangal в список
             return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret, this.obbMangal);

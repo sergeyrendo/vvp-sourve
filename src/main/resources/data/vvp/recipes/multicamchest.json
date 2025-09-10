@@ -1,9 +1,9 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-      "CCC",
       "CDC",
-      "   "
+      "CCC",
+      "CCC"
     ],
     "key": {
       "C": {
@@ -14,6 +14,6 @@
       }
     },
     "result": {
-      "item": "vvp:usahelmet"
+      "item": "vvp:multicamchest"
     }
-  }
+}

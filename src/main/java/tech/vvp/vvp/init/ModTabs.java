@@ -13,7 +13,6 @@ import net.minecraftforge.registries.RegistryObject;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.init.ModItems;
 import tech.vvp.vvp.init.ModEntities;
-import tech.vvp.vvp.item.armor.usahelmet;
 
 @SuppressWarnings("unused")
 public class ModTabs {
@@ -24,30 +23,32 @@ public class ModTabs {
             .icon(() -> new ItemStack(ModItems.ICON_SPAWN_ITEM.get()))
             .title(Component.translatable("item_group.vvp.vvp"))
             .displayItems((parameters, output) -> {
-                // Добавляем всю технику
+                // RU
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BTR80A.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.HUMVEE.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.M997_GREEN.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.FMTV.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_1.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_4.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.TERMINATOR.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.BRADLEY_UKR.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.BRADLEY.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2_SEP.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.M60.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.T90.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.T90_2024.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.MI24.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.A_2CM3.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28_1.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MI24.get()));
+                // UKR
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_4.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BRADLEY_UKR.get()));
+                // USA
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BRADLEY.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_1.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M60.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2_SEP.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HUMVEE.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M997_GREEN.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.COBRA.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.UH60MOD.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.UH60.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.UH60MOD.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.F35.get()));
-                // Здесь будут добавляться новые единицы техники
+
             })
             .build());
 
@@ -56,10 +57,10 @@ public class ModTabs {
                             .title(Component.translatable("itemGroup.vvp_armor_tab"))
                             .icon(() -> new ItemStack(ModItems.ARMOR_ICON.get()))
                             .displayItems((parameters, output) -> {
-                                output.accept(ModItems.USA_HELMET.get());
-                                output.accept(ModItems.USA_CHEST.get());
                                 output.accept(ModItems.MULTICAM_HELMET.get());
                                 output.accept(ModItems.MULTICAM_CHEST.get());
+                                output.accept(ModItems.MI_28_HELMET.get());
+                                output.accept(ModItems.MI_28_CHEST.get());
                                 output.accept(ModItems.MANGAL_TURRET.get());
                                 output.accept(ModItems.MANGAL_BODY.get());
                                 output.accept(ModItems.SETKA_BODY.get());

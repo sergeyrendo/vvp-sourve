@@ -878,7 +878,7 @@ public class Uh60ModEntity extends ContainerMobileVehicleEntity implements GeoEn
     }
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return Mod.loc("textures/gui/vehicle/type/aircraft.png");
+        return VVP.loc("textures/gui/vehicle/type/usa.png");
     }
 
     @Override

@@ -864,7 +864,7 @@ public class M60Entity extends ContainerMobileVehicleEntity implements GeoEntity
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return Mod.loc("textures/gui/vehicle/type/land.png");
+        return VVP.loc("textures/gui/vehicle/type/usa.png");
     }
 
     @Override

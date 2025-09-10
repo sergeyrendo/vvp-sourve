@@ -14,7 +14,7 @@ import tech.vvp.vvp.VVP; // ваш главный класс с MODID
 @Mod.EventBusSubscriber(modid = VVP.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PassengerScaleHandler {
 
-    private static final float SCALE_SEAT_0_1 = 1f;
+    private static final float SCALE_SEAT_0_1 = 0.9f;
 
     @SubscribeEvent
     public static void onRenderLivingPre(RenderLivingEvent.Pre<?, ?> event) {

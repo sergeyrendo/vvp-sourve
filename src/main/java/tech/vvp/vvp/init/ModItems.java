@@ -8,10 +8,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.eventbus.api.IEventBus;
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.item.armor.multicamchest;
-import tech.vvp.vvp.item.armor.multicamhelmet;
-import tech.vvp.vvp.item.armor.usahelmet;
-import tech.vvp.vvp.item.armor.usachest;
+import tech.vvp.vvp.item.armor.*;
 import tech.vvp.vvp.item.varies.*;
 import tech.vvp.vvp.item.gun.launcher.At4Item;
 
@@ -29,17 +26,17 @@ public class ModItems {
     public static final RegistryObject<Item> ARMOR_ICON = REGISTRY.register("armor_icon",
             () -> new Item(new Item.Properties()));
 
-    public static final RegistryObject<Item> USA_HELMET = REGISTRY.register("usahelmet",
-            () -> new usahelmet());
-            
-    public static final RegistryObject<Item> USA_CHEST = REGISTRY.register("usachest",
-            () -> new usachest());
-
     public static final RegistryObject<Item> MULTICAM_HELMET = REGISTRY.register("multicamhelmet",
             () -> new multicamhelmet());
 
     public static final RegistryObject<Item> MULTICAM_CHEST = REGISTRY.register("multicamchest",
             () -> new multicamchest());
+
+    public static final RegistryObject<Item> MI_28_HELMET = REGISTRY.register("mi28helmet",
+            () -> new mi28helmet());
+
+    public static final RegistryObject<Item> MI_28_CHEST = REGISTRY.register("mi28chest",
+            () -> new mi28chest());
 
 
     public static final RegistryObject<Item> MANGAL_BODY = REGISTRY.register("mangal_body", MangalBodyItem::new);

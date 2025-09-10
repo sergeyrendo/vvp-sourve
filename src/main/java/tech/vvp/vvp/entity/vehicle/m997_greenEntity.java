@@ -342,10 +342,10 @@ public class M997_greenEntity extends ContainerMobileVehicleEntity implements Ge
         }
         return super.getCameraPosition(partialTicks, player, false, false);
     }
-    
+
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return Mod.loc("textures/gui/vehicle/type/land.png");
+        return VVP.loc("textures/gui/vehicle/type/usa.png");
     }
 
     public List<OBB> getOBBs() {

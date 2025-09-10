@@ -11,6 +11,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -298,7 +299,7 @@ public class FMTVEntity extends ContainerMobileVehicleEntity implements GeoEntit
     }
 
     @Override
-    public boolean canShoot(Player player) {
+    public boolean canShoot(LivingEntity living) {
         return false; // Нет оружия
     }
 
@@ -362,7 +363,7 @@ public class FMTVEntity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return Mod.loc("textures/gui/vehicle/type/land.png");
+        return VVP.loc("textures/gui/vehicle/type/usa.png");
     }
 
     public List<OBB> getOBBs() {

@@ -311,9 +311,9 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         if (getWeaponIndex(0) == 0) {
             if (this.cannotFire || this.entityData.get(LOADED_AP) <= 0) return;
 
-            float x = 0.0609375f;
-            float y = -0.4f;
-            float z = 3.9f;
+            float x = 0.08279375f;
+            float y = 0.55f;
+            float z = 4.0710375f;
             Vector4f worldPosition = transformPosition(transform, x, y, z);
             var cannonShell = ((CannonShellWeapon) getWeapon(0)).create(player);
 
@@ -326,9 +326,9 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
         } else if (getWeaponIndex(0) == 1) {
             if (this.cannotFireCoax) return;
-            float x = -0.9f;
-            float y = -0.3f;
-            float z = 1.8f;
+            float x = -0.75f;
+            float y = 1.05f;
+            float z = 1.4f;
             Vector4f worldPosition = transformPosition(transform, x, y, z);
 
             if (this.entityData.get(AMMO) > 0 || hasCreativeAmmo) {
@@ -463,7 +463,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
     public Matrix4f getBarrelTransform(float ticks) {
         Matrix4f transformT = getTurretTransform(ticks);
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, 0.0234375f, 0.33795f, 0.825f);
+        Vector4f worldPosition = transformPosition(transform, -0.07961875f, -0.38081875f, 0.970775f);
         transformT.translate(worldPosition.x, worldPosition.y, worldPosition.z);
         float a = getTurretYaw(ticks);
         float r = (Mth.abs(a) - 90f) / 90f;
@@ -494,7 +494,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
     public Matrix4f getTurretTransform(float ticks) {
         Matrix4f transformV = getVehicleTransform(ticks);
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, -0.09375f, 3.09375f, -1.1875f);
+        Vector4f worldPosition = transformPosition(transform, -0.1238125f, 2.51569375f, -0.82226875f);
         transformV.translate(worldPosition.x, worldPosition.y, worldPosition.z);
         transformV.rotate(Axis.YP.rotationDegrees(Mth.lerp(ticks, turretYRotO, getTurretYRot())));
         return transformV;
@@ -680,7 +680,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return Mod.loc("textures/gui/vehicle/type/land.png");
+        return VVP.loc("textures/gui/vehicle/type/usa.png");
     }
 
     public List<OBB> getOBBs() {
@@ -726,7 +726,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         this.obb8.center().set(new Vector3f(worldPosition8.x, worldPosition8.y, worldPosition8.z));
         this.obb8.setRotation(VectorTool.combineRotations(1, this));
         Matrix4f transformT = getTurretTransform(1);
-        Vector4f worldPositionT = transformPosition(transformT, 0, 0f, 0f);
+        Vector4f worldPositionT = transformPosition(transformT, 0, 0.5f, 0f);
         this.obbTurret.center().set(new Vector3f(worldPositionT.x, worldPositionT.y, worldPositionT.z));
         this.obbTurret.setRotation(VectorTool.combineRotationsTurret(1, this));
     }

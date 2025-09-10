@@ -27,7 +27,7 @@ public class multicamhelmet extends ArmorItem implements GeoItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public multicamhelmet() {
-        super(ModArmorMaterial.CEMENTED_CARBIDE, Type.HELMET, new Properties());
+        super(tech.vvp.vvp.tiers.ModArmorMaterial.MULTICAM, Type.HELMET, new Properties());
     }
 
     @Override

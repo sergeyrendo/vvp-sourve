@@ -27,7 +27,7 @@ public class multicamchest extends ArmorItem implements GeoItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public multicamchest() {
-        super(ModArmorMaterial.CEMENTED_CARBIDE, Type.CHESTPLATE, new Properties());
+        super(tech.vvp.vvp.tiers.ModArmorMaterial.MULTICAM, Type.CHESTPLATE, new Properties());
     }
 
     @Override

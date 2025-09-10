@@ -258,6 +258,24 @@ public class ModEntities {
                     .sized(3f, 4f)
                     .build("mi_28_1"));
 
+    public static final RegistryObject<EntityType<A2cm3Entity>> A_2CM3 = ENTITY_TYPES.register("a_2cm3",
+            () -> EntityType.Builder.<A2cm3Entity>of(A2cm3Entity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(A2cm3Entity::clientSpawn)
+                    .fireImmune()
+                    .sized(4f, 3f)
+                    .build("a_2cm3"));
+
+    public static final RegistryObject<EntityType<M224Entity>> M224 = ENTITY_TYPES.register("m224",
+            () -> EntityType.Builder.<M224Entity>of(M224Entity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(M224Entity::clientSpawn)
+                    .fireImmune()
+                    .sized(0.5f, 0.5f)
+                    .build("m224"));
+
     public static final RegistryObject<EntityType<Mi24Entity>> MI24 = register("mi24",
             EntityType.Builder.<Mi24Entity>of(Mi24Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(Mi24Entity::new).fireImmune().sized(4.5f, 4.8f));
 

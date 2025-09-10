@@ -690,7 +690,7 @@ public class Btr80aEntity extends ContainerMobileVehicleEntity implements GeoEnt
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return Mod.loc("textures/gui/vehicle/type/land.png");
+        return VVP.loc("textures/gui/vehicle/type/ru.png");
     }
 
     public List<OBB> getOBBs() {

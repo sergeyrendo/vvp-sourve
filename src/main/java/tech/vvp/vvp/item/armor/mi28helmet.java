@@ -1,9 +1,7 @@
 package tech.vvp.vvp.item.armor;
 
 import com.atsuishio.superbwarfare.Mod;
-import tech.vvp.vvp.client.renderer.armor.usachestRenderer;
 import com.atsuishio.superbwarfare.init.ModAttributes;
-import com.atsuishio.superbwarfare.tiers.ModArmorMaterial;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.client.model.HumanoidModel;
@@ -19,15 +17,17 @@ import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import tech.vvp.vvp.client.renderer.armor.mi28helmetRenderer;
+import tech.vvp.vvp.tiers.ModArmorMaterial;
 
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class usachest extends ArmorItem implements GeoItem {
+public class mi28helmet extends ArmorItem implements GeoItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public usachest() {
-        super(ModArmorMaterial.CEMENTED_CARBIDE, Type.CHESTPLATE, new Properties());
+    public mi28helmet() {
+        super(ModArmorMaterial.MI28, Type.HELMET, new Properties());
     }
 
     @Override
@@ -38,7 +38,7 @@ public class usachest extends ArmorItem implements GeoItem {
             @Override
             public HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
                 if (this.renderer == null)
-                    this.renderer = new usachestRenderer();
+                    this.renderer = new mi28helmetRenderer();
                 this.renderer.prepForRender(livingEntity, itemStack, equipmentSlot, original);
                 return this.renderer;
             }

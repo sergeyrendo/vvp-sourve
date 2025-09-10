@@ -57,6 +57,7 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.config.server.VehicleConfigVVP;
 import tech.vvp.vvp.entity.vehicle.weapon.Fab500Weapon;
 import tech.vvp.vvp.radar.IRadarVehicle;
@@ -507,8 +508,8 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
         float z = 0.11f;
 
         float x_1 = 0.0000f;
-        float y_2 = 1.2f - 1.45f;
-        float z_3 = 1.4f;
+        float y_2 = 1.1f - 1.45f;
+        float z_3 = 1.6f;
 
         y += (float) passenger.getMyRidingOffset();
 
@@ -952,7 +953,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return Mod.loc("textures/gui/vehicle/type/aircraft.png");
+        return VVP.loc("textures/gui/vehicle/type/ru.png");
     }
 
     @Override
