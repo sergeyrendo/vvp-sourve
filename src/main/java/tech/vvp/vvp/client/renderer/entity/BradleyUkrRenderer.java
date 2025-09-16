@@ -20,11 +20,8 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
-import tech.vvp.vvp.entity.vehicle.Btr80aEntity;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.Yx100Entity.YAW;
-import static tech.vvp.vvp.entity.vehicle.BradleyUkrEntity.HAS_FOLIAGE;
-import static tech.vvp.vvp.entity.vehicle.CobraEntity.LOADED_MISSILE;
 
 public class BradleyUkrRenderer extends GeoEntityRenderer<BradleyUkrEntity> {
 

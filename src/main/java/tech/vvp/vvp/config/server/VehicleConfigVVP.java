@@ -31,9 +31,13 @@ public class VehicleConfigVVP {
         public static ForgeConfigSpec.BooleanValue MI_28_CANNON_DESTROY;
 
 
-        public static ForgeConfigSpec.IntValue STRYKER_M1128_CANNON_DAMAGE;
-        public static ForgeConfigSpec.IntValue STRYKER_M1128_CANNON_EXPLOSION_DAMAGE;
-        public static ForgeConfigSpec.DoubleValue STRYKER_M1128_CANNON_EXPLOSION_RADIUS;
+        public static ForgeConfigSpec.IntValue STRYKER_M1128_AP_CANNON_DAMAGE;
+        public static ForgeConfigSpec.IntValue STRYKER_M1128_AP_CANNON_EXPLOSION_DAMAGE;
+        public static ForgeConfigSpec.DoubleValue STRYKER_M1128_AP_CANNON_EXPLOSION_RADIUS;
+
+        public static ForgeConfigSpec.IntValue STRYKER_M1128_HE_CANNON_DAMAGE;
+        public static ForgeConfigSpec.IntValue STRYKER_M1128_HE_CANNON_EXPLOSION_DAMAGE;
+        public static ForgeConfigSpec.DoubleValue STRYKER_M1128_HE_CANNON_EXPLOSION_RADIUS;
 
         public static ForgeConfigSpec.IntValue BRADLEY_ENERGY_COST;
         public static ForgeConfigSpec.IntValue BRADLEY_CANNON_DAMAGE;
@@ -175,16 +179,29 @@ public class VehicleConfigVVP {
 
 
 
-            BUILDER.push("stryker_m1128");
+            BUILDER.push("stryker_m1128_ap");
 
-            BUILDER.comment("The cannon damage of Stryker M1128");
-            STRYKER_M1128_CANNON_DAMAGE = BUILDER.defineInRange("stryker_m1128_cannon_damage", 300, 1, 10000000);
+            BUILDER.comment("The cannon damage of Stryker M1128 AP Shell");
+            STRYKER_M1128_AP_CANNON_DAMAGE = BUILDER.defineInRange("stryker_m1128_ap_cannon_damage", 300, 1, 10000000);
     
-            BUILDER.comment("The cannon explosion damage of Stryker M1128");
-            STRYKER_M1128_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("stryker_m1128_cannon_explosion_damage", 32, 1, 10000000);
+            BUILDER.comment("The cannon explosion damage of Stryker M1128 AP Shell");
+            STRYKER_M1128_AP_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("stryker_m1128_ap_cannon_explosion_damage", 32, 1, 10000000);
     
-            BUILDER.comment("The cannon explosion radius of Stryker M1128");
-            STRYKER_M1128_CANNON_EXPLOSION_RADIUS = BUILDER.defineInRange("stryker_m1128_cannon_explosion_radius", 4d, 1d, 10000000d);
+            BUILDER.comment("The cannon explosion radius of Stryker M1128 AP Shell");
+            STRYKER_M1128_AP_CANNON_EXPLOSION_RADIUS = BUILDER.defineInRange("stryker_m1128_ap_cannon_explosion_radius", 4d, 1d, 10000000d);
+
+            BUILDER.pop();
+
+            BUILDER.push("stryker_m1128_he");
+
+            BUILDER.comment("The cannon damage of Stryker M1128 HE Shell");
+            STRYKER_M1128_HE_CANNON_DAMAGE = BUILDER.defineInRange("stryker_m1128_he_cannon_damage", 100, 1, 10000000);
+
+            BUILDER.comment("The cannon explosion damage of Stryker M1128 HE Shell");
+            STRYKER_M1128_HE_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("stryker_m1128_he_cannon_explosion_damage", 175, 1, 10000000);
+
+            BUILDER.comment("The cannon explosion radius of Stryker M1128 HE Shell");
+            STRYKER_M1128_HE_CANNON_EXPLOSION_RADIUS = BUILDER.defineInRange("stryker_m1128_he_cannon_explosion_radius", 13d, 1d, 10000000d);
 
             BUILDER.pop();
 

@@ -10,7 +10,6 @@ import net.minecraftforge.network.NetworkDirection;
 import java.util.Optional;
 
 import org.slf4j.Logger;
-import tech.vvp.vvp.client.PassengerScaleHandler;
 import tech.vvp.vvp.config.server.VehicleConfigVVP;
 import tech.vvp.vvp.config.server.ExplosionConfigVVP;
 import tech.vvp.vvp.init.*;
@@ -42,9 +41,6 @@ public class VVP {
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, VehicleConfigVVP.SPEC, "vvp-vehicle.toml");
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ExplosionConfigVVP.SPEC, "vvp-explosion.toml");
-
-        MinecraftForge.EVENT_BUS.addListener(PassengerScaleHandler::onRenderLivingPre);
-        MinecraftForge.EVENT_BUS.addListener(PassengerScaleHandler::onRenderLivingPost);
 
 
 

@@ -1,8 +1,8 @@
 package tech.vvp.vvp.client.renderer.entity;
 
 // import tech.vvp.vvp.client.layer.vehicle.btr80aLayer;
-import tech.vvp.vvp.client.model.btr4Model;
-import tech.vvp.vvp.entity.vehicle.Btr4Entity;
+import tech.vvp.vvp.client.model.StrykerModel;
+import tech.vvp.vvp.entity.vehicle.StrykerEntity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -20,20 +20,20 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.base.MobileVehicleEntity.YAW;
 
-public class btr4Renderer extends GeoEntityRenderer<Btr4Entity> {
+public class StrykerRenderer extends GeoEntityRenderer<StrykerEntity> {
 
-    public btr4Renderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new btr4Model());
+    public StrykerRenderer(EntityRendererProvider.Context renderManager) {
+        super(renderManager, new StrykerModel());
         // this.addRenderLayer(new btr80aLayer(this));
     }
 
     @Override
-    public RenderType getRenderType(Btr4Entity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(StrykerEntity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 
     @Override
-    public void preRender(PoseStack poseStack, Btr4Entity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
+    public void preRender(PoseStack poseStack, StrykerEntity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
                           float blue, float alpha) {
         float scale = 1f;
         this.scaleHeight = scale;
@@ -42,7 +42,7 @@ public class btr4Renderer extends GeoEntityRenderer<Btr4Entity> {
     }
 
     @Override
-    public void render(Btr4Entity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
+    public void render(StrykerEntity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(-Mth.lerp(partialTicks, entityIn.yRotO, entityIn.getYRot())));
         poseStack.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, entityIn.xRotO, entityIn.getXRot())));
@@ -52,7 +52,7 @@ public class btr4Renderer extends GeoEntityRenderer<Btr4Entity> {
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, Btr4Entity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(PoseStack poseStack, StrykerEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         String name = bone.getName();
         if (name.equals("wheel1")) {
             bone.setRotY(Mth.lerp(partialTick, animatable.rudderRotO, animatable.getRudderRot()));
@@ -63,22 +63,22 @@ public class btr4Renderer extends GeoEntityRenderer<Btr4Entity> {
             bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
         }
         if (name.equals("wheel3")) {
-            bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
+            bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
         }
         if (name.equals("wheel4")) {
-            bone.setRotX(1.5f *  -Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
+            bone.setRotX(1.5f *  Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
         }
         if (name.equals("wheel5")) {
-            bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
+            bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
         }
         if (name.equals("wheel6")) {
-            bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
+            bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
         }
         if (name.equals("wheel7")) {
-            bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
+            bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
         }
         if (name.equals("wheel8")) {
-            bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
+            bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
         }
 
         if (name.equals("base")) {
@@ -134,12 +134,10 @@ public class btr4Renderer extends GeoEntityRenderer<Btr4Entity> {
 
             bone.setRotX(
                     -Mth.lerp(partialTick, animatable.turretXRotO, animatable.getTurretXRot()) * Mth.DEG_TO_RAD
-                    - r * animatable.getPitch(partialTick) * Mth.DEG_TO_RAD
-                    - r2 * animatable.getRoll(partialTick) * Mth.DEG_TO_RAD
+                            - r * animatable.getPitch(partialTick) * Mth.DEG_TO_RAD
+                            - r2 * animatable.getRoll(partialTick) * Mth.DEG_TO_RAD
             );
         }
-
-
         if (name.equals("flare")) {
             bone.setRotZ((float) (0.5 * (Math.random() - 0.5)));
         }
@@ -147,11 +145,16 @@ public class btr4Renderer extends GeoEntityRenderer<Btr4Entity> {
             bone.setRotZ((float) (0.5 * (Math.random() - 0.5)));
         }
 
+        if (name.equals("mangal")) {
+            boolean has_mangal = animatable.getEntityData().get(StrykerEntity.HAS_MANGAL);
+            bone.setHidden(!has_mangal);
+        }
+
         super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
     }
 
     @Override
-    protected float getDeathMaxRotation(Btr4Entity entityLivingBaseIn) {
+    protected float getDeathMaxRotation(StrykerEntity entityLivingBaseIn) {
         return 0.0F;
     }
 }

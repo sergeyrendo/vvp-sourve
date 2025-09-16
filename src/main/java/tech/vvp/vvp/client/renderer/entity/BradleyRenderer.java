@@ -18,7 +18,6 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import tech.vvp.vvp.entity.vehicle.BradleyUkrEntity;
-import tech.vvp.vvp.entity.vehicle.Btr80aEntity;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.Yx100Entity.YAW;
 

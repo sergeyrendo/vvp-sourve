@@ -11,33 +11,17 @@ import tech.vvp.vvp.client.renderer.entity.*;
 public class ModEntityRenderers {
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(ModEntities.MI24.get(), mi24Renderer::new);
-        event.registerEntityRenderer(ModEntities.M997_GREEN.get(), m997_greenRenderer::new);
-        event.registerEntityRenderer(ModEntities.COBRA.get(), cobraRenderer::new);
-        event.registerEntityRenderer(ModEntities.UH60MOD.get(), uh60ModRenderer::new);
-        event.registerEntityRenderer(ModEntities.BTR80A.get(), btr80aRenderer::new);
-        event.registerEntityRenderer(ModEntities.F35.get(), f35Renderer::new);
-        event.registerEntityRenderer(ModEntities.STRYKER.get(), strykerRenderer::new);
-        event.registerEntityRenderer(ModEntities.STRYKER_1.get(), stryker_1Renderer::new);
         event.registerEntityRenderer(ModEntities.BTR_4.get(), btr4Renderer::new);
-        event.registerEntityRenderer(ModEntities.TERMINATOR.get(), terminatorRenderer::new);
-        event.registerEntityRenderer(ModEntities.UH60MOD.get(), uh60ModRenderer::new);
         event.registerEntityRenderer(ModEntities.BRADLEY_UKR.get(), BradleyUkrRenderer::new);
         event.registerEntityRenderer(ModEntities.BRADLEY.get(), BradleyRenderer::new);
-        event.registerEntityRenderer(ModEntities.HUMVEE.get(), HumveeRenderer::new);
-        event.registerEntityRenderer(ModEntities.UH60.get(), uh60Renderer::new);
-        event.registerEntityRenderer(ModEntities.FMTV.get(), FMTVRenderer::new);
-        event.registerEntityRenderer(ModEntities.M60.get(), M60Renderer::new);
-        event.registerEntityRenderer(ModEntities.M1A2.get(), M1A2Renderer::new);
-        event.registerEntityRenderer(ModEntities.M1A2_SEP.get(), M1A2SepRenderer::new);
-        event.registerEntityRenderer(ModEntities.T90.get(), T90Renderer::new);
-        event.registerEntityRenderer(ModEntities.T90_2024.get(), T90_24Renderer::new);
-        event.registerEntityRenderer(ModEntities.MI_28.get(), Mi28Renderer::new);
+        event.registerEntityRenderer(ModEntities.STRYKER.get(), StrykerRenderer::new);
+        event.registerEntityRenderer(ModEntities.STRYKER_M1296.get(), Stryker_M1296Renderer::new);
+        event.registerEntityRenderer(ModEntities.TERMINATOR.get(), TerminatorRenderer::new);
         event.registerEntityRenderer(ModEntities.FAB_500.get(), Fab500Renderer::new);
         event.registerEntityRenderer(ModEntities.FAB_250.get(), Fab250Renderer::new);
-        event.registerEntityRenderer(ModEntities.MI_28_1.get(), Mi28_1Renderer::new);
-        event.registerEntityRenderer(ModEntities.A_2CM3.get(), A2cm3Renderer::new);
         event.registerEntityRenderer(ModEntities.M224.get(), M224Renderer::new);
+        event.registerEntityRenderer(ModEntities.KORNET.get(), KornetRenderer::new);
+        event.registerEntityRenderer(ModEntities.CANNON_ATGM_SHELL.get(), CannonAtgmShellRenderer::new);
 
 
 

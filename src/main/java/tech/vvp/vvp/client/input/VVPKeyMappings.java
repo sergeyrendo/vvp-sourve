@@ -31,4 +31,6 @@ public class VVPKeyMappings {
         event.register(TOGGLE_RADAR);
         event.register(MOVE_RADAR_POS);
     }
+
+
 }
