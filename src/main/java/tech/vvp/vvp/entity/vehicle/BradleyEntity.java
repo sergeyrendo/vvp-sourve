@@ -448,7 +448,7 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public void travel() {
-        trackEngine(true, 0.052, VehicleConfigVVP.BRADLEY_ENERGY_COST.get(), 0.55, 0.5, 1.9, 0.8, 0.21f, -0.16f, 0.0024f, 0.0024f, 0.1f);
+        trackEngine(true, 0.052, VehicleConfigVVP.BRADLEY_ENERGY_COST.get(), 0.55, 0.5, 1.9, 0.8, 0.21f, -0.16f, 0.0020f, 0.0019f, 0.1f);
     }
 
     @Override
@@ -475,7 +475,7 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
 
         Vector4f worldPosition;
         if (i == 0) {
-            worldPosition = transformPosition(transform, 0.45f, -0.6f, 0.7f);
+            worldPosition = transformPosition(transform, 0.45f, 0.6f, 0.7f);
         } else if (i == 1) {
             worldPosition = transformPosition(transformV, 0f, 1.2f, 0f);
         } else if (i == 2) {
@@ -612,15 +612,7 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
 
 
     private PlayState firePredicate(AnimationState<BradleyEntity> event) {
-        if (this.entityData.get(FIRE_ANIM) > 1 && getWeaponIndex(0) == 0) {
-            return event.setAndContinue(RawAnimation.begin().thenPlay("animation.lav.fire"));
-        }
-
-        if (this.entityData.get(FIRE_ANIM) > 0 && getWeaponIndex(0) == 1) {
-            return event.setAndContinue(RawAnimation.begin().thenPlay("animation.lav.fire2"));
-        }
-
-        return event.setAndContinue(RawAnimation.begin().thenLoop("animation.lav.idle"));
+        return PlayState.STOP;
     }
 
     @Override
@@ -637,9 +629,9 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
     public int mainGunRpm(LivingEntity living) {
         if (living == getNthEntity(0)) {
             if (getWeaponIndex(0) == 0) {
-                return 325;
+                return 150;
             } else if (getWeaponIndex(0) == 1) {
-                return 700;
+                return 550;
             }
         }
 
@@ -723,7 +715,7 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
         // 准心
 
         if (this.getWeaponIndex(0) == 0) {
-            RenderHelper.blit(poseStack, VVP.loc("textures/screens/land/bradley_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH, color);
+            RenderHelper.blit(poseStack, Mod.loc("textures/screens/land/bmp_cannon_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH, color);
             int heat = this.getEntityData().get(HEAT);
             guiGraphics.drawString(font, Component.literal(" M242 25MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, MathTool.getGradientColor(color, 0xFF0000, heat, 2), false);
         } else if (this.getWeaponIndex(0) == 1) {
@@ -735,6 +727,7 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
             guiGraphics.drawString(font, Component.literal("  BGM-71 TOW  " + this.getEntityData().get(LOADED_MISSILE) + " " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getEntityData().get(MISSILE_COUNT))), screenWidth / 2 - 33, screenHeight - 65, color, false);
         }
     }
+
 
     @OnlyIn(Dist.CLIENT)
     @Override
@@ -814,7 +807,7 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/usa.png");
+        return VVP.loc("textures/gui/vehicle/type/land.png");
     }
 
     public List<OBB> getOBBs() {
@@ -872,6 +865,21 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
         }
 
         return super.interact(player, hand);
+    }
+
+    @Override
+    public float getTurretMaxHealth() {
+        return 140;
+    }
+
+    @Override
+    public float getWheelMaxHealth() {
+        return 56;
+    }
+
+    @Override
+    public float getEngineMaxHealth() {
+        return 143;
     }
 
     @Override

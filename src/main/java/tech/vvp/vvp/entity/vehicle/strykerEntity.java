@@ -511,7 +511,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public void travel() {
-        wheelEngine(true, 0.052, VehicleConfigVVP.STRYKER_M1296_ENERGY_COST.get(), 1.25, 1.5, 0.18f, -0.13f, 0.0024f, 0.0024f, 0.1f);
+        wheelEngine(true, 0.052, VehicleConfigVVP.STRYKER_M1296_ENERGY_COST.get(), 1.25, 1.5, 0.18f, -0.13f, 0.0020f, 0.0019f, 0.1f);
     }
 
     @Override
@@ -732,32 +732,13 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         return 1;
     }
 
-    private PlayState cannonShootPredicate(AnimationState<StrykerEntity> event) {
-        if (this.entityData.get(CANNON_RECOIL_TIME) > 0) {
-            return event.setAndContinue(RawAnimation.begin().thenPlayAndHold("animation.yx100.fire"));
-        }
-        return event.setAndContinue(RawAnimation.begin().thenLoop("animation.yx100.idle"));
-    }
-
-    private PlayState coaxShootPredicate(AnimationState<StrykerEntity> event) {
-        if (this.entityData.get(FIRE_ANIM) > 0) {
-            return event.setAndContinue(RawAnimation.begin().thenPlayAndHold("animation.yx100.fire_coax"));
-        }
-        return event.setAndContinue(RawAnimation.begin().thenLoop("animation.yx100.idle_coax"));
-    }
-
-    private PlayState gunShootPredicate(AnimationState<StrykerEntity> event) {
-        if (this.entityData.get(GUN_FIRE_TIME) > 0) {
-            return event.setAndContinue(RawAnimation.begin().thenPlayAndHold("animation.yx100.fire2"));
-        }
-        return event.setAndContinue(RawAnimation.begin().thenLoop("animation.yx100.idle2"));
+    private PlayState firePredicate(AnimationState<StrykerEntity> event) {
+        return PlayState.STOP;
     }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar data) {
-        data.add(new AnimationController<>(this, "cannon", 0, this::cannonShootPredicate));
-        data.add(new AnimationController<>(this, "coax", 0, this::coaxShootPredicate));
-        data.add(new AnimationController<>(this, "gun", 0, this::gunShootPredicate));
+        data.add(new AnimationController<>(this, "movement", 0, this::firePredicate));
     }
 
     @Override
@@ -985,7 +966,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/usa.png");
+        return VVP.loc("textures/gui/vehicle/type/land.png");
     }
 
     public List<OBB> getOBBs() {
@@ -1119,16 +1100,16 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public float getTurretMaxHealth() {
-        return 100;
+        return 135;
     }
 
     @Override
     public float getWheelMaxHealth() {
-        return 100;
+        return 50;
     }
 
     @Override
     public float getEngineMaxHealth() {
-        return 100;
+        return 140;
     }
 }

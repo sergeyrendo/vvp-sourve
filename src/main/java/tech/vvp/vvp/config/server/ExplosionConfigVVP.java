@@ -24,6 +24,10 @@ public class ExplosionConfigVVP {
     public static ForgeConfigSpec.IntValue FAB_250_EXPLOSION_DAMAGE;
     public static ForgeConfigSpec.DoubleValue FAB_250_EXPLOSION_RADIUS;
 
+    public static ForgeConfigSpec.IntValue LMUR_DAMAGE;
+    public static ForgeConfigSpec.IntValue LMUR_EXPLOSION_DAMAGE;
+    public static ForgeConfigSpec.DoubleValue LMUR_EXPLOSION_RADIUS;
+
     static {
         BUILDER.push("tow_missile");
 
@@ -67,10 +71,10 @@ public class ExplosionConfigVVP {
         BUILDER.push("FAB-500");
 
         BUILDER.comment("The explosion damage of FAB-500");
-        FAB_500_EXPLOSION_DAMAGE = BUILDER.defineInRange("fab_500_explosion_damage", 855, 1, Integer.MAX_VALUE);
+        FAB_500_EXPLOSION_DAMAGE = BUILDER.defineInRange("fab_500_explosion_damage", 500, 1, Integer.MAX_VALUE);
 
         BUILDER.comment("The explosion radius of FAB-500");
-        FAB_500_EXPLOSION_RADIUS = BUILDER.defineInRange("fab_500_explosion_radius", 46d, 1, Integer.MAX_VALUE);
+        FAB_500_EXPLOSION_RADIUS = BUILDER.defineInRange("fab_500_explosion_radius", 20d, 1, Integer.MAX_VALUE);
 
         BUILDER.pop();
 
@@ -81,6 +85,19 @@ public class ExplosionConfigVVP {
 
         BUILDER.comment("The explosion radius of FAB-250");
         FAB_250_EXPLOSION_RADIUS = BUILDER.defineInRange("fab_250_explosion_radius", 23d, 1, Integer.MAX_VALUE);
+
+        BUILDER.pop();
+
+        BUILDER.push("AGM-65");
+
+        BUILDER.comment("The damage of AGM-65");
+        LMUR_DAMAGE = BUILDER.defineInRange("lmur_damage", 1600, 1, Integer.MAX_VALUE);
+
+        BUILDER.comment("The explosion damage of AGM-65");
+        LMUR_EXPLOSION_DAMAGE = BUILDER.defineInRange("lmur_explosion_damage", 225, 1, Integer.MAX_VALUE);
+
+        BUILDER.comment("The explosion radius of AGM-65");
+        LMUR_EXPLOSION_RADIUS = BUILDER.defineInRange("lmur_explosion_radius", 13d, 1, Integer.MAX_VALUE);
 
         BUILDER.pop();
 

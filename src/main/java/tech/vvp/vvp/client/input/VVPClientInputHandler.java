@@ -15,6 +15,7 @@ import tech.vvp.vvp.radar.IRadarVehicle;
 @Mod.EventBusSubscriber(modid = VVP.MOD_ID, value = Dist.CLIENT)
 public class VVPClientInputHandler {
 
+
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
@@ -36,6 +37,5 @@ public class VVPClientInputHandler {
                     true
             );
         }
-
     }
 }

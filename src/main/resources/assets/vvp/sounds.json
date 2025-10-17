@@ -164,24 +164,24 @@
       "vvp:spray"
     ]
   },
-  "2a72_1p": {
+  "pushka_2a72_1p": {
     "sounds": [
-      "vvp:2a72_1p"
+      "vvp:pushka_2a72_1p"
     ]
   },
-  "2a72_3p": {
+  "pushka_2a72_3p": {
     "sounds": [
-      "vvp:2a72_3p"
+      "vvp:pushka_2a72_3p"
     ]
   },
-  "2a72_far": {
+  "pushka_2a72_far": {
     "sounds": [
-      "vvp:2a72_far"
+      "vvp:pushka_2a72_far"
     ]
   },
-  "2a72_veryfar": {
+  "pushka_2a72_veryfar": {
     "sounds": [
-      "vvp:2a72_veryfar"
+      "vvp:pushka_2a72_veryfar"
     ]
   },
   "abrams_1p": {
@@ -227,6 +227,46 @@
   "t90_autoreload": {
     "sounds": [
       "vvp:t90_autoreload"
+    ]
+  },
+  "rocket_sound": {
+    "sounds": [
+      "vvp:rocket_sound"
+    ]
+  },
+  "bmp_idle": {
+    "sounds": [
+      "vvp:bmp_idle"
+    ]
+  },
+  "bmp_start": {
+    "sounds": [
+      "vvp:bmp_start"
+    ]
+  },
+  "uh60_idle": {
+    "sounds": [
+      "vvp:uh60_idle"
+    ]
+  },
+  "uh60_start": {
+    "sounds": [
+      "vvp:uh60_start"
+    ]
+  },
+  "su25_engine": {
+    "sounds": [
+      "vvp:su25_engine"
+    ]
+  },
+  "mi8_idle": {
+    "sounds": [
+      "vvp:mi8_idle"
+    ]
+  },
+  "mi8_start": {
+    "sounds": [
+      "vvp:mi8_start"
     ]
   }
 }

@@ -2,8 +2,6 @@ package tech.vvp.vvp.entity.vehicle;
 
 import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.client.RenderHelper;
-import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
-import com.atsuishio.superbwarfare.config.server.VehicleConfig;
 import com.atsuishio.superbwarfare.entity.OBBEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.LandArmorEntity;
@@ -13,7 +11,6 @@ import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.ProjectileWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallCannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.VehicleWeapon;
-import com.atsuishio.superbwarfare.entity.vehicle.weapon.WgMissileWeapon;
 import com.atsuishio.superbwarfare.event.ClientMouseHandler;
 import com.atsuishio.superbwarfare.init.ModItems;
 import com.atsuishio.superbwarfare.init.ModSounds;
@@ -55,7 +52,6 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,7 +66,6 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.config.server.ExplosionConfigVVP;
 import tech.vvp.vvp.config.server.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
 
@@ -416,7 +411,7 @@ public class Stryker_M1296Entity extends ContainerMobileVehicleEntity implements
 
     @Override
     public void travel() {
-        wheelEngine(true, 0.052, VehicleConfigVVP.STRYKER_M1296_ENERGY_COST.get(), 1.25, 1.5, 0.18f, -0.13f, 0.0024f, 0.0024f, 0.1f);
+        wheelEngine(true, 0.052, VehicleConfigVVP.STRYKER_M1296_ENERGY_COST.get(), 1.25, 1.5, 0.18f, -0.13f, 0.0020f, 0.0017f, 0.1f);
     }
 
     @Override
@@ -568,15 +563,7 @@ public class Stryker_M1296Entity extends ContainerMobileVehicleEntity implements
 
 
     private PlayState firePredicate(AnimationState<Stryker_M1296Entity> event) {
-        if (this.entityData.get(FIRE_ANIM) > 1 && getWeaponIndex(0) == 0) {
-            return event.setAndContinue(RawAnimation.begin().thenPlay("animation.lav.fire"));
-        }
-
-        if (this.entityData.get(FIRE_ANIM) > 0 && getWeaponIndex(0) == 1) {
-            return event.setAndContinue(RawAnimation.begin().thenPlay("animation.lav.fire2"));
-        }
-
-        return event.setAndContinue(RawAnimation.begin().thenLoop("animation.lav.idle"));
+        return PlayState.STOP;
     }
 
     @Override
@@ -762,7 +749,7 @@ public class Stryker_M1296Entity extends ContainerMobileVehicleEntity implements
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/usa.png");
+        return VVP.loc("textures/gui/vehicle/type/land.png");
     }
 
     public List<OBB> getOBBs() {
@@ -902,6 +889,21 @@ public class Stryker_M1296Entity extends ContainerMobileVehicleEntity implements
         } else {
             return InteractionResult.SUCCESS;
         }
+    }
+
+    @Override
+    public float getTurretMaxHealth() {
+        return 135;
+    }
+
+    @Override
+    public float getWheelMaxHealth() {
+        return 50;
+    }
+
+    @Override
+    public float getEngineMaxHealth() {
+        return 140;
     }
 
     @Override

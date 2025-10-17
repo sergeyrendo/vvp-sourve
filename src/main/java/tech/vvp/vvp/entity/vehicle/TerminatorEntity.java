@@ -505,7 +505,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
 
     @Override
     public void travel() {
-        trackEngine(true, 0.052, VehicleConfigVVP.BRADLEY_ENERGY_COST.get(), 0.55, 0.5, 1.9, 0.8, 0.21f, -0.16f, 0.0024f, 0.0024f, 0.1f);
+        trackEngine(true, 0.052, VehicleConfigVVP.BRADLEY_ENERGY_COST.get(), 0.55, 0.5, 1.9, 0.8, 0.21f, -0.16f, 0.0015f, 0.0004f, 0.1f);
     }
 
     @Override
@@ -669,15 +669,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
 
 
     private PlayState firePredicate(AnimationState<TerminatorEntity> event) {
-        if (this.entityData.get(FIRE_ANIM) > 1 && getWeaponIndex(0) == 0) {
-            return event.setAndContinue(RawAnimation.begin().thenPlay("animation.lav.fire"));
-        }
-
-        if (this.entityData.get(FIRE_ANIM) > 0 && getWeaponIndex(0) == 1) {
-            return event.setAndContinue(RawAnimation.begin().thenPlay("animation.lav.fire2"));
-        }
-
-        return event.setAndContinue(RawAnimation.begin().thenLoop("animation.lav.idle"));
+        return PlayState.STOP;
     }
 
     @Override
@@ -870,7 +862,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/ru.png");
+        return VVP.loc("textures/gui/vehicle/type/land.png");
     }
     public List<OBB> getOBBs() {
         return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret);
@@ -976,6 +968,21 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         } else {
             return InteractionResult.SUCCESS;
         }
+    }
+
+    @Override
+    public float getTurretMaxHealth() {
+        return 135;
+    }
+
+    @Override
+    public float getWheelMaxHealth() {
+        return 50;
+    }
+
+    @Override
+    public float getEngineMaxHealth() {
+        return 140;
     }
 
     @Override

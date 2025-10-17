@@ -26,6 +26,7 @@ public class VVPKeyMappings {
             "key.categories.vvp"
     );
 
+
     @SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(TOGGLE_RADAR);

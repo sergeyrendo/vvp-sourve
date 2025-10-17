@@ -19,9 +19,27 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.TERMINATOR.get(), TerminatorRenderer::new);
         event.registerEntityRenderer(ModEntities.FAB_500.get(), Fab500Renderer::new);
         event.registerEntityRenderer(ModEntities.FAB_250.get(), Fab250Renderer::new);
-        event.registerEntityRenderer(ModEntities.M224.get(), M224Renderer::new);
-        event.registerEntityRenderer(ModEntities.KORNET.get(), KornetRenderer::new);
+        event.registerEntityRenderer(ModEntities.LMUR.get(), LmurRenderer::new);
+        event.registerEntityRenderer(ModEntities.X25.get(), X25Renderer::new);
+        event.registerEntityRenderer(ModEntities.S_130.get(), S130Renderer::new);
         event.registerEntityRenderer(ModEntities.CANNON_ATGM_SHELL.get(), CannonAtgmShellRenderer::new);
+        event.registerEntityRenderer(ModEntities.T90_M.get(), T90MRenderer::new);
+        event.registerEntityRenderer(ModEntities.T90_M_22.get(), T90M22Renderer::new);
+        event.registerEntityRenderer(ModEntities.T90_A.get(), T90ARenderer::new);
+        event.registerEntityRenderer(ModEntities.BRM.get(), BrmRenderer::new);
+        event.registerEntityRenderer(ModEntities.MI_28.get(), Mi28Renderer::new);
+        event.registerEntityRenderer(ModEntities.BMP_3.get(), Bmp3Renderer::new);
+        event.registerEntityRenderer(ModEntities.CHRYZANTEMA.get(), ChryzantemaRenderer::new);
+        event.registerEntityRenderer(ModEntities.M1A2.get(), M1A2Renderer::new);
+        event.registerEntityRenderer(ModEntities.UH60MOD.get(), Uh60ModRenderer::new);
+        event.registerEntityRenderer(ModEntities.UH60.get(), Uh60Renderer::new);
+        event.registerEntityRenderer(ModEntities.SU_25.get(), Su25Renderer::new);
+        event.registerEntityRenderer(ModEntities.AH_1.get(), SuperCobraRenderer::new);
+        event.registerEntityRenderer(ModEntities.H_FIRE.get(), HFireRenderer::new);
+        event.registerEntityRenderer(ModEntities.MI_8.get(), Mi8Renderer::new);
+        event.registerEntityRenderer(ModEntities.MI_8_MTV.get(), Mi8MTVRenderer::new);
+        event.registerEntityRenderer(ModEntities.MI_8_AMTSH.get(), Mi8AMTSHRenderer::new);
+
 
 
 

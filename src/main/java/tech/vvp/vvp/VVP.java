@@ -83,6 +83,8 @@ public class VVP {
                     tech.vvp.vvp.network.message.S2CRadarStatePacket::handler,
                     java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
             );
+
+
         });
     }
 

@@ -1,7 +1,6 @@
 package tech.vvp.vvp.client.renderer.entity;
 
 // import tech.vvp.vvp.client.layer.vehicle.btr80aLayer;
-import org.stringtemplate.v4.ST;
 import tech.vvp.vvp.client.model.Stryker_M1296Model;
 import tech.vvp.vvp.entity.vehicle.Stryker_M1296Entity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;

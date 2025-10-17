@@ -80,12 +80,12 @@ import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity, OBBEntity {
 
     public static final EntityDataAccessor<Integer> CANNON_FIRE_TIME = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer> MISSILE_COUNT = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> MG_AMMO = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> CURRENT_MISSILE = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> MISSILE_FIRE_COOLDOWN = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> MISSILE_COUNT = SynchedEntityData.defineId(Btr4Entity.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -155,10 +155,10 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
                                 .explosionRadius(VehicleConfigVVP.A72_CANNON_EXPLOSION_RADIUS.get().floatValue())
                                 .sound(ModSounds.INTO_MISSILE.get())
                                 .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_30mm.png"))
-                                .sound1p(tech.vvp.vvp.init.ModSounds.BTR_2A72_P1.get())
-                                .sound3p(tech.vvp.vvp.init.ModSounds.BTR_2A72_P3.get())
-                                .sound3pFar(tech.vvp.vvp.init.ModSounds.BTR_2A72_FAR.get())
-                                .sound3pVeryFar(tech.vvp.vvp.init.ModSounds.BTR_2A72_VERYFAR.get()),
+                                .sound1p(tech.vvp.vvp.init.ModSounds.BTR80_1P.get())
+                                .sound3p(tech.vvp.vvp.init.ModSounds.BTR80_3P.get())
+                                .sound3pFar(tech.vvp.vvp.init.ModSounds.BTR80_FAR.get())
+                                .sound3pVeryFar(tech.vvp.vvp.init.ModSounds.BTR80_VERYFAR.get()),
                         new ProjectileWeapon()
                                 .damage(9.5f)
                                 .headShot(2)
@@ -189,12 +189,12 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(CANNON_FIRE_TIME, 0);
-        this.entityData.define(LOADED_MISSILE, 0);
         this.entityData.define(MISSILE_COUNT, 0);
         this.entityData.define(MG_AMMO, 0);
-        this.entityData.define(CURRENT_MISSILE, 0);
         this.entityData.define(CAMOUFLAGE_TYPE, 0);
         this.entityData.define(MISSILE_FIRE_COOLDOWN, 0);
+        this.entityData.define(CURRENT_MISSILE, 0);
+        this.entityData.define(LOADED_MISSILE, 0);
     }
 
     @Override
@@ -462,7 +462,7 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public void travel() {
-        wheelEngine(true, 0.052, VehicleConfigVVP.WHEEL_ENERGY_COST.get(), 1.25, 1.5, 0.18f, -0.13f, 0.0024f, 0.0024f, 0.1f);
+        wheelEngine(true, 0.052, VehicleConfigVVP.WHEEL_ENERGY_COST.get(), 1.25, 1.5, 0.18f, -0.13f, 0.0020f, 0.0019f, 0.1f);
     }
 
     @Override
@@ -614,15 +614,7 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
 
     private PlayState firePredicate(AnimationState<Btr4Entity> event) {
-        if (this.entityData.get(FIRE_ANIM) > 1 && getWeaponIndex(0) == 0) {
-            return event.setAndContinue(RawAnimation.begin().thenPlay("animation.lav.fire"));
-        }
-
-        if (this.entityData.get(FIRE_ANIM) > 0 && getWeaponIndex(0) == 1) {
-            return event.setAndContinue(RawAnimation.begin().thenPlay("animation.lav.fire2"));
-        }
-
-        return event.setAndContinue(RawAnimation.begin().thenLoop("animation.lav.idle"));
+        return PlayState.STOP;
     }
 
     @Override
@@ -816,7 +808,7 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/ukr.png");
+        return VVP.loc("textures/gui/vehicle/type/land.png");
     }
 
     @Override
@@ -907,6 +899,21 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
         }
 
         return super.interact(player, hand);
+    }
+
+    @Override
+    public float getTurretMaxHealth() {
+        return 135;
+    }
+
+    @Override
+    public float getWheelMaxHealth() {
+        return 50;
+    }
+
+    @Override
+    public float getEngineMaxHealth() {
+        return 140;
     }
 
     @Override
