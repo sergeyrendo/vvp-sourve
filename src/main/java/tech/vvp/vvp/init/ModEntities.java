@@ -178,6 +178,15 @@ public class ModEntities {
                     .sized(4f, 4f)
                     .build("ah_1"));
 
+    public static final RegistryObject<EntityType<SuperCobraWhiteEntity>> AH_1_WHITE = ENTITY_TYPES.register("ah_1_white",
+            () -> EntityType.Builder.<SuperCobraWhiteEntity>of(SuperCobraWhiteEntity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(SuperCobraWhiteEntity::clientSpawn)
+                    .fireImmune()
+                    .sized(4f, 4f)
+                    .build("ah_1_white"));
+
     public static final RegistryObject<EntityType<Mi8Entity>> MI_8 = ENTITY_TYPES.register("mi_8",
             () -> EntityType.Builder.<Mi8Entity>of(Mi8Entity::new, MobCategory.MISC)
                     .setTrackingRange(64)
@@ -204,6 +213,15 @@ public class ModEntities {
                     .fireImmune()
                     .sized(4f, 4f)
                     .build("mi_8_amtsh"));
+
+    public static final RegistryObject<EntityType<PumaEntity>> PUMA = ENTITY_TYPES.register("puma",
+            () -> EntityType.Builder.<PumaEntity>of(PumaEntity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(PumaEntity::clientSpawn)
+                    .fireImmune()
+                    .sized(4f, 4f)
+                    .build("puma"));
 
 
 

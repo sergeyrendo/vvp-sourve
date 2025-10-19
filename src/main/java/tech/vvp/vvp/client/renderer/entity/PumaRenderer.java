@@ -15,24 +15,24 @@ import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import tech.vvp.vvp.client.model.Bmp3Model;
-import tech.vvp.vvp.entity.vehicle.Bmp3Entity;
+import tech.vvp.vvp.client.model.PumaModel;
+import tech.vvp.vvp.entity.vehicle.PumaEntity;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.Yx100Entity.YAW;
 
-public class Bmp3Renderer extends GeoEntityRenderer<Bmp3Entity> {
+public class PumaRenderer extends GeoEntityRenderer<PumaEntity> {
 
-    public Bmp3Renderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new Bmp3Model());
+    public PumaRenderer(EntityRendererProvider.Context renderManager) {
+        super(renderManager, new PumaModel());
     }
 
     @Override
-    public RenderType getRenderType(Bmp3Entity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(PumaEntity animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
         return RenderType.entityTranslucent(getTextureLocation(animatable));
     }
 
     @Override
-    public void preRender(PoseStack poseStack, Bmp3Entity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
+    public void preRender(PoseStack poseStack, PumaEntity entity, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green,
                           float blue, float alpha) {
         float scale = 1f;
         this.scaleHeight = scale;
@@ -41,7 +41,7 @@ public class Bmp3Renderer extends GeoEntityRenderer<Bmp3Entity> {
     }
 
     @Override
-    public void render(Bmp3Entity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
+    public void render(PumaEntity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
         Vec3 root = new Vec3(0, entityIn.rotateYOffset(), 0);
         poseStack.rotateAround(Axis.YP.rotationDegrees(-entityYaw), (float) root.x, (float) root.y, (float) root.z);
@@ -52,7 +52,7 @@ public class Bmp3Renderer extends GeoEntityRenderer<Bmp3Entity> {
     }
 
     @Override
-    public void renderRecursively(PoseStack poseStack, Bmp3Entity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(PoseStack poseStack, PumaEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         String name = bone.getName();
         for (int i = 0; i < 9; i++) {
             if (name.equals("wheelL" + i)) {
@@ -90,15 +90,14 @@ public class Bmp3Renderer extends GeoEntityRenderer<Bmp3Entity> {
             );
         }
 
-
         if (name.equals("dulo")) {
             // Только для оружия под индексом 0
             if (animatable.getWeaponIndex(0) == 0) {
-                int fire = animatable.getEntityData().get(Bmp3Entity.FIRE_ANIM); // или статический импорт FIRE_ANIM
+                int fire = animatable.getEntityData().get(PumaEntity.FIRE_ANIM); // или статический импорт FIRE_ANIM
                 if (fire > 1) {
-                    float maxBack = 0.50f; // глубина отката "назад" (подбери под модель)
+                    float maxBack = 0.95f; // глубина отката "назад" (подбери под модель)
                     // "Назад" по локальной оси -Z; если у тебя другая ось — замени на setPosX/setPosY и/или знак
-                    bone.setPosZ(bone.getPosZ() - maxBack);
+                    bone.setPosZ(bone.getPosZ() - -maxBack);
                 }
             }
         }
@@ -140,16 +139,6 @@ public class Bmp3Renderer extends GeoEntityRenderer<Bmp3Entity> {
         if (name.equals("root")) {
             Player player = Minecraft.getInstance().player;
             bone.setHidden(ClientEventHandler.zoomVehicle && animatable.getFirstPassenger() == player);
-        }
-
-        if (name.equals("kaktus_turret")) {
-            boolean hasCactusTurret = animatable.getEntityData().get(Bmp3Entity.HAS_CACTUS_TURRET);
-            bone.setHidden(!hasCactusTurret);
-        }
-
-        if (name.equals("kaktus_body")) {
-            boolean hasCactusBody = animatable.getEntityData().get(Bmp3Entity.HAS_CACTUS_BODY);
-            bone.setHidden(!hasCactusBody);
         }
 
         for (int i = 0; i < 41; i++) {

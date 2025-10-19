@@ -12,15 +12,15 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-public class HFireItem extends Item {
+public class Bmp3MBodyItem extends Item {
 
-    public HFireItem() {
-        super(new Properties().stacksTo(4));
+    public Bmp3MBodyItem() {
+        super(new Properties().stacksTo(1));
     }
 
     @Override
     @ParametersAreNonnullByDefault
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, @NotNull List<Component> pTooltipComponents, @NotNull TooltipFlag pIsAdvanced) {
-        pTooltipComponents.add(Component.translatable("des.vvp.hfire_item").withStyle(ChatFormatting.GRAY));
+        pTooltipComponents.add(Component.translatable("des.vvp.bmp3m_body").withStyle(ChatFormatting.GRAY));
     }
 }

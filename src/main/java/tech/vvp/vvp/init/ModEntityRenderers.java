@@ -35,10 +35,12 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.UH60.get(), Uh60Renderer::new);
         event.registerEntityRenderer(ModEntities.SU_25.get(), Su25Renderer::new);
         event.registerEntityRenderer(ModEntities.AH_1.get(), SuperCobraRenderer::new);
+        event.registerEntityRenderer(ModEntities.AH_1_WHITE.get(), SuperCobraWhiteRenderer::new);
         event.registerEntityRenderer(ModEntities.H_FIRE.get(), HFireRenderer::new);
         event.registerEntityRenderer(ModEntities.MI_8.get(), Mi8Renderer::new);
         event.registerEntityRenderer(ModEntities.MI_8_MTV.get(), Mi8MTVRenderer::new);
         event.registerEntityRenderer(ModEntities.MI_8_AMTSH.get(), Mi8AMTSHRenderer::new);
+        event.registerEntityRenderer(ModEntities.PUMA.get(), PumaRenderer::new);
 
 
 

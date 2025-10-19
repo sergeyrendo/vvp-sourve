@@ -15,7 +15,7 @@ import java.util.List;
 public class LmurItem extends Item {
 
     public LmurItem() {
-        super(new Properties().stacksTo(1));
+        super(new Properties().stacksTo(4));
     }
 
     @Override

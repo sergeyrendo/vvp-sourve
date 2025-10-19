@@ -229,7 +229,7 @@ public class Su25Entity extends ContainerMobileVehicleEntity implements GeoEntit
             this.level().playSound(null, this, ModSounds.MISSILE_RELOAD.get(), this.getSoundSource(), 2, 1);
             return InteractionResult.sidedSuccess(this.level().isClientSide());
         }
-        if (stack.getItem() == tech.vvp.vvp.init.ModItems.FAB_500_ITEM.get() && this.entityData.get(LOADED_BOMB) < 3) {
+        if (stack.getItem() == tech.vvp.vvp.init.ModItems.FAB_500_ITEM.get() && this.entityData.get(LOADED_BOMB) < 2) {
             // 装载航弹
             this.entityData.set(LOADED_BOMB, this.entityData.get(LOADED_BOMB) + 1);
             if (!player.isCreative()) {
@@ -238,7 +238,7 @@ public class Su25Entity extends ContainerMobileVehicleEntity implements GeoEntit
             this.level().playSound(null, this, ModSounds.BOMB_RELOAD.get(), this.getSoundSource(), 2, 1);
             return InteractionResult.sidedSuccess(this.level().isClientSide());
         }
-        if (stack.getItem() == tech.vvp.vvp.init.ModItems.X25_ITEM.get() && this.entityData.get(LOADED_MISSILE) < 4) {
+        if (stack.getItem() == tech.vvp.vvp.init.ModItems.X25_ITEM.get() && this.entityData.get(LOADED_MISSILE) < 2) {
             // 装载导弹
             this.entityData.set(LOADED_MISSILE, this.entityData.get(LOADED_MISSILE) + 1);
             if (!player.isCreative()) {

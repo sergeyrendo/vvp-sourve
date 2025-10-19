@@ -9,7 +9,7 @@ public class S130Model extends GeoModel<S130Entity> {
 
     @Override
     public ResourceLocation getAnimationResource(S130Entity entity) {
-        return VVP.loc("animations/rpg_rocket.animation.json");
+        return null;
     }
 
     @Override
@@ -19,6 +19,6 @@ public class S130Model extends GeoModel<S130Entity> {
 
     @Override
     public ResourceLocation getTextureResource(S130Entity entity) {
-        return VVP.loc("textures/entity/rockets.png");
+        return VVP.loc("textures/entity/s130.png");
     }
 }

@@ -511,7 +511,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public void travel() {
-        wheelEngine(true, 0.052, VehicleConfigVVP.STRYKER_M1296_ENERGY_COST.get(), 1.25, 1.5, 0.18f, -0.13f, 0.0020f, 0.0019f, 0.1f);
+        wheelEngine(false, 0.052, VehicleConfigVVP.STRYKER_M1296_ENERGY_COST.get(), 1.25, 1.5, 0.18f, -0.13f, 0.0020f, 0.0019f, 0.1f);
     }
 
     @Override

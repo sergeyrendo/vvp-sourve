@@ -53,6 +53,9 @@ public class ModItems {
     public static final RegistryObject<Item> X25_ITEM = REGISTRY.register("x25_item", X25Item::new);
     public static final RegistryObject<Item> HFIRE_ITEM = REGISTRY.register("hfire_item", HFireItem::new);
 
+    public static final RegistryObject<Item> CACTUS_TURRET_ITEM = REGISTRY.register("cactus_turret", CactusTurretItem::new);
+    public static final RegistryObject<Item> BMP3M_BODY = REGISTRY.register("bmp3m_body", Bmp3MBodyItem::new);
+
 
 
     public static final RegistryObject<Item> RADIOHEAD = REGISTRY.register("music_disc_radiohead",

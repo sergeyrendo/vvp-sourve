@@ -1,8 +1,8 @@
 {
-  "ID": "vvp:marder",
-  "MaxHealth": 295,
-  "MaxEnergy": 4900000,
-  "UpStep": 2.5,
+  "ID": "vvp:puma",
+  "MaxHealth": 335,
+  "MaxEnergy": 5550000,
+  "UpStep": 2.25,
   "Mass": 20.6,
   "DamageModifiers": [
     "All * 0.2",

@@ -225,7 +225,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
             handleAmmo();
         }
 
-        if (this.getWeaponIndex(0) == 1) {
+        if (this.getWeaponIndex(0) == 0) {
             seekTarget();
         }
 
@@ -244,7 +244,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
         if ((hasItem(ModItems.SMALL_ROCKET.get()) || hasCreativeAmmoBox) && reloadCoolDown == 0 && this.getEntityData().get(LOADED_ROCKET) < 10) {
             this.entityData.set(LOADED_ROCKET, this.getEntityData().get(LOADED_ROCKET) + 1);
-            reloadCoolDown = 100;
+            reloadCoolDown = 260;
             if (!hasCreativeAmmoBox) {
                 this.getItemStacks().stream().filter(stack -> stack.is(ModItems.SMALL_ROCKET.get())).findFirst().ifPresent(stack -> stack.shrink(1));
             }
@@ -670,22 +670,14 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
             Vector4f worldPosition;
 
-            if (this.getEntityData().get(LOADED_MISSILE) == 8) {
-                worldPosition = transformPosition(transform, 25.5f/16f, -18.75f/16f, 6.25f/16f);
-            } else if (this.getEntityData().get(LOADED_MISSILE) == 7) {
-                worldPosition = transformPosition(transform, -25.5f/16f, -18.75f/16f, 6.25f/16f);
-            } else if (this.getEntityData().get(LOADED_MISSILE) == 6) {
-                worldPosition = transformPosition(transform, 25.5f/16f, -18.75f/16f, 6.25f/16f);
-            } else if (this.getEntityData().get(LOADED_MISSILE) == 5) {
-                worldPosition = transformPosition(transform, -25.5f/16f, -18.75f/16f, 6.25f/16f);
-            } else if (this.getEntityData().get(LOADED_MISSILE) == 4) {
-                worldPosition = transformPosition(transform, 25.5f/16f, -18.75f/16f, 6.25f/16f);
+            if (this.getEntityData().get(LOADED_MISSILE) == 4) {
+                worldPosition = transformPosition(transform, 5.28f, -1.76f, 1.87f);
             } else if (this.getEntityData().get(LOADED_MISSILE) == 3) {
-                worldPosition = transformPosition(transform, -25.5f/16f, -18.75f/16f, 6.25f/16f);
+                worldPosition = transformPosition(transform, -5.28f, -1.76f, 1.87f);
             } else if (this.getEntityData().get(LOADED_MISSILE) == 2) {
-                worldPosition = transformPosition(transform, 25.5f/16f, -18.75f/16f, 6.25f/16f);
+                worldPosition = transformPosition(transform, 6.63f, -1.55f, 1.83f);
             } else {
-                worldPosition = transformPosition(transform, -25.5f/16f, -18.75f/16f, 6.25f/16f);
+                worldPosition = transformPosition(transform, -6.63f, -1.55f, 1.83f);
             }
 
             if (locked) {
@@ -699,8 +691,8 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
             this.level().playSound(null, pos, ModSounds.BOMB_RELEASE.get(), SoundSource.PLAYERS, 3, 1);
 
-            if (this.getEntityData().get(LOADED_MISSILE) == 8) {
-                reloadCoolDownMissile = 400;
+            if (this.getEntityData().get(LOADED_MISSILE) == 4) {
+                reloadCoolDownMissile = 260;
             }
 
             this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) - 1);
@@ -799,7 +791,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public int getMaxPassengers() {
-        return 4;
+        return 2;
     }
 
     @Override

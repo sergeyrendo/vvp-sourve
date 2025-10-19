@@ -83,7 +83,6 @@ public class Bmp3Entity extends ContainerMobileVehicleEntity implements GeoEntit
     public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(Bmp3Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Boolean> HAS_CACTUS_BODY = SynchedEntityData.defineId(Bmp3Entity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> HAS_CACTUS_TURRET = SynchedEntityData.defineId(Bmp3Entity.class, EntityDataSerializers.BOOLEAN);
-    public static final EntityDataAccessor<Boolean> HAS_MANGAL_BODY = SynchedEntityData.defineId(Bmp3Entity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Integer> MISSILE_FIRE_COOLDOWN = SynchedEntityData.defineId(Bmp3Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(Bmp3Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> MISSILE_COUNT = SynchedEntityData.defineId(Bmp3Entity.class, EntityDataSerializers.INT);
@@ -187,7 +186,6 @@ public class Bmp3Entity extends ContainerMobileVehicleEntity implements GeoEntit
         this.entityData.define(CAMOUFLAGE_TYPE, 0);
         this.entityData.define(HAS_CACTUS_BODY, false);
         this.entityData.define(HAS_CACTUS_TURRET, false);
-        this.entityData.define(HAS_MANGAL_BODY, false);
         this.entityData.define(MISSILE_FIRE_COOLDOWN, 0);
         this.entityData.define(MISSILE_COUNT, 0);
         this.entityData.define(LOADED_MISSILE, 0);
@@ -199,7 +197,6 @@ public class Bmp3Entity extends ContainerMobileVehicleEntity implements GeoEntit
         compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
         compound.putBoolean("HasCactusBody", this.entityData.get(HAS_CACTUS_BODY));
         compound.putBoolean("HasCactusTurret", this.entityData.get(HAS_CACTUS_TURRET));
-        compound.putBoolean("HasMangalBody", this.entityData.get(HAS_MANGAL_BODY));
         compound.putInt("LoadedMissile", this.entityData.get(LOADED_MISSILE));
         compound.putInt("MissileFireCooldown", this.entityData.get(MISSILE_FIRE_COOLDOWN));
     }
@@ -211,7 +208,6 @@ public class Bmp3Entity extends ContainerMobileVehicleEntity implements GeoEntit
         this.entityData.set(LOADED_MISSILE, compound.getInt("LoadedMissile"));
         this.entityData.set(HAS_CACTUS_TURRET, compound.getBoolean("HasMangal"));
         this.entityData.set(HAS_CACTUS_BODY, compound.getBoolean("HasFoliageBody"));
-        this.entityData.set(HAS_MANGAL_BODY, compound.getBoolean("HasFoliage"));
         this.entityData.set(MISSILE_FIRE_COOLDOWN, compound.getInt("MissileFireCooldown"));
     }
 
@@ -885,25 +881,20 @@ public class Bmp3Entity extends ContainerMobileVehicleEntity implements GeoEntit
         }
 
         // Загрузка модулей (отдельные if для каждого, как раньше)
-        if (stack.is(tech.vvp.vvp.init.ModItems.SETKA_BODY.get()) && !this.entityData.get(HAS_CACTUS_BODY)) {
-            return loadModule(player, stack, HAS_CACTUS_BODY, tech.vvp.vvp.init.ModItems.SETKA_BODY.get());  // Универсальная функция (см. ниже)
+        if (stack.is(tech.vvp.vvp.init.ModItems.BMP3M_BODY.get()) && !this.entityData.get(HAS_CACTUS_BODY)) {
+            return loadModule(player, stack, HAS_CACTUS_BODY, tech.vvp.vvp.init.ModItems.BMP3M_BODY.get());  // Универсальная функция (см. ниже)
         }
-        if (stack.is(tech.vvp.vvp.init.ModItems.SETKA_TURRET.get()) && !this.entityData.get(HAS_CACTUS_TURRET)) {
-            return loadModule(player, stack, HAS_CACTUS_TURRET, tech.vvp.vvp.init.ModItems.SETKA_TURRET.get());
-        }
-        if (stack.is(tech.vvp.vvp.init.ModItems.MANGAL_BODY.get()) && !this.entityData.get(HAS_MANGAL_BODY)) {
-            return loadModule(player, stack, HAS_MANGAL_BODY, tech.vvp.vvp.init.ModItems.MANGAL_BODY.get());
+        if (stack.is(tech.vvp.vvp.init.ModItems.CACTUS_TURRET_ITEM.get()) && !this.entityData.get(HAS_CACTUS_TURRET)) {
+            return loadModule(player, stack, HAS_CACTUS_TURRET, tech.vvp.vvp.init.ModItems.CACTUS_TURRET_ITEM.get());
         }
 
         // Универсальное удаление с ключом (один if для всех флагов)
         if (stack.is(tech.vvp.vvp.init.ModItems.WRENCH.get())) {
             // Проверяем флаги по порядку (можно сделать цикл для всех)
             if (this.entityData.get(HAS_CACTUS_BODY)) {
-                return removeModule(player, HAS_CACTUS_BODY, tech.vvp.vvp.init.ModItems.SETKA_BODY.get());
+                return removeModule(player, HAS_CACTUS_BODY, tech.vvp.vvp.init.ModItems.BMP3M_BODY.get());
             } else if (this.entityData.get(HAS_CACTUS_TURRET)) {
-                return removeModule(player, HAS_CACTUS_TURRET, tech.vvp.vvp.init.ModItems.SETKA_TURRET.get());
-            } else if (this.entityData.get(HAS_MANGAL_BODY)) {
-                return removeModule(player, HAS_MANGAL_BODY, tech.vvp.vvp.init.ModItems.MANGAL_BODY.get());
+                return removeModule(player, HAS_CACTUS_TURRET, tech.vvp.vvp.init.ModItems.CACTUS_TURRET_ITEM.get());
             }
         }
 
@@ -943,8 +934,13 @@ public class Bmp3Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public float getTurretMaxHealth() {
+        if (this.entityData == null) return 125;
+        if (this.entityData.hasItem(HAS_CACTUS_BODY) && this.entityData.get(HAS_CACTUS_BODY)) {
+            return 150;
+        }
         return 125;
     }
+
 
     @Override
     public float getWheelMaxHealth() {

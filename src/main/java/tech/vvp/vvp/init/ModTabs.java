@@ -30,12 +30,14 @@ public class ModTabs {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.CHRYZANTEMA.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.T90_A.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.T90_M.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.T90_M_22.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.TERMINATOR.get()));
                 //USA
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BRADLEY.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BRADLEY_UKR.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_M1296.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.PUMA.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_4.get()));
 
@@ -43,6 +45,7 @@ public class ModTabs {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.UH60.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.UH60MOD.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.AH_1.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.AH_1_WHITE.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI_8.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI_8_MTV.get()));
@@ -65,6 +68,8 @@ public class ModTabs {
                                 output.accept(ModItems.MANGAL_BODY.get());
                                 output.accept(ModItems.SETKA_BODY.get());
                                 output.accept(ModItems.SETKA_TURRET.get());
+                                output.accept(ModItems.BMP3M_BODY.get());
+                                output.accept(ModItems.CACTUS_TURRET_ITEM.get());
                                 output.accept(ModItems.TENT.get());
                                 output.accept(ModItems.KOROBKI.get());
                                 output.accept(ModItems.SPRAY.get());

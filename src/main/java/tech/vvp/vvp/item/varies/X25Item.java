@@ -15,7 +15,7 @@ import java.util.List;
 public class X25Item extends Item {
 
     public X25Item() {
-        super(new Properties().stacksTo(1));
+        super(new Properties().stacksTo(2));
     }
 
     @Override

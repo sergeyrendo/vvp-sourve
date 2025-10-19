@@ -225,13 +225,13 @@ public class S130Entity extends FastThrowableProjectile implements GeoEntity, Ex
         projectile.discard();
     }
 
-    private PlayState movementPredicate(AnimationState<S130Entity> event) {
-        return event.setAndContinue(RawAnimation.begin().thenLoop("animation.rpg.idle"));
+    private PlayState firePredicate(AnimationState<S130Entity> event) {
+        return PlayState.STOP;
     }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar data) {
-        data.add(new AnimationController<>(this, "movement", 0, this::movementPredicate));
+        data.add(new AnimationController<>(this, "movement", 0, this::firePredicate));
     }
 
     @Override
