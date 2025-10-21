@@ -27,18 +27,23 @@ public class Mi28Model extends GeoModel<Mi28Entity> {
         }
 
         if (distance < 32) {
-            return VVP.loc("geo/mi28_ver1.geo.json");
+            return VVP.loc("geo/mi28.geo.json");
         } else if (distance < 64) {
-            return VVP.loc("geo/mi28_ver1.geo.json");
+            return VVP.loc("geo/mi28.geo.json");
         } else if (distance < 96) {
-            return VVP.loc("geo/mi28_ver1.geo.json");
+            return VVP.loc("geo/mi28.geo.json");
         } else {
-            return VVP.loc("geo/mi28_ver1.geo.json");
+            return VVP.loc("geo/mi28.geo.json");
         }
     }
 
     @Override
-    public ResourceLocation getTextureResource(Mi28Entity object) {
-        return new ResourceLocation(VVP.MOD_ID, "textures/entity/mi28_ver1.png");
+    public ResourceLocation getTextureResource(Mi28Entity animatable) {
+        int camoType = animatable.getEntityData().get(Mi28Entity.CAMOUFLAGE_TYPE);
+        switch (camoType) {
+            case 1: return new ResourceLocation("vvp", "textures/entity/mi28_camo.png");
+            case 2: return new ResourceLocation("vvp", "textures/entity/mi28_iraq.png");
+            default: return new ResourceLocation("vvp", "textures/entity/mi28_black.png");
+        }
     }
 }

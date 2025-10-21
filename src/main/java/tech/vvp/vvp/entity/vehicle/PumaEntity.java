@@ -2,8 +2,6 @@ package tech.vvp.vvp.entity.vehicle;
 
 import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.client.RenderHelper;
-import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
-import com.atsuishio.superbwarfare.config.server.VehicleConfig;
 import com.atsuishio.superbwarfare.entity.OBBEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.LandArmorEntity;
@@ -13,7 +11,6 @@ import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.ProjectileWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallCannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.VehicleWeapon;
-import com.atsuishio.superbwarfare.entity.vehicle.weapon.WgMissileWeapon;
 import com.atsuishio.superbwarfare.event.ClientMouseHandler;
 import com.atsuishio.superbwarfare.init.ModItems;
 import com.atsuishio.superbwarfare.init.ModSounds;
@@ -53,7 +50,6 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.network.PlayMessages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -64,12 +60,12 @@ import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.config.server.ExplosionConfigVVP;
 import tech.vvp.vvp.config.server.VehicleConfigVVP;
+import tech.vvp.vvp.entity.vehicle.weapon.SpikeATGMWeapon;
 import tech.vvp.vvp.init.ModEntities;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -158,7 +154,7 @@ public class PumaEntity extends ContainerMobileVehicleEntity implements GeoEntit
                                 .sound3p(ModSounds.M_60_FIRE_3P.get())
                                 .sound3pFar(ModSounds.M_60_FAR.get())
                                 .sound3pVeryFar(ModSounds.M_60_VERYFAR.get()),
-                        new WgMissileWeapon()
+                        new SpikeATGMWeapon()
                                 .damage(ExplosionConfigVVP.TOW_MISSILE_DAMAGE.get())
                                 .explosionDamage(ExplosionConfigVVP.TOW_MISSILE_EXPLOSION_DAMAGE.get())
                                 .explosionRadius(ExplosionConfigVVP.TOW_MISSILE_EXPLOSION_RADIUS.get())
@@ -218,21 +214,6 @@ public class PumaEntity extends ContainerMobileVehicleEntity implements GeoEntit
     public void baseTick() {
         super.baseTick();
         updateOBB();
-        if (getLeftTrack() < 0) {
-            setLeftTrack(100);
-        }
-
-        if (getLeftTrack() > 100) {
-            setLeftTrack(0);
-        }
-
-        if (getRightTrack() < 0) {
-            setRightTrack(100);
-        }
-
-        if (getRightTrack() > 100) {
-            setRightTrack(0);
-        }
 
 
         if (this.level() instanceof ServerLevel) {
@@ -251,7 +232,7 @@ public class PumaEntity extends ContainerMobileVehicleEntity implements GeoEntit
 
         this.terrainCompact(4f, 5f);
         inertiaRotate(1);
-        releaseSmokeDecoy(getTurretVector(2));
+        releaseSmokeDecoy(getTurretVector(3));
         lowHealthWarning();
 
         for (int i = 1; i < 7; i++) {
@@ -432,11 +413,11 @@ public class PumaEntity extends ContainerMobileVehicleEntity implements GeoEntit
                 // Проверка КД между пусками
                 if (this.entityData.get(MISSILE_FIRE_COOLDOWN) > 0) return;
 
-                var wgMissileEntity = ((WgMissileWeapon) getWeapon(0)).create(living);
+                var SpikeATGMEntity = ((SpikeATGMWeapon) getWeapon(0)).create(living);
 
-                wgMissileEntity.setPos(getTurretShootPos(living, 1).x, getTurretShootPos(living, 1).y, getTurretShootPos(living, 1).z);
-                wgMissileEntity.shoot(getBarrelVector(1).x, getBarrelVector(1).y, getBarrelVector(1).z, projectileVelocity(living), 0f);
-                living.level().addFreshEntity(wgMissileEntity);
+                SpikeATGMEntity.setPos(getTurretShootPos(living, 1).x, getTurretShootPos(living, 1).y, getTurretShootPos(living, 1).z);
+                SpikeATGMEntity.shoot(getBarrelVector(1).x, getBarrelVector(1).y, getBarrelVector(1).z, projectileVelocity(living), 0f);
+                living.level().addFreshEntity(SpikeATGMEntity);
                 playShootSound3p(living, 0, 6, 0, 0, getTurretShootPos(living, 1));
 
                 this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) - 1);
@@ -633,9 +614,9 @@ public class PumaEntity extends ContainerMobileVehicleEntity implements GeoEntit
     public int mainGunRpm(LivingEntity living) {
         if (living == getNthEntity(0)) {
             if (getWeaponIndex(0) == 0) {
-                return 150;
+                return 200;
             } else if (getWeaponIndex(0) == 1) {
-                return 550;
+                return 700;
             }
         }
 

@@ -79,6 +79,36 @@ public class Mi28Renderer extends GeoEntityRenderer<Mi28Entity> {
             bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 4);
         }
 
+        if (name.equals("cannon")) {
+            bone.setRotY(Mth.lerp(partialTick, animatable.gunYRotO, animatable.getGunYRot()) * Mth.DEG_TO_RAD - Mth.lerp(partialTick, animatable.turretYRotO, animatable.getTurretYRot()) * Mth.DEG_TO_RAD);
+        }
+        if (name.equals("barrel")) {
+            float a = animatable.getTurretYaw(partialTick);
+            float r = (Mth.abs(a) - 90f) / 90f;
+
+            float r2;
+
+            if (Mth.abs(a) <= 90f) {
+                r2 = a / 90f;
+            } else {
+                if (a < 0) {
+                    r2 = - (180f + a) / 90f;
+                } else {
+                    r2 = (180f - a) / 90f;
+                }
+            }
+
+            bone.setRotX(Mth.clamp(
+                    -Mth.lerp(partialTick, animatable.gunXRotO, animatable.getGunXRot()) * Mth.DEG_TO_RAD
+                            - r * animatable.getPitch(partialTick) * Mth.DEG_TO_RAD
+                            - r2 * animatable.getRoll(partialTick) * Mth.DEG_TO_RAD,
+                    -10 * Mth.DEG_TO_RAD, 60 * Mth.DEG_TO_RAD)
+            );
+        }
+
+        bone.setHidden(name.equals("weapon_set_2"));
+        bone.setHidden(name.equals("weapon_set_3"));
+
 
         super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
     }

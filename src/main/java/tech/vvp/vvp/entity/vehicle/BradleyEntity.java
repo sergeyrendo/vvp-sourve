@@ -70,6 +70,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.config.server.ExplosionConfigVVP;
 import tech.vvp.vvp.config.server.VehicleConfigVVP;
+import tech.vvp.vvp.entity.vehicle.weapon.TOWWeapon;
 import tech.vvp.vvp.init.ModEntities;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -154,7 +155,7 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
                                 .sound3p(ModSounds.M_60_FIRE_3P.get())
                                 .sound3pFar(ModSounds.M_60_FAR.get())
                                 .sound3pVeryFar(ModSounds.M_60_VERYFAR.get()),
-                        new WgMissileWeapon()
+                        new TOWWeapon()
                                 .damage(ExplosionConfigVVP.TOW_MISSILE_DAMAGE.get())
                                 .explosionDamage(ExplosionConfigVVP.TOW_MISSILE_EXPLOSION_DAMAGE.get())
                                 .explosionRadius(ExplosionConfigVVP.TOW_MISSILE_EXPLOSION_RADIUS.get())
@@ -428,11 +429,11 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
                 // Проверка КД между пусками
                 if (this.entityData.get(MISSILE_FIRE_COOLDOWN) > 0) return;
 
-                var wgMissileEntity = ((WgMissileWeapon) getWeapon(0)).create(living);
+                var TOWEntity = ((TOWWeapon) getWeapon(0)).create(living);
 
-                wgMissileEntity.setPos(getTurretShootPos(living, 1).x, getTurretShootPos(living, 1).y, getTurretShootPos(living, 1).z);
-                wgMissileEntity.shoot(getBarrelVector(1).x, getBarrelVector(1).y, getBarrelVector(1).z, projectileVelocity(living), 0f);
-                living.level().addFreshEntity(wgMissileEntity);
+                TOWEntity.setPos(getTurretShootPos(living, 1).x, getTurretShootPos(living, 1).y, getTurretShootPos(living, 1).z);
+                TOWEntity.shoot(getBarrelVector(1).x, getBarrelVector(1).y, getBarrelVector(1).z, projectileVelocity(living), 0f);
+                living.level().addFreshEntity(TOWEntity);
                 playShootSound3p(living, 0, 6, 0, 0, getTurretShootPos(living, 1));
 
                 this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) - 1);

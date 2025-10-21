@@ -225,6 +225,7 @@ public class ModEntities {
 
 
 
+
     public static final RegistryObject<EntityType<tech.vvp.vvp.entity.projectile.CannonAtgmShellEntity>> CANNON_ATGM_SHELL = register("cannon_atgm_shell",
             EntityType.Builder.<tech.vvp.vvp.entity.projectile.CannonAtgmShellEntity>of(tech.vvp.vvp.entity.projectile.CannonAtgmShellEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(tech.vvp.vvp.entity.projectile.CannonAtgmShellEntity::new).noSave().sized(0.75f, 0.75f));
 
@@ -245,6 +246,12 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<S130Entity>> S_130 = register("s_130",
             EntityType.Builder.<S130Entity>of(S130Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(S130Entity::new).noSave().sized(0.8f, 0.8f));
+
+    public static final RegistryObject<EntityType<SpikeATGMEntity>> SPIKE_MISSLE = register("spike_missle",
+            EntityType.Builder.<SpikeATGMEntity>of(SpikeATGMEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(SpikeATGMEntity::new).noSave().sized(0.8f, 0.8f));
+
+    public static final RegistryObject<EntityType<TOWEntity>> TOW_MISSILE = register("tow_missle",
+            EntityType.Builder.<TOWEntity>of(TOWEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(TOWEntity::new).noSave().sized(0.8f, 0.8f));
 
         private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
                 return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));

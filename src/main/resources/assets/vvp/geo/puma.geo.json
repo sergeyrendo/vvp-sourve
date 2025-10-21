@@ -3222,7 +3222,7 @@
 					]
 				},
 				{
-					"name": "dulo",
+					"name": "gunncik",
 					"parent": "barrel",
 					"pivot": [0.5, 48.97924, -24.74409],
 					"cubes": [
@@ -3256,8 +3256,8 @@
 					]
 				},
 				{
-					"name": "gun2",
-					"parent": "dulo",
+					"name": "dulo",
+					"parent": "gunncik",
 					"pivot": [0.5, 48, -40.5],
 					"cubes": [
 						{

@@ -8,6 +8,8 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.HelicopterEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ThirdPersonCameraPosition;
 import com.atsuishio.superbwarfare.entity.vehicle.base.WeaponVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
+import com.atsuishio.superbwarfare.entity.vehicle.weapon.ProjectileWeapon;
+import com.atsuishio.superbwarfare.entity.vehicle.weapon.SmallCannonShellWeapon;
 import com.atsuishio.superbwarfare.entity.vehicle.weapon.VehicleWeapon;
 import com.atsuishio.superbwarfare.event.ClientMouseHandler;
 import com.atsuishio.superbwarfare.init.*;
@@ -70,6 +72,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
     public static final EntityDataAccessor<Float> PROPELLER_ROT = SynchedEntityData.defineId(Mi28Entity.class, EntityDataSerializers.FLOAT);
     public static final EntityDataAccessor<Integer> LOADED_ROCKET = SynchedEntityData.defineId(Mi28Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(Mi28Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(Mi28Entity.class, EntityDataSerializers.INT);
     public boolean engineStart;
     public boolean engineStartOver;
 
@@ -138,7 +141,19 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
                                 .sound(ModSounds.INTO_MISSILE.get())
                                 .sound1p(ModSounds.SMALL_ROCKET_FIRE_1P.get())
                                 .sound3p(ModSounds.SMALL_ROCKET_FIRE_3P.get()),
-                }
+                },
+                new VehicleWeapon[]{
+                        new SmallCannonShellWeapon()
+                                .damage(VehicleConfigVVP.BRADLEY_CANNON_DAMAGE.get())
+                                .explosionDamage(VehicleConfigVVP.BRADLEY_CANNON_EXPLOSION_DAMAGE.get())
+                                .explosionRadius(VehicleConfigVVP.BRADLEY_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .sound(ModSounds.INTO_MISSILE.get())
+                                .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_30mm.png"))
+                                .sound1p(tech.vvp.vvp.init.ModSounds.BUSHMASTER_1P.get())
+                                .sound3p(tech.vvp.vvp.init.ModSounds.BUSHMASTER_3P.get())
+                                .sound3pFar(tech.vvp.vvp.init.ModSounds.BUSHMASTER_FAR.get())
+                                .sound3pVeryFar(tech.vvp.vvp.init.ModSounds.BUSHMASTER_VERYFAR.get()),
+                },
         };
     }
 
@@ -153,6 +168,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
         this.entityData.define(LOADED_ROCKET, 0);
         this.entityData.define(PROPELLER_ROT, 0f);
         this.entityData.define(LOADED_MISSILE, 0);
+        this.entityData.define(CAMOUFLAGE_TYPE, 0);
     }
 
     @Override
@@ -161,6 +177,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
         compound.putInt("LoadedRocket", this.entityData.get(LOADED_ROCKET));
         compound.putFloat("PropellerRot", this.entityData.get(PROPELLER_ROT));
         compound.putInt("LoadedMissile", this.entityData.get(LOADED_MISSILE));
+        compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
     }
 
     @Override
@@ -169,6 +186,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
         this.entityData.set(LOADED_ROCKET, compound.getInt("LoadedRocket"));
         this.entityData.set(PROPELLER_ROT, compound.getFloat("PropellerRot"));
         this.entityData.set(LOADED_MISSILE, compound.getInt("LoadedMissile"));
+        this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
     }
 
     @Override
@@ -187,7 +205,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
     @Override
     public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getMainHandItem();
-        if (stack.getItem() == ModItems.SMALL_ROCKET.get() && this.entityData.get(LOADED_ROCKET) < 10) {
+        if (stack.getItem() == tech.vvp.vvp.init.ModItems.S_13.get() && this.entityData.get(LOADED_ROCKET) < 10) {
             // 装载火箭
             this.entityData.set(LOADED_ROCKET, this.entityData.get(LOADED_ROCKET) + 1);
             if (!player.isCreative()) {
@@ -206,6 +224,26 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
             this.level().playSound(null, this, ModSounds.MISSILE_RELOAD.get(), this.getSoundSource(), 2, 1);
             return InteractionResult.sidedSuccess(this.level().isClientSide());
         }
+
+        if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
+            if (!this.level().isClientSide) {  // Только на сервере
+                int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
+                int maxTypes = 3;  // Количество типов (default=0, desert=1, forest=2)
+                int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
+                this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
+
+                // Опционально: Звук и эффект (например, частицы)
+                this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.SPRAY.get(), this.getSoundSource(), 1.0F, 1.0F);  // Пример звука (замени на свой)
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 1, this.getZ(), 10, 1.0, 1.0, 1.0, 0.1);  // Частицы успеха
+                }
+
+                return InteractionResult.CONSUME;  // Consume — прерываем, не даём войти
+            } else {
+                return InteractionResult.SUCCESS;  // Success на клиенте для отклика
+            }
+        }
+
         return super.interact(player, hand);
     }
 
@@ -242,11 +280,11 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
         int ammoCount = countItem(ModItems.SMALL_SHELL.get());
 
-        if ((hasItem(ModItems.SMALL_ROCKET.get()) || hasCreativeAmmoBox) && reloadCoolDown == 0 && this.getEntityData().get(LOADED_ROCKET) < 10) {
+        if ((hasItem(tech.vvp.vvp.init.ModItems.S_13.get()) || hasCreativeAmmoBox) && reloadCoolDown == 0 && this.getEntityData().get(LOADED_ROCKET) < 10) {
             this.entityData.set(LOADED_ROCKET, this.getEntityData().get(LOADED_ROCKET) + 1);
             reloadCoolDown = 260;
             if (!hasCreativeAmmoBox) {
-                this.getItemStacks().stream().filter(stack -> stack.is(ModItems.SMALL_ROCKET.get())).findFirst().ifPresent(stack -> stack.shrink(1));
+                this.getItemStacks().stream().filter(stack -> stack.is(tech.vvp.vvp.init.ModItems.S_13.get())).findFirst().ifPresent(stack -> stack.shrink(1));
             }
             this.level().playSound(null, this, ModSounds.MISSILE_RELOAD.get(), this.getSoundSource(), 2, 1);
         }
@@ -264,6 +302,10 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
             this.entityData.set(AMMO, this.getEntityData().get(LOADED_MISSILE));
         } else if (this.getWeaponIndex(0) == 1) {
             this.entityData.set(AMMO, this.getEntityData().get(LOADED_ROCKET));
+        }
+
+        if (getWeaponIndex(1) == 0) {
+            this.entityData.set(AMMO, ammoCount);
         }
 
     }
@@ -495,7 +537,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
             entity.setYBodyRot(this.getYRot());
         } else if (entity == getNthEntity(1)) {
             float f = Mth.wrapDegrees(entity.getXRot());
-            float f1 = Mth.clamp(f, -80.0F, 80F);
+            float f1 = Mth.clamp(f, -2.5f, 80F);
             entity.xRotO += f1 - f;
             entity.setXRot(entity.getXRot() + f1 - f);
 
@@ -504,18 +546,6 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
             entity.yRotO += f3 - f2;
             entity.setYRot(entity.getYRot() + f3 - f2);
             entity.setYBodyRot(this.getYRot());
-        } else if (entity == getNthEntity(2)) {
-            float f2 = Mth.wrapDegrees(entity.getYRot() - this.getYRot());
-            float f3 = Mth.clamp(f2, 10.0F, 170.0F);
-            entity.yRotO += f3 - f2;
-            entity.setYRot(entity.getYRot() + f3 - f2);
-            entity.setYBodyRot(getYRot() + 90);
-        } else if (entity == getNthEntity(3)) {
-            float f2 = Mth.wrapDegrees(entity.getYRot() - this.getYRot());
-            float f3 = Mth.clamp(f2, -170.0F, -10.0F);
-            entity.yRotO += f3 - f2;
-            entity.setYRot(entity.getYRot() + f3 - f2);
-            entity.setYBodyRot(getYRot() - 90);
         }
     }
 
@@ -665,64 +695,93 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
         Matrix4f transform = getVehicleTransform(1);
 
-        if (getWeaponIndex(0) == 0 && this.getEntityData().get(LOADED_MISSILE) > 0) {
-            var LmurEntity = ((LmurWeapon) getWeapon(0)).create(living);
 
-            Vector4f worldPosition;
+        if (type == 0) {
+            if (getWeaponIndex(0) == 0 && this.getEntityData().get(LOADED_MISSILE) > 0) {
+                var LmurEntity = ((LmurWeapon) getWeapon(0)).create(living);
 
-            if (this.getEntityData().get(LOADED_MISSILE) == 4) {
-                worldPosition = transformPosition(transform, 5.28f, -1.76f, 1.87f);
-            } else if (this.getEntityData().get(LOADED_MISSILE) == 3) {
-                worldPosition = transformPosition(transform, -5.28f, -1.76f, 1.87f);
-            } else if (this.getEntityData().get(LOADED_MISSILE) == 2) {
-                worldPosition = transformPosition(transform, 6.63f, -1.55f, 1.83f);
-            } else {
-                worldPosition = transformPosition(transform, -6.63f, -1.55f, 1.83f);
+                Vector4f worldPosition;
+
+                if (this.getEntityData().get(LOADED_MISSILE) == 4) {
+                    worldPosition = transformPosition(transform, 5.28f, -1.76f, 1.87f);
+                } else if (this.getEntityData().get(LOADED_MISSILE) == 3) {
+                    worldPosition = transformPosition(transform, -5.28f, -1.76f, 1.87f);
+                } else if (this.getEntityData().get(LOADED_MISSILE) == 2) {
+                    worldPosition = transformPosition(transform, 6.63f, -1.55f, 1.83f);
+                } else {
+                    worldPosition = transformPosition(transform, -6.63f, -1.55f, 1.83f);
+                }
+
+                if (locked) {
+                    LmurEntity.setTargetUuid(getTargetUuid());
+                }
+                LmurEntity.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
+                LmurEntity.shoot(shootVec(1).x, shootVec(1).y, shootVec(1).z, (float) getDeltaMovement().length() + 1, 1);
+                living.level().addFreshEntity(LmurEntity);
+
+                BlockPos pos = BlockPos.containing(new Vec3(worldPosition.x, worldPosition.y, worldPosition.z));
+
+                this.level().playSound(null, pos, ModSounds.BOMB_RELEASE.get(), SoundSource.PLAYERS, 3, 1);
+
+                if (this.getEntityData().get(LOADED_MISSILE) == 4) {
+                    reloadCoolDownMissile = 260;
+                }
+
+                this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) - 1);
+            } else if (getWeaponIndex(0) == 1 && this.getEntityData().get(LOADED_ROCKET) > 0) {
+
+                var heliRocketEntity = ((S130Weapon) getWeapon(0)).create(living);
+
+                Vector4f worldPosition;
+                Vector4f worldPosition2;
+
+                if (fireIndex == 0) {
+                    worldPosition = transformPosition(transform, 40f/16f, 23f/16f, -4f/16f);
+                    worldPosition2 = transformPosition(transform, 40f/16f + 0.009f - 0.0025f, 23f/16f + 0.012f, 1.8f);
+                    fireIndex = 1;
+                } else {
+                    worldPosition = transformPosition(transform, -40f/16f, 23f/16f, -4f/16f);
+                    worldPosition2 = transformPosition(transform, -40f/16f + 0.009f - 0.0025f, 23f/16f + 0.012f, 1.8f);
+                    fireIndex = 0;
+                }
+
+                Vec3 shootVec = new Vec3(worldPosition.x, worldPosition.y, worldPosition.z).vectorTo(new Vec3(worldPosition2.x, worldPosition2.y, worldPosition2.z)).normalize();
+
+                heliRocketEntity.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
+                heliRocketEntity.shoot(shootVec.x, shootVec.y, shootVec.z, 7, 0.25f);
+                living.level().addFreshEntity(heliRocketEntity);
+
+                playShootSound3p(living, 0, 6, 6, 6, new Vec3(worldPosition.x, worldPosition.y, worldPosition.z));
+
+                this.entityData.set(LOADED_ROCKET, this.getEntityData().get(LOADED_ROCKET) - 1);
+                reloadCoolDown = 100;
             }
+        }
 
-            if (locked) {
-                LmurEntity.setTargetUuid(getTargetUuid());
-            }
-            LmurEntity.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
-            LmurEntity.shoot(shootVec(1).x, shootVec(1).y, shootVec(1).z, (float) getDeltaMovement().length() + 1, 1);
-            living.level().addFreshEntity(LmurEntity);
+        if (type == 1) {
+                var smallCannonShell = ((SmallCannonShellWeapon) getWeapon(0)).create(living);
 
-            BlockPos pos = BlockPos.containing(new Vec3(worldPosition.x, worldPosition.y, worldPosition.z));
+                final Matrix4f transformG = this.getGunnerBarrelTransform(1.0f);
+                final Vector4f worldPositionG = this.transformPosition(transformG, 0.0f, -0.15f, 0.0f);
+                smallCannonShell.setPos(worldPositionG.x, worldPositionG.y, worldPositionG.z);
+                smallCannonShell.shoot(getGunnerVector(1).x, getGunnerVector(1).y, getGunnerVector(1).z, projectileVelocity(living),
+                        0.25f);
 
-            this.level().playSound(null, pos, ModSounds.BOMB_RELEASE.get(), SoundSource.PLAYERS, 3, 1);
+                this.level().addFreshEntity(smallCannonShell);
 
-            if (this.getEntityData().get(LOADED_MISSILE) == 4) {
-                reloadCoolDownMissile = 260;
-            }
+                sendParticle((ServerLevel) this.level(), ParticleTypes.LARGE_SMOKE, worldPositionG.x, worldPositionG.y, worldPositionG.z, 1, 0.02, 0.02, 0.02, 0, false);
+                playShootSound3p(living, 0, 4, 12, 24, getTurretShootPos(living, 1));
+                ShakeClientMessage.sendToNearbyPlayers(this, 5, 6, 5, 9);
 
-            this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) - 1);
-        } else if (getWeaponIndex(0) == 1 && this.getEntityData().get(LOADED_ROCKET) > 0) {
+                this.entityData.set(CANNON_RECOIL_TIME, 40);
+                this.entityData.set(YAW, getTurretYRot());
 
-            var heliRocketEntity = ((S130Weapon) getWeapon(0)).create(living);
+                this.entityData.set(HEAT, this.entityData.get(HEAT) + 7);
+                this.entityData.set(FIRE_ANIM, 3);
 
-            Vector4f worldPosition;
-            Vector4f worldPosition2;
+                if (hasCreativeAmmo) return;
 
-            if (fireIndex == 0) {
-                worldPosition = transformPosition(transform, 40f/16f, 23f/16f, -4f/16f);
-                worldPosition2 = transformPosition(transform, 40f/16f + 0.009f - 0.0025f, 23f/16f + 0.012f, 1.8f);
-                fireIndex = 1;
-            } else {
-                worldPosition = transformPosition(transform, -40f/16f, 23f/16f, -4f/16f);
-                worldPosition2 = transformPosition(transform, -40f/16f + 0.009f - 0.0025f, 23f/16f + 0.012f, 1.8f);
-                fireIndex = 0;
-            }
-
-            Vec3 shootVec = new Vec3(worldPosition.x, worldPosition.y, worldPosition.z).vectorTo(new Vec3(worldPosition2.x, worldPosition2.y, worldPosition2.z)).normalize();
-
-            heliRocketEntity.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
-            heliRocketEntity.shoot(shootVec.x, shootVec.y, shootVec.z, 7, 0.25f);
-            living.level().addFreshEntity(heliRocketEntity);
-
-            playShootSound3p(living, 0, 6, 6, 6, new Vec3(worldPosition.x, worldPosition.y, worldPosition.z));
-
-            this.entityData.set(LOADED_ROCKET, this.getEntityData().get(LOADED_ROCKET) - 1);
-            reloadCoolDown = 100;
+                this.getItemStacks().stream().filter(stack -> stack.is(ModItems.SMALL_SHELL.get())).findFirst().ifPresent(stack -> stack.shrink(1));
         }
     }
 
@@ -736,22 +795,53 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
             }
         }
 
+        if (living == getNthEntity(1)) {
+            if (getWeaponIndex(1) == 0) {
+                return 400;
+            }
+        }
+
         return 0;
     }
 
     @Override
     public boolean canShoot(LivingEntity living) {
-        if (getWeaponIndex(0) == 0) {
-            return this.entityData.get(AMMO) > 0;
-        } else if (getWeaponIndex(0) == 1) {
-            return this.entityData.get(AMMO) > 0;
+        if(living == getNthEntity(0)) {
+            if (getWeaponIndex(0) == 0) {
+                return this.entityData.get(LOADED_MISSILE) > 0;
+            } else if (getWeaponIndex(0) == 1) {
+                return this.entityData.get(LOADED_ROCKET) > 0;
+            }
         }
-        return false;
+
+        if (living == getNthEntity(1)) {
+            if (getWeaponIndex(1) == 0) {
+                return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(living)) && !cannotFire;
+            }
+        }
+
+
+        return true;
     }
 
     @Override
     public int getAmmoCount(LivingEntity living) {
-        return this.entityData.get(AMMO);
+
+        if (living == getNthEntity(0)) {
+            if (getWeaponIndex(0) == 0) {
+                return this.entityData.get(LOADED_MISSILE);
+            } else if (getWeaponIndex(0) == 1) {
+                return this.entityData.get(LOADED_ROCKET);
+            }
+        }
+
+        if (living == getNthEntity(1)) {
+            if (getWeaponIndex(1) == 0) {
+                return this.entityData.get(AMMO);
+            }
+        }
+
+        return 0;
     }
 
     @Override
@@ -863,13 +953,12 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
     }
 
     @OnlyIn(Dist.CLIENT)
-    @Override
-    public @Nullable Vec2 getCameraRotation(float partialTicks, Player player, boolean zoom, boolean isFirstPerson) {
-        if (this.getSeatIndex(player) == 0) {
-            return new Vec2((float) (getRotY(partialTicks) - freeCameraYaw), (float) (getRotX(partialTicks) + freeCameraPitch));
+    @Nullable
+    public Vec2 getCameraRotation(final float partialTicks, final Player player, final boolean zoom, final boolean isFirstPerson) {
+        if (this.getSeatIndex((Entity)player) == 1) {
+            return new Vec2((float)(-getYRotFromVector(this.getGunnerVector(partialTicks))), (float)(-getXRotFromVector(this.getGunnerVector(partialTicks))));
         }
-
-        return super.getCameraRotation(partialTicks, player, false, false);
+        return (this.getSeatIndex((Entity)player) == 0) ? new Vec2((float)(this.getRotY(partialTicks) - ClientMouseHandler.freeCameraYaw), (float)(this.getRotX(partialTicks) + ClientMouseHandler.freeCameraPitch)) : super.getCameraRotation(partialTicks, player, false, false);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -886,7 +975,24 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
                 return finalPos;
             }
         }
+
+        if (this.getSeatIndex(player) == 1) {
+            Matrix4f transform = getClientVehicleTransform(partialTicks);
+            Vector4f maxCameraPosition = transformPosition(transform, 0f, -10f/16f, 30f/16f - (float) ClientMouseHandler.custom3pDistanceLerp);
+            Vec3 finalPos = CameraTool.getMaxZoom(transform, maxCameraPosition);
+
+            if (isFirstPerson) {
+                return new Vec3(Mth.lerp(partialTicks, player.xo, player.getX()), Mth.lerp(partialTicks, player.yo + player.getEyeHeight(), player.getEyeY()), Mth.lerp(partialTicks, player.zo, player.getZ()));
+            } else {
+                return finalPos;
+            }
+        }
         return super.getCameraPosition(partialTicks, player, false, false);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public boolean useFixedCameraPos(final Entity entity) {
+        return this.getSeatIndex(entity) == 1;
     }
 
     @Override
@@ -931,5 +1037,56 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
         Vector4f worldPosition7 = transformPosition(transform, -1.1250f, 2.4688f - 1.45f, -3.0000f);
         this.obb7.center().set(new Vector3f(worldPosition7.x, worldPosition7.y, worldPosition7.z));
         this.obb7.setRotation(VectorTool.combineRotations(1, this));
+    }
+
+    public Matrix4f getGunTransform(float ticks) {
+        Matrix4f transformT = getTurretTransform(ticks);
+
+        Matrix4f transform = new Matrix4f();
+        Vector4f worldPosition = transformPosition(transform, 0, 17.7861f/16f, 28.1924f/16f);
+
+        transformT.translate(worldPosition.x, worldPosition.y, worldPosition.z);
+        transformT.rotate(Axis.YP.rotationDegrees(Mth.lerp(ticks, gunYRotO, getGunYRot()) - Mth.lerp(ticks, turretYRotO, getTurretYRot())));
+        return transformT;
+    }
+
+    public Matrix4f getGunnerBarrelTransform(float ticks) {
+        Matrix4f transformG = getGunTransform(ticks);
+
+        Matrix4f transform = new Matrix4f();
+        Vector4f worldPosition = transformPosition(transform, -0.2465f/16f, 4.793f/16f, 3.7596f/16f);
+
+        transformG.translate(worldPosition.x, worldPosition.y, worldPosition.z);
+
+        float a = getTurretYaw(ticks);
+
+        float r = (Mth.abs(a) - 90f) / 90f;
+
+        float r2;
+
+        if (Mth.abs(a) <= 90f) {
+            r2 = a / 90f;
+        } else {
+            if (a < 0) {
+                r2 = -(180f + a) / 90f;
+            } else {
+                r2 = (180f - a) / 90f;
+            }
+        }
+
+        float x = Mth.lerp(ticks, gunXRotO, getGunXRot());
+        float xV = Mth.lerp(ticks, xRotO, getXRot());
+        float z = Mth.lerp(ticks, prevRoll, getRoll());
+
+        transformG.rotate(Axis.XP.rotationDegrees(x + r * xV + r2 * z));
+        return transformG;
+    }
+
+    @Override
+    public Vec3 getGunnerVector(float pPartialTicks) {
+        Matrix4f transform = getGunnerBarrelTransform(pPartialTicks);
+        Vector4f rootPosition = transformPosition(transform, 0, 0, 0);
+        Vector4f targetPosition = transformPosition(transform, 0, 0, 1);
+        return new Vec3(rootPosition.x, rootPosition.y, rootPosition.z).vectorTo(new Vec3(targetPosition.x, targetPosition.y, targetPosition.z));
     }
 }

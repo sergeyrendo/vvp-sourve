@@ -323,6 +323,7 @@ public class BrmEntity extends ContainerMobileVehicleEntity implements GeoEntity
             this.entityData.set(AMMO, countItem(ModItems.SMALL_SHELL.get()));
         }
 
+
         this.entityData.set(MG_AMMO, mgAmmoCount);
     }
 

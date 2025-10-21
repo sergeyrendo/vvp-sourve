@@ -41,6 +41,8 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.MI_8_MTV.get(), Mi8MTVRenderer::new);
         event.registerEntityRenderer(ModEntities.MI_8_AMTSH.get(), Mi8AMTSHRenderer::new);
         event.registerEntityRenderer(ModEntities.PUMA.get(), PumaRenderer::new);
+        event.registerEntityRenderer(ModEntities.SPIKE_MISSLE.get(), SpikeATGMRenderer::new);
+        event.registerEntityRenderer(ModEntities.TOW_MISSILE.get(), TOWRenderer::new);
 
 
 
