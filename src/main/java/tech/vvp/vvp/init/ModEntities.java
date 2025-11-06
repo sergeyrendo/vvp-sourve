@@ -19,25 +19,16 @@ public class ModEntities {
                                 () -> EntityType.Builder.<Btr4Entity>of(Btr4Entity::new, MobCategory.MISC)
                                     .setTrackingRange(64)
                                     .setUpdateInterval(1)
-                                    .setCustomClientFactory(Btr4Entity::clientSpawn)
+                                    .setCustomClientFactory(Btr4Entity::new)
                                     .fireImmune()
                                     .sized(3.9f, 3.5f)
-                                    .build("stryker_haki"));
-
-    public static final RegistryObject<EntityType<BradleyUkrEntity>> BRADLEY_UKR = ENTITY_TYPES.register("bradley_ukr",
-            () -> EntityType.Builder.<BradleyUkrEntity>of(BradleyUkrEntity::new, MobCategory.MISC)
-                                    .setTrackingRange(64)
-                                    .setUpdateInterval(1)
-                                    .setCustomClientFactory(BradleyUkrEntity::clientSpawn)
-                                    .fireImmune()
-                                    .sized(3.9f, 3.5f)
-                                    .build("bradley_ukr"));
+                                    .build("btr_4"));
 
     public static final RegistryObject<EntityType<BradleyEntity>> BRADLEY = ENTITY_TYPES.register("bradley",
             () -> EntityType.Builder.<BradleyEntity>of(BradleyEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(BradleyEntity::clientSpawn)
+                    .setCustomClientFactory(BradleyEntity::new)
                     .fireImmune()
                     .sized(3.9f, 3.5f)
                     .build("bradley"));
@@ -46,7 +37,7 @@ public class ModEntities {
             () -> EntityType.Builder.<BrmEntity>of(BrmEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(BrmEntity::clientSpawn)
+                    .setCustomClientFactory(BrmEntity::new)
                     .fireImmune()
                     .sized(3.9f, 3.5f)
                     .build("brm"));
@@ -55,7 +46,7 @@ public class ModEntities {
             () -> EntityType.Builder.<Bmp3Entity>of(Bmp3Entity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(Bmp3Entity::clientSpawn)
+                    .setCustomClientFactory(Bmp3Entity::new)
                     .fireImmune()
                     .sized(3.9f, 3.5f)
                     .build("bmp_3"));
@@ -64,7 +55,7 @@ public class ModEntities {
             () -> EntityType.Builder.<Uh60ModEntity>of(Uh60ModEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(Uh60ModEntity::clientSpawn)
+                    .setCustomClientFactory(Uh60ModEntity::new)
                     .fireImmune()
                     .sized(3f, 4f)
                     .build("uh60mod"));
@@ -74,7 +65,7 @@ public class ModEntities {
             () -> EntityType.Builder.<Uh60Entity>of(Uh60Entity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(Uh60Entity::clientSpawn)
+                    .setCustomClientFactory(Uh60Entity::new)
                     .fireImmune()
                     .sized(3f, 4f)
                     .build("uh60"));
@@ -83,7 +74,7 @@ public class ModEntities {
             () -> EntityType.Builder.<ChryzantemaEntity>of(ChryzantemaEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(ChryzantemaEntity::clientSpawn)
+                    .setCustomClientFactory(ChryzantemaEntity::new)
                     .fireImmune()
                     .sized(3.9f, 3.5f)
                     .build("chryzantema"));
@@ -92,7 +83,7 @@ public class ModEntities {
             () -> EntityType.Builder.<StrykerEntity>of(StrykerEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(StrykerEntity::clientSpawn)
+                    .setCustomClientFactory(StrykerEntity::new)
                     .fireImmune()
                     .sized(3.9f, 3.5f)
                     .build("stryker"));
@@ -101,7 +92,7 @@ public class ModEntities {
             () -> EntityType.Builder.<Stryker_M1296Entity>of(Stryker_M1296Entity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(Stryker_M1296Entity::clientSpawn)
+                    .setCustomClientFactory(Stryker_M1296Entity::new)
                     .fireImmune()
                     .sized(3.9f, 3.5f)
                     .build("stryker_m1296"));
@@ -110,7 +101,7 @@ public class ModEntities {
             () -> EntityType.Builder.<TerminatorEntity>of(TerminatorEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(TerminatorEntity::clientSpawn)
+                    .setCustomClientFactory(TerminatorEntity::new)
                     .fireImmune()
                     .sized(3.9f, 3.5f)
                     .build("terminator"));
@@ -119,7 +110,7 @@ public class ModEntities {
             () -> EntityType.Builder.<T90MEntity>of(T90MEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(T90MEntity::clientSpawn)
+                    .setCustomClientFactory(T90MEntity::new)
                     .fireImmune()
                     .sized(3.9f, 3.5f)
                     .build("t90_m"));
@@ -128,7 +119,7 @@ public class ModEntities {
             () -> EntityType.Builder.<Su25Entity>of(Su25Entity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(Su25Entity::clientSpawn)
+                    .setCustomClientFactory(Su25Entity::new)
                     .fireImmune()
                     .sized(3.9f, 3.5f)
                     .build("su_25"));
@@ -137,7 +128,7 @@ public class ModEntities {
             () -> EntityType.Builder.<T90M22Entity>of(T90M22Entity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(T90M22Entity::clientSpawn)
+                    .setCustomClientFactory(T90M22Entity::new)
                     .fireImmune()
                     .sized(3.9f, 3.5f)
                     .build("t90_m_2"));
@@ -146,7 +137,7 @@ public class ModEntities {
             () -> EntityType.Builder.<T90AEntity>of(T90AEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(T90AEntity::clientSpawn)
+                    .setCustomClientFactory(T90AEntity::new)
                     .fireImmune()
                     .sized(3.9f, 3.5f)
                     .build("t90_a"));
@@ -155,43 +146,52 @@ public class ModEntities {
             () -> EntityType.Builder.<M1A2Entity>of(M1A2Entity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(M1A2Entity::clientSpawn)
+                    .setCustomClientFactory(M1A2Entity::new)
                     .fireImmune()
-                    .sized(3.9f, 3.5f)
+                    .sized(5, 5)
                     .build("m1a2"));
+
+    public static final RegistryObject<EntityType<M1A2SepEntity>> M1A2_SEP = ENTITY_TYPES.register("m1a2_sep",
+            () -> EntityType.Builder.<M1A2SepEntity>of(M1A2SepEntity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(M1A2SepEntity::new)
+                    .fireImmune()
+                    .sized(5, 5)
+                    .build("m1a2_sep"));
 
     public static final RegistryObject<EntityType<Mi28Entity>> MI_28 = ENTITY_TYPES.register("mi_28",
             () -> EntityType.Builder.<Mi28Entity>of(Mi28Entity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(Mi28Entity::clientSpawn)
+                    .setCustomClientFactory(Mi28Entity::new)
                     .fireImmune()
                     .sized(4f, 4f)
                     .build("mi_28"));
+
+    public static final RegistryObject<EntityType<Mi28_1Entity>> MI_28_1 = ENTITY_TYPES.register("mi_28_1",
+            () -> EntityType.Builder.<Mi28_1Entity>of(Mi28_1Entity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(Mi28_1Entity::new)
+                    .fireImmune()
+                    .sized(4f, 4f)
+                    .build("mi_28_1"));
 
     public static final RegistryObject<EntityType<SuperCobraEntity>> AH_1 = ENTITY_TYPES.register("ah_1",
             () -> EntityType.Builder.<SuperCobraEntity>of(SuperCobraEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(SuperCobraEntity::clientSpawn)
+                    .setCustomClientFactory(SuperCobraEntity::new)
                     .fireImmune()
                     .sized(4f, 4f)
                     .build("ah_1"));
-
-    public static final RegistryObject<EntityType<SuperCobraWhiteEntity>> AH_1_WHITE = ENTITY_TYPES.register("ah_1_white",
-            () -> EntityType.Builder.<SuperCobraWhiteEntity>of(SuperCobraWhiteEntity::new, MobCategory.MISC)
-                    .setTrackingRange(64)
-                    .setUpdateInterval(1)
-                    .setCustomClientFactory(SuperCobraWhiteEntity::clientSpawn)
-                    .fireImmune()
-                    .sized(4f, 4f)
-                    .build("ah_1_white"));
 
     public static final RegistryObject<EntityType<Mi8Entity>> MI_8 = ENTITY_TYPES.register("mi_8",
             () -> EntityType.Builder.<Mi8Entity>of(Mi8Entity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(Mi8Entity::clientSpawn)
+                    .setCustomClientFactory(Mi8Entity::new)
                     .fireImmune()
                     .sized(4f, 4f)
                     .build("mi_8"));
@@ -200,7 +200,7 @@ public class ModEntities {
             () -> EntityType.Builder.<Mi8MTVEntity>of(Mi8MTVEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(Mi8MTVEntity::clientSpawn)
+                    .setCustomClientFactory(Mi8MTVEntity::new)
                     .fireImmune()
                     .sized(4f, 4f)
                     .build("mi_8_mtv"));
@@ -209,7 +209,7 @@ public class ModEntities {
             () -> EntityType.Builder.<Mi8AMTSHEntity>of(Mi8AMTSHEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(Mi8AMTSHEntity::clientSpawn)
+                    .setCustomClientFactory(Mi8AMTSHEntity::new)
                     .fireImmune()
                     .sized(4f, 4f)
                     .build("mi_8_amtsh"));
@@ -218,10 +218,47 @@ public class ModEntities {
             () -> EntityType.Builder.<PumaEntity>of(PumaEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
                     .setUpdateInterval(1)
-                    .setCustomClientFactory(PumaEntity::clientSpawn)
+                    .setCustomClientFactory(PumaEntity::new)
                     .fireImmune()
                     .sized(4f, 4f)
                     .build("puma"));
+
+    public static final RegistryObject<EntityType<BushmasterEntity>> BUSHMASTER = ENTITY_TYPES.register("bushmaster",
+            () -> EntityType.Builder.<BushmasterEntity>of(BushmasterEntity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(BushmasterEntity::new)
+                    .fireImmune()
+                    .sized(4f, 4f)
+                    .build("bushmaster"));
+
+    public static final RegistryObject<EntityType<ToyotaEntity>> TOYOTA = ENTITY_TYPES.register("toyota",
+            () -> EntityType.Builder.<ToyotaEntity>of(ToyotaEntity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(ToyotaEntity::new)
+                    .fireImmune()
+                    .sized(3f, 2f)
+                    .build("toyota"));
+
+    public static final RegistryObject<EntityType<TU22M3Entity>> TU_22_M3 = ENTITY_TYPES.register("tu22m3",
+            () -> EntityType.Builder.<TU22M3Entity>of(TU22M3Entity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(TU22M3Entity::new)
+                    .fireImmune()
+                    .sized(8f, 8f)
+                    .build("tu22m3"));
+
+    public static final RegistryObject<EntityType<ChallengerEntity>> CHALLENGER = ENTITY_TYPES.register("challenger",
+            () -> EntityType.Builder.<ChallengerEntity>of(ChallengerEntity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(ChallengerEntity::new)
+                    .fireImmune()
+                    .sized(4f, 4f)
+                    .build("challenger"));
+
 
 
 
@@ -252,6 +289,9 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<TOWEntity>> TOW_MISSILE = register("tow_missle",
             EntityType.Builder.<TOWEntity>of(TOWEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(TOWEntity::new).noSave().sized(0.8f, 0.8f));
+
+    public static final RegistryObject<EntityType<HryzantemaEntity>> HRYZANTEMA = register("hryzantema",
+            EntityType.Builder.<HryzantemaEntity>of(HryzantemaEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(HryzantemaEntity::new).noSave().sized(0.8f, 0.8f));
 
         private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
                 return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));

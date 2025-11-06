@@ -128,24 +128,6 @@ public class Mi8AMTSHEntity extends ContainerMobileVehicleEntity implements GeoE
                 .add(Attributes.ARMOR_TOUGHNESS, 5.0D);
     }
 
-
-    @SuppressWarnings("unchecked")
-    public static Mi8AMTSHEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
-
-        EntityType<Mi8AMTSHEntity> castedEntityType = (EntityType<Mi8AMTSHEntity>) entityTypeFromPacket;
-        Mi8AMTSHEntity entity = new Mi8AMTSHEntity(castedEntityType, world);
-        return entity;
-    }
-
     @Override
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{

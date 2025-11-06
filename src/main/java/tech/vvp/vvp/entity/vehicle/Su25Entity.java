@@ -113,22 +113,6 @@ public class Su25Entity extends ContainerMobileVehicleEntity implements GeoEntit
         this.obb6 = new OBB(this.position().toVector3f(), new Vector3f(22f/32f, 65f/32f, 50f/32f), new Quaternionf(), OBB.Part.ENGINE2);
     }
 
-    public static Su25Entity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
-
-        EntityType<Su25Entity> castedEntityType = (EntityType<Su25Entity>) entityTypeFromPacket;
-        Su25Entity entity = new Su25Entity(castedEntityType, world);
-        return entity;
-    }
-
     @Override
     public int getRadarRange() {
         return 250;
@@ -251,7 +235,7 @@ public class Su25Entity extends ContainerMobileVehicleEntity implements GeoEntit
         if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
             if (!this.level().isClientSide) {  // Только на сервере
                 int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
-                int maxTypes = 3;  // Количество типов (default=0, desert=1, forest=2)
+                int maxTypes = 6;  // Количество типов (default=0, desert=1, forest=2)
                 int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
                 this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
 

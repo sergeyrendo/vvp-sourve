@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import tech.vvp.vvp.client.model.SuperCobraModel;
+import tech.vvp.vvp.entity.vehicle.Su25Entity;
 import tech.vvp.vvp.entity.vehicle.SuperCobraEntity;
 
 import static tech.vvp.vvp.entity.vehicle.Su25Entity.LOADED_MISSILE;
@@ -53,32 +54,32 @@ public class SuperCobraRenderer extends GeoEntityRenderer<SuperCobraEntity> {
 
 
         // правая
-        if (name.equals("raketa")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 1);
+        if (name.equals("raketa_1")) {
+            bone.setHidden(animatable.getEntityData().get(SuperCobraEntity.LOADED_MISSILE) < 1);
         }
-        if (name.equals("raketa1")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 3);
+        if (name.equals("raketa_2")) {
+            bone.setHidden(animatable.getEntityData().get(SuperCobraEntity.LOADED_MISSILE) < 3);
         }
-        if (name.equals("raketa2")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 5);
+        if (name.equals("raketa_3")) {
+            bone.setHidden(animatable.getEntityData().get(SuperCobraEntity.LOADED_MISSILE) < 5);
         }
-        if (name.equals("raketa3")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 7);
+        if (name.equals("raketa_4")) {
+            bone.setHidden(animatable.getEntityData().get(SuperCobraEntity.LOADED_MISSILE) < 7);
         }
 
 
         // левая
-        if (name.equals("raketa4")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 2);
+        if (name.equals("raketa_5")) {
+            bone.setHidden(animatable.getEntityData().get(SuperCobraEntity.LOADED_MISSILE) < 2);
         }
-        if (name.equals("raketa5")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 4);
+        if (name.equals("raketa_6")) {
+            bone.setHidden(animatable.getEntityData().get(SuperCobraEntity.LOADED_MISSILE) < 4);
         }
-        if (name.equals("raketa6")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 6);
+        if (name.equals("raketa_7")) {
+            bone.setHidden(animatable.getEntityData().get(SuperCobraEntity.LOADED_MISSILE) < 6);
         }
-        if (name.equals("raketa7")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 8);
+        if (name.equals("raketa_8")) {
+            bone.setHidden(animatable.getEntityData().get(SuperCobraEntity.LOADED_MISSILE) < 8);
         }
 
 

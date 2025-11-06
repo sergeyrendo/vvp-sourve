@@ -115,21 +115,6 @@ public class BrmEntity extends ContainerMobileVehicleEntity implements GeoEntity
 
     }
 
-    public static BrmEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
-
-        EntityType<BrmEntity> castedEntityType = (EntityType<BrmEntity>) entityTypeFromPacket;
-        BrmEntity entity = new BrmEntity(castedEntityType, world);
-        return entity;
-    }
 
     @Override
     public VehicleWeapon[][] initWeapons() {
@@ -752,7 +737,7 @@ public class BrmEntity extends ContainerMobileVehicleEntity implements GeoEntity
     }
 
     public List<OBB> getOBBs() {
-        return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret);
+        return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obb5, this.obbTurret);
     }
 
     public void updateOBB() {

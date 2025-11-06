@@ -115,32 +115,15 @@ public class M1A2Entity extends ContainerMobileVehicleEntity implements GeoEntit
         this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(2.156f, 0.672f, 2.906f), new Quaternionf(), OBB.Part.TURRET);
     }
 
-    @SuppressWarnings("unchecked")
-    public static M1A2Entity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
-
-        EntityType<M1A2Entity> castedEntityType = (EntityType<M1A2Entity>) entityTypeFromPacket;
-        M1A2Entity entity = new M1A2Entity(castedEntityType, world);
-        return entity;
-    }
-
     @Override
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
                         // AP
                         new CannonShellWeapon()
-                                .hitDamage(VehicleConfigVVP.T90_AP_CANNON_DAMAGE.get())
-                                .explosionRadius(VehicleConfigVVP.T90_AP_CANNON_EXPLOSION_RADIUS.get().floatValue())
-                                .explosionDamage(VehicleConfigVVP.T90_AP_CANNON_EXPLOSION_DAMAGE.get())
+                                .hitDamage(VehicleConfigVVP.M1A2_AP_CANNON_DAMAGE.get())
+                                .explosionRadius(VehicleConfigVVP.M1A2_AP_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .explosionDamage(VehicleConfigVVP.M1A2_AP_CANNON_EXPLOSION_DAMAGE.get())
                                 .fireProbability(0)
                                 .fireTime(0)
                                 .durability(100)
@@ -156,9 +139,9 @@ public class M1A2Entity extends ContainerMobileVehicleEntity implements GeoEntit
                                 .mainGun(true),
                         // HE
                         new CannonShellWeapon()
-                                .hitDamage(VehicleConfigVVP.T90_HE_CANNON_DAMAGE.get())
-                                .explosionRadius(VehicleConfigVVP.T90_HE_CANNON_EXPLOSION_RADIUS.get().floatValue())
-                                .explosionDamage(VehicleConfigVVP.T90_HE_CANNON_EXPLOSION_DAMAGE.get())
+                                .hitDamage(VehicleConfigVVP.M1A2_HE_CANNON_DAMAGE.get())
+                                .explosionRadius(VehicleConfigVVP.M1A2_HE_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .explosionDamage(VehicleConfigVVP.M1A2_HE_CANNON_EXPLOSION_DAMAGE.get())
                                 .fireProbability(0.18F)
                                 .fireTime(2)
                                 .durability(1)
@@ -680,7 +663,7 @@ public class M1A2Entity extends ContainerMobileVehicleEntity implements GeoEntit
         Matrix4f transformT = getTurretTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, -0.113f, 0.156f, -1.474f);
+        Vector4f worldPosition = transformPosition(transform, 0.064f/16f, 4.2889f/16f, 25.1685f/16f);
 
         transformT.translate(worldPosition.x, worldPosition.y, worldPosition.z);
 
@@ -724,7 +707,7 @@ public class M1A2Entity extends ContainerMobileVehicleEntity implements GeoEntit
         Matrix4f transformT = getTurretTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, -0.6168875f, 0.7952750f, -1.0803625f);
+        Vector4f worldPosition = transformPosition(transform, 0.0812f/16f, 41.997f/16f, 8.712f/16f);
 
         transformT.translate(worldPosition.x, worldPosition.y, worldPosition.z);
         transformT.rotate(Axis.YP.rotationDegrees(Mth.lerp(ticks, gunYRotO, getGunYRot()) - Mth.lerp(ticks, turretYRotO, getTurretYRot())));
@@ -765,7 +748,7 @@ public class M1A2Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public float rotateYOffset() {
-        return 3.5f;
+        return 0f;
     }
 
     protected void clampRotation(Entity entity) {

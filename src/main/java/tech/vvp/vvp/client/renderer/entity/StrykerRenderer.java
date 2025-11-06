@@ -145,7 +145,7 @@ public class StrykerRenderer extends GeoEntityRenderer<StrykerEntity> {
             bone.setRotZ((float) (0.5 * (Math.random() - 0.5)));
         }
 
-        if (name.equals("mangal")) {
+        if (name.equals("mangal_body")) {
             boolean has_mangal = animatable.getEntityData().get(StrykerEntity.HAS_MANGAL);
             bone.setHidden(!has_mangal);
         }

@@ -125,21 +125,6 @@ public class Stryker_M1296Entity extends ContainerMobileVehicleEntity implements
         this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(1.2890625f, 0.4609375f, 1.1953125f), new Quaternionf(), OBB.Part.TURRET);
         this.obbBarrel = new OBB(this.position().toVector3f(), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternionf(), OBB.Part.TURRET);
     }
-    public static Stryker_M1296Entity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
-
-        EntityType<Stryker_M1296Entity> castedEntityType = (EntityType<Stryker_M1296Entity>) entityTypeFromPacket;
-        Stryker_M1296Entity entity = new Stryker_M1296Entity(castedEntityType, world);
-        return entity;
-    }
 
     @Override
     public VehicleWeapon[][] initWeapons() {
@@ -523,9 +508,10 @@ public class Stryker_M1296Entity extends ContainerMobileVehicleEntity implements
         transformV.rotate(Axis.YP.rotationDegrees(Mth.lerp(ticks, turretYRotO, getTurretYRot())));
         return transformV;
     }
+
     @Override
     public float rotateYOffset() {
-        return 2.7f;
+        return 0f;
     }
 
     protected void clampRotation(Entity entity) {

@@ -112,21 +112,6 @@ public class SuperCobraEntity extends ContainerMobileVehicleEntity implements Ge
 
     }
 
-    public static SuperCobraEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
-
-        EntityType<SuperCobraEntity> castedEntityType = (EntityType<SuperCobraEntity>) entityTypeFromPacket;
-        SuperCobraEntity entity = new SuperCobraEntity(castedEntityType, world);
-        return entity;
-    }
 
     @Override
     public VehicleWeapon[][] initWeapons() {
@@ -223,6 +208,25 @@ public class SuperCobraEntity extends ContainerMobileVehicleEntity implements Ge
             }
             this.level().playSound(null, this, ModSounds.BOMB_RELOAD.get(), this.getSoundSource(), 2, 1);
             return InteractionResult.sidedSuccess(this.level().isClientSide());
+        }
+
+        if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
+            if (!this.level().isClientSide) {  // Только на сервере
+                int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
+                int maxTypes = 3;  // Количество типов (default=0, desert=1, forest=2)
+                int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
+                this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
+
+                // Опционально: Звук и эффект (например, частицы)
+                this.level().playSound(null, this, tech.vvp.vvp.init.ModSounds.SPRAY.get(), this.getSoundSource(), 1.0F, 1.0F);  // Пример звука (замени на свой)
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, this.getX(), this.getY() + 1, this.getZ(), 10, 1.0, 1.0, 1.0, 0.1);  // Частицы успеха
+                }
+
+                return InteractionResult.CONSUME;  // Consume — прерываем, не даём войти
+            } else {
+                return InteractionResult.SUCCESS;  // Success на клиенте для отклика
+            }
         }
         return super.interact(player, hand);
     }
@@ -540,7 +544,7 @@ public class SuperCobraEntity extends ContainerMobileVehicleEntity implements Ge
         Matrix4f transform = getVehicleTransform(1);
 
         float x = 0f;
-        float y = 27f/16f - 2f;
+        float y = 24f/16f - 2.15f;
         float z = 20f/16f;
 
         float x_1 = 0f;

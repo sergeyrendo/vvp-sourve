@@ -146,24 +146,6 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
         this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(1.2890625f, 0.5859375f, 1.3828125f), new Quaternionf(), OBB.Part.TURRET);
     }
 
-
-    @SuppressWarnings("unchecked")
-    public static TerminatorEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
-
-        EntityType<TerminatorEntity> castedEntityType = (EntityType<TerminatorEntity>) entityTypeFromPacket;
-        TerminatorEntity entity = new TerminatorEntity(castedEntityType, world);
-        return entity;
-    }
-
     @Override
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{
@@ -631,7 +613,7 @@ public class TerminatorEntity extends ContainerMobileVehicleEntity implements Ge
     }
     @Override
     public float rotateYOffset() {
-        return 2.7f;
+        return 0f;
     }
 
     protected void clampRotation(Entity entity) {

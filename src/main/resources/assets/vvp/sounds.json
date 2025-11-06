@@ -268,5 +268,10 @@
     "sounds": [
       "vvp:mi8_start"
     ]
+  },
+  "t64_reload": {
+    "sounds": [
+      "vvp:t64_reload"
+    ]
   }
 }

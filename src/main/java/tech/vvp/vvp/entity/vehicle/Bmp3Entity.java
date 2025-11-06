@@ -123,21 +123,7 @@ public class Bmp3Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     }
 
-    public static Bmp3Entity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
 
-        EntityType<Bmp3Entity> castedEntityType = (EntityType<Bmp3Entity>) entityTypeFromPacket;
-        Bmp3Entity entity = new Bmp3Entity(castedEntityType, world);
-        return entity;
-    }
 
     @Override
     public VehicleWeapon[][] initWeapons() {
@@ -434,22 +420,15 @@ public class Bmp3Entity extends ContainerMobileVehicleEntity implements GeoEntit
                 playShootSound3p(living, 0, 3, 6, 12, getTurretShootPos(living, 1));
 
             } else if (getWeaponIndex(0) == 2 && this.getEntityData().get(LOADED_MISSILE) > 0) {
-                // Проверка КД между пусками
-                if (this.entityData.get(MISSILE_FIRE_COOLDOWN) > 0) return;
-
                 var wgMissileEntity = ((WgMissileWeapon) getWeapon(0)).create(living);
 
                 wgMissileEntity.setPos(getTurretShootPos(living, 1).x, getTurretShootPos(living, 1).y, getTurretShootPos(living, 1).z);
-                wgMissileEntity.shoot(getBarrelVector(1).x, getBarrelVector(1).y, getBarrelVector(1).z, projectileVelocity(living), 0f);
+                wgMissileEntity.shoot(getBarrelVector(1).x, getBarrelVector(1).y, getBarrelVector(1).z,  projectileVelocity(living), 0f);
                 living.level().addFreshEntity(wgMissileEntity);
                 playShootSound3p(living, 0, 6, 0, 0, getTurretShootPos(living, 1));
 
                 this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) - 1);
-
-                // КД 0.5 секунды между пусками
-                this.entityData.set(MISSILE_FIRE_COOLDOWN, MISSILE_CD_TICKS);
-
-                reloadCoolDown = 160; // как и было — перезарядка из инвентаря
+                reloadCoolDown = 160;
             }
         }
     }

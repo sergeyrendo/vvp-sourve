@@ -1,8 +1,5 @@
 package tech.vvp.vvp.client.renderer.entity;
 
-import com.atsuishio.superbwarfare.event.ClientEventHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
 import tech.vvp.vvp.client.model.Mi28Model;
 import tech.vvp.vvp.entity.vehicle.Mi28Entity;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -17,6 +14,7 @@ import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import tech.vvp.vvp.entity.vehicle.Su25Entity;
 
 import static tech.vvp.vvp.entity.vehicle.Mi28Entity.LOADED_MISSILE;
 
@@ -65,22 +63,37 @@ public class Mi28Renderer extends GeoEntityRenderer<Mi28Entity> {
             bone.setRotX(-10 * Mth.lerp(partialTick, animatable.propellerRotO, animatable.getPropellerRot()));
         }
 
-        if (name.equals("missle1")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 2);
+        // правая
+        if (name.equals("raketa_1")) {
+            bone.setHidden(animatable.getEntityData().get(Mi28Entity.LOADED_MISSILE) < 1);
         }
-        if (name.equals("missle2")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 1);
+        if (name.equals("raketa_2")) {
+            bone.setHidden(animatable.getEntityData().get(Mi28Entity.LOADED_MISSILE) < 3);
+        }
+        if (name.equals("raketa_3")) {
+            bone.setHidden(animatable.getEntityData().get(Mi28Entity.LOADED_MISSILE) < 5);
+        }
+        if (name.equals("raketa_4")) {
+            bone.setHidden(animatable.getEntityData().get(Mi28Entity.LOADED_MISSILE) < 7);
         }
 
-        if (name.equals("missle3")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 3);
+
+        // левая
+        if (name.equals("raketa_5")) {
+            bone.setHidden(animatable.getEntityData().get(Mi28Entity.LOADED_MISSILE) < 2);
         }
-        if (name.equals("missle4")) {
-            bone.setHidden(animatable.getEntityData().get(LOADED_MISSILE) < 4);
+        if (name.equals("raketa_6")) {
+            bone.setHidden(animatable.getEntityData().get(Mi28Entity.LOADED_MISSILE) < 4);
+        }
+        if (name.equals("raketa_7")) {
+            bone.setHidden(animatable.getEntityData().get(Mi28Entity.LOADED_MISSILE) < 6);
+        }
+        if (name.equals("raketa_8")) {
+            bone.setHidden(animatable.getEntityData().get(Mi28Entity.LOADED_MISSILE) < 8);
         }
 
-        if (name.equals("cannon")) {
-            bone.setRotY(Mth.lerp(partialTick, animatable.gunYRotO, animatable.getGunYRot()) * Mth.DEG_TO_RAD - Mth.lerp(partialTick, animatable.turretYRotO, animatable.getTurretYRot()) * Mth.DEG_TO_RAD);
+        if(name.equals("cannon")){
+            bone.setRotY(Mth.lerp(partialTick, animatable.gunYRotO, animatable.getGunYRot()) * Mth.DEG_TO_RAD);
         }
         if (name.equals("barrel")) {
             float a = animatable.getTurretYaw(partialTick);
@@ -98,16 +111,11 @@ public class Mi28Renderer extends GeoEntityRenderer<Mi28Entity> {
                 }
             }
 
-            bone.setRotX(Mth.clamp(
-                    -Mth.lerp(partialTick, animatable.gunXRotO, animatable.getGunXRot()) * Mth.DEG_TO_RAD
-                            - r * animatable.getPitch(partialTick) * Mth.DEG_TO_RAD
-                            - r2 * animatable.getRoll(partialTick) * Mth.DEG_TO_RAD,
-                    -10 * Mth.DEG_TO_RAD, 60 * Mth.DEG_TO_RAD)
+            bone.setRotX((float) Mth.clamp(
+                    -Mth.lerp(partialTick, animatable.gunXRotO, animatable.getGunXRot()) * Mth.DEG_TO_RAD,
+                    -80 * Mth.DEG_TO_RAD, 2.5 * Mth.DEG_TO_RAD)
             );
         }
-
-        bone.setHidden(name.equals("weapon_set_2"));
-        bone.setHidden(name.equals("weapon_set_3"));
 
 
         super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);

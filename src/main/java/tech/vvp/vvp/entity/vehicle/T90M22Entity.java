@@ -89,6 +89,7 @@ public class T90M22Entity extends ContainerMobileVehicleEntity implements GeoEnt
     public OBB obb4;
     public OBB obbTurret;
     public OBB obbGun;
+    public OBB obbBarrel;
 
     private static final float TURRET_OFFSET_X = -1.1573f/16f;
     private static final float TURRET_OFFSET_Y = 36.7239f/16f;
@@ -114,23 +115,7 @@ public class T90M22Entity extends ContainerMobileVehicleEntity implements GeoEnt
         this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.375f, 0.844f, 3.844f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
         this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(1.875f, 0.40625f, 2.15625f), new Quaternionf(), OBB.Part.TURRET);
         this.obbGun = new OBB(this.position().toVector3f(), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternionf(), OBB.Part.TURRET);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static T90M22Entity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
-
-        EntityType<T90M22Entity> castedEntityType = (EntityType<T90M22Entity>) entityTypeFromPacket;
-        T90M22Entity entity = new T90M22Entity(castedEntityType, world);
-        return entity;
+        this.obbBarrel = new OBB(this.position().toVector3f(), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternionf(), OBB.Part.TURRET);
     }
 
     @Override
@@ -681,7 +666,7 @@ public class T90M22Entity extends ContainerMobileVehicleEntity implements GeoEnt
         Matrix4f transformT = getTurretTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, TURRET_OFFSET_X - BARREL_OFFSET_X, TURRET_OFFSET_Y - BARREL_OFFSET_Y, TURRET_OFFSET_Z - BARREL_OFFSET_Z);
+        Vector4f worldPosition = transformPosition(transform, TURRET_OFFSET_X - BARREL_OFFSET_X, TURRET_OFFSET_Y - BARREL_OFFSET_Y, -(TURRET_OFFSET_Z - BARREL_OFFSET_Z));
 
         transformT.translate(worldPosition.x, worldPosition.y, worldPosition.z);
 
@@ -1042,10 +1027,6 @@ public class T90M22Entity extends ContainerMobileVehicleEntity implements GeoEnt
             guiGraphics.drawString(font, Component.literal("12.7MM CORD " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
         }
 
-        if (this.getWeaponIndex(1) == 0) {
-            double heat2 = this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("12.7MM CORD " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
-        }
     }
 
     @Override
@@ -1119,7 +1100,7 @@ public class T90M22Entity extends ContainerMobileVehicleEntity implements GeoEnt
 
     @Override
     public List<OBB> getOBBs() {
-        return List.of(this.obb, this.obb2, this.obb3, this.obb4, this.obbTurret, this.obbGun);
+        return List.of(this.obb, this.obb2, this.obb3, this.obb4, this.obbTurret, this.obbGun, this.obbBarrel);
     }
 
     @Override
@@ -1154,6 +1135,11 @@ public class T90M22Entity extends ContainerMobileVehicleEntity implements GeoEnt
         Vector4f worldPositionG = transformPosition(transformG, 0f, 0f, 0f);
         this.obbGun.center().set(new Vector3f(worldPositionG.x, worldPositionG.y, worldPositionG.z));
         this.obbGun.setRotation(VectorTool.combineRotationsTurret(1, this));
+
+        Matrix4f transformB = getBarrelTransform(1);
+        Vector4f worldPositionB = transformPosition(transformB, 0f, 0f, 0f);
+        this.obbBarrel.center().set(new Vector3f(worldPositionB.x, worldPositionB.y, worldPositionB.z));
+        this.obbBarrel.setRotation(VectorTool.combineRotationsTurret(1, this));
 
     }
 

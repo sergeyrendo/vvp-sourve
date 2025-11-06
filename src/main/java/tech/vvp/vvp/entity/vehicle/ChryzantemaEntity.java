@@ -123,21 +123,6 @@ public class ChryzantemaEntity extends ContainerMobileVehicleEntity implements G
 
     }
 
-    public static ChryzantemaEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
-
-        EntityType<ChryzantemaEntity> castedEntityType = (EntityType<ChryzantemaEntity>) entityTypeFromPacket;
-        ChryzantemaEntity entity = new ChryzantemaEntity(castedEntityType, world);
-        return entity;
-    }
 
     @Override
     public VehicleWeapon[][] initWeapons() {

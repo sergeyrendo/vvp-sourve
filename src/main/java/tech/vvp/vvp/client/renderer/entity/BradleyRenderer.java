@@ -17,7 +17,6 @@ import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import tech.vvp.vvp.entity.vehicle.BradleyUkrEntity;
 
 import static com.atsuishio.superbwarfare.entity.vehicle.Yx100Entity.YAW;
 
@@ -55,6 +54,12 @@ public class BradleyRenderer extends GeoEntityRenderer<BradleyEntity> {
     @Override
     public void renderRecursively(PoseStack poseStack, BradleyEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         String name = bone.getName();
+
+//        if (bone.getName().equals("cannon")) {
+//            return;
+//        }
+
+
         for (int i = 0; i < 9; i++) {
             if (name.equals("wheelL" + i)) {
                 bone.setRotX(1.5f * -Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));

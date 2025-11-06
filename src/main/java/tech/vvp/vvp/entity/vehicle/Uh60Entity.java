@@ -133,24 +133,6 @@ public class Uh60Entity extends ContainerMobileVehicleEntity implements GeoEntit
                 .add(Attributes.ARMOR_TOUGHNESS, 5.0D);
     }
 
-
-    @SuppressWarnings("unchecked")
-    public static Uh60Entity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null; 
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-             Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-             return null;
-        }
-
-        EntityType<Uh60Entity> castedEntityType = (EntityType<Uh60Entity>) entityTypeFromPacket;
-        Uh60Entity entity = new Uh60Entity(castedEntityType, world);
-        return entity;
-    }
-
     @Override
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{

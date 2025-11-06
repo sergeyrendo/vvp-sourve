@@ -125,22 +125,6 @@ public class T90AEntity extends ContainerMobileVehicleEntity implements GeoEntit
         this.obbGun = new OBB(this.position().toVector3f(), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternionf(), OBB.Part.TURRET);
     }
 
-    @SuppressWarnings("unchecked")
-    public static T90AEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
-
-        EntityType<T90AEntity> castedEntityType = (EntityType<T90AEntity>) entityTypeFromPacket;
-        T90AEntity entity = new T90AEntity(castedEntityType, world);
-        return entity;
-    }
 
     @Override
     public VehicleWeapon[][] initWeapons() {
@@ -690,7 +674,7 @@ public class T90AEntity extends ContainerMobileVehicleEntity implements GeoEntit
         Matrix4f transformT = getTurretTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, TURRET_OFFSET_X - BARREL_OFFSET_X, TURRET_OFFSET_Y - BARREL_OFFSET_Y, TURRET_OFFSET_Z - BARREL_OFFSET_Z);
+        Vector4f worldPosition = transformPosition(transform, TURRET_OFFSET_X - BARREL_OFFSET_X, TURRET_OFFSET_Y - BARREL_OFFSET_Y, -(TURRET_OFFSET_Z - BARREL_OFFSET_Z));
 
         transformT.translate(worldPosition.x, worldPosition.y, worldPosition.z);
 

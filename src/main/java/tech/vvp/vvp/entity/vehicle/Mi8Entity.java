@@ -109,23 +109,6 @@ public class Mi8Entity extends ContainerMobileVehicleEntity implements GeoEntity
     }
 
 
-    @SuppressWarnings("unchecked")
-    public static Mi8Entity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
-
-        EntityType<Mi8Entity> castedEntityType = (EntityType<Mi8Entity>) entityTypeFromPacket;
-        Mi8Entity entity = new Mi8Entity(castedEntityType, world);
-        return entity;
-    }
-
     @Override
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{

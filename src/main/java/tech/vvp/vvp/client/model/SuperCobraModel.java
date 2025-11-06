@@ -16,11 +16,16 @@ public class SuperCobraModel extends GeoModel<SuperCobraEntity> {
 
     @Override
     public ResourceLocation getModelResource(SuperCobraEntity entity) {
-        return VVP.loc("geo/cobra_dark.geo.json");
+        return VVP.loc("geo/ah1w.geo.json");
     }
 
     @Override
     public ResourceLocation getTextureResource(SuperCobraEntity animatable) {
-        return VVP.loc("textures/entity/cobra_dark.png");
+        int camoType = animatable.getEntityData().get(SuperCobraEntity.CAMOUFLAGE_TYPE);
+        switch (camoType) {
+            case 1: return new ResourceLocation("vvp", "textures/entity/ah1w_shark.png");
+            case 2: return new ResourceLocation("vvp", "textures/entity/ah1w_dark.png");
+            default: return new ResourceLocation("vvp", "textures/entity/ah1w.png");
+        }
     }
 }

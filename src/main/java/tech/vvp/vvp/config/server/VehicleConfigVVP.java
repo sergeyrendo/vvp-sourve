@@ -35,10 +35,6 @@ public class VehicleConfigVVP {
     public static ForgeConfigSpec.IntValue HUMVEE_ENERGY_COST;
 
     public static ForgeConfigSpec.IntValue M1A2_ENERGY_COST;
-    public static ForgeConfigSpec.IntValue M1A2_CANNON_DAMAGE;
-    public static ForgeConfigSpec.IntValue M1A2_CANNON_EXPLOSION_DAMAGE;
-    public static ForgeConfigSpec.DoubleValue M1A2_CANNON_EXPLOSION_RADIUS;
-    public static ForgeConfigSpec.BooleanValue M1A2_CANNON_DESTROY;
 
     public static ForgeConfigSpec.IntValue M2_GUN_DAMAGE;
 
@@ -94,6 +90,15 @@ public class VehicleConfigVVP {
     public static ForgeConfigSpec.IntValue T90_HE_CANNON_EXPLOSION_DAMAGE;
     public static ForgeConfigSpec.DoubleValue T90_HE_CANNON_EXPLOSION_RADIUS;
 
+    public static ForgeConfigSpec.IntValue M1A2_AP_CANNON_DAMAGE;
+    public static ForgeConfigSpec.IntValue M1A2_AP_CANNON_EXPLOSION_DAMAGE;
+    public static ForgeConfigSpec.DoubleValue M1A2_AP_CANNON_EXPLOSION_RADIUS;
+    public static ForgeConfigSpec.BooleanValue M1A2_CANNON_DESTROY;
+
+    public static ForgeConfigSpec.IntValue M1A2_HE_CANNON_DAMAGE;
+    public static ForgeConfigSpec.IntValue M1A2_HE_CANNON_EXPLOSION_DAMAGE;
+    public static ForgeConfigSpec.DoubleValue M1A2_HE_CANNON_EXPLOSION_RADIUS;
+
     public static ForgeConfigSpec.IntValue TERMINATOR_ENERGY_COST;
     public static ForgeConfigSpec.IntValue TERMINATOR_CANNON_DAMAGE;
     public static ForgeConfigSpec.IntValue TERMINATOR_CANNON_EXPLOSION_DAMAGE;
@@ -146,15 +151,6 @@ public class VehicleConfigVVP {
         // HUMVEE
         BUILDER.push("humvee");
         HUMVEE_ENERGY_COST = BUILDER.defineInRange("humvee_energy_cost", 68, 0, 2147483647);
-        BUILDER.pop();
-
-        // M1A2
-        BUILDER.push("m1a2");
-        M1A2_ENERGY_COST = BUILDER.defineInRange("m1a2_energy_cost", 96, 0, 2147483647);
-        M1A2_CANNON_DAMAGE = BUILDER.defineInRange("m1a2_cannon_damage", 415, 1, 10000000);
-        M1A2_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("m1a2_cannon_explosion_damage", 70, 1, 10000000);
-        M1A2_CANNON_EXPLOSION_RADIUS = BUILDER.defineInRange("m1a2_cannon_explosion_radius", 5d, 1d, 10000000d);
-        M1A2_CANNON_DESTROY = BUILDER.define("m1a2_cannon_destroy", true);
         BUILDER.pop();
 
         // M2 Gun
@@ -236,6 +232,22 @@ public class VehicleConfigVVP {
         T90_HE_CANNON_DAMAGE = BUILDER.defineInRange("t90_he_cannon_damage", 110, 1, 10000000);
         T90_HE_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("t90_he_cannon_explosion_damage", 185, 1, 10000000);
         T90_HE_CANNON_EXPLOSION_RADIUS = BUILDER.defineInRange("t90_he_cannon_explosion_radius", 17d, 1d, 10000000d);
+        BUILDER.pop();
+
+        // M1A2 AP
+        BUILDER.push("m1a2_ap");
+        M1A2_ENERGY_COST = BUILDER.defineInRange("m1a2_energy_cost", 105, 0, 2147483647);
+        M1A2_AP_CANNON_DAMAGE = BUILDER.defineInRange("m1a2_ap_cannon_damage", 450, 1, 10000000);
+        M1A2_AP_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("m1a2_ap_cannon_explosion_damage", 75, 1, 10000000);
+        M1A2_AP_CANNON_EXPLOSION_RADIUS = BUILDER.defineInRange("m1a2_ap_cannon_explosion_radius", 6d, 1d, 10000000d);
+        M1A2_CANNON_DESTROY = BUILDER.define("m1a2_ap_cannon_destroy", true);
+        BUILDER.pop();
+
+        // M1A2 HE
+        BUILDER.push("m1a2_he");
+        M1A2_HE_CANNON_DAMAGE = BUILDER.defineInRange("m1a2_he_cannon_damage", 110, 1, 10000000);
+        M1A2_HE_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("m1a2_he_cannon_explosion_damage", 185, 1, 10000000);
+        M1A2_HE_CANNON_EXPLOSION_RADIUS = BUILDER.defineInRange("m1a2_he_cannon_explosion_radius", 17d, 1d, 10000000d);
         BUILDER.pop();
 
         // TERMINATOR

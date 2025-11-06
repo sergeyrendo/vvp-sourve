@@ -28,6 +28,10 @@ public class ExplosionConfigVVP {
     public static ForgeConfigSpec.IntValue LMUR_EXPLOSION_DAMAGE;
     public static ForgeConfigSpec.DoubleValue LMUR_EXPLOSION_RADIUS;
 
+    public static ForgeConfigSpec.IntValue HRYZANTEMA_DAMAGE;
+    public static ForgeConfigSpec.IntValue HRYZANTEMA_EXPLOSION_DAMAGE;
+    public static ForgeConfigSpec.DoubleValue HRYZANTEMA_EXPLOSION_RADIUS;
+
     static {
         BUILDER.push("tow_missile");
 
@@ -88,16 +92,29 @@ public class ExplosionConfigVVP {
 
         BUILDER.pop();
 
-        BUILDER.push("AGM-65");
+        BUILDER.push("LMUR");
 
-        BUILDER.comment("The damage of AGM-65");
+        BUILDER.comment("The damage of LMUR");
         LMUR_DAMAGE = BUILDER.defineInRange("lmur_damage", 1600, 1, Integer.MAX_VALUE);
 
-        BUILDER.comment("The explosion damage of AGM-65");
+        BUILDER.comment("The explosion damage of LMUR");
         LMUR_EXPLOSION_DAMAGE = BUILDER.defineInRange("lmur_explosion_damage", 225, 1, Integer.MAX_VALUE);
 
-        BUILDER.comment("The explosion radius of AGM-65");
+        BUILDER.comment("The explosion radius of LMUR");
         LMUR_EXPLOSION_RADIUS = BUILDER.defineInRange("lmur_explosion_radius", 13d, 1, Integer.MAX_VALUE);
+
+        BUILDER.pop();
+
+        BUILDER.push("9M123");
+
+        BUILDER.comment("The damage of 9M123");
+        HRYZANTEMA_DAMAGE = BUILDER.defineInRange("hryzantema_damage", 1100, 1, Integer.MAX_VALUE);
+
+        BUILDER.comment("The explosion damage of 9M123");
+        HRYZANTEMA_EXPLOSION_DAMAGE = BUILDER.defineInRange("hryzantema_explosion_damage", 175, 1, Integer.MAX_VALUE);
+
+        BUILDER.comment("The explosion radius of 9M123");
+        HRYZANTEMA_EXPLOSION_RADIUS = BUILDER.defineInRange("hryzantema_explosion_radius", 10d, 1, Integer.MAX_VALUE);
 
         BUILDER.pop();
 

@@ -19,6 +19,9 @@ import com.atsuishio.superbwarfare.init.ModItems;
 import com.atsuishio.superbwarfare.init.ModSounds;
 import com.atsuishio.superbwarfare.network.message.receive.ShakeClientMessage;
 import com.atsuishio.superbwarfare.tools.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -28,6 +31,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -37,6 +41,8 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -74,7 +80,9 @@ import tech.vvp.vvp.entity.vehicle.weapon.TOWWeapon;
 import tech.vvp.vvp.init.ModEntities;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Optional;
 
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
@@ -94,10 +102,19 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
     public int reloadCoolDown;
     private static final int MISSILE_CD_TICKS = 10; // 0.5 сек @ 20 TPS
 
+    private static final ResourceLocation GEO_MODEL = VVP.loc("geo/bradley.geo.json");
+    private static boolean LOCATORS_LOADED = false;
+    private static Vector3f LOCATOR_DIRT_BACK_LEFT = new Vector3f(24f/16f, 0.45f/16f, -35f/16f);
+    private static Vector3f LOCATOR_DIRT_BACK_RIGHT = new Vector3f(-24f/16f, 0.45f/16f, -35f/16f);
+
+    private static Vector3f LOCATOR_DIRT_FRONT_LEFT = new Vector3f(24f/16f, 0.45f/16f, 45f/16f);
+    private static Vector3f LOCATOR_DIRT_FRONT_RIGHT = new Vector3f(-24f/16f, 0.45f/16f, 45f/16f);
+
     public OBB obb1;
     public OBB obb2;
     public OBB obb3;
     public OBB obb4;
+    public OBB obb5;
     public OBB obbTurret;
 
     public BradleyEntity(PlayMessages.SpawnEntity packet, Level world) {
@@ -107,29 +124,15 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
     public BradleyEntity(EntityType<BradleyEntity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
-        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(2.3125f, 0.625f, 3.09375f), new Quaternionf(), OBB.Part.BODY);
-        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(2.3125f, 0.625f, 0.6875f), new Quaternionf(), OBB.Part.BODY);
-        this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.4375f, 0.625f, 3.21875f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
-        this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.4375f, 0.625f, 3.21875f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
-        this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(1.406f, 0.469f, 1.688f), new Quaternionf(), OBB.Part.TURRET);
+        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(64.25f/32f, 21f/32f, 99f/32f), new Quaternionf(), OBB.Part.BODY);
+        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(37f/32f, 13f/32f, 122/32f), new Quaternionf(), OBB.Part.BODY);
+        this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(64.25f/32f, 21f/32f, 23f/32f), new Quaternionf(), OBB.Part.ENGINE1);
+        this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(11f/32f, 22f/32f, 117f/32f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
+        this.obb5 = new OBB(this.position().toVector3f(), new Vector3f(11f/32f, 22f/32f, 117f/32f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
+        this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(43f/32f, 13f/32f, 55f/32f), new Quaternionf(), OBB.Part.TURRET);
 
     }
 
-    public static BradleyEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
-
-        EntityType<BradleyEntity> castedEntityType = (EntityType<BradleyEntity>) entityTypeFromPacket;
-        BradleyEntity entity = new BradleyEntity(castedEntityType, world);
-        return entity;
-    }
 
     @Override
     public VehicleWeapon[][] initWeapons() {
@@ -229,6 +232,10 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
 
         if (getRightTrack() > 100) {
             setRightTrack(0);
+        }
+
+        if (this.level().isClientSide) {
+            spawnWheelGroundParticles(1.0f);
         }
 
 
@@ -527,7 +534,7 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
         Matrix4f transformT = getTurretTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, -0.0647750f, -0.0299875f, 1.0207437f);
+        Vector4f worldPosition = transformPosition(transform, 3.4817f - 4.6f, 49.0833f - 39.3564f, 12.1307f - 4.8312f);
 
         transformT.translate(worldPosition.x, worldPosition.y, worldPosition.z);
 
@@ -562,12 +569,16 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
         return new Vec3(rootPosition.x, rootPosition.y, rootPosition.z).vectorTo(new Vec3(targetPosition.x, targetPosition.y, targetPosition.z));
     }
 
+//    3.4817f - 4.6
+//            49.0833 - 39.3564f
+//            12.1307 - 4.8312f
+
     @Override
     public Matrix4f getTurretTransform(float ticks) {
         Matrix4f transformV = getVehicleTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, -0.219f, 3.094f, -0.625f);
+        Vector4f worldPosition = transformPosition(transform, 3.4817f/16f, 39.3564f/16f, 4.8312f/16f);
 
         transformV.translate(worldPosition.x, worldPosition.y, worldPosition.z);
         transformV.rotate(Axis.YP.rotationDegrees(Mth.lerp(ticks, turretYRotO, getTurretYRot())));
@@ -716,7 +727,7 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
         // 准心
 
         if (this.getWeaponIndex(0) == 0) {
-            RenderHelper.blit(poseStack, Mod.loc("textures/screens/land/bmp_cannon_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH, color);
+            RenderHelper.blit(poseStack, VVP.loc("textures/screens/land/bradley_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH, color);
             int heat = this.getEntityData().get(HEAT);
             guiGraphics.drawString(font, Component.literal(" M242 25MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, MathTool.getGradientColor(color, 0xFF0000, heat, 2), false);
         } else if (this.getWeaponIndex(0) == 1) {
@@ -812,27 +823,31 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
     }
 
     public List<OBB> getOBBs() {
-        return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret);
+        return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obb5, this.obbTurret);
     }
 
     public void updateOBB() {
         Matrix4f transform = getVehicleTransform(1);
 
-        Vector4f worldPosition1 = transformPosition(transform, 0.0f, 1.9375f, -0.40625f);
+        Vector4f worldPosition1 = transformPosition(transform, -0.375f/16f, 31.5f/16f, -1.5f/16f);
         this.obb1.center().set(new Vector3f(worldPosition1.x, worldPosition1.y, worldPosition1.z));
         this.obb1.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition2 = transformPosition(transform, 0.0f, 1.9375f, 3.375f);
+        Vector4f worldPosition2 = transformPosition(transform, 0f/16f, 14.5f/16f, 10f/16f);
         this.obb2.center().set(new Vector3f(worldPosition2.x, worldPosition2.y, worldPosition2.z));
         this.obb2.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition3 = transformPosition(transform, 1.625f, 0.6875f, -0.21875f);
+        Vector4f worldPosition3 = transformPosition(transform, -0.375f/16f, 31.5f/16f, 59.5f/16f);
         this.obb3.center().set(new Vector3f(worldPosition3.x, worldPosition3.y, worldPosition3.z));
         this.obb3.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition4 = transformPosition(transform, -1.625f, 0.6875f, -0.21875f);
+        Vector4f worldPosition4 = transformPosition(transform, 24f/16f, 11f/16f, 7.5f/16f);
         this.obb4.center().set(new Vector3f(worldPosition4.x, worldPosition4.y, worldPosition4.z));
         this.obb4.setRotation(VectorTool.combineRotations(1, this));
+
+        Vector4f worldPosition5 = transformPosition(transform, -24f/16f, 11f/16f, 7.5f/16f);
+        this.obb5.center().set(new Vector3f(worldPosition5.x, worldPosition5.y, worldPosition5.z));
+        this.obb5.setRotation(VectorTool.combineRotations(1, this));
 
         Matrix4f transformT = getTurretTransform(1);
         Vector4f worldPositionT = transformPosition(transformT, 0.0f, 0.0f, 0.0f);
@@ -866,6 +881,106 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
         }
 
         return super.interact(player, hand);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static void tryLoadLocatorsFromGeo() {
+        if (LOCATORS_LOADED) return;
+        LOCATORS_LOADED = true;
+
+        ResourceManager rm = Minecraft.getInstance().getResourceManager();
+
+        try {
+            Optional<Resource> resOpt = rm.getResource(GEO_MODEL);
+            if (resOpt.isEmpty()) {
+                Mod.LOGGER.warn("BTR-4: model not found: {}", GEO_MODEL);
+                return;
+            }
+
+            try (InputStreamReader reader = new InputStreamReader(resOpt.get().open())) {
+                JsonObject root = new Gson().fromJson(reader, JsonObject.class);
+                if (root == null || !root.has("bones")) return;
+
+                for (JsonElement el : root.getAsJsonArray("bones")) {
+                    JsonObject bone = el.getAsJsonObject();
+                    if (!bone.has("locators")) continue;
+
+                    JsonObject locs = bone.getAsJsonObject("locators");
+
+                    if (locs.has("dirt_backL")) {
+                        LOCATOR_DIRT_BACK_LEFT = jsonArrToVector3fDiv16(locs.getAsJsonArray("dirt_left"));
+                    }
+                    if (locs.has("dirt_backR")) {
+                        LOCATOR_DIRT_BACK_RIGHT = jsonArrToVector3fDiv16(locs.getAsJsonArray("dirt_right"));
+                    }
+                    if (locs.has("dirt_frontL")) {
+                        LOCATOR_DIRT_FRONT_LEFT = jsonArrToVector3fDiv16(locs.getAsJsonArray("dirt_left"));
+                    }
+                    if (locs.has("dirt_frontR")) {
+                        LOCATOR_DIRT_FRONT_RIGHT = jsonArrToVector3fDiv16(locs.getAsJsonArray("dirt_right"));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Mod.LOGGER.warn("BTR-4: couldn't load locators from {}", GEO_MODEL, e);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void spawnGroundParticlesFromLocator(Vector3f local, float partialTicks) {
+        // Мелкая оптимизация: частицы только при движении
+        if (this.getDeltaMovement().horizontalDistanceSqr() < 0.0015) return;
+
+        // Переводим локальную точку в мировые координаты через трансформ корпуса
+        Matrix4f transform = getVehicleTransform(partialTicks);
+        Vector4f p = transformPosition(transform, local.x, local.y, local.z);
+
+        double x = p.x;
+        double y = p.y;
+        double z = p.z;
+
+        // Берем блок прямо под точкой
+        BlockPos pos = BlockPos.containing(x, y - 0.25, z);
+        BlockState state = this.level().getBlockState(pos);
+        if (state.isAir()) {
+            state = this.level().getBlockState(pos.below());
+        }
+        if (state.isAir()) return; // В воздухе — ничего
+
+        // Сколько частиц — от скорости
+        Vec3 vel = this.getDeltaMovement();
+        int count = Mth.clamp((int) (vel.horizontalDistance() * 24.0), 1, 6);
+
+        for (int i = 0; i < count; i++) {
+            double vx = vel.x * 0.2 + (this.random.nextDouble() - 0.5) * 0.08;
+            double vy = 0.05 + this.random.nextDouble() * 0.05;
+            double vz = vel.z * 0.2 + (this.random.nextDouble() - 0.5) * 0.08;
+
+            this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, state),
+                    x, y + 0.01, z, vx, vy, vz);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void spawnWheelGroundParticles(float partialTicks) {
+        tryLoadLocatorsFromGeo();
+
+        // Можно добавить проверку, что машина “на земле”, чтобы не сыпалась в прыжке
+        if (!this.onGround()) return;
+
+        spawnGroundParticlesFromLocator(LOCATOR_DIRT_BACK_LEFT, partialTicks);
+        spawnGroundParticlesFromLocator(LOCATOR_DIRT_BACK_RIGHT, partialTicks);
+        spawnGroundParticlesFromLocator(LOCATOR_DIRT_FRONT_LEFT, partialTicks);
+        spawnGroundParticlesFromLocator(LOCATOR_DIRT_FRONT_RIGHT, partialTicks);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static Vector3f jsonArrToVector3fDiv16(com.google.gson.JsonArray arr) {
+        return new Vector3f(
+                arr.get(0).getAsFloat() / 16f,
+                arr.get(1).getAsFloat() / 16f,
+                arr.get(2).getAsFloat() / 16f
+        );
     }
 
     @Override

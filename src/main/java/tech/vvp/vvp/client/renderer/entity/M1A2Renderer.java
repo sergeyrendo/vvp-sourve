@@ -1,6 +1,5 @@
 package tech.vvp.vvp.client.renderer.entity;
 
-import tech.vvp.vvp.entity.vehicle.BradleyUkrEntity;
 import tech.vvp.vvp.entity.vehicle.M1A2Entity;
 import tech.vvp.vvp.client.model.M1A2Model;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
@@ -95,7 +94,7 @@ public class M1A2Renderer extends GeoEntityRenderer<M1A2Entity> {
             );
         }
 
-        if (name.equals("gun_cannon")) {
+        if (name.equals("gun")) {
             bone.setRotY(Mth.lerp(partialTick, animatable.gunYRotO, animatable.getGunYRot()) * Mth.DEG_TO_RAD - Mth.lerp(partialTick, animatable.turretYRotO, animatable.getTurretYRot()) * Mth.DEG_TO_RAD);
         }
         if (name.equals("gun_barrel")) {

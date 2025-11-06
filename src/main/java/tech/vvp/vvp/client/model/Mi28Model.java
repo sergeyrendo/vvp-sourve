@@ -27,13 +27,13 @@ public class Mi28Model extends GeoModel<Mi28Entity> {
         }
 
         if (distance < 32) {
-            return VVP.loc("geo/mi28.geo.json");
+            return VVP.loc("geo/mi28_3.geo.json");
         } else if (distance < 64) {
-            return VVP.loc("geo/mi28.geo.json");
+            return VVP.loc("geo/mi28_3.geo.json");
         } else if (distance < 96) {
-            return VVP.loc("geo/mi28.geo.json");
+            return VVP.loc("geo/mi28_3.geo.json");
         } else {
-            return VVP.loc("geo/mi28.geo.json");
+            return VVP.loc("geo/mi28_3.geo.json");
         }
     }
 

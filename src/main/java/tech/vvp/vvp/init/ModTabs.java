@@ -32,25 +32,29 @@ public class ModTabs {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.T90_M.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.T90_M_22.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.TERMINATOR.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.TOYOTA.get()));
                 //USA
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BUSHMASTER.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BRADLEY.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.BRADLEY_UKR.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_M1296.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.PUMA.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2_SEP.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.CHALLENGER.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_4.get()));
 
                 // AIRCRAFT
                 output.accept(ContainerBlockItem.createInstance(ModEntities.UH60.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.UH60MOD.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.AH_1.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.AH_1_WHITE.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28_1.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI_8.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI_8_MTV.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.MI_8_AMTSH.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.SU_25.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.TU_22_M3.get()));
 
             })
             .build());
@@ -78,6 +82,7 @@ public class ModTabs {
                                 output.accept(ModItems.LMUR_ITEM.get());
                                 output.accept(ModItems.X25_ITEM.get());
                                 output.accept(ModItems.HFIRE_ITEM.get());
+                                output.accept(ModItems.HRYZANTEMA_ITEM.get());
                                 output.accept(ModItems.S_13.get());
 
                             })

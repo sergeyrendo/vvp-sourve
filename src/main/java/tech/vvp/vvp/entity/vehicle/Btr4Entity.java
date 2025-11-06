@@ -19,6 +19,7 @@ import com.atsuishio.superbwarfare.init.ModItems;
 import com.atsuishio.superbwarfare.init.ModSounds;
 import com.atsuishio.superbwarfare.network.message.receive.ShakeClientMessage;
 import com.atsuishio.superbwarfare.tools.*;
+import com.google.gson.Gson;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -28,6 +29,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -37,6 +39,8 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -72,8 +76,18 @@ import tech.vvp.vvp.config.server.ExplosionConfigVVP;
 import tech.vvp.vvp.config.server.VehicleConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+
 import java.util.List;
+import java.io.InputStreamReader;
+import java.util.Optional;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
+import net.minecraft.client.Minecraft;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
@@ -92,6 +106,12 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     public int reloadCoolDown;
     private static final int MISSILE_CD_TICKS = 10; // 0.5 сек @ 20 TPS
+
+    // Где-то сверху
+    private static final ResourceLocation GEO_MODEL = VVP.loc("geo/btr4.geo.json");
+    private static boolean LOCATORS_LOADED = false;
+    private static Vector3f LOCATOR_DIRT_LEFT = new Vector3f(25.2f/16f, 0.7f/16f, -48.3f/16f);  // fallback
+    private static Vector3f LOCATOR_DIRT_RIGHT = new Vector3f(-25.2f/16f, 0.7f/16f, -48.3f/16f); // fallback
 
     public OBB obb;
     public OBB obb1;
@@ -128,22 +148,6 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
         this.obbBarrel = new OBB(this.position().toVector3f(), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternionf(), OBB.Part.TURRET);
     }
 
-
-    public static Btr4Entity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        if (!(entityTypeFromPacket instanceof EntityType<?>)) {
-            Mod.LOGGER.error("Retrieved EntityType is not an instance of EntityType<?> for id: " + packet.getTypeId());
-            return null;
-        }
-
-        EntityType<Btr4Entity> castedEntityType = (EntityType<Btr4Entity>) entityTypeFromPacket;
-        Btr4Entity entity = new Btr4Entity(castedEntityType, world);
-        return entity;
-    }
 
     @Override
     public VehicleWeapon[][] initWeapons() {
@@ -243,6 +247,10 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
         if (getRightTrack() > 100) {
             setRightTrack(0);
+        }
+
+        if (this.level().isClientSide) {
+            spawnWheelGroundParticles(1.0f);
         }
 
 
@@ -899,6 +907,98 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
         }
 
         return super.interact(player, hand);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static void tryLoadLocatorsFromGeo() {
+        if (LOCATORS_LOADED) return;
+        LOCATORS_LOADED = true;
+
+        ResourceManager rm = Minecraft.getInstance().getResourceManager();
+
+        try {
+            Optional<Resource> resOpt = rm.getResource(GEO_MODEL);
+            if (resOpt.isEmpty()) {
+                Mod.LOGGER.warn("BTR-4: model not found: {}", GEO_MODEL);
+                return;
+            }
+
+            try (InputStreamReader reader = new InputStreamReader(resOpt.get().open())) {
+                JsonObject root = new Gson().fromJson(reader, JsonObject.class);
+                if (root == null || !root.has("bones")) return;
+
+                for (JsonElement el : root.getAsJsonArray("bones")) {
+                    JsonObject bone = el.getAsJsonObject();
+                    if (!bone.has("locators")) continue;
+
+                    JsonObject locs = bone.getAsJsonObject("locators");
+
+                    if (locs.has("dirt_left")) {
+                        LOCATOR_DIRT_LEFT = jsonArrToVector3fDiv16(locs.getAsJsonArray("dirt_left"));
+                    }
+                    if (locs.has("dirt_right")) {
+                        LOCATOR_DIRT_RIGHT = jsonArrToVector3fDiv16(locs.getAsJsonArray("dirt_right"));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Mod.LOGGER.warn("BTR-4: couldn't load locators from {}", GEO_MODEL, e);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void spawnGroundParticlesFromLocator(Vector3f local, float partialTicks) {
+        // Мелкая оптимизация: частицы только при движении
+        if (this.getDeltaMovement().horizontalDistanceSqr() < 0.0015) return;
+
+        // Переводим локальную точку в мировые координаты через трансформ корпуса
+        Matrix4f transform = getVehicleTransform(partialTicks);
+        Vector4f p = transformPosition(transform, local.x, local.y, local.z);
+
+        double x = p.x;
+        double y = p.y;
+        double z = p.z;
+
+        // Берем блок прямо под точкой
+        BlockPos pos = BlockPos.containing(x, y - 0.25, z);
+        BlockState state = this.level().getBlockState(pos);
+        if (state.isAir()) {
+            state = this.level().getBlockState(pos.below());
+        }
+        if (state.isAir()) return; // В воздухе — ничего
+
+        // Сколько частиц — от скорости
+        Vec3 vel = this.getDeltaMovement();
+        int count = Mth.clamp((int) (vel.horizontalDistance() * 24.0), 1, 6);
+
+        for (int i = 0; i < count; i++) {
+            double vx = vel.x * 0.2 + (this.random.nextDouble() - 0.5) * 0.08;
+            double vy = 0.05 + this.random.nextDouble() * 0.05;
+            double vz = vel.z * 0.2 + (this.random.nextDouble() - 0.5) * 0.08;
+
+            this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, state),
+                    x, y + 0.01, z, vx, vy, vz);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void spawnWheelGroundParticles(float partialTicks) {
+        tryLoadLocatorsFromGeo();
+
+        // Можно добавить проверку, что машина “на земле”, чтобы не сыпалась в прыжке
+        if (!this.onGround()) return;
+
+        spawnGroundParticlesFromLocator(LOCATOR_DIRT_LEFT, partialTicks);
+        spawnGroundParticlesFromLocator(LOCATOR_DIRT_RIGHT, partialTicks);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static Vector3f jsonArrToVector3fDiv16(com.google.gson.JsonArray arr) {
+        return new Vector3f(
+                arr.get(0).getAsFloat() / 16f,
+                arr.get(1).getAsFloat() / 16f,
+                arr.get(2).getAsFloat() / 16f
+        );
     }
 
     @Override

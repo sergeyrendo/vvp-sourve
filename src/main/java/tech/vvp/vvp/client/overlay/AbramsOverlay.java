@@ -6,6 +6,7 @@ import com.atsuishio.superbwarfare.client.overlay.VehicleHudOverlay;
 import com.atsuishio.superbwarfare.entity.vehicle.SpeedboatEntity;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.entity.vehicle.M1A2Entity;
+import tech.vvp.vvp.entity.vehicle.M1A2SepEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.WeaponVehicleEntity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
@@ -106,6 +107,11 @@ public class AbramsOverlay implements IGuiOverlay {
                         guiGraphics.drawString(mc.font, Component.literal("12.7 MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : m1a2.getEntityData().get(MG_AMMO))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
                     }
 
+                    if (player.getVehicle() instanceof M1A2SepEntity m1a2sep) {
+                        double heat = m1a2sep.getEntityData().get(HEAT) / 100.0F;
+                        guiGraphics.drawString(mc.font, Component.literal("12.7 MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : m1a2sep.getEntityData().get(MG_AMMO))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
+                    }
+
                     if (player.getVehicle() instanceof T90AEntity t90a) {
                         double heat = t90a.getEntityData().get(HEAT) / 100.0F;
                         guiGraphics.drawString(mc.font, Component.literal("12.7 MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : t90a.getEntityData().get(MG_AMMO))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
@@ -134,6 +140,7 @@ public class AbramsOverlay implements IGuiOverlay {
         return !player.isSpectator()
                 && (player.getVehicle() instanceof SpeedboatEntity
                 || (player.getVehicle() instanceof M1A2Entity m1a2 && m1a2.getNthEntity(1) == player)
+                || (player.getVehicle() instanceof M1A2SepEntity m1a2sep && m1a2sep.getNthEntity(1) == player)
                 || (player.getVehicle() instanceof T90AEntity t90a && t90a.getNthEntity(1) == player)
                 || (player.getVehicle() instanceof T90MEntity t90m && t90m.getNthEntity(1) == player)
         );

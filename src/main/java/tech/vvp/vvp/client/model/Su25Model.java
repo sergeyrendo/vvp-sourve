@@ -14,7 +14,7 @@ public class Su25Model extends GeoModel<Su25Entity> {
 
     @Override
     public ResourceLocation getModelResource(Su25Entity entity) {
-        return VVP.loc("geo/su25_ru.geo.json");
+        return VVP.loc("geo/su25.geo.json");
     }
 
     @Override
@@ -22,7 +22,10 @@ public class Su25Model extends GeoModel<Su25Entity> {
         int camoType = animatable.getEntityData().get(Su25Entity.CAMOUFLAGE_TYPE);
         switch (camoType) {
             case 1: return new ResourceLocation("vvp", "textures/entity/su25_ru2.png");
-            case 2: return new ResourceLocation("vvp", "textures/entity/su25_ukr.png");
+            case 2: return new ResourceLocation("vvp", "textures/entity/su25_ru3.png");
+            case 3: return new ResourceLocation("vvp", "textures/entity/su25_ru4.png");
+            case 4: return new ResourceLocation("vvp", "textures/entity/su25_ukr.png");
+            case 5: return new ResourceLocation("vvp", "textures/entity/su25_by.png");
             default: return new ResourceLocation("vvp", "textures/entity/su25_ru.png");
         }
     }

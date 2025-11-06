@@ -12,10 +12,7 @@ public class ModEntityRenderers {
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.BTR_4.get(), btr4Renderer::new);
-        event.registerEntityRenderer(ModEntities.BRADLEY_UKR.get(), BradleyUkrRenderer::new);
         event.registerEntityRenderer(ModEntities.BRADLEY.get(), BradleyRenderer::new);
-        event.registerEntityRenderer(ModEntities.STRYKER.get(), StrykerRenderer::new);
-        event.registerEntityRenderer(ModEntities.STRYKER_M1296.get(), Stryker_M1296Renderer::new);
         event.registerEntityRenderer(ModEntities.TERMINATOR.get(), TerminatorRenderer::new);
         event.registerEntityRenderer(ModEntities.FAB_500.get(), Fab500Renderer::new);
         event.registerEntityRenderer(ModEntities.FAB_250.get(), Fab250Renderer::new);
@@ -35,7 +32,6 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.UH60.get(), Uh60Renderer::new);
         event.registerEntityRenderer(ModEntities.SU_25.get(), Su25Renderer::new);
         event.registerEntityRenderer(ModEntities.AH_1.get(), SuperCobraRenderer::new);
-        event.registerEntityRenderer(ModEntities.AH_1_WHITE.get(), SuperCobraWhiteRenderer::new);
         event.registerEntityRenderer(ModEntities.H_FIRE.get(), HFireRenderer::new);
         event.registerEntityRenderer(ModEntities.MI_8.get(), Mi8Renderer::new);
         event.registerEntityRenderer(ModEntities.MI_8_MTV.get(), Mi8MTVRenderer::new);
@@ -43,6 +39,15 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.PUMA.get(), PumaRenderer::new);
         event.registerEntityRenderer(ModEntities.SPIKE_MISSLE.get(), SpikeATGMRenderer::new);
         event.registerEntityRenderer(ModEntities.TOW_MISSILE.get(), TOWRenderer::new);
+        event.registerEntityRenderer(ModEntities.HRYZANTEMA.get(), HryzantemaRenderer::new);
+        event.registerEntityRenderer(ModEntities.M1A2_SEP.get(), M1A2SepRenderer::new);
+        event.registerEntityRenderer(ModEntities.BUSHMASTER.get(), BushmasterRenderer::new);
+        event.registerEntityRenderer(ModEntities.STRYKER.get(), StrykerRenderer::new);
+        event.registerEntityRenderer(ModEntities.STRYKER_M1296.get(), Stryker_M1296Renderer::new);
+        event.registerEntityRenderer(ModEntities.MI_28_1.get(), Mi28_1Renderer::new);
+        event.registerEntityRenderer(ModEntities.TU_22_M3.get(), TU22M3Renderer::new);
+        event.registerEntityRenderer(ModEntities.TOYOTA.get(), ToyotaRenderer::new);
+        event.registerEntityRenderer(ModEntities.CHALLENGER.get(), ChallengerRenderer::new);
 
 
 

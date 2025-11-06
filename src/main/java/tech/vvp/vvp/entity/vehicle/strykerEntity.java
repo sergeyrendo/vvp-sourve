@@ -116,17 +116,6 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
         this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(0.711f, 0.453f, 1.789f), new Quaternionf(), OBB.Part.TURRET);
     }
 
-    @SuppressWarnings({"unchecked", "deprecation"})
-    public static StrykerEntity clientSpawn(PlayMessages.SpawnEntity packet, Level world) {
-        EntityType<?> entityTypeFromPacket = BuiltInRegistries.ENTITY_TYPE.byId(packet.getTypeId());
-        if (entityTypeFromPacket == null) {
-            Mod.LOGGER.error("Failed to create entity from packet: Unknown entity type id: " + packet.getTypeId());
-            return null;
-        }
-        EntityType<StrykerEntity> castedEntityType = (EntityType<StrykerEntity>) entityTypeFromPacket;
-        return new StrykerEntity(castedEntityType, world);
-    }
-
     @Override
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{
@@ -628,7 +617,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
 
     @Override
     public float rotateYOffset() {
-        return 3.5f;
+        return 0f;
     }
 
     protected void clampRotation(Entity entity) {
@@ -764,7 +753,7 @@ public class StrykerEntity extends ContainerMobileVehicleEntity implements GeoEn
     public boolean canShoot(LivingEntity living) {
         if (living == getNthEntity(0)) {
             if (getWeapon(0).mainGun) {
-                return !this.entityData.get(LOADED_SHELL).equals("null") && getEnergy() > VehicleConfig.YX_100_SHOOT_COST.get();
+                return !this.entityData.get(LOADED_SHELL).equals("null");
             } else if (getWeaponIndex(0) == 2) {
                 return (this.entityData.get(MG_AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(living)) && !cannotFireCoax;
             }

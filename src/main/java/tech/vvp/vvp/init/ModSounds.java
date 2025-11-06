@@ -77,6 +77,10 @@ public class ModSounds {
 
     public static final RegistryObject<SoundEvent> SU25_ENGINE = register("su25_engine");
 
+    public static final RegistryObject<SoundEvent> T64_RELOAD = register("t64_reload");
+
+
+
 
     /**
      * Вспомогательный метод для регистрации звуков
