@@ -199,7 +199,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(CANNON_FIRE_TIME, 0);
-        this.entityData.define(LOADED_MISSILE, 12);
+        this.entityData.define(LOADED_MISSILE, 0);
         this.entityData.define(MISSILE_COUNT, 0);
         this.entityData.define(MG_AMMO, 0);
         this.entityData.define(CURRENT_MISSILE, 0);
