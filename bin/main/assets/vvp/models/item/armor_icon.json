@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "vvp:item/armor_icon"
+		"layer0": "vvp:item/vvp_yellow"
 	}
 }

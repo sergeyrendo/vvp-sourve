@@ -148,5 +148,150 @@
     "sounds": [
       "vvp:vazik_engine"
     ]
+  },
+  "door": {
+    "sounds": [
+      "vvp:door"
+    ]
+  },
+  "remont": {
+    "sounds": [
+      "vvp:remont"
+    ]
+  },
+  "spray": {
+    "sounds": [
+      "vvp:spray"
+    ]
+  },
+  "pushka_2a72_1p": {
+    "sounds": [
+      "vvp:pushka_2a72_1p"
+    ]
+  },
+  "pushka_2a72_3p": {
+    "sounds": [
+      "vvp:pushka_2a72_3p"
+    ]
+  },
+  "pushka_2a72_far": {
+    "sounds": [
+      "vvp:pushka_2a72_far"
+    ]
+  },
+  "pushka_2a72_veryfar": {
+    "sounds": [
+      "vvp:pushka_2a72_veryfar"
+    ]
+  },
+  "abrams_1p": {
+    "sounds": [
+      "vvp:abrams_1p"
+    ]
+  },
+  "abrams_3p": {
+    "sounds": [
+      "vvp:abrams_3p"
+    ]
+  },
+  "abrams_far": {
+    "sounds": [
+      "vvp:abrams_far"
+    ]
+  },
+  "abrams_veryfar": {
+    "sounds": [
+      "vvp:abrams_veryfar"
+    ]
+  },
+  "abrams_coax_1p": {
+    "sounds": [
+      "vvp:abrams_coax_1p"
+    ]
+  },
+  "abrams_coax_3p": {
+    "sounds": [
+      "vvp:abrams_coax_3p"
+    ]
+  },
+  "abrams_coax_far": {
+    "sounds": [
+      "vvp:abrams_coax_far"
+    ]
+  },
+  "abrams_coax_veryfar": {
+    "sounds": [
+      "vvp:abrams_coax_veryfar"
+    ]
+  },
+  "t90_autoreload": {
+    "sounds": [
+      "vvp:t90_autoreload"
+    ]
+  },
+  "rocket_sound": {
+    "sounds": [
+      "vvp:rocket_sound"
+    ]
+  },
+  "bmp_idle": {
+    "sounds": [
+      "vvp:bmp_idle"
+    ]
+  },
+  "bmp_start": {
+    "sounds": [
+      "vvp:bmp_start"
+    ]
+  },
+  "uh60_idle": {
+    "sounds": [
+      "vvp:uh60_idle"
+    ]
+  },
+  "uh60_start": {
+    "sounds": [
+      "vvp:uh60_start"
+    ]
+  },
+  "su25_engine": {
+    "sounds": [
+      "vvp:su25_engine"
+    ]
+  },
+  "mi8_idle": {
+    "sounds": [
+      "vvp:mi8_idle"
+    ]
+  },
+  "mi8_start": {
+    "sounds": [
+      "vvp:mi8_start"
+    ]
+  },
+  "t64_reload": {
+    "sounds": [
+      "vvp:t64_reload"
+    ]
+  },
+  "t72_engine_idle": {
+    "sounds": [
+      "vvp:t72_engine_idle"
+    ]
+  },
+  "t72_autoreload": {
+    "sounds": [
+      "vvp:t72_autoreload"
+    ]
+  },
+  "pantsir_locking": {
+    "sounds": [
+      "vvp:locking"
+    ]
+  },
+  "pantsir_locked": {
+    "sounds": [
+      "vvp:locked"
+    ]
   }
 }
