@@ -1089,7 +1089,7 @@ public class T90MEntity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/land.png");
+        return VVP.loc("textures/gui/vehicle/type/land_ru.png");
     }
 
     @Override

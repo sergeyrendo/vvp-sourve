@@ -52,6 +52,7 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import tech.vvp.vvp.VVP;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
@@ -1164,7 +1165,7 @@ public class TU22M3Entity extends ContainerMobileVehicleEntity implements GeoEnt
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return Mod.loc("textures/gui/vehicle/type/aircraft.png");
+        return VVP.loc("textures/gui/vehicle/type/aircraft_ru.png");
     }
 
     @Override

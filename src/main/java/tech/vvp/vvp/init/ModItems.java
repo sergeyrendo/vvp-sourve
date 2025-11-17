@@ -16,10 +16,10 @@ public class ModItems {
     public static final DeferredRegister<Item> REGISTRY = 
             DeferredRegister.create(ForgeRegistries.ITEMS, VVP.MOD_ID);
 
-    public static final RegistryObject<Item> ICON_SPAWN_ITEM = REGISTRY.register("icon_spawn_item",
+    public static final RegistryObject<Item> NATO_TAB_ICON = REGISTRY.register("nato_tab_icon",
             () -> new Item(new Item.Properties()));
 
-    public static final RegistryObject<Item> ICON_CIVILIAN = REGISTRY.register("icon_civilian",
+    public static final RegistryObject<Item> RU_TAB_ICON = REGISTRY.register("ru_tab_icon",
             () -> new Item(new Item.Properties()));
 
     public static final RegistryObject<Item> ARMOR_ICON = REGISTRY.register("armor_icon",
@@ -56,6 +56,15 @@ public class ModItems {
 
     public static final RegistryObject<Item> CACTUS_TURRET_ITEM = REGISTRY.register("cactus_turret", CactusTurretItem::new);
     public static final RegistryObject<Item> BMP3M_BODY = REGISTRY.register("bmp3m_body", Bmp3MBodyItem::new);
+
+    public static final RegistryObject<Item> CREW_HELMET = REGISTRY.register("crewhelmet",
+            () -> new crewhelmet());
+    public static final RegistryObject<Item> PANAMA = REGISTRY.register("panama",
+            () -> new panama());
+    public static final RegistryObject<Item> KEPKA = REGISTRY.register("kepka",
+            () -> new kepka());
+    public static final RegistryObject<Item> BERETA = REGISTRY.register("bereta",
+            () -> new bereta());
 
 
 

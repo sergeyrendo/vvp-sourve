@@ -866,7 +866,7 @@ public class Mi8AMTSHEntity extends ContainerMobileVehicleEntity implements GeoE
     }
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/aircraft.png");
+        return VVP.loc("textures/gui/vehicle/type/aircraft_ru.png");
     }
 
     @Override

@@ -48,6 +48,9 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.TU_22_M3.get(), TU22M3Renderer::new);
         event.registerEntityRenderer(ModEntities.TOYOTA.get(), ToyotaRenderer::new);
         event.registerEntityRenderer(ModEntities.CHALLENGER.get(), ChallengerRenderer::new);
+        event.registerEntityRenderer(ModEntities.BMP_2.get(), Bmp2Renderer::new);
+        event.registerEntityRenderer(ModEntities.T72_B3M.get(), T72B3MRenderer::new);
+        event.registerEntityRenderer(ModEntities.BMP_2M.get(), Bmp2MRenderer::new);
 
 
 

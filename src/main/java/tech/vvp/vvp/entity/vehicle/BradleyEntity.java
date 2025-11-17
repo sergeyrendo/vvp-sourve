@@ -578,7 +578,7 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
         Matrix4f transformV = getVehicleTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, 3.4817f/16f, 39.3564f/16f, 4.8312f/16f);
+        Vector4f worldPosition = transformPosition(transform, -40.2271f/32f, 49.7509f/16f, -83.9563f/32f);
 
         transformV.translate(worldPosition.x, worldPosition.y, worldPosition.z);
         transformV.rotate(Axis.YP.rotationDegrees(Mth.lerp(ticks, turretYRotO, getTurretYRot())));
@@ -864,7 +864,7 @@ public class BradleyEntity extends ContainerMobileVehicleEntity implements GeoEn
         if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
             if (!this.level().isClientSide) {  // Только на сервере
                 int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
-                int maxTypes = 2;  // Количество типов (default=0, desert=1, forest=2)
+                int maxTypes = 3;  // Количество типов (default=0, desert=1, forest=2)
                 int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
                 this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
 

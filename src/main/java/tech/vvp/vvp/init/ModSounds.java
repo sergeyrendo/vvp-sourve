@@ -75,6 +75,9 @@ public class ModSounds {
 
     public static final RegistryObject<SoundEvent> T90_AUTORELOAD = register("t90_autoreload");
 
+    public static final RegistryObject<SoundEvent> T72_AUTORELOAD = register("t72_autoreload");
+    public static final RegistryObject<SoundEvent> T72_ENGINE_IDLE = register("t72_engine_idle");
+
     public static final RegistryObject<SoundEvent> SU25_ENGINE = register("su25_engine");
 
     public static final RegistryObject<SoundEvent> T64_RELOAD = register("t64_reload");

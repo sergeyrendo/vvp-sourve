@@ -102,7 +102,7 @@ public class ChallengerEntity extends ContainerMobileVehicleEntity implements Ge
     private static final float TURRET_OFFSET_Z = 0.1546f/16f;
 
 
-    private static final ResourceLocation GEO_MODEL = VVP.loc("geo/challegner.geo.json");
+    private static final ResourceLocation GEO_MODEL = VVP.loc("geo/challenger.geo.json");
     private static boolean LOCATORS_LOADED = false;
     private static Vector3f LOCATOR_DIRT_BACK_LEFT = new Vector3f(22f/16f, 0.25f/16f, -47f/16f);
     private static Vector3f LOCATOR_DIRT_BACK_RIGHT = new Vector3f(-22f/16f, 0.25f/16f, -47f/16f);
@@ -131,9 +131,9 @@ public class ChallengerEntity extends ContainerMobileVehicleEntity implements Ge
                 new VehicleWeapon[]{
                         // AP
                         new CannonShellWeapon()
-                                .hitDamage(VehicleConfigVVP.M1A2_AP_CANNON_DAMAGE.get())
-                                .explosionRadius(VehicleConfigVVP.M1A2_AP_CANNON_EXPLOSION_RADIUS.get().floatValue())
-                                .explosionDamage(VehicleConfigVVP.M1A2_AP_CANNON_EXPLOSION_DAMAGE.get())
+                                .hitDamage(VehicleConfigVVP.CHALLENGER_AP_CANNON_DAMAGE.get())
+                                .explosionRadius(VehicleConfigVVP.CHALLENGER_AP_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .explosionDamage(VehicleConfigVVP.CHALLENGER_AP_CANNON_EXPLOSION_DAMAGE.get())
                                 .fireProbability(0)
                                 .fireTime(0)
                                 .durability(100)
@@ -149,9 +149,9 @@ public class ChallengerEntity extends ContainerMobileVehicleEntity implements Ge
                                 .mainGun(true),
                         // HE
                         new CannonShellWeapon()
-                                .hitDamage(VehicleConfigVVP.M1A2_HE_CANNON_DAMAGE.get())
-                                .explosionRadius(VehicleConfigVVP.M1A2_HE_CANNON_EXPLOSION_RADIUS.get().floatValue())
-                                .explosionDamage(VehicleConfigVVP.M1A2_HE_CANNON_EXPLOSION_DAMAGE.get())
+                                .hitDamage(VehicleConfigVVP.CHALLENGER_HE_CANNON_DAMAGE.get())
+                                .explosionRadius(VehicleConfigVVP.CHALLENGER_HE_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .explosionDamage(VehicleConfigVVP.CHALLENGER_HE_CANNON_EXPLOSION_DAMAGE.get())
                                 .fireProbability(0.18F)
                                 .fireTime(2)
                                 .durability(1)
@@ -225,7 +225,6 @@ public class ChallengerEntity extends ContainerMobileVehicleEntity implements Ge
         compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
         compound.putInt("WeaponType", getWeaponIndex(0));
         compound.putInt("PassengerWeaponType", getWeaponIndex(1));
-        compound.putInt("ThirdPassengerWeaponType", getWeaponIndex(2));
     }
 
     @Override
@@ -237,7 +236,6 @@ public class ChallengerEntity extends ContainerMobileVehicleEntity implements Ge
         this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
         setWeaponIndex(0, compound.getInt("WeaponType"));
         setWeaponIndex(1, compound.getInt("PassengerWeaponType"));
-        setWeaponIndex(2, compound.getInt("ThirdPassengerWeaponType"));
     }
 
     @Override
@@ -295,7 +293,7 @@ public class ChallengerEntity extends ContainerMobileVehicleEntity implements Ge
         lowHealthWarning();
         terrainCompact(4.375f, 6.3125f);
         inertiaRotate(1.2f);
-        releaseSmokeDecoy(getTurretVector(1));
+        releaseSmokeDecoy(getTurretVector(3));
 
         this.refreshDimensions();
     }
@@ -580,7 +578,7 @@ public class ChallengerEntity extends ContainerMobileVehicleEntity implements Ge
 
     @Override
     public void travel() {
-        trackEngine(false, 0, VehicleConfigVVP.T90_ENERGY_COST.get(), 1.25, 0.75, 1.3, 0.6, 0.25f, -0.2f, 0.0014f, 0.0004f, 0.1f);
+        trackEngine(false, 0, VehicleConfigVVP.CHALLENGER_ENERGY_COST.get(), 1.25, 0.75, 1.3, 0.6, 0.25f, -0.2f, 0.0014f, 0.0004f, 0.1f);
     }
 
     @Override
@@ -601,13 +599,13 @@ public class ChallengerEntity extends ContainerMobileVehicleEntity implements Ge
         }
 
         Matrix4f transform = getTurretTransform(1);
+        Matrix4f transformG = getGunTransform(1);
 
         int i = this.getOrderedPassengers().indexOf(passenger);
 
         var worldPosition = switch (i) {
-            case 0 -> transformPosition(transform, 0.6669625f, 0.07f, 0.4776875f);
-            case 1 -> transformPosition(transform, -0.50f, 0.3f, -0.9f);
-            case 2 -> transformPosition(transform, 0.86219375f, 0.07f, -0.5696875f);
+            case 0 -> transformPosition(transform, 0, -1.4f, 2f);
+            case 1 -> transformPosition(transformG, -0, -1, -1);
             default -> throw new IllegalStateException("Unexpected value: " + i);
         };
 
@@ -631,7 +629,7 @@ public class ChallengerEntity extends ContainerMobileVehicleEntity implements Ge
     }
 
     public int getMaxPassengers() {
-        return 3;
+        return 2;
     }
 
     @Override
@@ -705,7 +703,7 @@ public class ChallengerEntity extends ContainerMobileVehicleEntity implements Ge
         Matrix4f transformT = getTurretTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, -16.5510f/16f, 10.8877f/16f, 3.4555f/16f);
+        Vector4f worldPosition = transformPosition(transform, 7.7769f/16f, 4.1801f/16f, 9.2786f/16f);
 
         transformT.translate(worldPosition.x, worldPosition.y, worldPosition.z);
         transformT.rotate(Axis.YP.rotationDegrees(Mth.lerp(ticks, gunYRotO, getGunYRot()) - Mth.lerp(ticks, turretYRotO, getTurretYRot())));
@@ -992,18 +990,17 @@ public class ChallengerEntity extends ContainerMobileVehicleEntity implements Ge
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         RenderSystem.setShaderColor(1, 1, 1, 1);
 
-        // 准心
         if (this.getWeapon(0).mainGun) {
-            RenderHelper.blit(poseStack, VVP.loc("textures/screens/land/t90_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH, color);
+            RenderHelper.blit(poseStack, Mod.loc("textures/screens/land/tank_cannon_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH, color);
         } else  {
             RenderHelper.blit(poseStack, Mod.loc("textures/screens/land/lav_gun_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH, color);
         }
 
         // 武器名称
         if (this.getWeaponIndex(0) == 0) {
-            guiGraphics.drawString(font, Component.literal("125MM AP  " + this.getAmmoCount(player) + " " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getEntityData().get(AMMO))), screenWidth / 2 - 33, screenHeight - 65, color, false);
+            guiGraphics.drawString(font, Component.literal("120MM AP  " + this.getAmmoCount(player) + " " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getEntityData().get(AMMO))), screenWidth / 2 - 33, screenHeight - 65, color, false);
         } else if (this.getWeaponIndex(0) == 1) {
-            guiGraphics.drawString(font, Component.literal("125MM HE  " + this.getAmmoCount(player) + " " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getEntityData().get(AMMO))), screenWidth / 2 - 33, screenHeight - 65, color, false);
+            guiGraphics.drawString(font, Component.literal("120MM HE  " + this.getAmmoCount(player) + " " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getEntityData().get(AMMO))), screenWidth / 2 - 33, screenHeight - 65, color, false);
         } else if (this.getWeaponIndex(0) == 2) {
             int heat = this.getEntityData().get(COAX_HEAT);
             guiGraphics.drawString(font, Component.literal(" 7.62MM M240 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, MathTool.getGradientColor(color, 0xFF0000, heat, 2), false);
@@ -1014,9 +1011,9 @@ public class ChallengerEntity extends ContainerMobileVehicleEntity implements Ge
     @Override
     public void renderThirdPersonOverlay(GuiGraphics guiGraphics, Font font, Player player, int screenWidth, int screenHeight, float scale) {
         if (this.getWeaponIndex(0) == 0) {
-            guiGraphics.drawString(font, Component.literal("125MM AP " + this.getAmmoCount(player) + " " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getEntityData().get(AMMO))), 30, -9, -1, false);
+            guiGraphics.drawString(font, Component.literal("120MM AP " + this.getAmmoCount(player) + " " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getEntityData().get(AMMO))), 30, -9, -1, false);
         } else if (this.getWeaponIndex(0) == 1) {
-            guiGraphics.drawString(font, Component.literal("125MM HE " + this.getAmmoCount(player) + " " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getEntityData().get(AMMO))), 30, -9, -1, false);
+            guiGraphics.drawString(font, Component.literal("120MM HE " + this.getAmmoCount(player) + " " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getEntityData().get(AMMO))), 30, -9, -1, false);
         } else if (this.getWeaponIndex(0) == 2) {
             double heat2 = this.getEntityData().get(COAX_HEAT) / 100.0F;
             guiGraphics.drawString(font, Component.literal("7.62MM M240 " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);

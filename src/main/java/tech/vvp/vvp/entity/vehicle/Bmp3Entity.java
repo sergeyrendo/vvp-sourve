@@ -435,7 +435,7 @@ public class Bmp3Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public void travel() {
-        trackEngine(true, 0.052, VehicleConfigVVP.BRADLEY_ENERGY_COST.get(), 0.55, 0.5, 1.9, 0.8, 0.21f, -0.16f, 0.0026f, 0.0020f, 0.1f);
+        trackEngine(true, 0.052, VehicleConfigVVP.BMP_2_ENERGY_COST.get(), 0.55, 0.5, 1.9, 0.8, 0.21f, -0.16f, 0.0026f, 0.0020f, 0.1f);
     }
 
     @Override
@@ -794,7 +794,7 @@ public class Bmp3Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/land.png");
+        return VVP.loc("textures/gui/vehicle/type/land_ru.png");
     }
 
     public List<OBB> getOBBs() {

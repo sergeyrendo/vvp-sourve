@@ -273,5 +273,15 @@
     "sounds": [
       "vvp:t64_reload"
     ]
+  },
+  "t72_engine_idle": {
+    "sounds": [
+      "vvp:t72_engine_idle"
+    ]
+  },
+  "t72_autoreload": {
+    "sounds": [
+      "vvp:t72_autoreload"
+    ]
   }
 }

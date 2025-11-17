@@ -733,7 +733,7 @@ public class BrmEntity extends ContainerMobileVehicleEntity implements GeoEntity
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/land.png");
+        return VVP.loc("textures/gui/vehicle/type/land_ru.png");
     }
 
     public List<OBB> getOBBs() {

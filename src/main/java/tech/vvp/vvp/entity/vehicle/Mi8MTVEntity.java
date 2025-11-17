@@ -798,7 +798,7 @@ public class Mi8MTVEntity extends ContainerMobileVehicleEntity implements GeoEnt
     }
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/aircraft.png");
+        return VVP.loc("textures/gui/vehicle/type/aircraft_ru.png");
     }
 
     @Override

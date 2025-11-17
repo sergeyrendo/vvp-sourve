@@ -835,7 +835,7 @@ public class Mi28_1Entity extends ContainerMobileVehicleEntity implements GeoEnt
             transform = getGunnerBarrelTransform(1);
 
             if (getWeaponIndex(1) == 0 && !cannotFire && (this.entityData.get(MG_AMMO) > 0 || hasCreativeAmmo)) {
-                Vector4f worldPosition = transformPosition(transform, 0F, -29f/16f, 54f/16f);
+                Vector4f worldPosition = transformPosition(transform, 0F, -1.75F, 3f);
                 Vec3 shootVec = (new Vec3(
                         worldPosition.x
                         , worldPosition.y
@@ -1051,8 +1051,9 @@ public class Mi28_1Entity extends ContainerMobileVehicleEntity implements GeoEnt
         return super.getCameraPosition(partialTicks, player, false, false);
     }
 
+    @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/aircraft.png");
+        return VVP.loc("textures/gui/vehicle/type/aircraft_ru.png");
     }
 
     @Override

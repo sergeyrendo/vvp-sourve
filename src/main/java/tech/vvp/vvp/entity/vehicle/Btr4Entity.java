@@ -584,7 +584,7 @@ public class Btr4Entity extends ContainerMobileVehicleEntity implements GeoEntit
     }
     @Override
     public float rotateYOffset() {
-        return 2.7f;
+        return 0f;
     }
 
     protected void clampRotation(Entity entity) {

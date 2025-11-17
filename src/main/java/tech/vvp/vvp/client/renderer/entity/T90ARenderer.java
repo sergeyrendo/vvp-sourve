@@ -91,9 +91,10 @@ public class T90ARenderer extends GeoEntityRenderer<T90AEntity> {
             );
         }
 
-        if (name.equals("gun_cannon")) {
-            bone.setRotY(Mth.lerp(partialTick, animatable.gunYRotO, animatable.getGunYRot()) * Mth.DEG_TO_RAD - Mth.lerp(partialTick, animatable.turretYRotO, animatable.getTurretYRot()) * Mth.DEG_TO_RAD);
+        if(name.equals("gun_cannon")){
+            bone.setRotY(Mth.lerp(partialTick, animatable.gunYRotO, animatable.getGunYRot()) * Mth.DEG_TO_RAD);
         }
+
         if (name.equals("gun_barrel")) {
             float a = animatable.getTurretYaw(partialTick);
             float r = (Mth.abs(a) - 90f) / 90f;
@@ -110,11 +111,9 @@ public class T90ARenderer extends GeoEntityRenderer<T90AEntity> {
                 }
             }
 
-            bone.setRotX(Mth.clamp(
-                    -Mth.lerp(partialTick, animatable.gunXRotO, animatable.getGunXRot()) * Mth.DEG_TO_RAD
-                            - r * animatable.getPitch(partialTick) * Mth.DEG_TO_RAD
-                            - r2 * animatable.getRoll(partialTick) * Mth.DEG_TO_RAD,
-                    -10 * Mth.DEG_TO_RAD, 60 * Mth.DEG_TO_RAD)
+            bone.setRotX((float) Mth.clamp(
+                    -Mth.lerp(partialTick, animatable.gunXRotO, animatable.getGunXRot()) * Mth.DEG_TO_RAD,
+                    -80 * Mth.DEG_TO_RAD, 2.5 * Mth.DEG_TO_RAD)
             );
         }
 

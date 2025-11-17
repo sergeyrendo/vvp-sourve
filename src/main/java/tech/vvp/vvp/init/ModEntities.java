@@ -51,6 +51,24 @@ public class ModEntities {
                     .sized(3.9f, 3.5f)
                     .build("bmp_3"));
 
+    public static final RegistryObject<EntityType<Bmp2Entity>> BMP_2 = ENTITY_TYPES.register("bmp_2",
+            () -> EntityType.Builder.<Bmp2Entity>of(Bmp2Entity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(Bmp2Entity::new)
+                    .fireImmune()
+                    .sized(3.9f, 3f)
+                    .build("bmp_2"));
+
+    public static final RegistryObject<EntityType<Bmp2MEntity>> BMP_2M = ENTITY_TYPES.register("bmp_2m",
+            () -> EntityType.Builder.<Bmp2MEntity>of(Bmp2MEntity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(Bmp2MEntity::new)
+                    .fireImmune()
+                    .sized(3.9f, 3f)
+                    .build("bmp_2m"));
+
     public static final RegistryObject<EntityType<Uh60ModEntity>> UH60MOD = ENTITY_TYPES.register("uh60mod",
             () -> EntityType.Builder.<Uh60ModEntity>of(Uh60ModEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
@@ -258,6 +276,15 @@ public class ModEntities {
                     .fireImmune()
                     .sized(4f, 4f)
                     .build("challenger"));
+
+    public static final RegistryObject<EntityType<T72B3MEntity>> T72_B3M = ENTITY_TYPES.register("t72_b3m",
+            () -> EntityType.Builder.<T72B3MEntity>of(T72B3MEntity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(T72B3MEntity::new)
+                    .fireImmune()
+                    .sized(4f, 4f)
+                    .build("t72_b3m"));
 
 
 

@@ -52,7 +52,7 @@ public class CobraOverlay implements IGuiOverlay {
         var veh = player.getVehicle();
         if (!(veh instanceof ArmedVehicleEntity armed) || !armed.isDriver(player)) return;
         if (!(veh instanceof SuperCobraEntity supercobra)) return;
-        if (!(veh instanceof WeaponVehicleEntity weapon) || weapon.getWeaponIndex(0) != 2) return;
+        if (!(veh instanceof WeaponVehicleEntity weapon) || weapon.getWeaponIndex(0) != 1) return;
 
         PoseStack poseStack = guiGraphics.pose();
 

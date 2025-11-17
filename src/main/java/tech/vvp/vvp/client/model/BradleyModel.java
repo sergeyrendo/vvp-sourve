@@ -21,8 +21,9 @@ public class BradleyModel extends GeoModel<BradleyEntity> {
     public ResourceLocation getTextureResource(BradleyEntity animatable) {
         int camoType = animatable.getEntityData().get(BradleyEntity.CAMOUFLAGE_TYPE);
         switch (camoType) {
-            case 1: return new ResourceLocation("vvp", "textures/entity/bradley_usa.png");  // Песчаный
-            default: return new ResourceLocation("vvp", "textures/entity/bradley_green.png");  // Лесной
+            case 1: return new ResourceLocation("vvp", "textures/entity/bradley_usa.png");
+            case 2: return new ResourceLocation("vvp", "textures/entity/bradley_ukr.png");
+            default: return new ResourceLocation("vvp", "textures/entity/bradley_green.png");
         }
     }
 }

@@ -119,9 +119,9 @@ public class PumaEntity extends ContainerMobileVehicleEntity implements GeoEntit
         return new VehicleWeapon[][]{
                 new VehicleWeapon[]{
                         new SmallCannonShellWeapon()
-                                .damage(VehicleConfigVVP.BRADLEY_CANNON_DAMAGE.get())
-                                .explosionDamage(VehicleConfigVVP.BRADLEY_CANNON_EXPLOSION_DAMAGE.get())
-                                .explosionRadius(VehicleConfigVVP.BRADLEY_CANNON_EXPLOSION_RADIUS.get().floatValue())
+                                .damage(VehicleConfigVVP.PUMA_CANNON_DAMAGE.get())
+                                .explosionDamage(VehicleConfigVVP.PUMA_CANNON_EXPLOSION_DAMAGE.get())
+                                .explosionRadius(VehicleConfigVVP.PUMA_CANNON_EXPLOSION_RADIUS.get().floatValue())
                                 .sound(ModSounds.INTO_MISSILE.get())
                                 .icon(Mod.loc("textures/screens/vehicle_weapon/cannon_30mm.png"))
                                 .sound1p(tech.vvp.vvp.init.ModSounds.BUSHMASTER_1P.get())
@@ -139,9 +139,9 @@ public class PumaEntity extends ContainerMobileVehicleEntity implements GeoEntit
                                 .sound3pFar(ModSounds.M_60_FAR.get())
                                 .sound3pVeryFar(ModSounds.M_60_VERYFAR.get()),
                         new SpikeATGMWeapon()
-                                .damage(ExplosionConfigVVP.TOW_MISSILE_DAMAGE.get())
-                                .explosionDamage(ExplosionConfigVVP.TOW_MISSILE_EXPLOSION_DAMAGE.get())
-                                .explosionRadius(ExplosionConfigVVP.TOW_MISSILE_EXPLOSION_RADIUS.get())
+                                .damage(ExplosionConfigVVP.SPIKE_MISSILE_DAMAGE.get())
+                                .explosionDamage(ExplosionConfigVVP.SPIKE_MISSILE_EXPLOSION_DAMAGE.get())
+                                .explosionRadius(ExplosionConfigVVP.SPIKE_MISSILE_EXPLOSION_RADIUS.get())
                                 .sound(ModSounds.INTO_MISSILE.get())
                                 .sound1p(tech.vvp.vvp.init.ModSounds.TOW_1P.get())
                                 .sound3p(tech.vvp.vvp.init.ModSounds.TOW_3P.get()),
@@ -417,7 +417,7 @@ public class PumaEntity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public void travel() {
-        trackEngine(false, 0.052, VehicleConfigVVP.BRADLEY_ENERGY_COST.get(), 0.55, 0.5, 1.9, 0.8, 0.21f, -0.16f, 0.0020f, 0.0019f, 0.1f);
+        trackEngine(false, 0.052, VehicleConfigVVP.PUMA_ENERGY_COST.get(), 0.55, 0.5, 1.9, 0.8, 0.21f, -0.16f, 0.0020f, 0.0019f, 0.1f);
     }
 
     @Override

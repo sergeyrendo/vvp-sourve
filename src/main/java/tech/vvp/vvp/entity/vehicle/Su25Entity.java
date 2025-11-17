@@ -1115,7 +1115,7 @@ public class Su25Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/aircraft.png");
+        return VVP.loc("textures/gui/vehicle/type/aircraft_ru.png");
     }
 
     @Override

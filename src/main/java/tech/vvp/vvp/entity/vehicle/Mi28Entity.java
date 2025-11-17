@@ -596,7 +596,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
         Matrix4f transform = new Matrix4f();
         Vector4f worldPosition;
         if (level().isClientSide()) {
-            worldPosition = transformPosition(transform, 0F, 17.7861f/16f - 1.45f, 28.1924f/16f);
+            worldPosition = transformPosition(transform, 0F, 17.7861f/16f - 1.45f, 28.1924f/16f - (float)ClientMouseHandler.custom3pDistanceLerp);
         } else {
             worldPosition = transformPosition(transform, 0F, 17.7861f/16f, 28.1924f/16f);
         }
@@ -743,7 +743,7 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
             transform = getGunnerBarrelTransform(1);
 
             if (getWeaponIndex(1) == 0 && !cannotFire && (this.entityData.get(MG_AMMO) > 0 || hasCreativeAmmo)) {
-                Vector4f worldPosition = transformPosition(transform, 0F, -0.75F, 3f);
+                Vector4f worldPosition = transformPosition(transform, 0F, -1.75F, 3f);
                 Vec3 shootVec = (new Vec3(
                         worldPosition.x
                         , worldPosition.y
@@ -981,8 +981,9 @@ public class Mi28Entity extends ContainerMobileVehicleEntity implements GeoEntit
         return super.getCameraPosition(partialTicks, player, false, false);
     }
 
+    @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/aircraft.png");
+        return VVP.loc("textures/gui/vehicle/type/aircraft_ru.png");
     }
 
     @Override

@@ -582,7 +582,7 @@ public class M1A2Entity extends ContainerMobileVehicleEntity implements GeoEntit
 
     @Override
     public void travel() {
-        trackEngine(false, 0, VehicleConfigVVP.T90_ENERGY_COST.get(), 1.25, 0.75, 1.3, 0.6, 0.25f, -0.2f, 0.0014f, 0.0004f, 0.1f);
+        trackEngine(false, 0, VehicleConfigVVP.M1A2_ENERGY_COST.get(), 1.25, 0.75, 1.3, 0.6, 0.25f, -0.2f, 0.0014f, 0.0004f, 0.1f);
     }
 
     @Override
