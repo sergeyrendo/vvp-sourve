@@ -82,6 +82,10 @@ public class ModSounds {
 
     public static final RegistryObject<SoundEvent> T64_RELOAD = register("t64_reload");
 
+    // Звуки для Pantsir-S1
+    public static final RegistryObject<SoundEvent> PANTSIR_LOCKING = register("pantsir_locking");
+    public static final RegistryObject<SoundEvent> PANTSIR_LOCKED = register("pantsir_locked");
+
 
 
 

@@ -283,5 +283,15 @@
     "sounds": [
       "vvp:t72_autoreload"
     ]
+  },
+  "pantsir_locking": {
+    "sounds": [
+      "vvp:locking"
+    ]
+  },
+  "pantsir_locked": {
+    "sounds": [
+      "vvp:locked"
+    ]
   }
 }

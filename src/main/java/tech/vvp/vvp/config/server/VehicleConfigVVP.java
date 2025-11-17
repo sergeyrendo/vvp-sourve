@@ -43,6 +43,14 @@ public class VehicleConfigVVP {
     public static ForgeConfigSpec.DoubleValue TERMINATOR_CANNON_EXPLOSION_RADIUS;
     public static ForgeConfigSpec.BooleanValue TERMINATOR_CANNON_DESTROY;
 
+    public static ForgeConfigSpec.IntValue PANTSIR_S1_ENERGY_COST;
+    public static ForgeConfigSpec.IntValue PANTSIR_S1_CANNON_DAMAGE;
+    
+    public static ForgeConfigSpec.IntValue SOSNA_ENERGY_COST;
+    public static ForgeConfigSpec.IntValue PANTSIR_S1_CANNON_EXPLOSION_DAMAGE;
+    public static ForgeConfigSpec.DoubleValue PANTSIR_S1_CANNON_EXPLOSION_RADIUS;
+    public static ForgeConfigSpec.BooleanValue PANTSIR_S1_CANNON_DESTROY;
+
     public static ForgeConfigSpec.IntValue T90_ENERGY_COST;
     public static ForgeConfigSpec.IntValue T90_AP_CANNON_DAMAGE;
     public static ForgeConfigSpec.IntValue T90_AP_CANNON_EXPLOSION_DAMAGE;
@@ -182,6 +190,18 @@ public class VehicleConfigVVP {
         TERMINATOR_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("terminator_cannon_explosion_damage", 15, 1, 10000000);
         TERMINATOR_CANNON_EXPLOSION_RADIUS = BUILDER.defineInRange("terminator_cannon_explosion_radius", 6d, 1d, 10000000d);
         TERMINATOR_CANNON_DESTROY = BUILDER.define("terminator_cannon_destroy", true);
+        BUILDER.pop();
+
+        BUILDER.push("pantsir_s1");
+        PANTSIR_S1_ENERGY_COST = BUILDER.defineInRange("pantsir_s1_energy_cost", 80, 0, 2147483647);
+        PANTSIR_S1_CANNON_DAMAGE = BUILDER.defineInRange("pantsir_s1_cannon_damage", 38, 1, 10000000);
+        PANTSIR_S1_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("pantsir_s1_cannon_explosion_damage", 15, 1, 10000000);
+        PANTSIR_S1_CANNON_EXPLOSION_RADIUS = BUILDER.defineInRange("pantsir_s1_cannon_explosion_radius", 6d, 1d, 10000000d);
+        PANTSIR_S1_CANNON_DESTROY = BUILDER.define("pantsir_s1_cannon_destroy", true);
+        BUILDER.pop();
+        
+        BUILDER.push("sosna");
+        SOSNA_ENERGY_COST = BUILDER.defineInRange("sosna_energy_cost", 70, 0, 2147483647);
         BUILDER.pop();
 
         BUILDER.push("t72");
