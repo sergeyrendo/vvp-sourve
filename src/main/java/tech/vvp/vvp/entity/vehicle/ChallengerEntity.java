@@ -604,7 +604,7 @@ public class ChallengerEntity extends ContainerMobileVehicleEntity implements Ge
         int i = this.getOrderedPassengers().indexOf(passenger);
 
         var worldPosition = switch (i) {
-            case 0 -> transformPosition(transform, 0, -1.4f, 2f);
+            case 0 -> transformPosition(transform, -0.25f, -1.4f, 2f);
             case 1 -> transformPosition(transformG, -0, -1, -1);
             default -> throw new IllegalStateException("Unexpected value: " + i);
         };
