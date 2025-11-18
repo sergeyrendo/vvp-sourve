@@ -167,16 +167,6 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
                                 .sound3p(tech.vvp.vvp.init.ModSounds.BUSHMASTER_3P.get())
                                 .sound3pFar(tech.vvp.vvp.init.ModSounds.BUSHMASTER_FAR.get())
                                 .sound3pVeryFar(tech.vvp.vvp.init.ModSounds.BUSHMASTER_VERYFAR.get()),
-                        new ProjectileWeapon()
-                                .damage(9.5f)
-                                .headShot(2)
-                                .zoom(false)
-                                .sound(ModSounds.INTO_CANNON.get())
-                                .icon(Mod.loc("textures/screens/vehicle_weapon/gun_7_62mm.png"))
-                                .sound1p(ModSounds.COAX_FIRE_1P.get())
-                                .sound3p(ModSounds.M_60_FIRE_3P.get())
-                                .sound3pFar(ModSounds.M_60_FAR.get())
-                                .sound3pVeryFar(ModSounds.M_60_VERYFAR.get()),
                         new PantsirS1MissileWeapon()
                                 .damage(ExplosionConfigVVP.PANTSIR_S1_MISSILE_DAMAGE.get())
                                 .explosionDamage(ExplosionConfigVVP.PANTSIR_S1_MISSILE_EXPLOSION_DAMAGE.get())
@@ -295,7 +285,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
             this.handleAmmo();
             
             // Система захвата цели для 57Е6 (опциональная, не блокирует выстрел)
-            if (getNthEntity(0) instanceof LivingEntity driver && getWeaponIndex(0) == 2) {
+            if (getNthEntity(0) instanceof LivingEntity driver && getWeaponIndex(0) == 1) {
                 Entity target = SeekTool.seekLivingEntity(driver, driver.level(), 1000.0, 4.0);
                 
                 if (target != null && target != driver && target != this && target.isAlive() && isAirborneTarget(target)) {
@@ -405,14 +395,16 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     // 炮弹发射位置
     @Override
     public Vec3 getTurretShootPos(Entity entity, float ticks) {
-        Matrix4f transform = getBarrelTransform(1);
+        Matrix4f transform = getTurretTransform(ticks);
         Vector4f worldPosition;
         if (getWeaponIndex(0) == 0) {
-            worldPosition = transformPosition(transform, -0.2084062f, -0.0003375f, 3.3871062f);
-        } else if (getWeaponIndex(0) == 1) {
-            worldPosition = transformPosition(transform, -0.0030187f, -0.1851875f, 0.6547187f);
-        } else  {
-            worldPosition = transformPosition(transform, 1.2f, -0.2593750f, 1.0675125f);
+            // 30мм пушки (MASHINGUN) - pivot: [-13.47025, 61.96771, -35.00558]
+            // Преобразуем координаты с учётом разворота модели на 180°
+            worldPosition = transformPosition(transform, 13.47025f / 16f, (61.96771f - 24f) / 16f, 35.00558f / 16f);
+        } else {
+            // Ракеты (GUN) - pivot: [0.1, 58.56618, -38.49596]
+            // Преобразуем координаты с учётом разворота модели на 180°
+            worldPosition = transformPosition(transform, -0.1f / 16f, (58.56618f - 24f) / 16f, 38.49596f / 16f);
         }
         return new Vec3(worldPosition.x, worldPosition.y, worldPosition.z);
     }
@@ -421,10 +413,8 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     public float projectileVelocity(Entity entity) {
         if (getWeaponIndex(0) == 0) {
             return 20;
-        } else if (getWeaponIndex(0) == 1) {
-            return 25;
-        } else  {
-            return 2.5f; // Увеличена начальная скорость ракеты
+        } else {
+            return 2.5f; // Ракеты (индекс 1)
         }
     }
     // 炮弹重力
@@ -432,10 +422,8 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     public float projectileGravity(Entity entity) {
         if (getWeaponIndex(0) == 0) {
             return 0.03f;
-        } else if (getWeaponIndex(0) == 1) {
-            return 0.05f;
-        } else  {
-            return 0;
+        } else {
+            return 0; // Ракеты (индекс 1)
         }
     }
 
@@ -472,7 +460,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
 
         if (getWeaponIndex(0) == 0) {
             this.entityData.set(AMMO, countItem(ModItems.SMALL_SHELL.get()));
-        } else if (getWeaponIndex(0) == 2) {
+        } else if (getWeaponIndex(0) == 1) {
             this.entityData.set(AMMO, this.getEntityData().get(LOADED_MISSILE));
         }
 
@@ -511,44 +499,12 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
 
             this.entityData.set(CANNON_RECOIL_TIME, 40);
             this.entityData.set(YAW, getTurretYRot());
-            this.entityData.set(HEAT, this.entityData.get(HEAT) + 7);
+            this.entityData.set(HEAT, this.entityData.get(HEAT) + 3); // Уменьшен перегрев с 7 до 3
             this.entityData.set(FIRE_ANIM, 3);
 
             if (hasCreativeAmmo) return;
             this.getItemStacks().stream().filter(stack -> stack.is(ModItems.SMALL_SHELL.get())).findFirst().ifPresent(stack -> stack.shrink(1));
-            } else if (getWeaponIndex(0) == 1) {
-                if (this.cannotFireCoax) return;
-
-                if (this.entityData.get(MG_AMMO) > 0 || hasCreativeAmmo) {
-                    var projectileRight = ((ProjectileWeapon) getWeapon(0)).create(living).setGunItemId(this.getType().getDescriptionId());
-
-                    projectileRight.bypassArmorRate(0.2f);
-                    projectileRight.setPos(getTurretShootPos(living, 1).x, getTurretShootPos(living, 1).y, getTurretShootPos(living, 1).z);
-                    projectileRight.shoot(living, getBarrelVector(1).x, getBarrelVector(1).y, getBarrelVector(1).z,  projectileVelocity(living),
-                            0.25f);
-                    this.level().addFreshEntity(projectileRight);
-
-                    if (!hasCreativeAmmo) {
-                        ItemStack ammoBox = this.getItemStacks().stream().filter(stack -> {
-                            if (stack.is(ModItems.AMMO_BOX.get())) {
-                                return Ammo.RIFLE.get(stack) > 0;
-                            }
-                            return false;
-                        }).findFirst().orElse(ItemStack.EMPTY);
-
-                        if (!ammoBox.isEmpty()) {
-                            Ammo.RIFLE.add(ammoBox, -1);
-                        } else {
-                            this.getItemStacks().stream().filter(stack -> stack.is(ModItems.RIFLE_AMMO.get())).findFirst().ifPresent(stack -> stack.shrink(1));
-                        }
-                    }
-                }
-
-                this.entityData.set(COAX_HEAT, this.entityData.get(COAX_HEAT) + 3);
-                this.entityData.set(FIRE_ANIM, 2);
-                playShootSound3p(living, 0, 3, 6, 12, getTurretShootPos(living, 1));
-
-         } else if (getWeaponIndex(0) == 2 && this.getEntityData().get(LOADED_MISSILE) > 0) {
+         } else if (getWeaponIndex(0) == 1 && this.getEntityData().get(LOADED_MISSILE) > 0) {
              // Проверка кулдауна (защита от спама)
              if (this.entityData.get(MISSILE_FIRE_COOLDOWN) > 0) return;
 
@@ -800,10 +756,8 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     public int mainGunRpm(LivingEntity living) {
         if (living == getNthEntity(0)) {
             if (getWeaponIndex(0) == 0) {
-                return 325;
+                return 700; // Увеличена скорострельность с 325 до 700
             } else if (getWeaponIndex(0) == 1) {
-                return 700;
-            } else if (getWeaponIndex(0) == 2) {
                 return 0; // Ракеты только по ручному выстрелу, без автострельбы
             }
         }
@@ -817,8 +771,6 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
             if (getWeaponIndex(0) == 0) {
                 return (this.entityData.get(AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(living)) && !cannotFire;
             } else if (getWeaponIndex(0) == 1) {
-                return (this.entityData.get(MG_AMMO) > 0 || InventoryTool.hasCreativeAmmoBox(living)) && !cannotFireCoax;
-            } else if (getWeaponIndex(0) == 2) {
                 // Для ракет требуется ЗАХВАТ ЦЕЛИ
                 boolean hasAmmo = this.entityData.get(LOADED_MISSILE) > 0;
                 boolean cooldownReady = this.entityData.get(MISSILE_FIRE_COOLDOWN) <= 0;
@@ -832,14 +784,6 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
 
     @Override
     public int getAmmoCount(LivingEntity living) {
-        if (living == getNthEntity(0)) {
-            if (getWeaponIndex(0) == 1) {
-                return this.entityData.get(MG_AMMO);
-            } else {
-                return this.entityData.get(AMMO);
-            }
-        }
-
         return this.entityData.get(AMMO);
     }
 
@@ -862,8 +806,6 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     public int getWeaponHeat(LivingEntity living) {
         if (getWeaponIndex(0) == 0) {
             return entityData.get(HEAT);
-        } else if (getWeaponIndex(0) == 1) {
-            return entityData.get(COAX_HEAT);
         }
         return 0;
     }
@@ -894,10 +836,6 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
             RenderHelper.blit(poseStack, Mod.loc("textures/screens/land/bmp_cannon_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH, color);
             int heat = this.getEntityData().get(HEAT);
             guiGraphics.drawString(font, Component.literal(" 2А42 30MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, MathTool.getGradientColor(color, 0xFF0000, heat, 2), false);
-        } else if (this.getWeaponIndex(0) == 1) {
-            RenderHelper.blit(poseStack, Mod.loc("textures/screens/land/lav_gun_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH, color);
-            int heat = this.getEntityData().get(COAX_HEAT);
-            guiGraphics.drawString(font, Component.literal(" 7.62MM PKTM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), screenWidth / 2 - 33, screenHeight - 65, MathTool.getGradientColor(color, 0xFF0000, heat, 2), false);
         } else {
             RenderHelper.blit(poseStack, Mod.loc("textures/screens/land/lav_missile_cross.png"), centerW, centerH, 0, 0.0F, scaledMinWH, scaledMinWH, scaledMinWH, scaledMinWH, color);
             
@@ -925,9 +863,6 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         if (this.getWeaponIndex(0) == 0) {
             double heat = this.getEntityData().get(HEAT) / 100.0F;
             guiGraphics.drawString(font, Component.literal("2А42 30MM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat, 1.0F), false);
-        } else if (this.getWeaponIndex(0) == 1) {
-            double heat2 = this.getEntityData().get(COAX_HEAT) / 100.0F;
-            guiGraphics.drawString(font, Component.literal("7.62MM PKTM " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : this.getAmmoCount(player))), 30, -9, Mth.hsvToRgb(0F, (float) heat2, 1.0F), false);
         } else {
             // Индикация захвата в третьем лице
             int lockTime = this.getEntityData().get(LOCKING_TIME);
@@ -1068,8 +1003,8 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         if (stack.is(tech.vvp.vvp.init.ModItems.SPRAY.get())) {
             if (!this.level().isClientSide) {  // Только на сервере
                 int currentType = this.entityData.get(CAMOUFLAGE_TYPE);
-                int maxTypes = 2;  // Количество типов (default=0, desert=1, forest=2)
-                int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→0
+                int maxTypes = 4;  // Количество типов (0=default, 1=camo2, 2=camo3, 3=camo4)
+                int newType = (currentType + 1) % maxTypes;  // Цикл: 0→1→2→3→0
                 this.entityData.set(CAMOUFLAGE_TYPE, newType);  // Сохраняем новый тип
 
                 // Опционально: Звук и эффект (например, частицы)

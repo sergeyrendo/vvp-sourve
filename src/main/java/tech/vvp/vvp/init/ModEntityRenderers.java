@@ -6,8 +6,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.client.renderer.entity.*;
-import tech.vvp.vvp.client.renderer.PantsirS1MissileRenderer;
-import tech.vvp.vvp.client.renderer.SosnaMissileRenderer;
 
 @Mod.EventBusSubscriber(modid = VVP.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ModEntityRenderers {

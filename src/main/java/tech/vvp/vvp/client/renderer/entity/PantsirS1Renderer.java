@@ -45,6 +45,7 @@ public class PantsirS1Renderer extends GeoEntityRenderer<PantsirS1Entity> {
     @Override
     public void render(PantsirS1Entity entityIn, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
+        poseStack.mulPose(Axis.YP.rotationDegrees(180)); // Разворот модели на 180°
         poseStack.mulPose(Axis.YP.rotationDegrees(-Mth.lerp(partialTicks, entityIn.yRotO, entityIn.getYRot())));
         poseStack.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, entityIn.xRotO, entityIn.getXRot())));
         poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTicks, entityIn.prevRoll, entityIn.getRoll())));
@@ -55,25 +56,34 @@ public class PantsirS1Renderer extends GeoEntityRenderer<PantsirS1Entity> {
     @Override
     public void renderRecursively(PoseStack poseStack, PantsirS1Entity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         String name = bone.getName();
-        for (int i = 0; i < 8; i++) {
-            if (name.equals("wheelL" + i)) {
-                bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
-            }
-            if (name.equals("wheelR" + i)) {
-                bone.setRotX(1.5f * Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
-            }
+        
+        // Колёса (WHEE)
+        if (name.equals("WHEE")) {
+            bone.setRotX(-1.5f * Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
+        }
+        
+        // Правые колёса (whell8, whell11, whell14, whell16)
+        if (name.equals("whell8") || name.equals("whell11") || 
+            name.equals("whell14") || name.equals("whell16")) {
+            bone.setRotX(-1.5f * Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
+        }
+        
+        // Левые колёса (whell12, whell13, whell15, whell17)
+        if (name.equals("whell12") || name.equals("whell13") || 
+            name.equals("whell15") || name.equals("whell17")) {
+            bone.setRotX(-1.5f * Mth.lerp(partialTick, animatable.leftWheelRotO, animatable.getLeftWheelRot()));
         }
 
-        if (name.equals("cannon")) {
-
+        // Башня (BASNIA)
+        if (name.equals("BASNIA")) {
             Player player = Minecraft.getInstance().player;
             bone.setHidden(ClientEventHandler.zoomVehicle && animatable.getFirstPassenger() == player);
 
             bone.setRotY(Mth.lerp(partialTick, animatable.turretYRotO, animatable.getTurretYRot()) * Mth.DEG_TO_RAD);
         }
 
-        if (name.equals("barrel")) {
-
+        // Ствол (RULL) - наклон вверх/вниз
+        if (name.equals("RULL")) {
             float a = animatable.getTurretYaw(partialTick);
             float r = (Mth.abs(a) - 90f) / 90f;
 
@@ -96,52 +106,15 @@ public class PantsirS1Renderer extends GeoEntityRenderer<PantsirS1Entity> {
             );
         }
 
-        if (name.equals("dulo") || name.equals("dulo2")) {
-            // Оружие с индексом 0
+        // Отдача стволов (rushag или другие кости)
+        if (name.equals("rushag")) {
             if (animatable.getWeaponIndex(0) == 0) {
                 int fire = animatable.getEntityData().get(PantsirS1Entity.FIRE_ANIM);
                 if (fire > 1) {
-                    float maxBack = 0.95f; // глубина отката
-                    boolean leftBarrelFired = animatable.getEntityData().get(PantsirS1Entity.LAST_BARREL_LEFT);
-
-                    // Если кость "dulo" — она отвечает за левое дуло
-                    if (name.equals("dulo") && !leftBarrelFired) {
-                        bone.setPosZ(bone.getPosZ() - maxBack);
-                    }
-
-                    // Если кость "dulo2" — она отвечает за правое дуло
-                    if (name.equals("dulo2") && leftBarrelFired) {
-                        bone.setPosZ(bone.getPosZ() - maxBack);
-                    }
+                    float maxBack = 0.95f;
+                    bone.setPosZ(bone.getPosZ() - maxBack);
                 }
             }
-        }
-
-        if (name.equals("base")) {
-
-            Player player = Minecraft.getInstance().player;
-            bone.setHidden(ClientEventHandler.zoomVehicle && animatable.getFirstPassenger() == player);
-
-            float a = animatable.getEntityData().get(YAW);
-            float r = (Mth.abs(a) - 90f) / 90f;
-
-            bone.setPosZ(r * Mth.lerp(partialTick, (float) animatable.recoilShakeO, (float) animatable.getRecoilShake()) * 0.125f);
-            bone.setRotX(r * Mth.lerp(partialTick, (float) animatable.recoilShakeO, (float) animatable.getRecoilShake()) * Mth.DEG_TO_RAD * 0.06f);
-
-            float r2;
-
-            if (Mth.abs(a) <= 90f) {
-                r2 = a / 90f;
-            } else {
-                if (a < 0) {
-                    r2 = - (180f + a) / 90f;
-                } else {
-                    r2 = (180f - a) / 90f;
-                }
-            }
-
-            bone.setPosX(r2 * Mth.lerp(partialTick, (float) animatable.recoilShakeO, (float) animatable.getRecoilShake()) * 0.125f);
-            bone.setRotZ(r2 * Mth.lerp(partialTick, (float) animatable.recoilShakeO, (float) animatable.getRecoilShake()) * Mth.DEG_TO_RAD * 0.2f);
         }
 
         super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);

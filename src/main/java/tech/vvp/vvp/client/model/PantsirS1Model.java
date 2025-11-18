@@ -9,7 +9,7 @@ public class PantsirS1Model extends GeoModel<PantsirS1Entity> {
 
     @Override
     public ResourceLocation getAnimationResource(PantsirS1Entity entity) {
-        return new ResourceLocation(VVP.MOD_ID, "animations/lav.animation.json");
+        return new ResourceLocation(VVP.MOD_ID, "animations/pantsir_s1.animation.json");
     }
 
     @Override
@@ -21,8 +21,10 @@ public class PantsirS1Model extends GeoModel<PantsirS1Entity> {
     public ResourceLocation getTextureResource(PantsirS1Entity animatable) {
         int camoType = animatable.getEntityData().get(PantsirS1Entity.CAMOUFLAGE_TYPE);
         switch (camoType) {
-            case 1: return new ResourceLocation("vvp", "textures/entity/pantsir_s1_haki.png");  // Песчаный
-            default: return new ResourceLocation("vvp", "textures/entity/pantsir_s1.png");  // Лесной
+            case 1: return new ResourceLocation("vvp", "textures/entity/pantsir_s1_camo2.png");
+            case 2: return new ResourceLocation("vvp", "textures/entity/pantsir_s1_camo3.png");
+            case 3: return new ResourceLocation("vvp", "textures/entity/pantsir_s1_camo4.png");
+            default: return new ResourceLocation("vvp", "textures/entity/pantsir_s1.png");  // Дефолтный
         }
     }
 }
