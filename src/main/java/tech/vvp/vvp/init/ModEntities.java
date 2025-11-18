@@ -124,6 +124,24 @@ public class ModEntities {
                     .sized(3.9f, 3.5f)
                     .build("terminator"));
 
+    public static final RegistryObject<EntityType<PantsirS1Entity>> PANTSIR_S1 = ENTITY_TYPES.register("pantsir_s1",
+            () -> EntityType.Builder.<PantsirS1Entity>of(PantsirS1Entity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(PantsirS1Entity::new)
+                    .fireImmune()
+                    .sized(3.9f, 3.5f)
+                    .build("pantsir_s1"));
+
+    public static final RegistryObject<EntityType<SosnaEntity>> sosna = ENTITY_TYPES.register("sosna",
+            () -> EntityType.Builder.<SosnaEntity>of(SosnaEntity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(SosnaEntity::new)
+                    .fireImmune()
+                    .sized(3.9f, 3.5f)
+                    .build("sosna"));
+
     public static final RegistryObject<EntityType<T90MEntity>> T90_M = ENTITY_TYPES.register("t90_m",
             () -> EntityType.Builder.<T90MEntity>of(T90MEntity::new, MobCategory.MISC)
                     .setTrackingRange(64)
@@ -305,8 +323,20 @@ public class ModEntities {
     public static final RegistryObject<EntityType<X25Entity>> X25 = register("x25",
             EntityType.Builder.<X25Entity>of(X25Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(X25Entity::new).noSave().sized(0.8f, 0.8f));
 
+    public static final RegistryObject<EntityType<tech.vvp.vvp.entity.projectile.E6_57Entity>> E6_57 = register("e6_57",
+            EntityType.Builder.<tech.vvp.vvp.entity.projectile.E6_57Entity>of(tech.vvp.vvp.entity.projectile.E6_57Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(tech.vvp.vvp.entity.projectile.E6_57Entity::new).noSave().sized(0.8f, 0.8f));
+
+    public static final RegistryObject<EntityType<tech.vvp.vvp.entity.projectile.M337Entity>> M337 = register("m337",
+            EntityType.Builder.<tech.vvp.vvp.entity.projectile.M337Entity>of(tech.vvp.vvp.entity.projectile.M337Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(tech.vvp.vvp.entity.projectile.M337Entity::new).noSave().sized(0.8f, 0.8f));
+
     public static final RegistryObject<EntityType<Fab250Entity>> FAB_250 = register("fab_250",
             EntityType.Builder.<Fab250Entity>of(Fab250Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(Fab250Entity::new).noSave().sized(0.8f, 0.8f));
+
+    public static final RegistryObject<EntityType<PantsirS1MissileEntity>> PANTSIR_S1_MISSILE = register("pantsir_s1_missile",
+            EntityType.Builder.<PantsirS1MissileEntity>of(PantsirS1MissileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(PantsirS1MissileEntity::new).noSave().sized(0.5f, 0.5f));
+
+    public static final RegistryObject<EntityType<SosnaMissileEntity>> SOSNA_MISSILE = register("sosna_missile",
+            EntityType.Builder.<SosnaMissileEntity>of(SosnaMissileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(SosnaMissileEntity::new).noSave().sized(0.5f, 0.5f));
 
     public static final RegistryObject<EntityType<S130Entity>> S_130 = register("s_130",
             EntityType.Builder.<S130Entity>of(S130Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(S130Entity::new).noSave().sized(0.8f, 0.8f));

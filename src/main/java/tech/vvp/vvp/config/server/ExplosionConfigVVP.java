@@ -26,6 +26,14 @@ public class ExplosionConfigVVP {
     public static ForgeConfigSpec.IntValue TERMINATOR_MISSILE_EXPLOSION_DAMAGE;
     public static ForgeConfigSpec.IntValue TERMINATOR_MISSILE_EXPLOSION_RADIUS;
 
+    public static ForgeConfigSpec.IntValue PANTSIR_S1_MISSILE_DAMAGE;
+    public static ForgeConfigSpec.IntValue PANTSIR_S1_MISSILE_EXPLOSION_DAMAGE;
+    public static ForgeConfigSpec.IntValue PANTSIR_S1_MISSILE_EXPLOSION_RADIUS;
+
+    public static ForgeConfigSpec.IntValue sosna_MISSILE_DAMAGE;
+    public static ForgeConfigSpec.IntValue sosna_MISSILE_EXPLOSION_DAMAGE;
+    public static ForgeConfigSpec.IntValue sosna_MISSILE_EXPLOSION_RADIUS;
+
     public static ForgeConfigSpec.IntValue FAB_500_EXPLOSION_DAMAGE;
     public static ForgeConfigSpec.DoubleValue FAB_500_EXPLOSION_RADIUS;
 
@@ -103,6 +111,28 @@ public class ExplosionConfigVVP {
 
         BUILDER.comment("The explosion radius of BMPT Terminator missile");
         TERMINATOR_MISSILE_EXPLOSION_RADIUS = BUILDER.defineInRange("terminatir_missile_explosion_radius", 3, 1, Integer.MAX_VALUE);
+
+        BUILDER.pop();
+
+        BUILDER.push("pantsir_s1_missile");
+
+        BUILDER.comment("The damage of Pantsir-S1 57E6 missile");
+        PANTSIR_S1_MISSILE_DAMAGE = BUILDER.defineInRange("pantsir_s1_missile_damage", 1200, 1, Integer.MAX_VALUE);
+
+        BUILDER.comment("The explosion damage of Pantsir-S1 57E6 missile");
+        PANTSIR_S1_MISSILE_EXPLOSION_DAMAGE = BUILDER.defineInRange("pantsir_s1_missile_explosion_damage", 350, 1, Integer.MAX_VALUE);
+
+        BUILDER.comment("The explosion radius of Pantsir-S1 57E6 missile");
+        PANTSIR_S1_MISSILE_EXPLOSION_RADIUS = BUILDER.defineInRange("pantsir_s1_missile_explosion_radius", 12, 1, Integer.MAX_VALUE);
+
+        BUILDER.comment("The damage of Sosna-R 9M340 missile");
+        sosna_MISSILE_DAMAGE = BUILDER.defineInRange("sosna_missile_damage", 1200, 1, Integer.MAX_VALUE);
+
+        BUILDER.comment("The explosion damage of Sosna-R 9M340 missile");
+        sosna_MISSILE_EXPLOSION_DAMAGE = BUILDER.defineInRange("sosna_missile_explosion_damage", 350, 1, Integer.MAX_VALUE);
+
+        BUILDER.comment("The explosion radius of Sosna-R 9M340 missile");
+        sosna_MISSILE_EXPLOSION_RADIUS = BUILDER.defineInRange("sosna_missile_explosion_radius", 12, 1, Integer.MAX_VALUE);
 
         BUILDER.pop();
 

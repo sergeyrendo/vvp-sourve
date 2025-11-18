@@ -57,6 +57,8 @@ public class ModTabs {
                         output.accept(ContainerBlockItem.createInstance(ModEntities.T90_M.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.T90_M_22.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.TERMINATOR.get()));
+                        output.accept(ContainerBlockItem.createInstance(ModEntities.PANTSIR_S1.get()));
+                        output.accept(ContainerBlockItem.createInstance(ModEntities.sosna.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28_1.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.MI_8.get()));
@@ -94,6 +96,8 @@ public class ModTabs {
                                 output.accept(ModItems.FAB_500_ITEM.get());
                                 output.accept(ModItems.LMUR_ITEM.get());
                                 output.accept(ModItems.X25_ITEM.get());
+                                output.accept(ModItems.E6_57_ITEM.get());
+                                output.accept(ModItems.M337_ITEM.get());
                                 output.accept(ModItems.HFIRE_ITEM.get());
                                 output.accept(ModItems.HRYZANTEMA_ITEM.get());
                                 output.accept(ModItems.S_13.get());
