@@ -278,7 +278,7 @@ public class SosnaEntity extends ContainerMobileVehicleEntity implements GeoEnti
             if (getNthEntity(0) instanceof LivingEntity driver && getWeaponIndex(0) == 0) {
                 Entity target = SeekTool.seekLivingEntity(driver, driver.level(), 1000.0, 4.0);
                 
-                if (target != null && target != driver && target != this && target.isAlive()) {
+                if (target != null && target != driver && target != this && target.isAlive() && isAirborneTarget(target)) {
                     int lockTime = this.entityData.get(LOCKING_TIME);
                     
                     // Увеличиваем время захвата
@@ -301,7 +301,7 @@ public class SosnaEntity extends ContainerMobileVehicleEntity implements GeoEnti
                         int timer = this.entityData.get(SOUND_LOOP_TIMER);
                         if (timer <= 0) {
                             if (driver instanceof ServerPlayer serverPlayer) {
-                                SoundTool.playLocalSound(serverPlayer, tech.vvp.vvp.init.ModSounds.PANTSIR_LOCKING.get(), 1.5f, 1);
+                                SoundTool.playLocalSound(serverPlayer, tech.vvp.vvp.init.ModSounds.PANTSIR_LOCKING.get(), 0.5f, 1);
                             }
                             this.entityData.set(SOUND_LOOP_TIMER, 25); // Повторяем каждые 25 тиков (1.25 сек)
                         } else {
@@ -317,20 +317,12 @@ public class SosnaEntity extends ContainerMobileVehicleEntity implements GeoEnti
                             this.entityData.set(SOUND_LOOP_TIMER, 0);
                         }
                         
-                        // Зацикленный звук locked.ogg - играем каждые 30 тиков (длина звука)
+                        // Звук locked.ogg - играем только один раз при достижении захвата
                         if (!this.entityData.get(IS_LOCKED_SOUND_PLAYING)) {
                             this.entityData.set(IS_LOCKED_SOUND_PLAYING, true);
-                            this.entityData.set(SOUND_LOOP_TIMER, 0);
-                        }
-                        
-                        int timer = this.entityData.get(SOUND_LOOP_TIMER);
-                        if (timer <= 0) {
                             if (driver instanceof ServerPlayer serverPlayer) {
-                                SoundTool.playLocalSound(serverPlayer, tech.vvp.vvp.init.ModSounds.PANTSIR_LOCKED.get(), 1.5f, 1);
+                                SoundTool.playLocalSound(serverPlayer, tech.vvp.vvp.init.ModSounds.PANTSIR_LOCKED.get(), 0.5f, 1);
                             }
-                            this.entityData.set(SOUND_LOOP_TIMER, 30); // Повторяем каждые 30 тиков (1.5 сек)
-                        } else {
-                            this.entityData.set(SOUND_LOOP_TIMER, timer - 1);
                         }
                     }
                 } else {
@@ -484,7 +476,7 @@ public class SosnaEntity extends ContainerMobileVehicleEntity implements GeoEnti
              Vec3 mPos = getMissileMuzzlePos(1, fireLeftMissile);
              Vec3 aimVec = getBarrelVector(1).normalize();
 
-             Entity target = SeekTool.seekLivingEntity(living, living.level(), 384.0, 8.0);
+             Entity target = SeekTool.seekLivingEntity(living, living.level(), 1000.0, 8.0);
              if (target != null && (target == living || target.getVehicle() == this)) {
                  target = null;
              }
@@ -493,7 +485,7 @@ public class SosnaEntity extends ContainerMobileVehicleEntity implements GeoEnti
              Vec3 targetPos = guideType == 1 ? mPos.add(aimVec.scale(120)) : null;
 
              var missileWeapon = (SosnaMissileWeapon) getWeapon(0);
-             SosnaMissileEntity missile = missileWeapon.create(living, guideType, targetPos, true);
+             tech.vvp.vvp.entity.projectile.M337Entity missile = missileWeapon.create(living, guideType, targetPos, true);
              if (target != null) {
                  missile.setTargetUuid(target.getStringUUID());
              }
@@ -1054,6 +1046,24 @@ public class SosnaEntity extends ContainerMobileVehicleEntity implements GeoEnti
     @Override
     public int getRadarRange() {
         return 200; // Дальность радара 200 блоков
+    }
+
+    // Проверка, является ли цель воздушной
+    private boolean isAirborneTarget(Entity target) {
+        // Проверка 1: Это летающая техника?
+        if (target instanceof com.atsuishio.superbwarfare.entity.vehicle.base.AircraftEntity || 
+            target instanceof com.atsuishio.superbwarfare.entity.vehicle.base.HelicopterEntity) {
+            return true;
+        }
+        
+        // Проверка 2: Не на земле И достаточно высоко?
+        if (!target.onGround()) {
+            BlockPos groundPos = target.level().getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, target.blockPosition());
+            double heightAboveGround = target.getY() - groundPos.getY();
+            return heightAboveGround > 3.0; // Минимум 3 блока в воздухе
+        }
+        
+        return false;
     }
 }
 

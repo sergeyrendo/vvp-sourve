@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import tech.vvp.vvp.entity.projectile.SosnaMissileEntity;
+import tech.vvp.vvp.entity.projectile.M337Entity;
 
 public class SosnaMissileWeapon extends VehicleWeapon {
 
@@ -14,7 +14,7 @@ public class SosnaMissileWeapon extends VehicleWeapon {
     private float explosionRadius;
 
     public SosnaMissileWeapon() {
-        this.icon = new ResourceLocation("vvp", "textures/screens/vehicle_weapon/sosna_missile.png");
+        this.icon = new ResourceLocation("vvp", "textures/screens/vehicle_weapon/m337.png");
     }
 
     public SosnaMissileWeapon damage(float damage) {
@@ -32,17 +32,11 @@ public class SosnaMissileWeapon extends VehicleWeapon {
         return this;
     }
 
-    public SosnaMissileEntity create(LivingEntity shooter, int guideType, @Nullable Vec3 targetPos, boolean topAttack) {
-        SosnaMissileEntity missile = new SosnaMissileEntity(
-                shooter,
-                shooter.level(),
-                this.damage,
-                this.explosionDamage,
-                this.explosionRadius,
-                guideType,
-                targetPos
-        );
-        missile.setTopAttack(topAttack);
+    public M337Entity create(LivingEntity shooter, int guideType, @Nullable Vec3 targetPos, boolean topAttack) {
+        M337Entity missile = new M337Entity(shooter, shooter.level());
+        missile.setDamage(this.damage);
+        missile.setExplosionDamage(this.explosionDamage);
+        missile.setExplosionRadius(this.explosionRadius);
         return missile;
     }
 }

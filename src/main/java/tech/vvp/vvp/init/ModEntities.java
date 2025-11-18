@@ -323,6 +323,12 @@ public class ModEntities {
     public static final RegistryObject<EntityType<X25Entity>> X25 = register("x25",
             EntityType.Builder.<X25Entity>of(X25Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(X25Entity::new).noSave().sized(0.8f, 0.8f));
 
+    public static final RegistryObject<EntityType<tech.vvp.vvp.entity.projectile.E6_57Entity>> E6_57 = register("e6_57",
+            EntityType.Builder.<tech.vvp.vvp.entity.projectile.E6_57Entity>of(tech.vvp.vvp.entity.projectile.E6_57Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(tech.vvp.vvp.entity.projectile.E6_57Entity::new).noSave().sized(0.8f, 0.8f));
+
+    public static final RegistryObject<EntityType<tech.vvp.vvp.entity.projectile.M337Entity>> M337 = register("m337",
+            EntityType.Builder.<tech.vvp.vvp.entity.projectile.M337Entity>of(tech.vvp.vvp.entity.projectile.M337Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(tech.vvp.vvp.entity.projectile.M337Entity::new).noSave().sized(0.8f, 0.8f));
+
     public static final RegistryObject<EntityType<Fab250Entity>> FAB_250 = register("fab_250",
             EntityType.Builder.<Fab250Entity>of(Fab250Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(Fab250Entity::new).noSave().sized(0.8f, 0.8f));
 

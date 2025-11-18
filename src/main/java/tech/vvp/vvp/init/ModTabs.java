@@ -96,6 +96,8 @@ public class ModTabs {
                                 output.accept(ModItems.FAB_500_ITEM.get());
                                 output.accept(ModItems.LMUR_ITEM.get());
                                 output.accept(ModItems.X25_ITEM.get());
+                                output.accept(ModItems.E6_57_ITEM.get());
+                                output.accept(ModItems.M337_ITEM.get());
                                 output.accept(ModItems.HFIRE_ITEM.get());
                                 output.accept(ModItems.HRYZANTEMA_ITEM.get());
                                 output.accept(ModItems.S_13.get());
