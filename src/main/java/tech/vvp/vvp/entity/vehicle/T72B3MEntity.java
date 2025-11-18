@@ -232,7 +232,6 @@ public class T72B3MEntity extends ContainerMobileVehicleEntity implements GeoEnt
         compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
         compound.putInt("WeaponType", getWeaponIndex(0));
         compound.putInt("PassengerWeaponType", getWeaponIndex(1));
-        compound.putInt("ThirdPassengerWeaponType", getWeaponIndex(2));
     }
 
     @Override
@@ -244,7 +243,6 @@ public class T72B3MEntity extends ContainerMobileVehicleEntity implements GeoEnt
         this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
         setWeaponIndex(0, compound.getInt("WeaponType"));
         setWeaponIndex(1, compound.getInt("PassengerWeaponType"));
-        setWeaponIndex(2, compound.getInt("ThirdPassengerWeaponType"));
     }
 
     @Override
@@ -614,7 +612,6 @@ public class T72B3MEntity extends ContainerMobileVehicleEntity implements GeoEnt
         var worldPosition = switch (i) {
             case 0 -> transformPosition(transform, 0.6669625f, 0.07f, 0.4776875f);
             case 1 -> transformPosition(transform, -0.75805625f, 0.3f, -0.57275625f);
-            case 2 -> transformPosition(transform, 0.86219375f, 0.07f, -0.5696875f);
             default -> throw new IllegalStateException("Unexpected value: " + i);
         };
 
@@ -638,7 +635,7 @@ public class T72B3MEntity extends ContainerMobileVehicleEntity implements GeoEnt
     }
 
     public int getMaxPassengers() {
-        return 3;
+        return 2;
     }
 
     @Override
