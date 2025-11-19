@@ -20,8 +20,8 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.FAB_250.get(), Fab250Renderer::new);
         event.registerEntityRenderer(ModEntities.LMUR.get(), LmurRenderer::new);
         event.registerEntityRenderer(ModEntities.X25.get(), X25Renderer::new);
-        event.registerEntityRenderer(ModEntities.E6_57.get(), E6_57Renderer::new);
-        event.registerEntityRenderer(ModEntities.M337.get(), M337Renderer::new);
+        event.registerEntityRenderer(ModEntities.ENTITY_57E6.get(), E6_57Renderer::new);
+        event.registerEntityRenderer(ModEntities.ENTITY_9M340.get(), M337Renderer::new);
         event.registerEntityRenderer(ModEntities.S_130.get(), S130Renderer::new);
         event.registerEntityRenderer(ModEntities.CANNON_ATGM_SHELL.get(), CannonAtgmShellRenderer::new);
         event.registerEntityRenderer(ModEntities.T90_M.get(), T90MRenderer::new);

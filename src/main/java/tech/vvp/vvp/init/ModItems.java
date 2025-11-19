@@ -51,8 +51,8 @@ public class ModItems {
 
     public static final RegistryObject<Item> LMUR_ITEM = REGISTRY.register("lmur_item", LmurItem::new);
     public static final RegistryObject<Item> X25_ITEM = REGISTRY.register("x25_item", X25Item::new);
-    public static final RegistryObject<Item> E6_57_ITEM = REGISTRY.register("e6_57_item", () -> new tech.vvp.vvp.item.varies.E6_57Item());
-    public static final RegistryObject<Item> M337_ITEM = REGISTRY.register("m337_item", () -> new tech.vvp.vvp.item.varies.M337Item());
+    public static final RegistryObject<Item> ITEM_57E6 = REGISTRY.register("57e6_item", () -> new tech.vvp.vvp.item.varies.E6_57Item());
+    public static final RegistryObject<Item> ITEM_9M340 = REGISTRY.register("9m340_item", () -> new tech.vvp.vvp.item.varies.M337Item());
     public static final RegistryObject<Item> HFIRE_ITEM = REGISTRY.register("hfire_item", HFireItem::new);
     public static final RegistryObject<Item> HRYZANTEMA_ITEM = REGISTRY.register("hryzantema_item", HFireItem::new);
 
