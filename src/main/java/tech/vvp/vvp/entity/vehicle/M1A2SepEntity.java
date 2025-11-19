@@ -596,13 +596,13 @@ public class M1A2SepEntity extends ContainerMobileVehicleEntity implements GeoEn
         }
 
         Matrix4f transform = getTurretTransform(1);
+        Matrix4f transformG = getGunTransform(1);
 
         int i = this.getOrderedPassengers().indexOf(passenger);
 
         var worldPosition = switch (i) {
             case 0 -> transformPosition(transform, 0.6669625f, 0.07f, 0.4776875f);
-            case 1 -> transformPosition(transform, -0.50f, 0.3f, -0.9f);
-            case 2 -> transformPosition(transform, 0.86219375f, 0.07f, -0.5696875f);
+            case 1 -> transformPosition(transformG, 0, -0.8f, -1.2f);
             default -> throw new IllegalStateException("Unexpected value: " + i);
         };
 
@@ -626,7 +626,7 @@ public class M1A2SepEntity extends ContainerMobileVehicleEntity implements GeoEn
     }
 
     public int getMaxPassengers() {
-        return 3;
+        return 2;
     }
 
     @Override

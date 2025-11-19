@@ -609,7 +609,6 @@ public class M1A2Entity extends ContainerMobileVehicleEntity implements GeoEntit
         var worldPosition = switch (i) {
             case 0 -> transformPosition(transform, 0.6669625f, 0.07f, 0.4776875f);
             case 1 -> transformPosition(transform, -0.75805625f, 0.3f, -0.57275625f);
-            case 2 -> transformPosition(transform, 0.86219375f, 0.07f, -0.5696875f);
             default -> throw new IllegalStateException("Unexpected value: " + i);
         };
 
@@ -633,7 +632,7 @@ public class M1A2Entity extends ContainerMobileVehicleEntity implements GeoEntit
     }
 
     public int getMaxPassengers() {
-        return 3;
+        return 2;
     }
 
     @Override
