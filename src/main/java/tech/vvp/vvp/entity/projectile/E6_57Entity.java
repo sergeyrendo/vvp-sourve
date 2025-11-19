@@ -71,7 +71,7 @@ public class E6_57Entity extends FastThrowableProjectile implements GeoEntity, E
     }
 
     public E6_57Entity(LivingEntity entity, Level level) {
-        super(tech.vvp.vvp.init.ModEntities.E6_57.get(), entity, level);
+        super(tech.vvp.vvp.init.ModEntities.ENTITY_57E6.get(), entity, level);
         this.noCulling = true;
         this.durability = 25;
     }
@@ -81,12 +81,12 @@ public class E6_57Entity extends FastThrowableProjectile implements GeoEntity, E
     }
 
     public E6_57Entity(PlayMessages.SpawnEntity spawnEntity, Level level) {
-        this(tech.vvp.vvp.init.ModEntities.E6_57.get(), level);
+        this(tech.vvp.vvp.init.ModEntities.ENTITY_57E6.get(), level);
     }
 
     @Override
     protected @NotNull Item getDefaultItem() {
-        return tech.vvp.vvp.init.ModItems.E6_57_ITEM.get();
+        return tech.vvp.vvp.init.ModItems.ITEM_57E6.get();
     }
 
     @Override

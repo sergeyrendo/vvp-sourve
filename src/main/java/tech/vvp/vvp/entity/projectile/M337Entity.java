@@ -71,7 +71,7 @@ public class M337Entity extends FastThrowableProjectile implements GeoEntity, Ex
     }
 
     public M337Entity(LivingEntity entity, Level level) {
-        super(tech.vvp.vvp.init.ModEntities.M337.get(), entity, level);
+        super(tech.vvp.vvp.init.ModEntities.ENTITY_9M340.get(), entity, level);
         this.noCulling = true;
         this.durability = 25;
     }
@@ -81,12 +81,12 @@ public class M337Entity extends FastThrowableProjectile implements GeoEntity, Ex
     }
 
     public M337Entity(PlayMessages.SpawnEntity spawnEntity, Level level) {
-        this(tech.vvp.vvp.init.ModEntities.M337.get(), level);
+        this(tech.vvp.vvp.init.ModEntities.ENTITY_9M340.get(), level);
     }
 
     @Override
     protected @NotNull Item getDefaultItem() {
-        return tech.vvp.vvp.init.ModItems.M337_ITEM.get();
+        return tech.vvp.vvp.init.ModItems.ITEM_9M340.get();
     }
 
     @Override
@@ -247,7 +247,7 @@ public class M337Entity extends FastThrowableProjectile implements GeoEntity, Ex
                     if (this.tickCount > 8) {
                         boolean lostTarget = (VectorTool.calculateAngle(getDeltaMovement(), toVec) > 80);
                         if (!lostTarget) {
-                            setDeltaMovement(getDeltaMovement().add(toVec.scale(4)).scale(0.65).add(entity.getDeltaMovement().scale(0.2)));
+                            setDeltaMovement(getDeltaMovement().add(toVec.scale(2.78)).scale(0.65).add(entity.getDeltaMovement().scale(0.2)));
                         }
                     }
                 }
@@ -263,7 +263,7 @@ public class M337Entity extends FastThrowableProjectile implements GeoEntity, Ex
         }
 
         if (this.tickCount > 8) {
-            this.setDeltaMovement(this.getDeltaMovement().multiply(1.06, 1.06, 1.06));
+            this.setDeltaMovement(this.getDeltaMovement().multiply(1.042, 1.042, 1.042));
         }
 
         if (this.tickCount > 600 || this.isInWater() || this.entityData.get(HEALTH) <= 0) {
