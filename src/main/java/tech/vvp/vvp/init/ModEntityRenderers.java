@@ -57,11 +57,8 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.BMP_2M.get(), Bmp2MRenderer::new);
         event.registerEntityRenderer(ModEntities.PANTSIR_S1_MISSILE.get(), PantsirS1MissileRenderer::new);
         event.registerEntityRenderer(ModEntities.SOSNA_MISSILE.get(), SosnaMissileRenderer::new);
-
-
-
-
-
+        event.registerEntityRenderer(ModEntities.BALLISTIC_MISSILE.get(), BallisticMissileRenderer::new);
+        event.registerEntityRenderer(ModEntities.M142_HIMARS.get(), M142HimarsRenderer::new);
     }
 
     /**

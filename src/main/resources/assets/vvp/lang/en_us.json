@@ -103,5 +103,8 @@
   "msg.vvp.radar_pos.mid_right": "Radar: middle-right",
   "msg.vvp.radar_pos.bottom_right": "Radar: bottom-right",
   "msg.vvp.radar_pos.bottom_left": "Radar: bottom-left",
-  "msg.vvp.radar_pos.mid_left": "Radar: middle-left"
+  "msg.vvp.radar_pos.mid_left": "Radar: middle-left",
+  "key.categories.vvp": "VVP",
+  "key.vvp.open_coordinate": "Open Coordinate Input",
+  "entity.vvp.m142_himars": "M142 HIMARS"
 }
