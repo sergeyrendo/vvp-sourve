@@ -448,12 +448,12 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
             return false;
         }).mapToInt(Ammo.RIFLE::get).sum() + countItem(ModItems.RIFLE_AMMO.get());
 
-        if ((hasItem(ModItems.JAVELIN_MISSILE.get()) || hasCreativeAmmo)
+        if ((hasItem(tech.vvp.vvp.init.ModItems.ITEM_57E6.get()) || hasCreativeAmmo)
                 && this.reloadCoolDown <= 0 && this.getEntityData().get(LOADED_MISSILE) < 12) {
             this.entityData.set(LOADED_MISSILE, this.getEntityData().get(LOADED_MISSILE) + 1);
             this.reloadCoolDown = 240;
             if (!hasCreativeAmmo) {
-                this.getItemStacks().stream().filter(stack -> stack.is(ModItems.JAVELIN_MISSILE.get())).findFirst().ifPresent(stack -> stack.shrink(1));
+                this.getItemStacks().stream().filter(stack -> stack.is(tech.vvp.vvp.init.ModItems.ITEM_57E6.get())).findFirst().ifPresent(stack -> stack.shrink(1));
             }
             this.level().playSound(null, this, ModSounds.BMP_MISSILE_RELOAD.get(), this.getSoundSource(), 1, 1);
         }
@@ -465,7 +465,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         }
 
         this.entityData.set(MG_AMMO, mgAmmoCount);
-        this.entityData.set(MISSILE_COUNT, countItem(ModItems.JAVELIN_MISSILE.get()));
+        this.entityData.set(MISSILE_COUNT, countItem(tech.vvp.vvp.init.ModItems.ITEM_57E6.get()));
     }
 
     @Override

@@ -65,6 +65,8 @@
   "item.vvp.s_13": "Ракета С-13",
   "item.vvp.lmur_item": "Ракета ЛМУР",
   "item.vvp.x25_item": "Ракета Х25",
+  "item.vvp.57e6_item": "Ракета 57Е6",
+  "item.vvp.9m340_item": "Ракета 9М340",
   "item.vvp.hfire_item": "Ракета Hellfire",
   "item.vvp.cactus_turret": "Модуль «Кактус»",
   "item.vvp.bmp3m_body": "Модуль «3М»",
@@ -105,11 +107,13 @@
   "msg.vvp.radar_pos.mid_right": "Радар: центр справа",
   "msg.vvp.radar_pos.bottom_right": "Радар: правый нижний",
   "msg.vvp.radar_pos.bottom_left": "Радар: левый нижний",
-  "msg.vvp.radar_pos.mid_left": "Радар: центр слева"
-
-,
-  "key.categories.vvp": "VVP",
-  "key.vvp.open_coordinate": "Открыть ввод координат"
-,
-  "entity.vvp.m142_himars": "M142 HIMARS"
+  "msg.vvp.radar_pos.mid_left": "Радар: центр слева",
+  
+  "//": "==================== HIMARS ====================",
+  "key.vvp.open_coordinate": "Открыть ввод координат",
+  "entity.vvp.m142_himars": "M142 HIMARS",
+  
+  "//": "==================== РАКЕТЫ ====================",
+  "des.vvp.57e6_item": "Зенитная управляемая ракета для ЗРПК Панцирь-С1. Дальность до 20 км.",
+  "des.vvp.9m340_item": "Зенитная управляемая ракета для ПТРК Сосна-Р. Дальность до 10 км."
 }

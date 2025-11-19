@@ -65,6 +65,8 @@
   "item.vvp.s_13": "Rocket S-13",
   "item.vvp.lmur_item": "AGM LMUR",
   "item.vvp.x25_item": "AGM Х25",
+  "item.vvp.57e6_item": "57E6 Missile",
+  "item.vvp.9m340_item": "9M340 Missile",
   "item.vvp.hfire_item": "AGM Hellfire",
   "item.vvp.cactus_turret": "Cactus module",
   "item.vvp.bmp3m_body": "3M module",
@@ -104,7 +106,12 @@
   "msg.vvp.radar_pos.bottom_right": "Radar: bottom-right",
   "msg.vvp.radar_pos.bottom_left": "Radar: bottom-left",
   "msg.vvp.radar_pos.mid_left": "Radar: middle-left",
-  "key.categories.vvp": "VVP",
+  
+  "//": "==================== HIMARS ====================",
   "key.vvp.open_coordinate": "Open Coordinate Input",
-  "entity.vvp.m142_himars": "M142 HIMARS"
+  "entity.vvp.m142_himars": "M142 HIMARS",
+  
+  "//": "==================== MISSILES ====================",
+  "des.vvp.57e6_item": "Surface-to-air guided missile for Pantsir-S1 SPAAG. Range up to 20 km.",
+  "des.vvp.9m340_item": "Surface-to-air guided missile for Sosna-R ATGM. Range up to 10 km."
 }
