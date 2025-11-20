@@ -210,6 +210,24 @@ public class AircraftOverlay implements IGuiOverlay {
                             int width2 = Minecraft.getInstance().font.width(count);
                             guiGraphics.drawString(Minecraft.getInstance().font, Component.literal(count), (int) x - width2 / 2, (int) y + 76, color, false);
                         }
+                    } else if (mobileVehicle instanceof tech.vvp.vvp.entity.vehicle.F16Entity f16Entity) {
+                        if (weaponVehicle.getWeaponIndex(0) == 0) {
+                            String name = "M61A1 VULCAN";
+                            int width = Minecraft.getInstance().font.width(name);
+                            guiGraphics.drawString(Minecraft.getInstance().font, Component.literal(name), (int) x - width / 2, (int) y + 67, color, false);
+
+                            String count = InventoryTool.hasCreativeAmmoBox(player) ? "∞" : String.valueOf(aircraftEntity.getAmmoCount(player));
+                            int width2 = Minecraft.getInstance().font.width(count);
+                            guiGraphics.drawString(Minecraft.getInstance().font, Component.literal(count), (int) x - width2 / 2, (int) y + 76, color, false);
+                        } else if (weaponVehicle.getWeaponIndex(0) == 1) {
+                            String name = "AIM-120 AMRAAM";
+                            int width = Minecraft.getInstance().font.width(name);
+                            guiGraphics.drawString(Minecraft.getInstance().font, Component.literal(name), (int) x - width / 2, (int) y + 67, color, false);
+
+                            String count = String.valueOf(aircraftEntity.getAmmoCount(player));
+                            int width2 = Minecraft.getInstance().font.width(count);
+                            guiGraphics.drawString(Minecraft.getInstance().font, Component.literal(count), (int) x - width2 / 2, (int) y + 76, color, false);
+                        }
                     }
 
                     //角度
@@ -283,6 +301,12 @@ public class AircraftOverlay implements IGuiOverlay {
                             } else if (weaponVehicle.getWeaponIndex(0) == 3) {
                                 guiGraphics.drawString(Minecraft.getInstance().font, Component.literal("X-25 " + aircraftEntity.getAmmoCount(player)), 25, -9, -1, false);
                             }
+                        } else if (mobileVehicle instanceof tech.vvp.vvp.entity.vehicle.F16Entity f16Entity) {
+                            if (weaponVehicle.getWeaponIndex(0) == 0) {
+                                guiGraphics.drawString(Minecraft.getInstance().font, Component.literal("M61A1 VULCAN " + (InventoryTool.hasCreativeAmmoBox(player) ? "∞" : aircraftEntity.getAmmoCount(player))), 25, -9, -1, false);
+                            } else if (weaponVehicle.getWeaponIndex(0) == 1) {
+                                guiGraphics.drawString(Minecraft.getInstance().font, Component.literal("AIM-120 AMRAAM " + aircraftEntity.getAmmoCount(player)), 25, -9, -1, false);
+                            }
                         }
 
                         guiGraphics.drawString(Minecraft.getInstance().font, Component.literal("IR FLARES " + aircraftEntity.getDecoy()), 25, 1, -1, false);
@@ -297,16 +321,29 @@ public class AircraftOverlay implements IGuiOverlay {
             }
 
             // A-10的导弹锁定
-            if (mobileVehicle instanceof Su25Entity su25Entity && su25Entity.getWeaponIndex(0) == 3) {
-                Entity targetEntity = EntityFindUtil.findEntity(player.level(), su25Entity.getTargetUuid());
-                List<Entity> entities = SeekTool.seekCustomSizeEntities(su25Entity, player.level(), 384, 20, 0.9, true);
+            if ((mobileVehicle instanceof Su25Entity su25Entity && su25Entity.getWeaponIndex(0) == 3) || 
+                (mobileVehicle instanceof tech.vvp.vvp.entity.vehicle.F16Entity f16Entity && f16Entity.getWeaponIndex(0) == 1)) {
+                
+                String targetUuid = mobileVehicle instanceof Su25Entity su25 ? su25.getTargetUuid() : ((tech.vvp.vvp.entity.vehicle.F16Entity)mobileVehicle).getTargetUuid();
+                boolean locked = mobileVehicle instanceof Su25Entity su25 ? su25.locked : ((tech.vvp.vvp.entity.vehicle.F16Entity)mobileVehicle).locked;
+                int lockTime = mobileVehicle instanceof Su25Entity su25 ? su25.lockTime : ((tech.vvp.vvp.entity.vehicle.F16Entity)mobileVehicle).lockTime;
+                
+                Entity targetEntity = EntityFindUtil.findEntity(player.level(), targetUuid);
+                // Для F-16 не проверяем onGround, чтобы видеть летающие цели
+                boolean checkOnGround = !(mobileVehicle instanceof tech.vvp.vvp.entity.vehicle.F16Entity);
+                List<Entity> entities = SeekTool.seekCustomSizeEntities(mobileVehicle, player.level(), 384, 20, 0.9, checkOnGround);
 
                 for (var e : entities) {
+                    // Для F-16 показываем только воздушные цели
+                    if (mobileVehicle instanceof tech.vvp.vvp.entity.vehicle.F16Entity && !isAirborneTargetClient(e)) {
+                        continue;
+                    }
+                    
                     Vec3 pos3 = new Vec3(Mth.lerp(partialTick, e.xo, e.getX()), Mth.lerp(partialTick, e.yo + e.getEyeHeight(), e.getEyeY()), Mth.lerp(partialTick, e.zo, e.getZ()));
                     if (VectorUtil.canSee(pos3)) {
                         Vec3 point = VectorUtil.worldToScreen(pos3);
                         boolean nearest = e == targetEntity;
-                        boolean lockOn = su25Entity.locked && nearest;
+                        boolean lockOn = locked && nearest;
 
                         poseStack.pushPose();
                         float x = (float) point.x;
@@ -315,12 +352,12 @@ public class AircraftOverlay implements IGuiOverlay {
                         if (lockOn) {
                             RenderHelper.blit(poseStack, FRAME_LOCK, x - 12, y - 12, 0, 0, 24, 24, 24, 24, 1f);
                         } else if (nearest) {
-                            lerpLock = Mth.lerp(partialTick, lerpLock, 2 * su25Entity.lockTime);
-                            float lockTime = Mth.clamp(20 - lerpLock, 0, 20);
-                            RenderHelper.blit(poseStack, IND_1, x - 12, y - 12 - lockTime, 0, 0, 24, 24, 24, 24, 1f);
-                            RenderHelper.blit(poseStack, IND_2, x - 12, y - 12 + lockTime, 0, 0, 24, 24, 24, 24, 1f);
-                            RenderHelper.blit(poseStack, IND_3, x - 12 - lockTime, y - 12, 0, 0, 24, 24, 24, 24, 1f);
-                            RenderHelper.blit(poseStack, IND_4, x - 12 + lockTime, y - 12, 0, 0, 24, 24, 24, 24, 1f);
+                            lerpLock = Mth.lerp(partialTick, lerpLock, 2 * lockTime);
+                            float lockTimeOffset = Mth.clamp(20 - lerpLock, 0, 20);
+                            RenderHelper.blit(poseStack, IND_1, x - 12, y - 12 - lockTimeOffset, 0, 0, 24, 24, 24, 24, 1f);
+                            RenderHelper.blit(poseStack, IND_2, x - 12, y - 12 + lockTimeOffset, 0, 0, 24, 24, 24, 24, 1f);
+                            RenderHelper.blit(poseStack, IND_3, x - 12 - lockTimeOffset, y - 12, 0, 0, 24, 24, 24, 24, 1f);
+                            RenderHelper.blit(poseStack, IND_4, x - 12 + lockTimeOffset, y - 12, 0, 0, 24, 24, 24, 24, 1f);
                             RenderHelper.blit(poseStack, FRAME_TARGET, x - 12, y - 12, 0, 0, 24, 24, 24, 24, 1f);
                         } else {
                             RenderHelper.blit(poseStack, FRAME, x - 12, y - 12, 0, 0, 24, 24, 24, 24, 1f);
@@ -336,6 +373,23 @@ public class AircraftOverlay implements IGuiOverlay {
 
     private static void renderKillIndicator(GuiGraphics guiGraphics, float posX, float posY) {
         VehicleHudOverlay.renderKillIndicator3P(guiGraphics, posX, posY);
+    }
+
+    private static boolean isAirborneTargetClient(Entity target) {
+        // Проверка 1: Это летающая техника?
+        if (target instanceof com.atsuishio.superbwarfare.entity.vehicle.base.AircraftEntity || 
+            target instanceof com.atsuishio.superbwarfare.entity.vehicle.base.HelicopterEntity) {
+            return true;
+        }
+        
+        // Проверка 2: Не на земле И достаточно высоко?
+        if (!target.onGround()) {
+            net.minecraft.core.BlockPos groundPos = target.level().getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, target.blockPosition());
+            double heightAboveGround = target.getY() - groundPos.getY();
+            return heightAboveGround > 3.0; // Минимум 3 блока в воздухе
+        }
+        
+        return false;
     }
 
     public static double length(double x, double y, double z) {

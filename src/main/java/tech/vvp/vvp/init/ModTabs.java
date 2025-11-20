@@ -39,6 +39,7 @@ public class ModTabs {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.UH60.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.UH60MOD.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.AH_1.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.F_16.get()));
 
             })
             .build());
@@ -97,6 +98,7 @@ public class ModTabs {
                                 output.accept(ModItems.FAB_500_ITEM.get());
                                 output.accept(ModItems.LMUR_ITEM.get());
                                 output.accept(ModItems.X25_ITEM.get());
+                                output.accept(ModItems.AIM_120_ITEM.get());
                                 output.accept(ModItems.ITEM_57E6.get());
                                 output.accept(ModItems.ITEM_9M340.get());
                                 output.accept(ModItems.HFIRE_ITEM.get());

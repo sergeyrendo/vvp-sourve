@@ -259,6 +259,11 @@
       "vvp:su25_engine"
     ]
   },
+  "f16_engine": {
+    "sounds": [
+      "vvp:f16_engine"
+    ]
+  },
   "mi8_idle": {
     "sounds": [
       "vvp:mi8_idle"

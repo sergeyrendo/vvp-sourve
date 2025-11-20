@@ -20,6 +20,7 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.FAB_250.get(), Fab250Renderer::new);
         event.registerEntityRenderer(ModEntities.LMUR.get(), LmurRenderer::new);
         event.registerEntityRenderer(ModEntities.X25.get(), X25Renderer::new);
+        event.registerEntityRenderer(ModEntities.AIM_120.get(), tech.vvp.vvp.client.renderer.entity.Aim120Renderer::new);
         event.registerEntityRenderer(ModEntities.ENTITY_57E6.get(), E6_57Renderer::new);
         event.registerEntityRenderer(ModEntities.ENTITY_9M340.get(), M337Renderer::new);
         event.registerEntityRenderer(ModEntities.S_130.get(), S130Renderer::new);
@@ -35,6 +36,7 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.UH60MOD.get(), Uh60ModRenderer::new);
         event.registerEntityRenderer(ModEntities.UH60.get(), Uh60Renderer::new);
         event.registerEntityRenderer(ModEntities.SU_25.get(), Su25Renderer::new);
+        event.registerEntityRenderer(ModEntities.F_16.get(), F16Renderer::new);
         event.registerEntityRenderer(ModEntities.AH_1.get(), SuperCobraRenderer::new);
         event.registerEntityRenderer(ModEntities.H_FIRE.get(), HFireRenderer::new);
         event.registerEntityRenderer(ModEntities.MI_8.get(), Mi8Renderer::new);

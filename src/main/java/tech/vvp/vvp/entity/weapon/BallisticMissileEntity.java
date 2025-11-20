@@ -53,17 +53,18 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
     private int ticksLived;
     private int phaseTimer = 0;
     private boolean warheadSeparated = false;
+    private boolean exploded = false;
     private int correctionCounter = 0;
 
-    // Константы GMLRS
+    // Константы GMLRS - дальность до 70+ км
     private static final int BOOST_DURATION = 50; // 2.5 секунды
-    private static final double BOOST_ACCELERATION = 0.1; // Плавный разгон
-    private static final double MAX_SPEED = 3.5; // Кинематографичная скорость
-    private static final double GRAVITY = 0.05;
+    private static final double BOOST_ACCELERATION = 0.5; // Сильное ускорение
+    private static final double MAX_SPEED = 15.0; // Высокая скорость для дальности
+    private static final double GRAVITY = 0.03; // Меньше гравитация для дальности
     private static final double COURSE_CORRECTION_RATE = 0.7;
     private static final int CORRECTION_INTERVAL = 5;
     private static final double SEPARATION_DISTANCE_PERCENT = 0.88;
-    private static final int SUBMUNITIONS_COUNT = 4; // 4 Смарт-суббоеприпаса
+    private static final int SUBMUNITIONS_COUNT = 60; // 60 суббоеприпасов M77
     
     private static final TicketType<Entity> MISSILE_TICKET = TicketType.create("ballistic_missile", (entity1, entity2) -> 0);
     private ChunkPos currentTicketChunk = null;
@@ -81,22 +82,22 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
     }
 
     public void setTargetPosition(Vec3 targetPos) {
-        // Добавляем похибку ±10 блоков (CEP = 10м для GMLRS)
-        java.util.Random random = new java.util.Random();
-        double errorX = (random.nextDouble() - 0.5) * 20.0; // ±10 блоков
-        double errorZ = (random.nextDouble() - 0.5) * 20.0; // ±10 блоков
-        
-        this.targetPos = targetPos.add(errorX, 0, errorZ);
+        // Похибка 0 - точное попадание в координаты
+        this.targetPos = targetPos;
         this.launchPos = this.position();
         this.ticksLived = 0;
         
-        // Начальная скорость вверх
+        // Начальная скорость - сильный старт вверх и вперед
         Vec3 toTarget = this.targetPos.subtract(this.position()).normalize();
-        this.setDeltaMovement(toTarget.scale(0.5).add(0, 1.5, 0)); // Медленный старт
+        this.setDeltaMovement(toTarget.scale(2.0).add(0, 3.0, 0)); // Сильный старт
     }
 
     @Override
     public void tick() {
+        if (this.exploded || this.isRemoved()) {
+            return;
+        }
+        
         super.tick();
         this.ticksLived++;
         this.phaseTimer++;
@@ -145,23 +146,20 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
     }
 
     private void checkSeparationConditions() {
-        // Надёжное разделение боеголовки
-        // 1) После определённого времени полёта (30 тиков)
-        // 2) При достаточном приближении к цели по горизонтали (< 60 блоков)
-        // 3) Экстренный взрыв, если слишком близко к цели (<5 блоков)
+        // Розділення боєголовки над координатами
         if (!warheadSeparated) {
-            if (ticksLived > 30) {
-                separateWarhead();
-                return;
-            }
             double dx = this.getX() - targetPos.x;
             double dz = this.getZ() - targetPos.z;
             double horizontalDist = Math.sqrt(dx * dx + dz * dz);
-            if (horizontalDist < 60.0) {
+            
+            // Розділяємо коли ракета близько до цілі (< 30 блоків) і на висоті 80+ блоків
+            if (horizontalDist < 30.0 && this.getY() >= targetPos.y + 80.0) {
                 separateWarhead();
                 return;
             }
-            if (this.position().distanceTo(targetPos) < 5.0) {
+            
+            // Екстрений вибух якщо впала на землю
+            if (this.onGround() || this.getY() < targetPos.y + 2.0) {
                 explodeOnImpact();
             }
         }
@@ -169,6 +167,11 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
 
     private void updateMovement() {
         Vec3 currentVel = this.getDeltaMovement();
+        
+        // Перевіряємо відстань до цілі для гальмування
+        double dx = this.getX() - targetPos.x;
+        double dz = this.getZ() - targetPos.z;
+        double horizontalDist = Math.sqrt(dx * dx + dz * dz);
         
         if (currentPhase == FlightPhase.BOOST) {
             // Фаза разгона - плавное ускорение
@@ -195,10 +198,18 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
             }
             
         } else if (currentPhase == FlightPhase.TERMINAL) {
-            // Финальное наведение
-            Vec3 toTarget = targetPos.subtract(this.position()).normalize();
-            Vec3 newVel = currentVel.scale(0.98).add(toTarget.scale(0.1)).add(0, -GRAVITY * 1.5, 0);
-            this.setDeltaMovement(newVel);
+            // Финальное наведение з гальмуванням
+            // Якщо близько до цілі - сильне гальмування
+            if (horizontalDist < 50.0) {
+                Vec3 toTarget = targetPos.subtract(this.position()).normalize();
+                // Сильне гальмування горизонтальної швидкості
+                Vec3 newVel = currentVel.scale(0.85).add(toTarget.scale(0.05)).add(0, -GRAVITY * 0.5, 0);
+                this.setDeltaMovement(newVel);
+            } else {
+                Vec3 toTarget = targetPos.subtract(this.position()).normalize();
+                Vec3 newVel = currentVel.scale(0.98).add(toTarget.scale(0.1)).add(0, -GRAVITY * 1.5, 0);
+                this.setDeltaMovement(newVel);
+            }
         }
         
         this.move(MoverType.SELF, this.getDeltaMovement());
@@ -208,22 +219,27 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
         if (this.level().isClientSide) return;
         ServerLevel serverLevel = (ServerLevel) this.level();
         
+        // ГУСТИЙ димний трейл як у Панциря - постійний протягом всього польоту
+        // Великий сірий дим
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
+            this.getX(), this.getY(), this.getZ(), 12, 0.2, 0.2, 0.2, 0.02, true);
+        
+        // Звичайний дим для густоти
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.SMOKE, 
+            this.getX(), this.getY(), this.getZ(), 8, 0.15, 0.15, 0.15, 0.015, true);
+        
+        // Білі хмари для об'єму
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.CLOUD, 
+            this.getX(), this.getY(), this.getZ(), 6, 0.18, 0.18, 0.18, 0.01, true);
+        
         if (currentPhase == FlightPhase.BOOST) {
-            // Мощный след при разгоне
+            // При розгоні додатково вогонь від двигуна
             ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, 
-                this.getX(), this.getY(), this.getZ(), 5, 0.1, 0.1, 0.1, 0.01, true);
-            ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
-                this.getX(), this.getY(), this.getZ(), 4, 0.2, 0.2, 0.2, 0.01, true);
-            ParticleTool.sendParticle(serverLevel, ParticleTypes.CAMPFIRE_COSY_SMOKE, 
-                this.getX(), this.getY(), this.getZ(), 2, 0.1, 0.1, 0.1, 0.01, true);
-        } else {
-            // След в полете
-            if (ticksLived % 2 == 0) {
-                ParticleTool.sendParticle(serverLevel, ParticleTypes.CLOUD, 
-                    this.getX(), this.getY(), this.getZ(), 1, 0.05, 0.05, 0.05, 0, true);
-                ParticleTool.sendParticle(serverLevel, ParticleTypes.SMOKE, 
-                    this.getX(), this.getY(), this.getZ(), 1, 0.1, 0.1, 0.1, 0, true);
-            }
+                this.getX(), this.getY(), this.getZ(), 8, 0.12, 0.12, 0.12, 0.02, true);
+            
+            // Іскри
+            ParticleTool.sendParticle(serverLevel, ParticleTypes.LAVA, 
+                this.getX(), this.getY(), this.getZ(), 4, 0.1, 0.1, 0.1, 0.01, true);
         }
     }
 
@@ -233,19 +249,38 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
         
         ServerLevel serverLevel = (ServerLevel) this.level();
         
-        // Эффект разделения
+        // ЯРКИЙ эффект разделения со светящимися частицами
+        // Взрыв разделения
         ParticleTool.sendParticle(serverLevel, ParticleTypes.EXPLOSION_EMITTER, 
-            this.getX(), this.getY(), this.getZ(), 1, 0.0, 0.0, 0.0, 0, true);
+            this.getX(), this.getY(), this.getZ(), 3, 0.3, 0.3, 0.3, 0, true);
         
+        // Светящиеся частицы - как фейерверк
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.FIREWORK, 
+            this.getX(), this.getY(), this.getZ(), 40, 0.5, 0.5, 0.5, 0.15, true);
+        
+        // Яркие искры
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.LAVA, 
+            this.getX(), this.getY(), this.getZ(), 20, 0.4, 0.4, 0.4, 0.1, true);
+        
+        // Огненное кольцо
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, 
+            this.getX(), this.getY(), this.getZ(), 30, 0.6, 0.6, 0.6, 0.12, true);
+        
+        // Белое облако
         ParticleTool.sendParticle(serverLevel, ParticleTypes.CLOUD, 
-            this.getX(), this.getY(), this.getZ(), 20, 1.0, 1.0, 1.0, 0.1, true);
+            this.getX(), this.getY(), this.getZ(), 25, 1.0, 1.0, 1.0, 0.1, true);
         
+        // Дым
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
+            this.getX(), this.getY(), this.getZ(), 15, 0.8, 0.8, 0.8, 0.08, true);
+        
+        // Звуки
         this.level().playSound(null, this.blockPosition(), ModSounds.MISSILE_START.get(), 
             SoundSource.PLAYERS, 3.0F, 0.8F);
         this.level().playSound(null, this.blockPosition(), SoundEvents.GENERIC_EXPLODE, 
-            SoundSource.PLAYERS, 2.0F, 1.5F);
+            SoundSource.PLAYERS, 2.5F, 1.5F);
         
-        // Выпускаем 4 суббоеприпаса по квадрантам
+        // Выпускаем суббоеприпасы
         releaseSubmunitions();
         
         // Удаляем корпус
@@ -254,22 +289,23 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
     }
 
     private void releaseSubmunitions() {
-        // 4 квадранта: NE, SE, SW, NW
-        double[][] quadrants = {
-            {1, 1}, {1, -1}, {-1, -1}, {-1, 1}
-        };
-        
+        // Випускаємо всі 60 суббоєприпасів рівномірно в радіусі 10 блоків
         for (int i = 0; i < SUBMUNITIONS_COUNT; i++) {
-            double[] quad = quadrants[i % 4];
+            // Випадкова позиція в радіусі 10 блоків від центру
+            double angle = Math.random() * Math.PI * 2; // Випадковий кут
+            double radius = Math.random() * 10.0; // Радіус 0-10 блоків
             
-            // Смещение в сторону квадранта (15 блоков для покрытия большей площади)
-            double offsetX = quad[0] * (15.0 + Math.random() * 5.0);
-            double offsetZ = quad[1] * (15.0 + Math.random() * 5.0);
+            double offsetX = Math.cos(angle) * radius;
+            double offsetZ = Math.sin(angle) * radius;
             
             Vec3 subTargetPos = this.targetPos.add(offsetX, 0, offsetZ);
             
-            // Вектор выброса в сторону квадранта (уменьшаем скорость разлета)
-            Vec3 ejectVelocity = new Vec3(quad[0] * 0.8, 0.5, quad[1] * 0.8);
+            // Невеликий випадковий вектор виштовхування
+            Vec3 ejectVelocity = new Vec3(
+                (Math.random() - 0.5) * 0.4, 
+                0.3 + Math.random() * 0.2, 
+                (Math.random() - 0.5) * 0.4
+            );
             
             spawnSubmunition(this.position(), ejectVelocity, subTargetPos);
         }
@@ -281,6 +317,15 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
     }
 
     private void explodeOnImpact() {
+        if (this.exploded) return;
+        this.exploded = true;
+        
+        this.setDeltaMovement(Vec3.ZERO);
+        
+        if (this.level().isClientSide()) {
+            return;
+        }
+        
         if (!warheadSeparated) {
             // Основной взрыв (если не разделилась) - уменьшенный радиус
             this.level().explode(this, this.getX(), this.getY(), this.getZ(), 
@@ -309,12 +354,16 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
 
     @Override
     public void onHitBlock(BlockHitResult blockHitResult) {
-        explodeOnImpact();
+        if (!this.level().isClientSide()) {
+            explodeOnImpact();
+        }
     }
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
-        explodeOnImpact();
+        if (!this.level().isClientSide()) {
+            explodeOnImpact();
+        }
     }
 
     @Override
@@ -373,6 +422,7 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
         
         private Phase phase = Phase.EJECT;
         private int phaseTimer = 0;
+        private boolean exploded = false;
 
         public SubmunitionEntity(Level level, Vec3 pos, Vec3 velocity, Entity owner, Vec3 targetPos) {
             super(EntityType.SNOWBALL, level); // Используем SNOWBALL как базу
@@ -391,6 +441,10 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
 
         @Override
         public void tick() {
+            if (this.exploded || this.isRemoved()) {
+                return;
+            }
+            
             // Не вызываем super.tick() чтобы полностью контролировать движение
             // Но нам нужно обновлять базовые поля
             this.baseTick();
@@ -456,39 +510,68 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
 
         @Override
         protected void onHitBlock(BlockHitResult result) {
-            super.onHitBlock(result);
-            explode();
+            if (!this.level().isClientSide() && !exploded) {
+                super.onHitBlock(result);
+                explode();
+            }
         }
 
         @Override
         protected void onHitEntity(EntityHitResult result) {
-            super.onHitEntity(result);
-            explode();
+            if (!this.level().isClientSide() && !exploded) {
+                super.onHitEntity(result);
+                explode();
+            }
         }
         
         private void spawnParticles() {
             if (phase == Phase.CHUTE) {
-                for (int i = 0; i < 2; i++) {
-                    this.level().addParticle(ParticleTypes.CLOUD, 
-                        this.getX() + (Math.random() - 0.5) * 0.5, 
-                        this.getY() + 0.5, 
-                        this.getZ() + (Math.random() - 0.5) * 0.5, 
-                        0, 0.05, 0);
-                }
-            } else if (phase == Phase.FREEFALL) {
+                // Белый трейл при спуске на парашюте
                 for (int i = 0; i < 3; i++) {
+                    this.level().addParticle(ParticleTypes.CLOUD, 
+                        this.getX() + (Math.random() - 0.5) * 0.3, 
+                        this.getY() + 0.3, 
+                        this.getZ() + (Math.random() - 0.5) * 0.3, 
+                        0, 0.03, 0);
+                }
+                // Легкий белый дым
+                this.level().addParticle(ParticleTypes.SMOKE, 
+                    this.getX(), this.getY(), this.getZ(), 0, 0.05, 0);
+                    
+            } else if (phase == Phase.FREEFALL) {
+                // ГУСТОЙ белый фейерверочный трейл при падении
+                for (int i = 0; i < 5; i++) {
+                    this.level().addParticle(ParticleTypes.FIREWORK, 
+                        this.getX() + (Math.random() - 0.5) * 0.15, 
+                        this.getY(), 
+                        this.getZ() + (Math.random() - 0.5) * 0.15, 
+                        0, 0, 0);
+                }
+                // Огонь
+                for (int i = 0; i < 2; i++) {
                     this.level().addParticle(ParticleTypes.FLAME, 
                         this.getX() + (Math.random() - 0.5) * 0.2, 
                         this.getY(), 
                         this.getZ() + (Math.random() - 0.5) * 0.2, 
                         0, 0, 0);
                 }
-                this.level().addParticle(ParticleTypes.LAVA, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
-                this.level().addParticle(ParticleTypes.SMOKE, this.getX(), this.getY(), this.getZ(), 0, 0.1, 0);
+                // Лава (светящиеся частицы)
+                this.level().addParticle(ParticleTypes.LAVA, 
+                    this.getX(), this.getY(), this.getZ(), 0, 0, 0);
+                // Белый дым
+                this.level().addParticle(ParticleTypes.CLOUD, 
+                    this.getX(), this.getY(), this.getZ(), 0, 0.08, 0);
+                this.level().addParticle(ParticleTypes.SMOKE, 
+                    this.getX(), this.getY(), this.getZ(), 0, 0.1, 0);
             }
         }
 
         private void explode() {
+            if (this.exploded) return;
+            this.exploded = true;
+            
+            this.velocity = Vec3.ZERO;
+            
             if (this.level().isClientSide || this.isRemoved()) {
                 this.discard();
                 return;
