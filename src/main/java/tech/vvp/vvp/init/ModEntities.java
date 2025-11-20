@@ -51,6 +51,15 @@ public class ModEntities {
                     .sized(3.9f, 3.5f)
                     .build("bmp_3"));
 
+    public static final RegistryObject<EntityType<M142HimarsEntity>> M142_HIMARS = ENTITY_TYPES.register("m142_himars",
+            () -> EntityType.Builder.<M142HimarsEntity>of(M142HimarsEntity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(M142HimarsEntity::new)
+                    .fireImmune()
+                    .sized(3.9f, 3.5f)
+                    .build("m142_himars"));
+
     public static final RegistryObject<EntityType<Bmp2Entity>> BMP_2 = ENTITY_TYPES.register("bmp_2",
             () -> EntityType.Builder.<Bmp2Entity>of(Bmp2Entity::new, MobCategory.MISC)
                     .setTrackingRange(64)
@@ -349,6 +358,9 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<HryzantemaEntity>> HRYZANTEMA = register("hryzantema",
             EntityType.Builder.<HryzantemaEntity>of(HryzantemaEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(HryzantemaEntity::new).noSave().sized(0.8f, 0.8f));
+
+    public static final RegistryObject<EntityType<tech.vvp.vvp.entity.weapon.BallisticMissileEntity>> BALLISTIC_MISSILE = register("ballistic_missile",
+            EntityType.Builder.<tech.vvp.vvp.entity.weapon.BallisticMissileEntity>of(tech.vvp.vvp.entity.weapon.BallisticMissileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).setCustomClientFactory(tech.vvp.vvp.entity.weapon.BallisticMissileEntity::new).noSave().sized(0.8f, 0.8f));
 
         private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
                 return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));

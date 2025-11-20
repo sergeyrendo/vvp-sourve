@@ -105,7 +105,13 @@
   "msg.vvp.radar_pos.mid_right": "Radar: middle-right",
   "msg.vvp.radar_pos.bottom_right": "Radar: bottom-right",
   "msg.vvp.radar_pos.bottom_left": "Radar: bottom-left",
-  "msg.vvp.radar_pos.mid_left": "Radar: middle-left"
-}  "
-des.vvp.57e6_item": "Surface-to-air guided missile for Pantsir-S1 SPAAG. Range up to 20 km.",
-  "des.vvp.9m340_item": "Surface-to-air guided missile for Sosna-R ATGM. Range up to 10 km.",
+  "msg.vvp.radar_pos.mid_left": "Radar: middle-left",
+  
+  "//": "==================== HIMARS ====================",
+  "key.vvp.open_coordinate": "Open Coordinate Input",
+  "entity.vvp.m142_himars": "M142 HIMARS",
+  
+  "//": "==================== MISSILES ====================",
+  "des.vvp.57e6_item": "Surface-to-air guided missile for Pantsir-S1 SPAAG. Range up to 20 km.",
+  "des.vvp.9m340_item": "Surface-to-air guided missile for Sosna-R ATGM. Range up to 10 km."
+}

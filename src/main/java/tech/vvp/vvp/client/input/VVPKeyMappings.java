@@ -26,11 +26,18 @@ public class VVPKeyMappings {
             "key.categories.vvp"
     );
 
+    public static final KeyMapping OPEN_COORDINATE_SCREEN = new KeyMapping(
+            "key.vvp.open_coordinate",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_Q,
+            "key.categories.vvp"
+    );
 
     @SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(TOGGLE_RADAR);
         event.register(MOVE_RADAR_POS);
+        event.register(OPEN_COORDINATE_SCREEN);
     }
 
 

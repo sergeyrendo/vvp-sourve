@@ -29,6 +29,7 @@ import tech.vvp.vvp.network.message.C2SRadarTogglePacket;
 public class VVP {
     public static final String MOD_ID = "vvp";
     private static final Logger LOGGER = LogUtils.getLogger();
+    public static final net.minecraftforge.network.simple.SimpleChannel PACKET_HANDLER = VVPNetwork.VVP_HANDLER;
 
     public VVP() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -84,6 +85,14 @@ public class VVP {
                     java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
             );
 
+            // C2S: установка цели для ракеты
+            VVPNetwork.addNetworkMessage(
+                    tech.vvp.vvp.network.SetMissileTargetPacket.class,
+                    tech.vvp.vvp.network.SetMissileTargetPacket::encode,
+                    tech.vvp.vvp.network.SetMissileTargetPacket::decode,
+                    tech.vvp.vvp.network.SetMissileTargetPacket::handle,
+                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
+            );
 
         });
     }

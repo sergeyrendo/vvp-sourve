@@ -27,6 +27,7 @@ public class ModTabs {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BRADLEY.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_M1296.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M142_HIMARS.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.PUMA.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2_SEP.get()));
