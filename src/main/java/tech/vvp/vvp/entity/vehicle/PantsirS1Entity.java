@@ -135,8 +135,6 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
 
     public OBB obb1;
     public OBB obb2;
-    public OBB obb3;
-    public OBB obb4;
     public OBB obbTurret;
 
     public PantsirS1Entity(PlayMessages.SpawnEntity packet, Level world) {
@@ -146,11 +144,9 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     public PantsirS1Entity(EntityType<PantsirS1Entity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
-        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(2.25f, 0.625f, 2.75f), new Quaternionf(), OBB.Part.BODY);
-        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(2.25f, 0.625f, 1.28125f), new Quaternionf(), OBB.Part.BODY);
-        this.obb3 = new OBB(this.position().toVector3f(), new Vector3f(0.34375f, 0.3984375f, 3.6171875f), new Quaternionf(), OBB.Part.WHEEL_LEFT);
-        this.obb4 = new OBB(this.position().toVector3f(), new Vector3f(0.34375f, 0.3984375f, 3.6171875f), new Quaternionf(), OBB.Part.WHEEL_RIGHT);
-        this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(1.2890625f, 0.5859375f, 1.3828125f), new Quaternionf(), OBB.Part.TURRET);
+        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(52f/32f, 34f/32f, 48f/32f), new Quaternionf(), OBB.Part.BODY);
+        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(52f/32f, 27f/32f, 126f/32f), new Quaternionf(), OBB.Part.BODY);
+        this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(52f/32f, 21f/32f, 54f/32f), new Quaternionf(), OBB.Part.TURRET);
     }
 
     @Override
@@ -575,7 +571,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
 
     @Override
     public void travel() {
-        trackEngine(false, 0.052, VehicleConfigVVP.PANTSIR_S1_ENERGY_COST.get(), 0.55, 0.5, 1.9, 0.8, 0.21f, -0.16f, 0.0015f, 0.0004f, 0.1f);
+        wheelEngine(false, 0.052, VehicleConfigVVP.PANTSIR_S1_ENERGY_COST.get(), 1.25, 1.5, 0.18f, -0.13f, 0.0020f, 0.0019f, 0.1f);
     }
 
     @Override
@@ -693,7 +689,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         Matrix4f transformV = getVehicleTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, -0.0093750f, 2.7001938f, -0.6247500f);
+        Vector4f worldPosition = transformPosition(transform, -0.113f/16f, 58.0814f/16f, -31.063f/16f);
 
         transformV.translate(worldPosition.x, worldPosition.y, worldPosition.z);
         transformV.rotate(Axis.YP.rotationDegrees(Mth.lerp(ticks, turretYRotO, getTurretYRot())));
@@ -946,30 +942,22 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/land.png");
+        return VVP.loc("textures/gui/vehicle/type/land_ru.png");
     }
     public List<OBB> getOBBs() {
-        return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret);
+        return List.of(this.obb1, this.obb2, this.obbTurret);
     }
 
     public void updateOBB() {
         Matrix4f transform = getVehicleTransform(1);
 
-        Vector4f worldPosition1 = transformPosition(transform, 0.0f, 1.5f, -1.75f);
+        Vector4f worldPosition1 = transformPosition(transform, 0.0f, 39f/16f, 67f/16f);
         this.obb1.center().set(new Vector3f(worldPosition1.x, worldPosition1.y, worldPosition1.z));
         this.obb1.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition2 = transformPosition(transform, 0.0f, 1.5f, 2.28125f);
+        Vector4f worldPosition2 = transformPosition(transform, 0.0f, 35.5f/16f, -20f/16f);
         this.obb2.center().set(new Vector3f(worldPosition2.x, worldPosition2.y, worldPosition2.z));
         this.obb2.setRotation(VectorTool.combineRotations(1, this));
-
-        Vector4f worldPosition3 = transformPosition(transform, 1.71875f, 0.476562f, -0.382812f);
-        this.obb3.center().set(new Vector3f(worldPosition3.x, worldPosition3.y, worldPosition3.z));
-        this.obb3.setRotation(VectorTool.combineRotations(1, this));
-
-        Vector4f worldPosition4 = transformPosition(transform, -1.71875f, 0.476562f, -0.382812f);
-        this.obb4.center().set(new Vector3f(worldPosition4.x, worldPosition4.y, worldPosition4.z));
-        this.obb4.setRotation(VectorTool.combineRotations(1, this));
 
         Matrix4f transformT = getTurretTransform(1);
         Vector4f worldPositionT = transformPosition(transformT, 0.0f, 0.0f, 0.0f);
