@@ -72,7 +72,7 @@
   "item.vvp.aim_120_item": "AIM-120 AMRAAM",
   "item.vvp.cactus_turret": "Cactus module",
   "item.vvp.bmp3m_body": "3M module",
-  "item.vvp.hryzantema": "9M123 Chrysanthemum",
+  "item.vvp.hryzantema_item": "9M123 Chrysanthemum",
   "item.vvp.gmlrs_m31": "GMLRS M31",
   "des.vvp.mangal_body": "Mangal for the vehicle base.",
   "des.vvp.mangal_turret": "Mangal for the vehicle turret.",
@@ -87,7 +87,7 @@
   "des.vvp.hfire_item": "Air-to-ground missile with semi-active laser or active radar guidance.",
   "des.vvp.cactus_turret": "Only for BMP-3, increases HP for the turret.",
   "des.vvp.bmp3m_body": "Only for BMP-3, increases HP for vehicles.",
-  "des.vvp.hryzantema": "Russian ATGM with radar/laser guidance, range up to 6 km, speed ~400 m/s, penetrates ≈1.2 m of armor beyond ERA.",
+  "des.vvp.hryzantema_item": "Russian ATGM with radar/laser guidance, range up to 6 km, speed ~400 m/s, penetrates ≈1.2 m of armor beyond ERA.",
   "item.vvp.music_disc_radiohead.desc": "Radiohead - Jigsaw Falling into Place",
 
   "//": "==================== UI ELEMENTS ====================",

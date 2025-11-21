@@ -1,4 +1,4 @@
-﻿{
+{
   "//": "==================== ВЕРТОЛЕТЫ ====================",
   "entity.vvp.mi24": "Ми-24",
   "entity.vvp.cobra": "AH-1 Cobra",
@@ -71,7 +71,7 @@
   "item.vvp.hfire_item": "Ракета Hellfire",
   "item.vvp.cactus_turret": "Модуль «Кактус»",
   "item.vvp.bmp3m_body": "Модуль «3М»",
-  "item.vvp.hryzantema": "9M123 ПТУР",
+  "item.vvp.hryzantema_item": "9M123 ПТУР",
   "des.vvp.mangal_body": "Мангал основания техники.",
   "des.vvp.mangal_turret": "Мангал для башни техники.",
   "des.vvp.setka_body": "Листва для основания техники.",
