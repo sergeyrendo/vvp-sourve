@@ -23,8 +23,10 @@ public class BallisticMissileRenderer extends GeoEntityRenderer<BallisticMissile
     @Override
     public void render(BallisticMissileEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn) {
         poseStack.pushPose();
+        // Поворачиваем ракету по направлению полета
         poseStack.mulPose(Axis.YP.rotationDegrees(-entity.getYRot()));
-        poseStack.mulPose(Axis.XP.rotationDegrees(entity.getXRot()));
+        // XRot без инверсии - ракета смотрит туда куда летит
+        poseStack.mulPose(Axis.XP.rotationDegrees(-entity.getXRot()));
         super.render(entity, entityYaw, partialTicks, poseStack, bufferIn, packedLightIn);
         poseStack.popPose();
     }

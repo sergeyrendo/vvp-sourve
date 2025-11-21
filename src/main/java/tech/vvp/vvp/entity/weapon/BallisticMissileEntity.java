@@ -3,7 +3,6 @@ package tech.vvp.vvp.entity.weapon;
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 import com.atsuishio.superbwarfare.init.ModSounds;
 import com.atsuishio.superbwarfare.tools.ParticleTool;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -23,7 +22,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
-import java.util.List;
 import net.minecraftforge.network.PlayMessages;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -31,40 +29,18 @@ import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.vvp.vvp.init.ModEntities;
 
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-
 import java.util.List;
 
 public class BallisticMissileEntity extends ThrowableProjectile implements GeoAnimatable {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    // Фазы полета GMLRS
-    private enum FlightPhase {
-        BOOST,      // Разгон (2-3 сек)
-        COAST,      // Баллистический полет с коррекцией
-        TERMINAL    // Финальное наведение и разделение
-    }
-
     private Vec3 targetPos;
-    private Vec3 launchPos;
-    private FlightPhase currentPhase = FlightPhase.BOOST;
-    private int ticksLived;
-    private int phaseTimer = 0;
-    private boolean warheadSeparated = false;
+    private int ticksAlive = 0;
     private boolean exploded = false;
-    private int correctionCounter = 0;
-
-    // Константы GMLRS - дальность до 70+ км
-    private static final int BOOST_DURATION = 50; // 2.5 секунды
-    private static final double BOOST_ACCELERATION = 0.5; // Сильное ускорение
-    private static final double MAX_SPEED = 15.0; // Высокая скорость для дальности
-    private static final double GRAVITY = 0.03; // Меньше гравитация для дальности
-    private static final double COURSE_CORRECTION_RATE = 0.7;
-    private static final int CORRECTION_INTERVAL = 5;
-    private static final double SEPARATION_DISTANCE_PERCENT = 0.88;
-    private static final int SUBMUNITIONS_COUNT = 60; // 60 суббоеприпасов M77
+    
+    private static final double GRAVITY = 0.05; // Гравитация
+    private static final double MAX_SPEED = 2.0; // Максимальная скорость (уменьшена)
+    private static final double GUIDANCE_STRENGTH = 0.3; // Сила наведения (увеличена)
     
     private static final TicketType<Entity> MISSILE_TICKET = TicketType.create("ballistic_missile", (entity1, entity2) -> 0);
     private ChunkPos currentTicketChunk = null;
@@ -82,14 +58,14 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
     }
 
     public void setTargetPosition(Vec3 targetPos) {
-        // Похибка 0 - точное попадание в координаты
         this.targetPos = targetPos;
-        this.launchPos = this.position();
-        this.ticksLived = 0;
         
-        // Начальная скорость - сильный старт вверх и вперед
-        Vec3 toTarget = this.targetPos.subtract(this.position()).normalize();
-        this.setDeltaMovement(toTarget.scale(2.0).add(0, 3.0, 0)); // Сильный старт
+        // Простая начальная скорость - направление к цели + вверх
+        Vec3 toTarget = targetPos.subtract(this.position()).normalize();
+        
+        // Начальная скорость: направление к цели + подъем вверх
+        Vec3 initialVelocity = toTarget.scale(1.0).add(0, 1.5, 0);
+        this.setDeltaMovement(initialVelocity);
     }
 
     @Override
@@ -99,10 +75,9 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
         }
         
         super.tick();
-        this.ticksLived++;
-        this.phaseTimer++;
-        this.correctionCounter++;
+        ticksAlive++;
 
+        // Управление чанками
         if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
             ChunkPos newChunk = new ChunkPos(this.blockPosition());
             if (currentTicketChunk == null || !newChunk.equals(currentTicketChunk)) {
@@ -114,103 +89,52 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
             }
         }
 
-        if (this.targetPos != null && !warheadSeparated) {
-            updateFlightPhase();
+        if (this.targetPos != null) {
             updateMovement();
             spawnTrailParticles();
-            checkSeparationConditions();
-        }
-    }
-
-
-    private void updateFlightPhase() {
-        switch (currentPhase) {
-            case BOOST:
-                if (phaseTimer >= BOOST_DURATION) {
-                    currentPhase = FlightPhase.COAST;
-                    phaseTimer = 0;
-                }
-                break;
-            case COAST:
-                double distToTarget = this.position().distanceTo(targetPos);
-                double totalDist = launchPos.distanceTo(targetPos);
-                if (distToTarget / totalDist < (1.0 - SEPARATION_DISTANCE_PERCENT)) {
-                    currentPhase = FlightPhase.TERMINAL;
-                    phaseTimer = 0;
-                }
-                break;
-            case TERMINAL:
-                // Финальная фаза - ждем разделения
-                break;
-        }
-    }
-
-    private void checkSeparationConditions() {
-        // Розділення боєголовки над координатами
-        if (!warheadSeparated) {
-            double dx = this.getX() - targetPos.x;
-            double dz = this.getZ() - targetPos.z;
-            double horizontalDist = Math.sqrt(dx * dx + dz * dz);
-            
-            // Розділяємо коли ракета близько до цілі (< 30 блоків) і на висоті 80+ блоків
-            if (horizontalDist < 30.0 && this.getY() >= targetPos.y + 80.0) {
-                separateWarhead();
-                return;
-            }
-            
-            // Екстрений вибух якщо впала на землю
-            if (this.onGround() || this.getY() < targetPos.y + 2.0) {
-                explodeOnImpact();
-            }
+            checkImpact();
         }
     }
 
     private void updateMovement() {
         Vec3 currentVel = this.getDeltaMovement();
         
-        // Перевіряємо відстань до цілі для гальмування
-        double dx = this.getX() - targetPos.x;
-        double dz = this.getZ() - targetPos.z;
-        double horizontalDist = Math.sqrt(dx * dx + dz * dz);
+        // Применяем гравитацию
+        Vec3 newVel = currentVel.add(0, -GRAVITY, 0);
         
-        if (currentPhase == FlightPhase.BOOST) {
-            // Фаза разгона - плавное ускорение
-            Vec3 toTarget = targetPos.subtract(this.position()).normalize();
-            Vec3 acceleration = toTarget.scale(BOOST_ACCELERATION);
-            Vec3 newVel = currentVel.add(acceleration).add(0, -GRAVITY * 0.5, 0);
-            
-            if (newVel.length() > MAX_SPEED) {
-                newVel = newVel.normalize().scale(MAX_SPEED);
-            }
-            this.setDeltaMovement(newVel);
-            
-        } else if (currentPhase == FlightPhase.COAST) {
-            // Баллистический полет с плавной коррекцией
-            if (correctionCounter >= CORRECTION_INTERVAL) {
-                Vec3 toTarget = targetPos.subtract(this.position()).normalize();
-                Vec3 currentDir = currentVel.normalize();
-                Vec3 correction = toTarget.subtract(currentDir).scale(COURSE_CORRECTION_RATE * 0.01);
-                Vec3 newVel = currentVel.add(correction).add(0, -GRAVITY, 0);
-                this.setDeltaMovement(newVel);
-                correctionCounter = 0;
-            } else {
-                this.setDeltaMovement(currentVel.add(0, -GRAVITY, 0));
-            }
-            
-        } else if (currentPhase == FlightPhase.TERMINAL) {
-            // Финальное наведение з гальмуванням
-            // Якщо близько до цілі - сильне гальмування
-            if (horizontalDist < 50.0) {
-                Vec3 toTarget = targetPos.subtract(this.position()).normalize();
-                // Сильне гальмування горизонтальної швидкості
-                Vec3 newVel = currentVel.scale(0.85).add(toTarget.scale(0.05)).add(0, -GRAVITY * 0.5, 0);
-                this.setDeltaMovement(newVel);
-            } else {
-                Vec3 toTarget = targetPos.subtract(this.position()).normalize();
-                Vec3 newVel = currentVel.scale(0.98).add(toTarget.scale(0.1)).add(0, -GRAVITY * 1.5, 0);
-                this.setDeltaMovement(newVel);
-            }
+        // Активное наведение на цель
+        Vec3 toTarget = targetPos.subtract(this.position());
+        double distToTarget = toTarget.length();
+        
+        // Постоянно корректируем направление к цели
+        Vec3 targetDir = toTarget.normalize();
+        Vec3 correction = targetDir.scale(GUIDANCE_STRENGTH);
+        newVel = newVel.add(correction);
+        
+        // Ограничиваем скорость
+        if (newVel.length() > MAX_SPEED) {
+            newVel = newVel.normalize().scale(MAX_SPEED);
         }
+        
+        this.setDeltaMovement(newVel);
+        
+        // Поворачиваем ракету по направлению движения ПЕРЕД перемещением
+        double horizontalSpeed = Math.sqrt(newVel.x * newVel.x + newVel.z * newVel.z);
+        
+        // Yaw (горизонтальное направление)
+        float yaw = (float)(Math.atan2(newVel.x, newVel.z) * 180.0 / Math.PI);
+        
+        // Pitch (вертикальное направление)
+        // Вычисляем угол направления полета
+        float pitch = (float)(Math.atan2(newVel.y, horizontalSpeed) * 180.0 / Math.PI);
+        
+        // Добавляем offset 90 градусов если модель направлена вниз по умолчанию
+        pitch = pitch - 90.0f;
+        
+        this.setYRot(yaw);
+        this.setXRot(pitch);
+        this.yRotO = yaw;
+        this.xRotO = pitch;
         
         this.move(MoverType.SELF, this.getDeltaMovement());
     }
@@ -219,156 +143,163 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
         if (this.level().isClientSide) return;
         ServerLevel serverLevel = (ServerLevel) this.level();
         
-        // ГУСТИЙ димний трейл як у Панциря - постійний протягом всього польоту
-        // Великий сірий дим
+        // Дымный след
         ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
-            this.getX(), this.getY(), this.getZ(), 12, 0.2, 0.2, 0.2, 0.02, true);
+            this.getX(), this.getY(), this.getZ(), 3, 0.1, 0.1, 0.1, 0.01, true);
         
-        // Звичайний дим для густоти
         ParticleTool.sendParticle(serverLevel, ParticleTypes.SMOKE, 
-            this.getX(), this.getY(), this.getZ(), 8, 0.15, 0.15, 0.15, 0.015, true);
+            this.getX(), this.getY(), this.getZ(), 2, 0.08, 0.08, 0.08, 0.008, true);
         
-        // Білі хмари для об'єму
-        ParticleTool.sendParticle(serverLevel, ParticleTypes.CLOUD, 
-            this.getX(), this.getY(), this.getZ(), 6, 0.18, 0.18, 0.18, 0.01, true);
-        
-        if (currentPhase == FlightPhase.BOOST) {
-            // При розгоні додатково вогонь від двигуна
+        // Огонь от двигателя (первые 2 секунды)
+        if (ticksAlive < 40) {
             ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, 
-                this.getX(), this.getY(), this.getZ(), 8, 0.12, 0.12, 0.12, 0.02, true);
-            
-            // Іскри
-            ParticleTool.sendParticle(serverLevel, ParticleTypes.LAVA, 
-                this.getX(), this.getY(), this.getZ(), 4, 0.1, 0.1, 0.1, 0.01, true);
+                this.getX(), this.getY(), this.getZ(), 4, 0.1, 0.1, 0.1, 0.015, true);
         }
     }
 
-    private void separateWarhead() {
-        if (warheadSeparated || this.level().isClientSide) return;
-        warheadSeparated = true;
+    private void checkImpact() {
+        if (this.targetPos == null) return;
         
-        ServerLevel serverLevel = (ServerLevel) this.level();
+        // Проверяем расстояние до цели
+        double distToTarget = this.position().distanceTo(targetPos);
         
-        // ЯРКИЙ эффект разделения со светящимися частицами
-        // Взрыв разделения
-        ParticleTool.sendParticle(serverLevel, ParticleTypes.EXPLOSION_EMITTER, 
-            this.getX(), this.getY(), this.getZ(), 3, 0.3, 0.3, 0.3, 0, true);
+        // Взрываемся если близко к цели (в радиусе 5 блоков)
+        if (distToTarget < 5.0) {
+            explode();
+            return;
+        }
         
-        // Светящиеся частицы - как фейерверк
-        ParticleTool.sendParticle(serverLevel, ParticleTypes.FIREWORK, 
-            this.getX(), this.getY(), this.getZ(), 40, 0.5, 0.5, 0.5, 0.15, true);
+        // Взрываемся если ударились о блок
+        if (this.horizontalCollision || this.verticalCollision) {
+            explode();
+            return;
+        }
         
-        // Яркие искры
-        ParticleTool.sendParticle(serverLevel, ParticleTypes.LAVA, 
-            this.getX(), this.getY(), this.getZ(), 20, 0.4, 0.4, 0.4, 0.1, true);
-        
-        // Огненное кольцо
-        ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, 
-            this.getX(), this.getY(), this.getZ(), 30, 0.6, 0.6, 0.6, 0.12, true);
-        
-        // Белое облако
-        ParticleTool.sendParticle(serverLevel, ParticleTypes.CLOUD, 
-            this.getX(), this.getY(), this.getZ(), 25, 1.0, 1.0, 1.0, 0.1, true);
-        
-        // Дым
-        ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
-            this.getX(), this.getY(), this.getZ(), 15, 0.8, 0.8, 0.8, 0.08, true);
-        
-        // Звуки
-        this.level().playSound(null, this.blockPosition(), ModSounds.MISSILE_START.get(), 
-            SoundSource.PLAYERS, 3.0F, 0.8F);
-        this.level().playSound(null, this.blockPosition(), SoundEvents.GENERIC_EXPLODE, 
-            SoundSource.PLAYERS, 2.5F, 1.5F);
-        
-        // Выпускаем суббоеприпасы
-        releaseSubmunitions();
-        
-        // Удаляем корпус
-        this.stopChank();
-        this.discard();
-    }
-
-    private void releaseSubmunitions() {
-        // Випускаємо всі 60 суббоєприпасів рівномірно в радіусі 10 блоків
-        for (int i = 0; i < SUBMUNITIONS_COUNT; i++) {
-            // Випадкова позиція в радіусі 10 блоків від центру
-            double angle = Math.random() * Math.PI * 2; // Випадковий кут
-            double radius = Math.random() * 10.0; // Радіус 0-10 блоків
-            
-            double offsetX = Math.cos(angle) * radius;
-            double offsetZ = Math.sin(angle) * radius;
-            
-            Vec3 subTargetPos = this.targetPos.add(offsetX, 0, offsetZ);
-            
-            // Невеликий випадковий вектор виштовхування
-            Vec3 ejectVelocity = new Vec3(
-                (Math.random() - 0.5) * 0.4, 
-                0.3 + Math.random() * 0.2, 
-                (Math.random() - 0.5) * 0.4
-            );
-            
-            spawnSubmunition(this.position(), ejectVelocity, subTargetPos);
+        // Самоуничтожение через 30 секунд (600 тиков)
+        if (ticksAlive > 600) {
+            explode();
         }
     }
 
-    private void spawnSubmunition(Vec3 pos, Vec3 velocity, Vec3 target) {
-        SubmunitionEntity submunition = new SubmunitionEntity(this.level(), pos, velocity, this.getOwner(), target);
-        this.level().addFreshEntity(submunition);
-    }
-
-    private void explodeOnImpact() {
+    private void explode() {
         if (this.exploded) return;
         this.exploded = true;
-        
-        this.setDeltaMovement(Vec3.ZERO);
         
         if (this.level().isClientSide()) {
             return;
         }
         
-        if (!warheadSeparated) {
-            // Основной взрыв (если не разделилась) - уменьшенный радиус
-            this.level().explode(this, this.getX(), this.getY(), this.getZ(), 
-                3.0F, (Boolean)ExplosionConfig.EXPLOSION_DESTROY.get() ? Level.ExplosionInteraction.BLOCK : Level.ExplosionInteraction.NONE);
-            
-            // Ручной урон по сущностям в большом радиусе
-            damageEntitiesInRange(23.0, 50.0f);
-        }
-        this.stopChank();
+        ServerLevel serverLevel = (ServerLevel) this.level();
+        
+        // Эффекты взрыва разделения
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.EXPLOSION_EMITTER, 
+            this.getX(), this.getY(), this.getZ(), 1, 0, 0, 0, 0, true);
+        
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
+            this.getX(), this.getY(), this.getZ(), 20, 1.0, 1.0, 1.0, 0.1, true);
+        
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, 
+            this.getX(), this.getY(), this.getZ(), 15, 0.8, 0.8, 0.8, 0.08, true);
+        
+        // Звук взрыва
+        this.level().playSound(null, this.blockPosition(), SoundEvents.GENERIC_EXPLODE, 
+            SoundSource.PLAYERS, 4.0F, 0.8F);
+        
+        // Маленький взрыв разделения (не наносит урон блокам)
+        this.level().explode(this, this.getX(), this.getY(), this.getZ(), 
+            2.0F, Level.ExplosionInteraction.NONE);
+        
+        // ШРАПНЕЛЬ - красивые эффекты
+        spawnShrapnelEffects(serverLevel);
+        
+        // Прямой урон от шрапнели всем сущностям в радиусе
+        // Радиус: 20 * 1.3 = 26 блоков
+        // Урон: 100 * 2 = 200 (гарантированно убивает игрока в незерите)
+        damageEntitiesWithShrapnel(26.0, 200.0f);
+        
+        stopChank();
         this.discard();
     }
     
-    private void damageEntitiesInRange(double range, float damage) {
-        AABB area = this.getBoundingBox().inflate(range);
-        List<LivingEntity> entities = this.level().getEntitiesOfClass(LivingEntity.class, area);
+    private void spawnShrapnelEffects(ServerLevel serverLevel) {
+        // КРАСИВЫЕ ЭФФЕКТЫ ШРАПНЕЛИ - разлетаются на 20 блоков
+        
+        // Огненные искры во все стороны (как фейерверк) - быстрые
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.FIREWORK, 
+            this.getX(), this.getY(), this.getZ(), 200, 3.0, 3.0, 3.0, 1.5, true);
+        
+        // Лава (раскаленные осколки) - средняя скорость
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.LAVA, 
+            this.getX(), this.getY(), this.getZ(), 150, 2.5, 2.5, 2.5, 1.2, true);
+        
+        // Огонь - быстрый
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, 
+            this.getX(), this.getY(), this.getZ(), 100, 2.0, 2.0, 2.0, 1.0, true);
+        
+        // Искры - очень быстрые
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.CRIT, 
+            this.getX(), this.getY(), this.getZ(), 120, 2.5, 2.5, 2.5, 1.8, true);
+        
+        // Белые вспышки в центре
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.FLASH, 
+            this.getX(), this.getY(), this.getZ(), 5, 0.5, 0.5, 0.5, 0, true);
+        
+        // Дым от осколков - медленный
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
+            this.getX(), this.getY(), this.getZ(), 80, 2.0, 2.0, 2.0, 0.8, true);
+        
+        // Дополнительные эффекты для дальности
+        // Взрывные частицы
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.EXPLOSION, 
+            this.getX(), this.getY(), this.getZ(), 50, 3.0, 3.0, 3.0, 1.5, true);
+        
+        // Красная пыль (как кровь от осколков)
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.CRIMSON_SPORE, 
+            this.getX(), this.getY(), this.getZ(), 100, 3.0, 3.0, 3.0, 1.3, true);
+        
+        // Дополнительный звук разлета осколков
+        this.level().playSound(null, this.blockPosition(), SoundEvents.FIREWORK_ROCKET_BLAST, 
+            SoundSource.PLAYERS, 3.0F, 0.7F);
+        this.level().playSound(null, this.blockPosition(), SoundEvents.FIREWORK_ROCKET_LARGE_BLAST, 
+            SoundSource.PLAYERS, 3.0F, 0.9F);
+    }
+    
+    private void damageEntitiesWithShrapnel(double range, float maxDamage) {
+        net.minecraft.world.phys.AABB area = this.getBoundingBox().inflate(range);
+        java.util.List<LivingEntity> entities = this.level().getEntitiesOfClass(LivingEntity.class, area);
+        
         for (LivingEntity entity : entities) {
             if (entity != this.getOwner()) {
                 double dist = this.distanceTo(entity);
-                float finalDamage = damage * (float)(1.0 - (dist / range));
-                if (finalDamage > 0) {
-                    entity.hurt(this.damageSources().explosion(this, this.getOwner()), finalDamage);
+                
+                // Урон уменьшается с расстоянием
+                float damage = maxDamage * (float)(1.0 - (dist / range));
+                
+                if (damage > 0) {
+                    // Наносим урон от шрапнели
+                    entity.hurt(this.damageSources().explosion(this, this.getOwner()), damage);
                 }
             }
         }
     }
 
+
     @Override
-    public void onHitBlock(BlockHitResult blockHitResult) {
-        if (!this.level().isClientSide()) {
-            explodeOnImpact();
+    protected void onHitBlock(BlockHitResult result) {
+        if (!this.level().isClientSide) {
+            explode();
         }
     }
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
-        if (!this.level().isClientSide()) {
-            explodeOnImpact();
+        if (!this.level().isClientSide) {
+            explode();
         }
     }
 
     @Override
-    public boolean isNoGravity() {
-        return false;
+    protected void defineSynchedData() {
     }
 
     @Override
@@ -382,270 +313,20 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return this.cache;
+        return cache;
     }
-
+    
     @Override
-    public double getTick(Object o) {
-        return this.tickCount;
+    public double getTick(Object object) {
+        return ticksAlive;
     }
-
-    @Override
-    protected void defineSynchedData() {
-    }
-
-    private void stopChank(){
+    
+    private void stopChank() {
         if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
             if (currentTicketChunk != null) {
                 serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, currentTicketChunk, 10, this);
                 currentTicketChunk = null;
             }
-        }
-    }
-
-    @Override
-    public boolean shouldBeSaved() {
-        return true;
-    }
-
-    // Внутренний класс для суббоеприпасов GMLRS SMArt
-    private static class SubmunitionEntity extends ThrowableProjectile implements net.minecraft.world.entity.projectile.ItemSupplier {
-        private Vec3 velocity;
-        private Vec3 targetPos;
-        private int ticksAlive = 0;
-        
-        private enum Phase {
-            EJECT,      // Выброс в сторону
-            CHUTE,      // Спуск на парашюте (медленно)
-            FREEFALL    // Свободное падение (атака)
-        }
-        
-        private Phase phase = Phase.EJECT;
-        private int phaseTimer = 0;
-        private boolean exploded = false;
-
-        public SubmunitionEntity(Level level, Vec3 pos, Vec3 velocity, Entity owner, Vec3 targetPos) {
-            super(EntityType.SNOWBALL, level); // Используем SNOWBALL как базу
-            this.setPos(pos.x, pos.y, pos.z);
-            this.setOwner(owner);
-            this.setInvisible(true); // Скрываем сам предмет
-            this.velocity = velocity;
-            this.targetPos = targetPos;
-            this.noPhysics = false;
-        }
-
-        @Override
-        public ItemStack getItem() {
-            return new ItemStack(Items.TNT);
-        }
-
-        @Override
-        public void tick() {
-            if (this.exploded || this.isRemoved()) {
-                return;
-            }
-            
-            // Не вызываем super.tick() чтобы полностью контролировать движение
-            // Но нам нужно обновлять базовые поля
-            this.baseTick();
-            
-            ticksAlive++;
-            phaseTimer++;
-            
-            if (this.level().isClientSide) {
-                spawnParticles();
-                // Клиентская интерполяция
-                this.setPos(this.getX() + velocity.x, this.getY() + velocity.y, this.getZ() + velocity.z);
-                return;
-            }
-
-            // Логика фаз
-            switch (phase) {
-                case EJECT:
-                    // Быстрое торможение горизонтальной скорости
-                    velocity = velocity.multiply(0.96, 0.98, 0.96);
-                    velocity = velocity.add(0, -0.05, 0); // Гравитация
-                    
-                    if (phaseTimer > 20) {
-                        phase = Phase.CHUTE;
-                        phaseTimer = 0;
-                        this.level().playSound(null, this.blockPosition(), SoundEvents.WOOL_BREAK, SoundSource.PLAYERS, 1.0F, 0.5F);
-                    }
-                    break;
-                    
-                case CHUTE:
-                    // Медленный спуск
-                    double descentSpeed = -0.15;
-                    // Случайный дрейф (увеличен)
-                    double driftX = (Math.random() - 0.5) * 0.1;
-                    double driftZ = (Math.random() - 0.5) * 0.1;
-                    
-                    velocity = new Vec3(velocity.x * 0.95 + driftX, descentSpeed, velocity.z * 0.95 + driftZ);
-                    
-                    if (phaseTimer > 60 + Math.random() * 40) {
-                        phase = Phase.FREEFALL;
-                        phaseTimer = 0;
-                        this.level().playSound(null, this.blockPosition(), SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.PLAYERS, 1.0F, 0.5F);
-                    }
-                    break;
-                    
-                case FREEFALL:
-                    // Ускорение вниз
-                    velocity = velocity.add(0, -0.1, 0);
-                    velocity = velocity.add((Math.random() - 0.5) * 0.02, 0, (Math.random() - 0.5) * 0.02);
-                    break;
-            }
-            
-            this.setPos(this.getX() + velocity.x, this.getY() + velocity.y, this.getZ() + velocity.z);
-            
-            // Взрыв при контакте
-            if (this.onGround() || (this.getY() - targetPos.y < 1.0 && phase == Phase.FREEFALL) || ticksAlive > 400) {
-                explode();
-            }
-            
-            if (!this.level().getBlockState(this.blockPosition()).isAir()) {
-                explode();
-            }
-        }
-
-        @Override
-        protected void onHitBlock(BlockHitResult result) {
-            if (!this.level().isClientSide() && !exploded) {
-                super.onHitBlock(result);
-                explode();
-            }
-        }
-
-        @Override
-        protected void onHitEntity(EntityHitResult result) {
-            if (!this.level().isClientSide() && !exploded) {
-                super.onHitEntity(result);
-                explode();
-            }
-        }
-        
-        private void spawnParticles() {
-            if (phase == Phase.CHUTE) {
-                // Белый трейл при спуске на парашюте
-                for (int i = 0; i < 3; i++) {
-                    this.level().addParticle(ParticleTypes.CLOUD, 
-                        this.getX() + (Math.random() - 0.5) * 0.3, 
-                        this.getY() + 0.3, 
-                        this.getZ() + (Math.random() - 0.5) * 0.3, 
-                        0, 0.03, 0);
-                }
-                // Легкий белый дым
-                this.level().addParticle(ParticleTypes.SMOKE, 
-                    this.getX(), this.getY(), this.getZ(), 0, 0.05, 0);
-                    
-            } else if (phase == Phase.FREEFALL) {
-                // ГУСТОЙ белый фейерверочный трейл при падении
-                for (int i = 0; i < 5; i++) {
-                    this.level().addParticle(ParticleTypes.FIREWORK, 
-                        this.getX() + (Math.random() - 0.5) * 0.15, 
-                        this.getY(), 
-                        this.getZ() + (Math.random() - 0.5) * 0.15, 
-                        0, 0, 0);
-                }
-                // Огонь
-                for (int i = 0; i < 2; i++) {
-                    this.level().addParticle(ParticleTypes.FLAME, 
-                        this.getX() + (Math.random() - 0.5) * 0.2, 
-                        this.getY(), 
-                        this.getZ() + (Math.random() - 0.5) * 0.2, 
-                        0, 0, 0);
-                }
-                // Лава (светящиеся частицы)
-                this.level().addParticle(ParticleTypes.LAVA, 
-                    this.getX(), this.getY(), this.getZ(), 0, 0, 0);
-                // Белый дым
-                this.level().addParticle(ParticleTypes.CLOUD, 
-                    this.getX(), this.getY(), this.getZ(), 0, 0.08, 0);
-                this.level().addParticle(ParticleTypes.SMOKE, 
-                    this.getX(), this.getY(), this.getZ(), 0, 0.1, 0);
-            }
-        }
-
-        private void explode() {
-            if (this.exploded) return;
-            this.exploded = true;
-            
-            this.velocity = Vec3.ZERO;
-            
-            if (this.level().isClientSide || this.isRemoved()) {
-                this.discard();
-                return;
-            }
-            
-            ServerLevel serverLevel = (ServerLevel) this.level();
-            
-            // Взрыв суббоеприпаса GMLRS M77 - шрапнельный, БЕЗ воронки
-            // Малый взрыв только для эффекта, не разрушает блоки
-            this.level().explode(
-                this, 
-                this.getX(), 
-                this.getY(), 
-                this.getZ(), 
-                0.5F, // Малый взрыв без воронки
-                Level.ExplosionInteraction.NONE // Не разрушает блоки
-            );
-            
-            // Визуальные эффекты взрыва
-            ParticleTool.sendParticle(serverLevel, ParticleTypes.EXPLOSION, 
-                this.getX(), this.getY(), this.getZ(), 3, 0.3, 0.3, 0.3, 0, true);
-            ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, 
-                this.getX(), this.getY(), this.getZ(), 8, 0.4, 0.4, 0.4, 0.1, true);
-            ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
-                this.getX(), this.getY(), this.getZ(), 5, 0.5, 0.5, 0.5, 0.05, true);
-            
-            // Звук взрыва
-            this.level().playSound(null, this.blockPosition(), SoundEvents.GENERIC_EXPLODE, 
-                SoundSource.PLAYERS, 1.2F, 0.9F + (float)Math.random() * 0.3F);
-            
-            // ШРАПНЕЛЬНЫЙ урон - одинаковый по всей площади поражения
-            // M77 содержит готовые поражающие элементы
-            AABB damageArea = new AABB(
-                this.getX() - 6.0, this.getY() - 6.0, this.getZ() - 6.0,
-                this.getX() + 6.0, this.getY() + 6.0, this.getZ() + 6.0
-            );
-            
-            List<Entity> allEntities = this.level().getEntities(this, damageArea);
-            for (Entity entity : allEntities) {
-                if (entity == this || entity == this.getOwner()) continue;
-                
-                double distance = entity.position().distanceTo(this.position());
-                if (distance < 6.0) {
-                    // Шрапнельный урон - ОДИНАКОВЫЙ по всей площади
-                    float damage = 20.0F;
-                    
-                    // Наносим урон от шрапнели
-                    entity.hurt(
-                        this.damageSources().explosion(this, this.getOwner() instanceof LivingEntity ? (LivingEntity)this.getOwner() : null), 
-                        damage
-                    );
-                }
-            }
-            
-            ParticleTool.sendParticle(serverLevel, ParticleTypes.EXPLOSION, 
-                this.getX(), this.getY(), this.getZ(), 3, 0.5, 0.5, 0.5, 0, true);
-            ParticleTool.sendParticle(serverLevel, ParticleTypes.CRIT, 
-                this.getX(), this.getY(), this.getZ(), 50, 5.0, 5.0, 5.0, 0.5, true);
-            ParticleTool.sendParticle(serverLevel, ParticleTypes.SMOKE, 
-                this.getX(), this.getY(), this.getZ(), 20, 3.0, 3.0, 3.0, 0.1, true);
-            
-            this.discard();
-        }
-
-        @Override
-        protected void defineSynchedData() {
-        }
-
-        @Override
-        public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
-        }
-
-        @Override
-        public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
         }
     }
 }

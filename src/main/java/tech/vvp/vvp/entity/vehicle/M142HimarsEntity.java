@@ -659,4 +659,10 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     public net.minecraft.resources.ResourceLocation getVehicleItemIcon() {
         return tech.vvp.vvp.VVP.loc("textures/gui/vehicle/type/land.png");
     }
+    
+    // Отключаем звук поворота башни
+    @Override
+    public void turretTurnSound(float diffX, float diffY, float pitch) {
+        // Пустой метод - не воспроизводим звук поворота башни
+    }
 }
