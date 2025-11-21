@@ -37,5 +37,14 @@ public class VVPClientInputHandler {
                     true
             );
         }
+        
+        // Переключение режима HIMARS
+        while (VVPKeyMappings.OPEN_COORDINATE_SCREEN.consumeClick()) {
+            var v = mc.player.getVehicle();
+            if (v instanceof tech.vvp.vvp.entity.vehicle.M142HimarsEntity himars && v.getFirstPassenger() == mc.player) {
+                // Отправляем пакет на сервер для переключения режима
+                VVPNetwork.VVP_HANDLER.sendToServer(new tech.vvp.vvp.network.message.C2SHimarsToggleModePacket());
+            }
+        }
     }
 }

@@ -94,6 +94,15 @@ public class VVP {
                     java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
             );
 
+            // C2S: переключение режима HIMARS
+            VVPNetwork.addNetworkMessage(
+                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket.class,
+                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket::toBytes,
+                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket::new,
+                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket::handle,
+                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
+            );
+
         });
     }
 
