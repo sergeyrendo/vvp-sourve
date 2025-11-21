@@ -52,6 +52,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     private static final EntityDataAccessor<Boolean> POD_TOGGLED = SynchedEntityData.defineId(M142HimarsEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(M142HimarsEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> FIRING_MODE = SynchedEntityData.defineId(M142HimarsEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> AMMO = SynchedEntityData.defineId(M142HimarsEntity.class, EntityDataSerializers.INT);
     
     // Режимы работы
     public enum OperationMode {
@@ -68,6 +69,10 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     // Кулдаун между выстрелами
     private int fireCooldown = 0;
     private static final int FIRE_COOLDOWN_TIME = 20; // 1 секунда (20 тиков)
+    
+    // Кулдаун перезарядки
+    private int reloadCoolDown = 0;
+    private static final int RELOAD_TIME = 100; // 5 секунд (100 тиков)
     
     // Отслеживание клика (не зажатия)
     private boolean wasFirePressed = false;
@@ -98,6 +103,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         this.entityData.define(POD_TOGGLED, false);
         this.entityData.define(CAMOUFLAGE_TYPE, 0);
         this.entityData.define(FIRING_MODE, false); // false = DRIVING, true = FIRING
+        this.entityData.define(AMMO, 0); // Начальное количество ракет - 0 (максимум 6)
     }
 
     @Override
@@ -107,6 +113,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         compound.putBoolean("PodToggled", this.entityData.get(POD_TOGGLED));
         compound.putInt("CamouflageType", this.entityData.get(CAMOUFLAGE_TYPE));
         compound.putBoolean("FiringMode", this.entityData.get(FIRING_MODE));
+        compound.putInt("Ammo", this.entityData.get(AMMO));
     }
 
     @Override
@@ -116,6 +123,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         this.entityData.set(POD_TOGGLED, compound.getBoolean("PodToggled"));
         this.entityData.set(CAMOUFLAGE_TYPE, compound.getInt("CamouflageType"));
         this.entityData.set(FIRING_MODE, compound.getBoolean("FiringMode"));
+        this.entityData.set(AMMO, compound.getInt("Ammo"));
     }
 
     public void setPodRot(float value) {
@@ -166,7 +174,9 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     @Override
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{{
-            new BallisticMissileWeapon().sound(ModSounds.INTO_MISSILE.get())
+            new BallisticMissileWeapon()
+                .sound(ModSounds.INTO_MISSILE.get())
+                .ammo(tech.vvp.vvp.init.ModItems.GMLRS_M31.get())
         }};
     }
 
@@ -185,9 +195,55 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     public DamageModifier getDamageModifier() {
         return super.getDamageModifier().custom((source, damage) -> this.getSourceAngle(source, 0.25F) * damage);
     }
+    
+    private void handleAmmo() {
+        // Уменьшаем кулдаун перезарядки
+        if (reloadCoolDown > 0) {
+            reloadCoolDown--;
+        }
+        
+        // Проверяем креативный ящик с патронами
+        boolean hasCreativeAmmo = false;
+        if (this.getFirstPassenger() instanceof Player player && com.atsuishio.superbwarfare.tools.InventoryTool.hasCreativeAmmoBox(player)) {
+            hasCreativeAmmo = true;
+        }
+        
+        if (hasCreativeAmmo) {
+            // Креативный режим - бесконечные патроны
+            this.entityData.set(AMMO, 6);
+        } else {
+            // Считаем патроны GMLRS M31 в инвентаре контейнера
+            int ammoInContainer = countItem(tech.vvp.vvp.init.ModItems.GMLRS_M31.get());
+            int currentAmmo = this.entityData.get(AMMO);
+            
+            // Если патронов меньше 6, есть в контейнере И кулдаун закончился - заряжаем
+            if (currentAmmo < 6 && ammoInContainer > 0 && reloadCoolDown <= 0) {
+                // Заряжаем по одной ракете за раз
+                consumeItem(tech.vvp.vvp.init.ModItems.GMLRS_M31.get(), 1);
+                this.entityData.set(AMMO, currentAmmo + 1);
+                
+                // Устанавливаем задержку перезарядки 5 секунд
+                reloadCoolDown = RELOAD_TIME;
+                
+                // Звук и сообщение игроку
+                if (this.getFirstPassenger() instanceof Player player) {
+                    // Воспроизводим звук перезарядки
+                    com.atsuishio.superbwarfare.tools.SoundTool.playLocalSound(player, tech.vvp.vvp.init.ModSounds.M1128_RELOAD.get());
+                    
+                    // Сообщение о зарядке
+                    player.sendSystemMessage(Component.literal("§aReloading... " + (currentAmmo + 1) + "/6"));
+                }
+            }
+        }
+    }
 
     @Override
     public void baseTick() {
+        // Обработка зарядки патронов
+        if (!this.level().isClientSide) {
+            handleAmmo();
+        }
+        
         // Обработка переключения режима (клавиша координат)
         // Используем coordinateInputDown для переключения режимов
         // Это будет обрабатываться через клиентский код
@@ -401,6 +457,15 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
             return;
         }
         
+        // Проверяем наличие патронов
+        int currentAmmo = this.entityData.get(AMMO);
+        if (currentAmmo <= 0) {
+            if (!this.level().isClientSide) {
+                player.sendSystemMessage(Component.literal("§cNo missiles left! Ammo: 0/6"));
+            }
+            return;
+        }
+        
         // Вычисляем направление башни
         float turretYaw = getTurretYRot(); // Относительный yaw
         float pitch = getTurretXRot();
@@ -422,6 +487,12 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         Vec3 targetPos = startPos.add(direction.scale(1000)); // 1000 блоков вперед
         
         shootMissileTo(player, targetPos);
+        
+        // Тратим патрон
+        if (!this.level().isClientSide) {
+            this.entityData.set(AMMO, currentAmmo - 1);
+            player.sendSystemMessage(Component.literal("§aMissile fired! Ammo: " + (currentAmmo - 1) + "/6"));
+        }
         
         // Устанавливаем кулдаун после выстрела
         fireCooldown = FIRE_COOLDOWN_TIME;
@@ -606,13 +677,13 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     }
 
     @Override
-    public boolean canShoot(LivingEntity living) {
-        return !this.cannotFire && getPodToggled();
-    }
-
-    @Override
     public int getAmmoCount(LivingEntity living) {
         return this.entityData.get(AMMO);
+    }
+    
+    @Override
+    public boolean canShoot(LivingEntity living) {
+        return this.entityData.get(AMMO) > 0 && isFiringMode() && !this.cannotFire && getPodToggled();
     }
 
     @Override

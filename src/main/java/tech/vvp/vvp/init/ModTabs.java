@@ -104,6 +104,7 @@ public class ModTabs {
                                 output.accept(ModItems.HFIRE_ITEM.get());
                                 output.accept(ModItems.HRYZANTEMA_ITEM.get());
                                 output.accept(ModItems.S_13.get());
+                                output.accept(ModItems.GMLRS_M31.get());
 
                             })
                             .build());
