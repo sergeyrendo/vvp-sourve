@@ -99,15 +99,32 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
             return;
         }
 
-        // Управление чанками
+        // Управление чанками - увеличенный радиус для дальних полетов
         if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
             ChunkPos newChunk = new ChunkPos(this.blockPosition());
             if (currentTicketChunk == null || !newChunk.equals(currentTicketChunk)) {
                 if (currentTicketChunk != null) {
-                    serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, currentTicketChunk, 10, this);
+                    serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, currentTicketChunk, 3, this);
                 }
-                serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, newChunk, 10, this);
+                // Увеличиваем радиус до 3 чанков (48 блоков) вокруг ракеты
+                serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, newChunk, 3, this);
                 currentTicketChunk = newChunk;
+                
+                // Также добавляем тикеты для чанков по пути к цели
+                if (targetPos != null) {
+                    Vec3 toTarget = targetPos.subtract(this.position());
+                    double dist = toTarget.length();
+                    if (dist > 16) { // Если цель далеко
+                        // Добавляем тикет для чанка на полпути к цели
+                        Vec3 midPoint = this.position().add(toTarget.scale(0.5));
+                        ChunkPos midChunk = new ChunkPos((int)midPoint.x >> 4, (int)midPoint.z >> 4);
+                        serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, midChunk, 2, this);
+                        
+                        // Добавляем тикет для чанка цели
+                        ChunkPos targetChunk = new ChunkPos((int)targetPos.x >> 4, (int)targetPos.z >> 4);
+                        serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, targetChunk, 2, this);
+                    }
+                }
             }
         }
 
