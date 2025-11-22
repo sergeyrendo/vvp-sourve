@@ -242,6 +242,23 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         // Обработка зарядки патронов
         if (!this.level().isClientSide) {
             handleAmmo();
+            
+            // Продолжительный дым после запуска (5 секунд) - 4 блока в высоту
+            if (launchSmokeTicks > 0) {
+                launchSmokeTicks--;
+                
+                // Генерируем дым возле пусковой установки
+                Matrix4f transform = this.getBarrelTransform(1.0F);
+                Vector4f smokePos = this.transformPosition(transform, 0.0F, 0.5F, 2.0F);
+                
+                ParticleTool.sendParticle((ServerLevel) this.level(), ParticleTypes.LARGE_SMOKE,
+                        smokePos.x, smokePos.y, smokePos.z,
+                        5, 0.8, 4.0, 0.8, 0.1, false);
+                
+                ParticleTool.sendParticle((ServerLevel) this.level(), ParticleTypes.CAMPFIRE_COSY_SMOKE,
+                        smokePos.x, smokePos.y, smokePos.z,
+                        3, 0.6, 4.0, 0.6, 0.08, false);
+            }
         }
         
         // Обработка переключения режима (клавиша координат)
@@ -403,6 +420,9 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         actuallyLaunchMissile(player, targetPos);
     }
     
+    // Счетчик для дыма после запуска
+    private int launchSmokeTicks = 0;
+    
     // Фактический запуск ракеты (вызывается после задержки)
     private void actuallyLaunchMissile(Player player, Vec3 targetPos) {
         // Запускаем ракету
@@ -413,8 +433,6 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         this.shotToggled = !this.shotToggled;
 
         Vector4f worldPosition = this.transformPosition(transform, x, y, z);
-        
-        player.sendSystemMessage(Component.literal("§7Missile spawn: " + (int)worldPosition.x + ", " + (int)worldPosition.y + ", " + (int)worldPosition.z));
 
         BallisticMissileEntity missile = ((BallisticMissileWeapon) this.getWeapon(0)).create(player);
         missile.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
@@ -424,10 +442,25 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
 
         this.level().addFreshEntity(missile);
 
-        // Эффекты запуска
+        // ОГРОМНОЕ ОБЛАКО ДЫМА при запуске (4 блока в высоту)
         ParticleTool.sendParticle((ServerLevel) this.level(), ParticleTypes.LARGE_SMOKE,
                 worldPosition.x, worldPosition.y, worldPosition.z,
-                10, 0.1, 0.1, 0.1, 0.0, false);
+                100, 2.0, 4.0, 2.0, 0.3, false);
+        
+        ParticleTool.sendParticle((ServerLevel) this.level(), ParticleTypes.CAMPFIRE_COSY_SMOKE,
+                worldPosition.x, worldPosition.y, worldPosition.z,
+                80, 1.5, 4.0, 1.5, 0.2, false);
+        
+        ParticleTool.sendParticle((ServerLevel) this.level(), ParticleTypes.SMOKE,
+                worldPosition.x, worldPosition.y, worldPosition.z,
+                60, 1.0, 4.0, 1.0, 0.15, false);
+        
+        ParticleTool.sendParticle((ServerLevel) this.level(), ParticleTypes.FLAME,
+                worldPosition.x, worldPosition.y, worldPosition.z,
+                40, 1.0, 4.0, 1.0, 0.2, false);
+        
+        // Запускаем таймер для продолжительного дыма (5 секунд = 100 тиков)
+        launchSmokeTicks = 100;
 
         // Звук запуска ракеты (без звука поворота башни)
         this.level().playSound(null, this.blockPosition(), tech.vvp.vvp.init.ModSounds.TOW_1P.get(), net.minecraft.sounds.SoundSource.PLAYERS, 3.0F, 0.8F);
@@ -436,8 +469,8 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         this.entityData.set(CANNON_RECOIL_TIME, 60);
         this.entityData.set(FIRE_ANIM, 3);
 
-        // Отправляем сообщение игроку
-        player.sendSystemMessage(Component.literal("§aMissile launched to: " + (int)targetPos.x + ", " + (int)targetPos.y + ", " + (int)targetPos.z));
+        // Отправляем сообщение игроку - targetPos это уже правильные координаты куда летит ракета
+        player.sendSystemMessage(Component.literal("§aMissile launched to: X=" + (int)targetPos.x + " Y=" + (int)targetPos.y + " Z=" + (int)targetPos.z));
     }
 
     @Override
@@ -467,8 +500,8 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         }
         
         // Вычисляем направление башни
-        float turretYaw = getTurretYRot(); // Относительный yaw
-        float pitch = getTurretXRot();
+        float turretYaw = getTurretYRot(); // Относительный yaw башни
+        float pitch = getTurretXRot(); // Pitch башни
         
         // Абсолютный yaw = yaw машины + относительный yaw башни
         float absoluteYaw = this.getYRot() + turretYaw;
@@ -478,13 +511,33 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         float pitchRad = (float) Math.toRadians(pitch);
         
         // Вычисляем направление (pitch отрицательный = вверх)
-        double x = -Math.sin(yawRad) * Math.cos(pitchRad);
-        double y = -Math.sin(pitchRad); // Отрицательный pitch = вверх
-        double z = Math.cos(yawRad) * Math.cos(pitchRad);
+        double dx = -Math.sin(yawRad) * Math.cos(pitchRad);
+        double dy = -Math.sin(pitchRad); // Отрицательный pitch = вверх
+        double dz = Math.cos(yawRad) * Math.cos(pitchRad);
         
-        Vec3 direction = new Vec3(x, y, z).normalize();
-        Vec3 startPos = position().add(0, 2, 0);
-        Vec3 targetPos = startPos.add(direction.scale(1000)); // 1000 блоков вперед
+        Vec3 direction = new Vec3(dx, dy, dz).normalize();
+        
+        // Получаем позицию ствола
+        Matrix4f transform = this.getBarrelTransform(1.0F);
+        Vector4f barrelPos = this.transformPosition(transform, 0.0F, 0.0F, 2.0F);
+        Vec3 startPos = new Vec3(barrelPos.x, barrelPos.y, barrelPos.z);
+        
+        // Делаем raycast чтобы найти точку попадания
+        Vec3 endPos = startPos.add(direction.scale(1000)); // Максимум 1000 блоков
+        net.minecraft.world.phys.BlockHitResult hitResult = this.level().clip(
+            new net.minecraft.world.level.ClipContext(
+                startPos,
+                endPos,
+                net.minecraft.world.level.ClipContext.Block.COLLIDER,
+                net.minecraft.world.level.ClipContext.Fluid.NONE,
+                this
+            )
+        );
+        
+        // Используем точку попадания или конечную точку если ничего не попали
+        Vec3 targetPos = hitResult.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK 
+            ? hitResult.getLocation() 
+            : endPos;
         
         shootMissileTo(player, targetPos);
         

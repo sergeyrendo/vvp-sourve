@@ -39,7 +39,7 @@ public class VVPClientInputHandler {
         }
         
         // Переключение режима HIMARS
-        while (VVPKeyMappings.OPEN_COORDINATE_SCREEN.consumeClick()) {
+        while (VVPKeyMappings.TOGGLE_FIRING_MODE.consumeClick()) {
             var v = mc.player.getVehicle();
             if (v instanceof tech.vvp.vvp.entity.vehicle.M142HimarsEntity himars && v.getFirstPassenger() == mc.player) {
                 // Отправляем пакет на сервер для переключения режима

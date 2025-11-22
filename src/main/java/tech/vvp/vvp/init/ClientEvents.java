@@ -8,7 +8,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.client.input.VVPKeyMappings;
-import tech.vvp.vvp.client.screen.CoordinateInputScreen;
+import tech.vvp.vvp.entity.vehicle.M142HimarsEntity;
+import tech.vvp.vvp.network.message.C2SHimarsToggleModePacket;
 
 @Mod.EventBusSubscriber(modid = VVP.MOD_ID, value = Dist.CLIENT)
 public class ClientEvents {
@@ -20,10 +21,11 @@ public class ClientEvents {
         Minecraft mc = Minecraft.getInstance();
         if (mc.screen != null || mc.player == null) return;
 
-        if (VVPKeyMappings.OPEN_COORDINATE_SCREEN.consumeClick()) {
+        // Клавиша Q теперь переключает режим стрельбы для HIMARS
+        if (VVPKeyMappings.TOGGLE_FIRING_MODE.consumeClick()) {
             Entity vehicle = mc.player.getVehicle();
-            if (vehicle instanceof CoordinateTargetVehicle targetable) {
-                mc.setScreen(new CoordinateInputScreen(targetable));
+            if (vehicle instanceof M142HimarsEntity) {
+                VVP.PACKET_HANDLER.sendToServer(new C2SHimarsToggleModePacket());
             }
         }
     }

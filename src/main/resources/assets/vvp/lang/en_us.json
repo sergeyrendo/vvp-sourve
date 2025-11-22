@@ -111,7 +111,7 @@
   "msg.vvp.radar_pos.mid_left": "Radar: middle-left",
   
   "//": "==================== HIMARS ====================",
-  "key.vvp.open_coordinate": "Open Coordinate Input",
+  "key.vvp.toggle_firing_mode": "Toggle Firing Mode",
   "entity.vvp.m142_himars": "M142 HIMARS",
   
   "//": "==================== MISSILES ====================",

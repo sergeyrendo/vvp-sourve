@@ -70,12 +70,34 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
 
     @Override
     public void tick() {
-        if (this.exploded || this.isRemoved()) {
+        super.tick();
+        ticksAlive++;
+
+        // Продолжительный дым после взрыва
+        if (this.exploded && explosionSmokeTicks > 0 && explosionPos != null) {
+            explosionSmokeTicks--;
+            
+            if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
+                // Дым поднимается вверх
+                ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
+                    explosionPos.x, explosionPos.y + 1.0, explosionPos.z, 
+                    8, 1.5, 0.5, 1.5, 0.1, false);
+                
+                ParticleTool.sendParticle(serverLevel, ParticleTypes.CAMPFIRE_COSY_SMOKE, 
+                    explosionPos.x, explosionPos.y + 1.0, explosionPos.z, 
+                    5, 1.2, 0.4, 1.2, 0.08, false);
+            }
+            
+            // Удаляем сущность когда дым закончится
+            if (explosionSmokeTicks <= 0) {
+                this.discard();
+            }
             return;
         }
         
-        super.tick();
-        ticksAlive++;
+        if (this.exploded || this.isRemoved()) {
+            return;
+        }
 
         // Управление чанками
         if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
@@ -143,17 +165,23 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
         if (this.level().isClientSide) return;
         ServerLevel serverLevel = (ServerLevel) this.level();
         
-        // Дымный след
+        // ОЧЕНЬ БОЛЬШОЙ дымный след
         ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
-            this.getX(), this.getY(), this.getZ(), 3, 0.1, 0.1, 0.1, 0.01, true);
+            this.getX(), this.getY(), this.getZ(), 15, 0.5, 0.5, 0.5, 0.05, true);
         
         ParticleTool.sendParticle(serverLevel, ParticleTypes.SMOKE, 
-            this.getX(), this.getY(), this.getZ(), 2, 0.08, 0.08, 0.08, 0.008, true);
+            this.getX(), this.getY(), this.getZ(), 10, 0.4, 0.4, 0.4, 0.04, true);
+        
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.CAMPFIRE_COSY_SMOKE, 
+            this.getX(), this.getY(), this.getZ(), 8, 0.3, 0.3, 0.3, 0.03, true);
         
         // Огонь от двигателя (первые 2 секунды)
         if (ticksAlive < 40) {
             ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, 
-                this.getX(), this.getY(), this.getZ(), 4, 0.1, 0.1, 0.1, 0.015, true);
+                this.getX(), this.getY(), this.getZ(), 12, 0.3, 0.3, 0.3, 0.05, true);
+            
+            ParticleTool.sendParticle(serverLevel, ParticleTypes.LAVA, 
+                this.getX(), this.getY(), this.getZ(), 3, 0.1, 0.1, 0.1, 0.02, true);
         }
     }
 
@@ -181,6 +209,9 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
         }
     }
 
+    private Vec3 explosionPos = null; // Позиция взрыва для продолжительного дыма
+    private int explosionSmokeTicks = 0; // Таймер дыма после взрыва
+    
     private void explode() {
         if (this.exploded) return;
         this.exploded = true;
@@ -191,15 +222,42 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
         
         ServerLevel serverLevel = (ServerLevel) this.level();
         
-        // Эффекты взрыва разделения
+        // Сохраняем позицию взрыва
+        explosionPos = this.position();
+        explosionSmokeTicks = 200; // 10 секунд дыма
+        
+        // ГРИБОВИДНОЕ ОБЛАКО - маленький гриб
+        // Ножка гриба - вертикальный столб дыма (6 блоков высотой)
+        for (int i = 0; i < 6; i++) {
+            double yOffset = i * 1.0; // Каждый блок вверх
+            ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
+                this.getX(), this.getY() + yOffset, this.getZ(), 
+                20, 0.3, 0.2, 0.3, 0.03, true);
+            
+            ParticleTool.sendParticle(serverLevel, ParticleTypes.CAMPFIRE_COSY_SMOKE, 
+                this.getX(), this.getY() + yOffset, this.getZ(), 
+                15, 0.25, 0.15, 0.25, 0.025, true);
+        }
+        
+        // Шапка гриба - расширяющееся облако наверху (на высоте 6 блоков)
+        double mushroomHeight = 6.0;
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
+            this.getX(), this.getY() + mushroomHeight, this.getZ(), 
+            80, 2.5, 0.5, 2.5, 0.15, true);
+        
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.CAMPFIRE_COSY_SMOKE, 
+            this.getX(), this.getY() + mushroomHeight, this.getZ(), 
+            60, 2.0, 0.4, 2.0, 0.12, true);
+        
+        // Эффекты взрыва в центре
         ParticleTool.sendParticle(serverLevel, ParticleTypes.EXPLOSION_EMITTER, 
-            this.getX(), this.getY(), this.getZ(), 1, 0, 0, 0, 0, true);
+            this.getX(), this.getY(), this.getZ(), 3, 0, 0, 0, 0, true);
         
         ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
-            this.getX(), this.getY(), this.getZ(), 20, 1.0, 1.0, 1.0, 0.1, true);
+            this.getX(), this.getY(), this.getZ(), 80, 2.0, 2.0, 2.0, 0.3, true);
         
         ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, 
-            this.getX(), this.getY(), this.getZ(), 15, 0.8, 0.8, 0.8, 0.08, true);
+            this.getX(), this.getY(), this.getZ(), 60, 1.5, 1.5, 1.5, 0.2, true);
         
         // Звук взрыва
         this.level().playSound(null, this.blockPosition(), SoundEvents.GENERIC_EXPLODE, 
@@ -209,53 +267,52 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
         this.level().explode(this, this.getX(), this.getY(), this.getZ(), 
             2.0F, Level.ExplosionInteraction.NONE);
         
-        // ШРАПНЕЛЬ - красивые эффекты
+        // ШРАПНЕЛЬ - красивые эффекты (в 4 раза больше)
         spawnShrapnelEffects(serverLevel);
         
         // Прямой урон от шрапнели всем сущностям в радиусе
-        // Радиус: 20 * 1.3 = 26 блоков
-        // Урон: 100 * 2 = 200 (гарантированно убивает игрока в незерите)
         damageEntitiesWithShrapnel(26.0, 200.0f);
         
         stopChank();
-        this.discard();
+        // НЕ удаляем сразу - нужно для продолжительного дыма
     }
     
     private void spawnShrapnelEffects(ServerLevel serverLevel) {
         // КРАСИВЫЕ ЭФФЕКТЫ ШРАПНЕЛИ - разлетаются на 20 блоков
+        // ВСЕ ЭФФЕКТЫ УВЕЛИЧЕНЫ В 4 РАЗА
         
         // Огненные искры во все стороны (как фейерверк) - быстрые
         ParticleTool.sendParticle(serverLevel, ParticleTypes.FIREWORK, 
-            this.getX(), this.getY(), this.getZ(), 200, 3.0, 3.0, 3.0, 1.5, true);
+            this.getX(), this.getY(), this.getZ(), 800, 3.0, 3.0, 3.0, 1.5, true);
         
         // Лава (раскаленные осколки) - средняя скорость
         ParticleTool.sendParticle(serverLevel, ParticleTypes.LAVA, 
-            this.getX(), this.getY(), this.getZ(), 150, 2.5, 2.5, 2.5, 1.2, true);
+            this.getX(), this.getY(), this.getZ(), 600, 2.5, 2.5, 2.5, 1.2, true);
         
         // Огонь - быстрый
         ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, 
-            this.getX(), this.getY(), this.getZ(), 100, 2.0, 2.0, 2.0, 1.0, true);
+            this.getX(), this.getY(), this.getZ(), 400, 2.0, 2.0, 2.0, 1.0, true);
         
         // Искры - очень быстрые
         ParticleTool.sendParticle(serverLevel, ParticleTypes.CRIT, 
-            this.getX(), this.getY(), this.getZ(), 120, 2.5, 2.5, 2.5, 1.8, true);
+            this.getX(), this.getY(), this.getZ(), 480, 2.5, 2.5, 2.5, 1.8, true);
         
         // Белые вспышки в центре
         ParticleTool.sendParticle(serverLevel, ParticleTypes.FLASH, 
-            this.getX(), this.getY(), this.getZ(), 5, 0.5, 0.5, 0.5, 0, true);
+            this.getX(), this.getY(), this.getZ(), 20, 0.5, 0.5, 0.5, 0, true);
         
         // Дым от осколков - медленный
         ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, 
-            this.getX(), this.getY(), this.getZ(), 80, 2.0, 2.0, 2.0, 0.8, true);
+            this.getX(), this.getY(), this.getZ(), 320, 2.0, 2.0, 2.0, 0.8, true);
         
         // Дополнительные эффекты для дальности
         // Взрывные частицы
         ParticleTool.sendParticle(serverLevel, ParticleTypes.EXPLOSION, 
-            this.getX(), this.getY(), this.getZ(), 50, 3.0, 3.0, 3.0, 1.5, true);
+            this.getX(), this.getY(), this.getZ(), 200, 3.0, 3.0, 3.0, 1.5, true);
         
         // Красная пыль (как кровь от осколков)
         ParticleTool.sendParticle(serverLevel, ParticleTypes.CRIMSON_SPORE, 
-            this.getX(), this.getY(), this.getZ(), 100, 3.0, 3.0, 3.0, 1.3, true);
+            this.getX(), this.getY(), this.getZ(), 400, 3.0, 3.0, 3.0, 1.3, true);
         
         // Дополнительный звук разлета осколков
         this.level().playSound(null, this.blockPosition(), SoundEvents.FIREWORK_ROCKET_BLAST, 

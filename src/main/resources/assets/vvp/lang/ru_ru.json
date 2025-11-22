@@ -71,7 +71,9 @@
   "item.vvp.hfire_item": "Ракета Hellfire",
   "item.vvp.cactus_turret": "Модуль «Кактус»",
   "item.vvp.bmp3m_body": "Модуль «3М»",
-  "item.vvp.hryzantema_item": "9M123 ПТУР",
+  "item.vvp.hryzantema_item": "9M123 Хризантема",
+  "item.vvp.aim_120_item": "AIM-120 AMRAAM",
+  "item.vvp.gmlrs_m31": "GMLRS M31",
   "des.vvp.mangal_body": "Мангал основания техники.",
   "des.vvp.mangal_turret": "Мангал для башни техники.",
   "des.vvp.setka_body": "Листва для основания техники.",
@@ -111,7 +113,7 @@
   "msg.vvp.radar_pos.mid_left": "Радар: центр слева",
   
   "//": "==================== HIMARS ====================",
-  "key.vvp.open_coordinate": "Открыть ввод координат",
+  "key.vvp.toggle_firing_mode": "Переключить режим стрельбы",
   "entity.vvp.m142_himars": "M142 HIMARS",
   
   "//": "==================== РАКЕТЫ ====================",
