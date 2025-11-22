@@ -102,6 +102,14 @@ public class VVP {
                     tech.vvp.vvp.network.message.C2SHimarsToggleModePacket::handle,
                     java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
             );
+            // C2S: переключение опор Панциря
+            VVPNetwork.addNetworkMessage(
+                    tech.vvp.vvp.network.message.C2SPantsirToggleSupportsPacket.class,
+                    tech.vvp.vvp.network.message.C2SPantsirToggleSupportsPacket::toBytes,
+                    tech.vvp.vvp.network.message.C2SPantsirToggleSupportsPacket::new,
+                    tech.vvp.vvp.network.message.C2SPantsirToggleSupportsPacket::handle,
+                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
+            );
 
         });
     }

@@ -53,27 +53,27 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     public static final EntityDataAccessor<Integer> CAMOUFLAGE_TYPE = SynchedEntityData.defineId(M142HimarsEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> FIRING_MODE = SynchedEntityData.defineId(M142HimarsEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> AMMO = SynchedEntityData.defineId(M142HimarsEntity.class, EntityDataSerializers.INT);
-    
+
     // Режимы работы
     public enum OperationMode {
         DRIVING,  // Режим движения - можно ездить, башня заблокирована
         FIRING    // Режим стрельбы - техника остановлена, можно наводить башню
     }
-    
+
     // Автоматическое наведение (для стрельбы через координаты)
     private Vec3 targetPosition = null;
     private boolean isAutoAiming = false;
     private float targetYaw = 0;
     private float targetPitch = 0;
-    
+
     // Кулдаун между выстрелами
     private int fireCooldown = 0;
     private static final int FIRE_COOLDOWN_TIME = 20; // 1 секунда (20 тиков)
-    
+
     // Кулдаун перезарядки
     private int reloadCoolDown = 0;
     private static final int RELOAD_TIME = 100; // 5 секунд (100 тиков)
-    
+
     // Отслеживание клика (не зажатия)
     private boolean wasFirePressed = false;
 
@@ -85,7 +85,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         super(type, world);
         this.cache = GeckoLibUtil.createInstanceCache(this);
         this.setMaxUpStep(1.5f);
-        
+
         // Устанавливаем начальное положение башни
         this.setTurretYRot(0);
         this.setTurretXRot(0);
@@ -141,29 +141,29 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     public boolean getPodToggled() {
         return this.entityData.get(POD_TOGGLED);
     }
-    
+
     // Методы для работы с режимами
     public boolean isFiringMode() {
         return this.entityData.get(FIRING_MODE);
     }
-    
+
     public void setFiringMode(boolean firing) {
         this.entityData.set(FIRING_MODE, firing);
     }
-    
+
     public OperationMode getOperationMode() {
         return isFiringMode() ? OperationMode.FIRING : OperationMode.DRIVING;
     }
-    
+
     public void toggleMode() {
         boolean currentMode = isFiringMode();
         setFiringMode(!currentMode);
-        
+
         // При переключении в режим FIRING - останавливаем технику
         if (!currentMode) { // Переключаемся в FIRING
             this.setDeltaMovement(Vec3.ZERO);
         }
-        
+
         // Отправляем сообщение игроку
         if (!this.level().isClientSide && this.getFirstPassenger() instanceof Player player) {
             String mode = isFiringMode() ? "§aFIRING" : "§6DRIVING";
@@ -174,9 +174,9 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     @Override
     public VehicleWeapon[][] initWeapons() {
         return new VehicleWeapon[][]{{
-            new BallisticMissileWeapon()
-                .sound(ModSounds.INTO_MISSILE.get())
-                .ammo(tech.vvp.vvp.init.ModItems.GMLRS_M31.get())
+                new BallisticMissileWeapon()
+                        .sound(ModSounds.INTO_MISSILE.get())
+                        .ammo(tech.vvp.vvp.init.ModItems.GMLRS_M31.get())
         }};
     }
 
@@ -195,19 +195,19 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     public DamageModifier getDamageModifier() {
         return super.getDamageModifier().custom((source, damage) -> this.getSourceAngle(source, 0.25F) * damage);
     }
-    
+
     private void handleAmmo() {
         // Уменьшаем кулдаун перезарядки
         if (reloadCoolDown > 0) {
             reloadCoolDown--;
         }
-        
+
         // Проверяем креативный ящик с патронами
         boolean hasCreativeAmmo = false;
         if (this.getFirstPassenger() instanceof Player player && com.atsuishio.superbwarfare.tools.InventoryTool.hasCreativeAmmoBox(player)) {
             hasCreativeAmmo = true;
         }
-        
+
         if (hasCreativeAmmo) {
             // Креативный режим - бесконечные патроны
             this.entityData.set(AMMO, 6);
@@ -215,21 +215,21 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
             // Считаем патроны GMLRS M31 в инвентаре контейнера
             int ammoInContainer = countItem(tech.vvp.vvp.init.ModItems.GMLRS_M31.get());
             int currentAmmo = this.entityData.get(AMMO);
-            
+
             // Если патронов меньше 6, есть в контейнере И кулдаун закончился - заряжаем
             if (currentAmmo < 6 && ammoInContainer > 0 && reloadCoolDown <= 0) {
                 // Заряжаем по одной ракете за раз
                 consumeItem(tech.vvp.vvp.init.ModItems.GMLRS_M31.get(), 1);
                 this.entityData.set(AMMO, currentAmmo + 1);
-                
+
                 // Устанавливаем задержку перезарядки 5 секунд
                 reloadCoolDown = RELOAD_TIME;
-                
+
                 // Звук и сообщение игроку
                 if (this.getFirstPassenger() instanceof Player player) {
                     // Воспроизводим звук перезарядки
                     com.atsuishio.superbwarfare.tools.SoundTool.playLocalSound(player, tech.vvp.vvp.init.ModSounds.M1128_RELOAD.get());
-                    
+
                     // Сообщение о зарядке
                     player.sendSystemMessage(Component.literal("§aReloading... " + (currentAmmo + 1) + "/6"));
                 }
@@ -242,29 +242,29 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         // Обработка зарядки патронов
         if (!this.level().isClientSide) {
             handleAmmo();
-            
+
             // Продолжительный дым после запуска (5 секунд) - 4 блока в высоту
             if (launchSmokeTicks > 0) {
                 launchSmokeTicks--;
-                
+
                 // Генерируем дым возле пусковой установки
                 Matrix4f transform = this.getBarrelTransform(1.0F);
                 Vector4f smokePos = this.transformPosition(transform, 0.0F, 0.5F, 2.0F);
-                
+
                 ParticleTool.sendParticle((ServerLevel) this.level(), ParticleTypes.LARGE_SMOKE,
                         smokePos.x, smokePos.y, smokePos.z,
                         5, 0.8, 4.0, 0.8, 0.1, false);
-                
+
                 ParticleTool.sendParticle((ServerLevel) this.level(), ParticleTypes.CAMPFIRE_COSY_SMOKE,
                         smokePos.x, smokePos.y, smokePos.z,
                         3, 0.6, 4.0, 0.6, 0.08, false);
             }
         }
-        
+
         // Обработка переключения режима (клавиша координат)
         // Используем coordinateInputDown для переключения режимов
         // Это будет обрабатываться через клиентский код
-        
+
         // Сохраняем старые значения ДО автонаведения
         this.rudderRotO = this.getRudderRot();
         this.leftWheelRotO = this.getLeftWheelRot();
@@ -273,36 +273,36 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         // Автоматическое наведение на цель (плавное)
         if (isAutoAiming && targetPosition != null) {
             autoAimToTarget();
-            
+
             // Проверяем, довернулась ли башня
             float currentYaw = this.getTurretYRot();
             float currentPitch = this.getTurretXRot();
             float yawDiff = Math.abs(Mth.wrapDegrees(targetYaw - currentYaw));
             float pitchDiff = Math.abs(targetPitch - currentPitch);
-            
+
             // Если довернулись (разница меньше 0.5 градуса) - отключаем автонаведение
             if (yawDiff < 0.5F && pitchDiff < 0.5F) {
                 isAutoAiming = false;
                 // НЕ сбрасываем targetPosition - башня остается в этом положении
             }
         }
-        
+
         // Управление башней в режиме FIRING
         if (isFiringMode() && !isAutoAiming && this.getFirstPassenger() instanceof Player player) {
             // В режиме FIRING башня следует за камерой игрока
             float playerYaw = player.getYHeadRot();
             float playerPitch = player.getXRot();
-            
+
             // Поворот башни - используем относительный угол к машине
             // Вычитаем yaw машины чтобы получить относительный угол
             float relativeYaw = Mth.wrapDegrees(playerYaw - this.getYRot());
             this.setTurretYRot(relativeYaw);
-            
+
             // Подъем башни с ограничениями
             // playerPitch: отрицательный = вверх, положительный = вниз
             // Ограничиваем от -60 (вверх) до 0 (горизонт)
             this.setTurretXRot(Mth.clamp(playerPitch, -60F, 0F));
-            
+
             // Сбрасываем MOUSE_SPEED чтобы не накапливалось
             this.entityData.set(MOUSE_SPEED_X, 0f);
             this.entityData.set(MOUSE_SPEED_Y, 0f);
@@ -311,19 +311,19 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
             // Yaw = 0 (относительно машины), Pitch = 0 (горизонтально)
             this.setTurretYRot(0F);
             this.setTurretXRot(0F);
-            
+
             // Сбрасываем MOUSE_SPEED
             this.entityData.set(MOUSE_SPEED_X, 0f);
             this.entityData.set(MOUSE_SPEED_Y, 0f);
         }
-        
+
         // Сохраняем значения башни ПОСЛЕ автонаведения
         this.turretYRotO = this.getTurretYRot();
         this.turretXRotO = this.getTurretXRot();
 
         double fluidFloat = 0.052 * this.getSubmergedHeight(this);
         this.setDeltaMovement(this.getDeltaMovement().add(0.0F, fluidFloat, 0.0F));
-        
+
         if (this.onGround()) {
             float f0 = 0.54F + 0.25F * Mth.abs(90.0F - (float)calculateAngle(this.getDeltaMovement(), this.getViewVector(1.0F))) / 90.0F;
             this.setDeltaMovement(this.getDeltaMovement().add(this.getViewVector(1.0F).normalize().scale(0.05 * this.getDeltaMovement().dot(this.getViewVector(1.0F)))));
@@ -340,7 +340,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         if (fireCooldown > 0) {
             fireCooldown--;
         }
-        
+
         // Обработка стрельбы ЛКМ (только по клику, не при зажатии)
         if (this.getFirstPassenger() instanceof Player player) {
             // Стреляем только когда кнопка только что нажата (не была нажата в прошлом тике)
@@ -350,7 +350,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
             // Запоминаем состояние кнопки
             wasFirePressed = fireInputDown;
         }
-        
+
         this.lowHealthWarning();
         this.terrainCompact(2.7F, 3.61F);
         this.releaseSmokeDecoy(this.getTurretVector(1.0F));
@@ -387,7 +387,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         float currentYaw = this.getTurretYRot();
         float yawDiff = Mth.wrapDegrees(targetYaw - currentYaw);
         float yawSpeed = 2.5F; // Скорость поворота башни (градусов за тик)
-        
+
         if (Math.abs(yawDiff) > 0.1F) {
             float newYaw = currentYaw + Mth.clamp(yawDiff, -yawSpeed, yawSpeed);
             this.setTurretYRot(newYaw);
@@ -397,7 +397,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         float currentPitch = this.getTurretXRot();
         float pitchDiff = targetPitch - currentPitch;
         float pitchSpeed = 2.0F; // Скорость подъема ствола (градусов за тик)
-        
+
         if (Math.abs(pitchDiff) > 0.1F) {
             float newPitch = currentPitch + Mth.clamp(pitchDiff, -pitchSpeed, pitchSpeed);
             this.setTurretXRot(Mth.clamp(newPitch, -7.5F, 60F));
@@ -409,20 +409,20 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         if (this.level().isClientSide) {
             return;
         }
-        
+
         // Проверяем что мы в режиме FIRING
         if (!isFiringMode()) {
             player.sendSystemMessage(Component.literal("§cCannot fire in DRIVING mode! Switch to FIRING mode first."));
             return;
         }
-        
+
         // Стреляем сразу без задержки
         actuallyLaunchMissile(player, targetPos);
     }
-    
+
     // Счетчик для дыма после запуска
     private int launchSmokeTicks = 0;
-    
+
     // Фактический запуск ракеты (вызывается после задержки)
     private void actuallyLaunchMissile(Player player, Vec3 targetPos) {
         // Запускаем ракету
@@ -446,19 +446,19 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         ParticleTool.sendParticle((ServerLevel) this.level(), ParticleTypes.LARGE_SMOKE,
                 worldPosition.x, worldPosition.y, worldPosition.z,
                 100, 2.0, 4.0, 2.0, 0.3, false);
-        
+
         ParticleTool.sendParticle((ServerLevel) this.level(), ParticleTypes.CAMPFIRE_COSY_SMOKE,
                 worldPosition.x, worldPosition.y, worldPosition.z,
                 80, 1.5, 4.0, 1.5, 0.2, false);
-        
+
         ParticleTool.sendParticle((ServerLevel) this.level(), ParticleTypes.SMOKE,
                 worldPosition.x, worldPosition.y, worldPosition.z,
                 60, 1.0, 4.0, 1.0, 0.15, false);
-        
+
         ParticleTool.sendParticle((ServerLevel) this.level(), ParticleTypes.FLAME,
                 worldPosition.x, worldPosition.y, worldPosition.z,
                 40, 1.0, 4.0, 1.0, 0.2, false);
-        
+
         // Запускаем таймер для продолжительного дыма (5 секунд = 100 тиков)
         launchSmokeTicks = 100;
 
@@ -481,7 +481,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     @Override
     public void vehicleShoot(LivingEntity living, int type) {
         if (!(living instanceof Player player)) return;
-        
+
         // Проверяем режим
         if (!isFiringMode()) {
             if (!this.level().isClientSide) {
@@ -489,7 +489,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
             }
             return;
         }
-        
+
         // Проверяем наличие патронов
         int currentAmmo = this.entityData.get(AMMO);
         if (currentAmmo <= 0) {
@@ -498,55 +498,55 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
             }
             return;
         }
-        
+
         // Вычисляем направление башни
         float turretYaw = getTurretYRot(); // Относительный yaw башни
         float pitch = getTurretXRot(); // Pitch башни
-        
+
         // Абсолютный yaw = yaw машины + относительный yaw башни
         float absoluteYaw = this.getYRot() + turretYaw;
-        
+
         // Конвертируем углы в радианы
         float yawRad = (float) Math.toRadians(absoluteYaw);
         float pitchRad = (float) Math.toRadians(pitch);
-        
+
         // Вычисляем направление (pitch отрицательный = вверх)
         double dx = -Math.sin(yawRad) * Math.cos(pitchRad);
         double dy = -Math.sin(pitchRad); // Отрицательный pitch = вверх
         double dz = Math.cos(yawRad) * Math.cos(pitchRad);
-        
+
         Vec3 direction = new Vec3(dx, dy, dz).normalize();
-        
+
         // Получаем позицию ствола
         Matrix4f transform = this.getBarrelTransform(1.0F);
         Vector4f barrelPos = this.transformPosition(transform, 0.0F, 0.0F, 2.0F);
         Vec3 startPos = new Vec3(barrelPos.x, barrelPos.y, barrelPos.z);
-        
+
         // Делаем raycast чтобы найти точку попадания
         Vec3 endPos = startPos.add(direction.scale(1000)); // Максимум 1000 блоков
         net.minecraft.world.phys.BlockHitResult hitResult = this.level().clip(
-            new net.minecraft.world.level.ClipContext(
-                startPos,
-                endPos,
-                net.minecraft.world.level.ClipContext.Block.COLLIDER,
-                net.minecraft.world.level.ClipContext.Fluid.NONE,
-                this
-            )
+                new net.minecraft.world.level.ClipContext(
+                        startPos,
+                        endPos,
+                        net.minecraft.world.level.ClipContext.Block.COLLIDER,
+                        net.minecraft.world.level.ClipContext.Fluid.NONE,
+                        this
+                )
         );
-        
+
         // Используем точку попадания или конечную точку если ничего не попали
-        Vec3 targetPos = hitResult.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK 
-            ? hitResult.getLocation() 
-            : endPos;
-        
+        Vec3 targetPos = hitResult.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK
+                ? hitResult.getLocation()
+                : endPos;
+
         shootMissileTo(player, targetPos);
-        
+
         // Тратим патрон
         if (!this.level().isClientSide) {
             this.entityData.set(AMMO, currentAmmo - 1);
             player.sendSystemMessage(Component.literal("§aMissile fired! Ammo: " + (currentAmmo - 1) + "/6"));
         }
-        
+
         // Устанавливаем кулдаун после выстрела
         fireCooldown = FIRE_COOLDOWN_TIME;
     }
@@ -576,7 +576,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
                 this.sprintInputDown = false;
                 this.entityData.set(POWER, 0.0F);
             }
-            
+
             // В режиме FIRING блокируем движение
             if (isFiringMode()) {
                 this.leftInputDown = false;
@@ -604,14 +604,14 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
 
             this.entityData.set(POWER, this.entityData.get(POWER) * (this.upInputDown ? 0.5F : (!this.rightInputDown && !this.leftInputDown ? 0.99F : 0.977F)));
             this.entityData.set(DELTA_ROT, this.entityData.get(DELTA_ROT) * (float) org.joml.Math.max(0.76F - 0.1F * this.getDeltaMovement().horizontalDistance(), 0.3));
-            
+
             double s0 = this.getDeltaMovement().dot(this.getViewVector(1.0F));
             this.setLeftWheelRot((float)(this.getLeftWheelRot() - 1.25F * s0 - this.getDeltaMovement().horizontalDistance() * Mth.clamp(1.5F * this.entityData.get(DELTA_ROT), -5.0F, 5.0F)));
             this.setRightWheelRot((float)(this.getRightWheelRot() - 1.25F * s0 + this.getDeltaMovement().horizontalDistance() * Mth.clamp(1.5F * this.entityData.get(DELTA_ROT), -5.0F, 5.0F)));
             this.setRudderRot(Mth.clamp(this.getRudderRot() - this.entityData.get(DELTA_ROT), -0.8F, 0.8F) * 0.75F);
 
             this.setYRot((float)(this.getYRot() - Math.max((this.isInWater() && !this.onGround() ? 5 : 10) * this.getDeltaMovement().horizontalDistance(), 0.0F) * this.getRudderRot() * (this.entityData.get(POWER) > 0.0F ? 1 : -1)));
-            
+
             if (this.isInWater() || this.onGround()) {
                 float power = this.entityData.get(POWER) * Mth.clamp(1.0F + (float)(s0 > 0.0F ? 1 : -1) * this.getXRot() / 35.0F, 0.0F, 2.0F);
                 this.setDeltaMovement(this.getDeltaMovement().add(this.getViewVector(1.0F).scale((!this.isInWater() && !this.onGround() ? 0.05F : (this.isInWater() && !this.onGround() ? 0.3F : 1.0F)) * power)));
@@ -680,7 +680,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         Matrix4f transform = new Matrix4f();
         Vector4f worldPosition = this.transformPosition(transform, 0.0234375F, 0.33795F, 0.825F);
         transformT.translate(worldPosition.x, worldPosition.y, worldPosition.z);
-        
+
         float a = this.getTurretYaw(ticks);
         float r = (Mth.abs(a) - 90.0F) / 90.0F;
         float r2;
@@ -733,7 +733,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     public int getAmmoCount(LivingEntity living) {
         return this.entityData.get(AMMO);
     }
-    
+
     @Override
     public boolean canShoot(LivingEntity living) {
         return this.entityData.get(AMMO) > 0 && isFiringMode() && !this.cannotFire && getPodToggled();
@@ -783,7 +783,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     public net.minecraft.resources.ResourceLocation getVehicleItemIcon() {
         return tech.vvp.vvp.VVP.loc("textures/gui/vehicle/type/land.png");
     }
-    
+
     // Отключаем звук поворота башни
     @Override
     public void turretTurnSound(float diffX, float diffY, float pitch) {

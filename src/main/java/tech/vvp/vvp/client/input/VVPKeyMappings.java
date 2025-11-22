@@ -33,11 +33,19 @@ public class VVPKeyMappings {
             "key.categories.vvp"
     );
 
+    public static final KeyMapping TOGGLE_SUPPORTS = new KeyMapping(
+            "key.vvp.toggle_supports",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_B,
+            "key.categories.vvp"
+    );
+
     @SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(TOGGLE_RADAR);
         event.register(MOVE_RADAR_POS);
         event.register(TOGGLE_FIRING_MODE);
+        event.register(TOGGLE_SUPPORTS);
     }
 
 

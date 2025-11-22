@@ -3,6 +3,7 @@ package tech.vvp.vvp.entity.vehicle;
 import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.client.RenderHelper;
 import com.atsuishio.superbwarfare.entity.OBBEntity;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import tech.vvp.vvp.entity.projectile.PantsirS1MissileEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.ContainerMobileVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.base.LandArmorEntity;
@@ -71,12 +72,13 @@ import tech.vvp.vvp.config.server.VehicleConfigVVP;
 import tech.vvp.vvp.entity.vehicle.weapon.PantsirS1MissileWeapon;
 import tech.vvp.vvp.init.ModEntities;
 
+
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 import static com.atsuishio.superbwarfare.tools.ParticleTool.sendParticle;
 
-public class PantsirS1Entity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity, OBBEntity, tech.vvp.vvp.radar.IRadarVehicle {
+public class PantsirS1Entity extends ContainerMobileVehicleEntity implements GeoEntity, LandArmorEntity, WeaponVehicleEntity, OBBEntity {
 
     public static final EntityDataAccessor<Integer> CANNON_FIRE_TIME = SynchedEntityData.defineId(PantsirS1Entity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LOADED_MISSILE = SynchedEntityData.defineId(PantsirS1Entity.class, EntityDataSerializers.INT);
@@ -102,6 +104,14 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
             SynchedEntityData.defineId(PantsirS1Entity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Integer> SOUND_LOOP_TIMER =
             SynchedEntityData.defineId(PantsirS1Entity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Boolean> SUPPORTS_DEPLOYED =
+            SynchedEntityData.defineId(PantsirS1Entity.class, EntityDataSerializers.BOOLEAN);
+
+    private static final String SUPPORTS_CONTROLLER = "supports";
+    private static final String SUPPORTS_DEPLOY_TRIGGER = "deploy_supports";
+    private static final String SUPPORTS_RETRACT_TRIGGER = "retract_supports";
+    private static final RawAnimation SUPPORTS_DEPLOY_ANIM = RawAnimation.begin().thenPlay("opory");
+    private static final RawAnimation SUPPORTS_IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -111,13 +121,13 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
 
 
     // Смещение дуль относительно центра стволбокса
-    private static final float CANNON_MUZZLE_X_OFFSET = 0.2084062f; // влево/вправо (подстрой под модель)
-    private static final float CANNON_MUZZLE_Y       = -0.0003375f;
-    private static final float CANNON_MUZZLE_Z       = 3.3871062f;
+    private static final float CANNON_MUZZLE_X_OFFSET = 14f/16f; // влево/вправо (подстрой под модель)
+    private static final float CANNON_MUZZLE_Y       = 60f/16f - 58.5662f/16f;
+    private static final float CANNON_MUZZLE_Z       = -23f/16f;
 
-    private static final float MISSILE_MUZZLE_X_OFFSET = 1.2000000f;
-    private static final float MISSILE_MUZZLE_Y       = -0.2593750f;
-    private static final float MISSILE_MUZZLE_Z       = 1.0675125f;
+    private static final float MISSILE_MUZZLE_X_OFFSET = 23f/16f;
+    private static final float MISSILE_MUZZLE_Y       = 60f/16f - 58.5662f/16f;
+    private static final float MISSILE_MUZZLE_Z       = -23f/16f;
 
     private Vec3 getCannonMuzzlePos(float ticks, boolean left) {
         Matrix4f transform = getBarrelTransform(ticks);
@@ -201,6 +211,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         this.entityData.define(IS_LOCKING_SOUND_PLAYING, false);
         this.entityData.define(IS_LOCKED_SOUND_PLAYING, false);
         this.entityData.define(SOUND_LOOP_TIMER, 0);
+        this.entityData.define(SUPPORTS_DEPLOYED, false);
     }
 
     @Override
@@ -218,6 +229,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         compound.putBoolean("TargetLocked", this.entityData.get(TARGET_LOCKED));
         compound.putBoolean("IsLockingSoundPlaying", this.entityData.get(IS_LOCKING_SOUND_PLAYING));
         compound.putBoolean("IsLockedSoundPlaying", this.entityData.get(IS_LOCKED_SOUND_PLAYING));
+        compound.putBoolean("SupportsDeployed", this.entityData.get(SUPPORTS_DEPLOYED));
     }
 
     @Override
@@ -235,6 +247,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         this.entityData.set(TARGET_LOCKED, compound.getBoolean("TargetLocked"));
         this.entityData.set(IS_LOCKING_SOUND_PLAYING, compound.getBoolean("IsLockingSoundPlaying"));
         this.entityData.set(IS_LOCKED_SOUND_PLAYING, compound.getBoolean("IsLockedSoundPlaying"));
+        this.entityData.set(SUPPORTS_DEPLOYED, compound.getBoolean("SupportsDeployed"));
     }
 
     @Override
@@ -268,7 +281,6 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         if (getRightTrack() > 100) {
             setRightTrack(0);
         }
-
 
         if (this.level() instanceof ServerLevel) {
             if (reloadCoolDown > 0) {
@@ -352,7 +364,6 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
 
         this.terrainCompact(4f, 5f);
         inertiaRotate(1);
-        releaseSmokeDecoy(getTurretVector(1));
         lowHealthWarning();
 
         // Автострельба только для пассажиров (мобов), водитель стреляет вручную
@@ -389,21 +400,21 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         return 30;
     }
     // 炮弹发射位置
-    @Override
-    public Vec3 getTurretShootPos(Entity entity, float ticks) {
-        Matrix4f transform = getTurretTransform(ticks);
-        Vector4f worldPosition;
-        if (getWeaponIndex(0) == 0) {
-            // 30мм пушки (MASHINGUN) - pivot: [-13.47025, 61.96771, -35.00558]
-            // Преобразуем координаты с учётом разворота модели на 180°
-            worldPosition = transformPosition(transform, 13.47025f / 16f, (61.96771f - 24f) / 16f, 35.00558f / 16f);
-        } else {
-            // Ракеты (GUN) - pivot: [0.1, 58.56618, -38.49596]
-            // Преобразуем координаты с учётом разворота модели на 180°
-            worldPosition = transformPosition(transform, -0.1f / 16f, (58.56618f - 24f) / 16f, 38.49596f / 16f);
-        }
-        return new Vec3(worldPosition.x, worldPosition.y, worldPosition.z);
-    }
+//    @Override
+//    public Vec3 getTurretShootPos(Entity entity, float ticks) {
+//        Matrix4f transform = getTurretTransform(ticks);
+//        Vector4f worldPosition;
+//        if (getWeaponIndex(0) == 0) {
+//            // 30мм пушки (MASHINGUN) - pivot: [-13.47025, 61.96771, -35.00558]
+//            // Преобразуем координаты с учётом разворота модели на 180°
+//            worldPosition = transformPosition(transform, 13.47025f / 16f, (61.96771f - 24f) / 16f, 35.00558f / 16f);
+//        } else {
+//            // Ракеты (GUN) - pivot: [0.1, 58.56618, -38.49596]
+//            // Преобразуем координаты с учётом разворота модели на 180°
+//            worldPosition = transformPosition(transform, -0.1f / 16f, (58.56618f - 24f) / 16f, 38.49596f / 16f);
+//        }
+//        return new Vec3(worldPosition.x, worldPosition.y, worldPosition.z);
+//    }
     // 炮弹发射速度
     @Override
     public float projectileVelocity(Entity entity) {
@@ -571,6 +582,19 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
 
     @Override
     public void travel() {
+        // Блокировка движения когда радар включен
+        if (this.entityData.get(SUPPORTS_DEPLOYED)) {
+            // Останавливаем машину
+            this.leftInputDown = false;
+            this.rightInputDown = false;
+            this.forwardInputDown = false;
+            this.backInputDown = false;
+            this.sprintInputDown = false;
+            this.entityData.set(POWER, 0.0F);
+            this.setDeltaMovement(this.getDeltaMovement().multiply(0.8, 1.0, 0.8));
+            return;
+        }
+        
         wheelEngine(false, 0.052, VehicleConfigVVP.PANTSIR_S1_ENERGY_COST.get(), 1.25, 1.5, 0.18f, -0.13f, 0.0020f, 0.0019f, 0.1f);
     }
 
@@ -649,7 +673,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         Matrix4f transformT = getTurretTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, 0.0160500f, 0.2873687f, -1.4599187f);
+        Vector4f worldPosition = transformPosition(transform, -0.2582f/16f - -0.0452f/16f, 58.5662f/16f - 58.0814f/16f, -74.9656f/16f - -67.5326f/16f);
 
         transformT.translate(worldPosition.x, worldPosition.y, worldPosition.z);
 
@@ -689,7 +713,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         Matrix4f transformV = getVehicleTransform(ticks);
 
         Matrix4f transform = new Matrix4f();
-        Vector4f worldPosition = transformPosition(transform, -0.113f/16f, 58.0814f/16f, -31.063f/16f);
+        Vector4f worldPosition = transformPosition(transform, -0.0452f/16f, 58.0814f/16f, -67.5326f/16f);
 
         transformV.translate(worldPosition.x, worldPosition.y, worldPosition.z);
         transformV.rotate(Axis.YP.rotationDegrees(Mth.lerp(ticks, turretYRotO, getTurretYRot())));
@@ -734,13 +758,21 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     }
 
 
-    private PlayState firePredicate(AnimationState<PantsirS1Entity> event) {
-        return PlayState.STOP;
+    private PlayState supportsPredicate(AnimationState<PantsirS1Entity> event) {
+        AnimationController<PantsirS1Entity> controller = event.getController();
+        if (controller.getCurrentAnimation() == null) {
+            controller.setAnimation(this.entityData.get(SUPPORTS_DEPLOYED) ? SUPPORTS_DEPLOY_ANIM : SUPPORTS_IDLE_ANIM);
+        }
+        return PlayState.CONTINUE;
     }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar data) {
-        data.add(new AnimationController<>(this, "movement", 0, this::firePredicate));
+        AnimationController<PantsirS1Entity> supportsController =
+                new AnimationController<>(this, SUPPORTS_CONTROLLER, 0, this::supportsPredicate);
+        supportsController.triggerableAnim(SUPPORTS_DEPLOY_TRIGGER, SUPPORTS_DEPLOY_ANIM);
+        supportsController.triggerableAnim(SUPPORTS_RETRACT_TRIGGER, SUPPORTS_IDLE_ANIM);
+        data.add(supportsController);
     }
 
     @Override
@@ -951,11 +983,11 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     public void updateOBB() {
         Matrix4f transform = getVehicleTransform(1);
 
-        Vector4f worldPosition1 = transformPosition(transform, 0.0f, 39f/16f, 67f/16f);
+        Vector4f worldPosition1 = transformPosition(transform, 0.0f, 39f/16f, -67f/16f);
         this.obb1.center().set(new Vector3f(worldPosition1.x, worldPosition1.y, worldPosition1.z));
         this.obb1.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition2 = transformPosition(transform, 0.0f, 35.5f/16f, -20f/16f);
+        Vector4f worldPosition2 = transformPosition(transform, 0.0f, 35.5f/16f, 20f/16f);
         this.obb2.center().set(new Vector3f(worldPosition2.x, worldPosition2.y, worldPosition2.z));
         this.obb2.setRotation(VectorTool.combineRotations(1, this));
 
@@ -1062,10 +1094,20 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         return false;
     }
 
-    // Методы радара
-    @Override
-    public int getRadarRange() {
-        return 200; // Дальность радара 200 блоков
+    private void triggerSupportsAnimation(boolean deployed) {
+        this.triggerAnim(SUPPORTS_CONTROLLER, deployed ? SUPPORTS_DEPLOY_TRIGGER : SUPPORTS_RETRACT_TRIGGER);
+    }
+    
+    // Переключение радара
+    public void toggleSupports() {
+        boolean currentState = this.entityData.get(SUPPORTS_DEPLOYED);
+        boolean newState = !currentState;
+        this.entityData.set(SUPPORTS_DEPLOYED, newState);
+        triggerSupportsAnimation(newState);
+    }
+    
+public boolean areSupportsDeployed() {
+        return this.entityData.get(SUPPORTS_DEPLOYED);
     }
 
     // Проверка, является ли цель воздушной

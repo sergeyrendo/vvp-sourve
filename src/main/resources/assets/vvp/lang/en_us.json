@@ -114,6 +114,9 @@
   "key.vvp.toggle_firing_mode": "Toggle Firing Mode",
   "entity.vvp.m142_himars": "M142 HIMARS",
   
+  "//": "==================== PANTSIR ====================",
+  "key.vvp.toggle_supports": "Toggle Supports",
+  
   "//": "==================== MISSILES ====================",
   "des.vvp.57e6_item": "Surface-to-air guided missile for Pantsir-S1 SPAAG. Range up to 20 km.",
   "des.vvp.9m340_item": "Surface-to-air guided missile for Sosna-R ATGM. Range up to 10 km."
