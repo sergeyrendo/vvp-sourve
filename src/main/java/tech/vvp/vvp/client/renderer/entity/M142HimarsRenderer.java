@@ -63,36 +63,35 @@ public class M142HimarsRenderer extends GeoEntityRenderer<M142HimarsEntity> {
             bone.setRotX(Mth.lerp(partialTick, animatable.rightWheelRotO, animatable.getRightWheelRot()));
         }
 
-        // Поворот и подъем пусковой установки (cannon_and_barrel)
-        if (name.equals("cannon_and_barrel")) {
-            // Поворот башни (Y rotation)
-            float yaw = Mth.lerp(partialTick, animatable.turretYRotO, animatable.getTurretYRot());
-            bone.setRotY(-yaw * Mth.DEG_TO_RAD);
-            
-            // Подъем пусковой установки (X rotation)
+        if (name.equals("cannon")) {
+
+            Player player = Minecraft.getInstance().player;
+            bone.setHidden(ClientEventHandler.zoomVehicle && animatable.getFirstPassenger() == player);
+
+            bone.setRotY(-Mth.lerp(partialTick, animatable.turretYRotO, animatable.getTurretYRot()) * Mth.DEG_TO_RAD);
+        }
+
+        if (name.equals("barrel")) {
+
             float a = animatable.getTurretYaw(partialTick);
             float r = (Mth.abs(a) - 90f) / 90f;
 
             float r2;
+
             if (Mth.abs(a) <= 90f) {
                 r2 = a / 90f;
             } else {
                 if (a < 0) {
-                    r2 = -(180f + a) / 90f;
+                    r2 = - (180f + a) / 90f;
                 } else {
                     r2 = (180f - a) / 90f;
                 }
             }
 
-            // Компенсация наклона машины
-            float turretPitch = Mth.lerp(partialTick, animatable.turretXRotO, animatable.getTurretXRot());
-            float vehiclePitch = animatable.getPitch(partialTick);
-            float vehicleRoll = animatable.getRoll(partialTick);
-            
             bone.setRotX(
-                    -turretPitch * Mth.DEG_TO_RAD
-                            - r * vehiclePitch * Mth.DEG_TO_RAD
-                            - r2 * vehicleRoll * Mth.DEG_TO_RAD
+                    -Mth.lerp(partialTick, animatable.turretXRotO, animatable.getTurretXRot()) * Mth.DEG_TO_RAD
+                            - r * animatable.getPitch(partialTick) * Mth.DEG_TO_RAD
+                            - r2 * animatable.getRoll(partialTick) * Mth.DEG_TO_RAD
             );
         }
 
