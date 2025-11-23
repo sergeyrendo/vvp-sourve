@@ -143,8 +143,26 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
 
             Vec3 toTarget = targetPos.subtract(currentPos);
             double distance = toTarget.length();
-
-            if (distance <= HIT_RADIUS || this.isInWater() || this.onGround()) {
+            
+            // Проверяем горизонтальное расстояние до цели
+            double horizontalDistance = Math.sqrt(
+                Math.pow(targetPos.x - currentPos.x, 2) + 
+                Math.pow(targetPos.z - currentPos.z, 2)
+            );
+            
+            // Проверяем высоту над целью
+            double heightAboveTarget = currentPos.y - targetPos.y;
+            
+            // Взрываемся если:
+            // 1. Очень близко к цели (в радиусе 3 блоков)
+            // 2. Горизонтально близко к цели (в радиусе 5 блоков) И ниже цели или на уровне
+            // 3. В воде или на земле
+            boolean shouldExplode = distance <= 3.0 
+                || (horizontalDistance <= 5.0 && heightAboveTarget <= 2.0)
+                || this.isInWater() 
+                || this.onGround();
+            
+            if (shouldExplode) {
                 this.stopChank();
                 this.explode();
                 this.discard();
