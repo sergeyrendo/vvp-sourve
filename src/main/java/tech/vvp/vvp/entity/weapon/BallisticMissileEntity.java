@@ -37,13 +37,17 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
     private Vec3 targetPos;
     private int ticksAlive = 0;
     private boolean exploded = false;
+    private Vec3 explosionPos = null;
+    private int explosionSmokeTicks = 0;
 
-    private static final double GRAVITY = 0.05; // Гравитация
-    private static final double MAX_SPEED = 2.0; // Максимальная скорость (уменьшена)
-    private static final double GUIDANCE_STRENGTH = 0.3; // Сила наведения (увеличена)
+    private static final double GRAVITY = 0.08;
+    private static final double MAX_SPEED = 4.5;
+    private static final double MAX_ACCELERATION = 0.2;
+    private static final double HIT_RADIUS = 1.5;
 
     private static final TicketType<Entity> MISSILE_TICKET = TicketType.create("ballistic_missile", (entity1, entity2) -> 0);
     private ChunkPos currentTicketChunk = null;
+    private ChunkPos targetTicketChunk = null;
 
     public BallisticMissileEntity(LivingEntity shooter, Level level) {
         super(ModEntities.BALLISTIC_MISSILE.get(), shooter, level);
@@ -57,15 +61,11 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
         this(ModEntities.BALLISTIC_MISSILE.get(), level);
     }
 
-    public void setTargetPosition(Vec3 targetPos) {
+        public void setTargetPosition(Vec3 targetPos) {
         this.targetPos = targetPos;
-
-        // Простая начальная скорость - направление к цели + вверх
-        Vec3 toTarget = targetPos.subtract(this.position()).normalize();
-
-        // Начальная скорость: направление к цели + подъем вверх
-        Vec3 initialVelocity = toTarget.scale(1.0).add(0, 1.5, 0);
-        this.setDeltaMovement(initialVelocity);
+        this.ticksAlive = 0;
+        // ��������� ������� �����
+        this.setDeltaMovement(new Vec3(0, 5.0, 0));
     }
 
     @Override
@@ -73,12 +73,10 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
         super.tick();
         ticksAlive++;
 
-        // Продолжительный дым после взрыва
         if (this.exploded && explosionSmokeTicks > 0 && explosionPos != null) {
             explosionSmokeTicks--;
 
             if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
-                // Дым поднимается вверх
                 ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE,
                         explosionPos.x, explosionPos.y + 1.0, explosionPos.z,
                         8, 1.5, 0.5, 1.5, 0.1, false);
@@ -88,7 +86,6 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
                         5, 1.2, 0.4, 1.2, 0.08, false);
             }
 
-            // Удаляем сущность когда дым закончится
             if (explosionSmokeTicks <= 0) {
                 this.discard();
             }
@@ -99,83 +96,64 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
             return;
         }
 
-        // Управление чанками - увеличенный радиус для дальних полетов
         if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
             ChunkPos newChunk = new ChunkPos(this.blockPosition());
             if (currentTicketChunk == null || !newChunk.equals(currentTicketChunk)) {
                 if (currentTicketChunk != null) {
-                    serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, currentTicketChunk, 3, this);
+                    serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, currentTicketChunk, 10, this);
                 }
-                // Увеличиваем радиус до 3 чанков (48 блоков) вокруг ракеты
-                serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, newChunk, 3, this);
+                serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, newChunk, 10, this);
                 currentTicketChunk = newChunk;
-                
-                // Также добавляем тикеты для чанков по пути к цели
-                if (targetPos != null) {
-                    Vec3 toTarget = targetPos.subtract(this.position());
-                    double dist = toTarget.length();
-                    if (dist > 16) { // Если цель далеко
-                        // Добавляем тикет для чанка на полпути к цели
-                        Vec3 midPoint = this.position().add(toTarget.scale(0.5));
-                        ChunkPos midChunk = new ChunkPos((int)midPoint.x >> 4, (int)midPoint.z >> 4);
-                        serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, midChunk, 2, this);
-                        
-                        // Добавляем тикет для чанка цели
-                        ChunkPos targetChunk = new ChunkPos((int)targetPos.x >> 4, (int)targetPos.z >> 4);
-                        serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, targetChunk, 2, this);
+            }
+            if (this.targetPos != null) {
+                ChunkPos newTargetChunk = new ChunkPos((int) Math.floor(targetPos.x) >> 4, (int) Math.floor(targetPos.z) >> 4);
+                if (targetTicketChunk == null || !newTargetChunk.equals(targetTicketChunk)) {
+                    if (targetTicketChunk != null) {
+                        serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, targetTicketChunk, 10, this);
                     }
+                    serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, newTargetChunk, 10, this);
+                    targetTicketChunk = newTargetChunk;
                 }
             }
         }
 
         if (this.targetPos != null) {
-            updateMovement();
+            Vec3 currentPos = this.position();
+            Vec3 currentVelocity = this.getDeltaMovement();
+
+            Vec3 toTarget = targetPos.subtract(currentPos);
+            double distance = toTarget.length();
+
+            if (distance <= HIT_RADIUS || this.isInWater() || this.onGround()) {
+                this.stopChank();
+                this.explode();
+                this.discard();
+                return;
+            }
+
+            Vec3 desiredDirection = toTarget.normalize();
+            Vec3 desiredVelocity = desiredDirection.scale(MAX_SPEED);
+
+            Vec3 steering = desiredVelocity.subtract(currentVelocity);
+            if (steering.length() > MAX_ACCELERATION) {
+                steering = steering.normalize().scale(MAX_ACCELERATION);
+            }
+
+            Vec3 gravityAccel = new Vec3(0, -GRAVITY, 0);
+            Vec3 newVelocity = currentVelocity.add(steering).add(gravityAccel);
+            newVelocity = newVelocity.scale(1.03);
+
+            this.setDeltaMovement(newVelocity);
+            this.move(MoverType.SELF, newVelocity);
+
+            if (this.ticksAlive == 1 && !this.level().isClientSide()) {
+                ServerLevel serverLevel = (ServerLevel) this.level();
+                ParticleTool.sendParticle(serverLevel, ParticleTypes.CLOUD, this.getX(), this.getY(), this.getZ(), 15, 0.8, 0.8, 0.8, 0.01, true);
+                this.level().playSound(null, this.blockPosition(), ModSounds.MISSILE_START.get(), SoundSource.PLAYERS, 4.0F, 1.0F);
+            }
+
             spawnTrailParticles();
-            checkImpact();
         }
-    }
-
-    private void updateMovement() {
-        Vec3 currentVel = this.getDeltaMovement();
-
-        // Применяем гравитацию
-        Vec3 newVel = currentVel.add(0, -GRAVITY, 0);
-
-        // Активное наведение на цель
-        Vec3 toTarget = targetPos.subtract(this.position());
-        double distToTarget = toTarget.length();
-
-        // Постоянно корректируем направление к цели
-        Vec3 targetDir = toTarget.normalize();
-        Vec3 correction = targetDir.scale(GUIDANCE_STRENGTH);
-        newVel = newVel.add(correction);
-
-        // Ограничиваем скорость
-        if (newVel.length() > MAX_SPEED) {
-            newVel = newVel.normalize().scale(MAX_SPEED);
-        }
-
-        this.setDeltaMovement(newVel);
-
-        // Поворачиваем ракету по направлению движения ПЕРЕД перемещением
-        double horizontalSpeed = Math.sqrt(newVel.x * newVel.x + newVel.z * newVel.z);
-
-        // Yaw (горизонтальное направление)
-        float yaw = (float)(Math.atan2(newVel.x, newVel.z) * 180.0 / Math.PI);
-
-        // Pitch (вертикальное направление)
-        // Вычисляем угол направления полета
-        float pitch = (float)(Math.atan2(newVel.y, horizontalSpeed) * 180.0 / Math.PI);
-
-        // Добавляем offset 90 градусов если модель направлена вниз по умолчанию
-        pitch = pitch - 90.0f;
-
-        this.setYRot(yaw);
-        this.setXRot(pitch);
-        this.yRotO = yaw;
-        this.xRotO = pitch;
-
-        this.move(MoverType.SELF, this.getDeltaMovement());
     }
 
     private void spawnTrailParticles() {
@@ -202,33 +180,6 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
         }
     }
 
-    private void checkImpact() {
-        if (this.targetPos == null) return;
-
-        // Проверяем расстояние до цели
-        double distToTarget = this.position().distanceTo(targetPos);
-
-        // Взрываемся если близко к цели (в радиусе 5 блоков)
-        if (distToTarget < 5.0) {
-            explode();
-            return;
-        }
-
-        // Взрываемся если ударились о блок
-        if (this.horizontalCollision || this.verticalCollision) {
-            explode();
-            return;
-        }
-
-        // Самоуничтожение через 30 секунд (600 тиков)
-        if (ticksAlive > 600) {
-            explode();
-        }
-    }
-
-    private Vec3 explosionPos = null; // Позиция взрыва для продолжительного дыма
-    private int explosionSmokeTicks = 0; // Таймер дыма после взрыва
-
     private void explode() {
         if (this.exploded) return;
         this.exploded = true;
@@ -239,59 +190,28 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
 
         ServerLevel serverLevel = (ServerLevel) this.level();
 
-        // Сохраняем позицию взрыва
         explosionPos = this.position();
-        explosionSmokeTicks = 200; // 10 секунд дыма
-
-        // ГРИБОВИДНОЕ ОБЛАКО - маленький гриб
-        // Ножка гриба - вертикальный столб дыма (6 блоков высотой)
-        for (int i = 0; i < 6; i++) {
-            double yOffset = i * 1.0; // Каждый блок вверх
-            ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE,
-                    this.getX(), this.getY() + yOffset, this.getZ(),
-                    20, 0.3, 0.2, 0.3, 0.03, true);
-
-            ParticleTool.sendParticle(serverLevel, ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                    this.getX(), this.getY() + yOffset, this.getZ(),
-                    15, 0.25, 0.15, 0.25, 0.025, true);
-        }
-
-        // Шапка гриба - расширяющееся облако наверху (на высоте 6 блоков)
-        double mushroomHeight = 6.0;
-        ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE,
-                this.getX(), this.getY() + mushroomHeight, this.getZ(),
-                80, 2.5, 0.5, 2.5, 0.15, true);
-
-        ParticleTool.sendParticle(serverLevel, ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                this.getX(), this.getY() + mushroomHeight, this.getZ(),
-                60, 2.0, 0.4, 2.0, 0.12, true);
-
-        // Эффекты взрыва в центре
-        ParticleTool.sendParticle(serverLevel, ParticleTypes.EXPLOSION_EMITTER,
-                this.getX(), this.getY(), this.getZ(), 3, 0, 0, 0, 0, true);
+        explosionSmokeTicks = 200;
 
         ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE,
                 this.getX(), this.getY(), this.getZ(), 80, 2.0, 2.0, 2.0, 0.3, true);
-
         ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME,
                 this.getX(), this.getY(), this.getZ(), 60, 1.5, 1.5, 1.5, 0.2, true);
 
-        // Звук взрыва
         this.level().playSound(null, this.blockPosition(), SoundEvents.GENERIC_EXPLODE,
                 SoundSource.PLAYERS, 4.0F, 0.8F);
 
-        // Маленький взрыв разделения (не наносит урон блокам)
+        // Основной взрыв с разрушением блоков (если разрешено конфигом)
+        Level.ExplosionInteraction interaction = ExplosionConfig.EXPLOSION_DESTROY.get()
+                ? Level.ExplosionInteraction.BLOCK
+                : Level.ExplosionInteraction.NONE;
         this.level().explode(this, this.getX(), this.getY(), this.getZ(),
-                2.0F, Level.ExplosionInteraction.NONE);
+                8.0F, interaction);
 
-        // ШРАПНЕЛЬ - красивые эффекты (в 4 раза больше)
         spawnShrapnelEffects(serverLevel);
-
-        // Прямой урон от шрапнели всем сущностям в радиусе
         damageEntitiesWithShrapnel(26.0, 200.0f);
 
         stopChank();
-        // НЕ удаляем сразу - нужно для продолжительного дыма
     }
 
     private void spawnShrapnelEffects(ServerLevel serverLevel) {
@@ -401,6 +321,13 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
                 serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, currentTicketChunk, 10, this);
                 currentTicketChunk = null;
             }
+            if (targetTicketChunk != null) {
+                serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, targetTicketChunk, 10, this);
+                targetTicketChunk = null;
+            }
         }
     }
 }
+
+
+

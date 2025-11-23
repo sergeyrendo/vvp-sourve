@@ -914,7 +914,7 @@ public class SosnaEntity extends ContainerMobileVehicleEntity implements GeoEnti
 
     @Override
     public @Nullable ResourceLocation getVehicleItemIcon() {
-        return VVP.loc("textures/gui/vehicle/type/land.png");
+        return VVP.loc("textures/gui/vehicle/type/land_ru.png");
     }
     public List<OBB> getOBBs() {
         return List.of(this.obb1, this.obb2, this.obb3, this.obb4, this.obbTurret);

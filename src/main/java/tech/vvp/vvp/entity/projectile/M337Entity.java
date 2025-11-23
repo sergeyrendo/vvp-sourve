@@ -63,6 +63,11 @@ public class M337Entity extends FastThrowableProjectile implements GeoEntity, Ex
     private boolean distracted = false;
     private int durability;
     public float gravity = 0.15f;
+    private Vec3 lastGuidanceDir = Vec3.ZERO;
+    private static final double MAX_SPEED = 3.0;
+    private static final double TURN_LERP = 0.12; // how quickly we turn toward target direction
+    private static final double ACCEL_STEP = 0.12;
+    private static final double DOWN_PULL = 0.02;
 
     public M337Entity(EntityType<? extends M337Entity> type, Level world) {
         super(type, world);
@@ -241,16 +246,40 @@ public class M337Entity extends FastThrowableProjectile implements GeoEntity, Ex
                         entity.level().playSound(null, entity.getOnPos(), entity instanceof Pig ? SoundEvents.PIG_HURT : ModSounds.MISSILE_WARNING.get(), SoundSource.PLAYERS, 2, 1f);
                     }
 
-                    Vec3 targetPos = new Vec3(entity.getX(), entity.getY() + (entity instanceof EnderDragon ? -2 : 0) + 0.1 * distanceTo(entity), entity.getZ());
+                    double heightOffset = 0.1 * distanceTo(entity);
+                    heightOffset = Mth.clamp(heightOffset, -2.0, 6.0); // не целимся слишком высоко на дальних дистанциях
+                    Vec3 targetPos = new Vec3(entity.getX(), entity.getY() + (entity instanceof EnderDragon ? -2 : 0) + heightOffset, entity.getZ());
 
                     Vec3 toVec = getEyePosition().vectorTo(targetPos).normalize();
                     if (this.tickCount > 8) {
-                        boolean lostTarget = (VectorTool.calculateAngle(getDeltaMovement(), toVec) > 80);
-                        if (!lostTarget) {
-                            setDeltaMovement(getDeltaMovement().add(toVec.scale(2.78)).scale(0.65).add(entity.getDeltaMovement().scale(0.2)));
-                        }
+                        Vec3 forward = getDeltaMovement().lengthSqr() < 1.0E-6 ? toVec : getDeltaMovement().normalize();
+                        Vec3 desiredDir = toVec;
+                        // плавный поворот
+                        Vec3 newDir = forward.lerp(desiredDir, TURN_LERP).normalize();
+                        lastGuidanceDir = newDir;
+
+                        double speed = Math.min(getDeltaMovement().length() + ACCEL_STEP, MAX_SPEED);
+                        Vec3 guided = newDir.scale(speed).add(entity.getDeltaMovement().scale(0.12));
+
+                        // ограничиваем максимальный подъём: не даём вертикали быть слишком большой относительно горизонта
+                        double horiz = Math.sqrt(guided.x * guided.x + guided.z * guided.z);
+                        double maxUp = horiz * 0.35;
+                        if (guided.y > maxUp) guided = new Vec3(guided.x, maxUp, guided.z);
+                        if (guided.y < -0.9) guided = new Vec3(guided.x, -0.9, guided.z);
+
+                        // add slight downward pull to avoid climbing
+                        guided = guided.add(0, -DOWN_PULL, 0);
+
+                        setDeltaMovement(guided);
                     }
                 }
+            } else if (this.tickCount > 8 && !lastGuidanceDir.equals(Vec3.ZERO)) {
+                // продолжаем по последнему курсу, если цель потеряна
+                Vec3 forward = getDeltaMovement().lengthSqr() < 1.0E-6 ? lastGuidanceDir : getDeltaMovement().normalize();
+                Vec3 newDir = forward.lerp(lastGuidanceDir, TURN_LERP).normalize();
+                double speed = Math.min(getDeltaMovement().length() + ACCEL_STEP, MAX_SPEED);
+                Vec3 guided = newDir.scale(speed).add(0, -DOWN_PULL, 0);
+                setDeltaMovement(guided);
             }
         }
 
@@ -260,10 +289,6 @@ public class M337Entity extends FastThrowableProjectile implements GeoEntity, Ex
                 ParticleTool.sendParticle(serverLevel, ParticleTypes.CLOUD, this.xo, this.yo, this.zo, 15, 0.8, 0.8, 0.8, 0.01, true);
                 ParticleTool.sendParticle(serverLevel, ParticleTypes.CAMPFIRE_COSY_SMOKE, this.xo, this.yo, this.zo, 10, 0.8, 0.8, 0.8, 0.01, true);
             }
-        }
-
-        if (this.tickCount > 8) {
-            this.setDeltaMovement(this.getDeltaMovement().multiply(1.042, 1.042, 1.042));
         }
 
         if (this.tickCount > 600 || this.isInWater() || this.entityData.get(HEALTH) <= 0) {
@@ -283,7 +308,7 @@ public class M337Entity extends FastThrowableProjectile implements GeoEntity, Ex
 
     @Override
     public boolean isNoGravity() {
-        return true;
+        return false;
     }
 
     private PlayState movementPredicate(AnimationState<M337Entity> event) {
@@ -292,7 +317,7 @@ public class M337Entity extends FastThrowableProjectile implements GeoEntity, Ex
 
     @Override
     public float getGravity() {
-        return tickCount > 8 ? 0 : this.gravity;
+        return tickCount > 8 ? 0.03f : this.gravity;
     }
 
     @Override
