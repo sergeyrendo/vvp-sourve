@@ -22,5 +22,6 @@ public class CilentRenderHandler {
         event.registerAboveAll(AircraftOverlay.ID, new AircraftOverlay());
         event.registerAboveAll(CobraOverlay.ID, new CobraOverlay());
         event.registerAboveAll(HimarsOverlay.ID, new HimarsOverlay());
+        event.registerAboveAll(C3MOverlay.ID, new C3MOverlay());
     }
 }

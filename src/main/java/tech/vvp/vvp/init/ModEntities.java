@@ -60,6 +60,15 @@ public class ModEntities {
                     .sized(3.9f, 3.5f)
                     .build("m142_himars"));
 
+    public static final RegistryObject<EntityType<C3MEntity>> C3M = ENTITY_TYPES.register("2c3m",
+            () -> EntityType.Builder.<C3MEntity>of(C3MEntity::new, MobCategory.MISC)
+                    .setTrackingRange(64)
+                    .setUpdateInterval(1)
+                    .setCustomClientFactory(C3MEntity::new)
+                    .fireImmune()
+                    .sized(4.5f, 4.0f)
+                    .build("2c3m"));
+
     public static final RegistryObject<EntityType<Bmp2Entity>> BMP_2 = ENTITY_TYPES.register("bmp_2",
             () -> EntityType.Builder.<Bmp2Entity>of(Bmp2Entity::new, MobCategory.MISC)
                     .setTrackingRange(64)

@@ -38,12 +38,15 @@ public class VVPClientInputHandler {
             );
         }
         
-        // Переключение режима HIMARS
+        // Переключение режима HIMARS и 2C3M
         while (VVPKeyMappings.TOGGLE_FIRING_MODE.consumeClick()) {
             var v = mc.player.getVehicle();
             if (v instanceof tech.vvp.vvp.entity.vehicle.M142HimarsEntity himars && v.getFirstPassenger() == mc.player) {
                 // Отправляем пакет на сервер для переключения режима
                 VVPNetwork.VVP_HANDLER.sendToServer(new tech.vvp.vvp.network.message.C2SHimarsToggleModePacket());
+            } else if (v instanceof tech.vvp.vvp.entity.vehicle.C3MEntity c3m && v.getFirstPassenger() == mc.player) {
+                // Отправляем пакет на сервер для переключения режима 2C3M
+                VVPNetwork.VVP_HANDLER.sendToServer(new tech.vvp.vvp.network.message.C2SC3MToggleModePacket());
             }
         }
     }

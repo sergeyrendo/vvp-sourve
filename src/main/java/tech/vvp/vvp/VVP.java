@@ -110,6 +110,14 @@ public class VVP {
                     tech.vvp.vvp.network.message.C2SPantsirToggleSupportsPacket::handle,
                     java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
             );
+            // C2S: переключение режима 2C3M
+            VVPNetwork.addNetworkMessage(
+                    tech.vvp.vvp.network.message.C2SC3MToggleModePacket.class,
+                    tech.vvp.vvp.network.message.C2SC3MToggleModePacket::toBytes,
+                    tech.vvp.vvp.network.message.C2SC3MToggleModePacket::new,
+                    tech.vvp.vvp.network.message.C2SC3MToggleModePacket::handle,
+                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
+            );
 
         });
     }

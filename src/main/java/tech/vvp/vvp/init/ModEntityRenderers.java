@@ -61,6 +61,7 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.SOSNA_MISSILE.get(), SosnaMissileRenderer::new);
         event.registerEntityRenderer(ModEntities.BALLISTIC_MISSILE.get(), BallisticMissileRenderer::new);
         event.registerEntityRenderer(ModEntities.M142_HIMARS.get(), M142HimarsRenderer::new);
+        event.registerEntityRenderer(ModEntities.C3M.get(), C3MRenderer::new);
     }
 
     /**

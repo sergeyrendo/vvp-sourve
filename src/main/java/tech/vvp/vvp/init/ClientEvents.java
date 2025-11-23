@@ -10,8 +10,10 @@ import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.client.input.VVPKeyMappings;
 import tech.vvp.vvp.entity.vehicle.M142HimarsEntity;
 import tech.vvp.vvp.entity.vehicle.PantsirS1Entity;
+import tech.vvp.vvp.entity.vehicle.C3MEntity;
 import tech.vvp.vvp.network.message.C2SHimarsToggleModePacket;
 import tech.vvp.vvp.network.message.C2SPantsirToggleSupportsPacket;
+import tech.vvp.vvp.network.message.C2SC3MToggleModePacket;
 
 @Mod.EventBusSubscriber(modid = VVP.MOD_ID, value = Dist.CLIENT)
 public class ClientEvents {
@@ -25,12 +27,7 @@ public class ClientEvents {
 
         Entity vehicle = mc.player.getVehicle();
 
-        // Клавиша Q теперь переключает режим стрельбы для HIMARS
-        if (VVPKeyMappings.TOGGLE_FIRING_MODE.consumeClick()) {
-            if (vehicle instanceof M142HimarsEntity) {
-                VVP.PACKET_HANDLER.sendToServer(new C2SHimarsToggleModePacket());
-            }
-        }
+        // Клавиша Q обрабатывается в VVPClientInputHandler для HIMARS и 2C3M
 
         // Клавиша R - переключение радара для Панциря
         // Клавиша B - переключение опор для Панциря
