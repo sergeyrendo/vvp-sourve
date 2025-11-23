@@ -3,6 +3,7 @@ package tech.vvp.vvp.entity.weapon;
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 import com.atsuishio.superbwarfare.init.ModSounds;
 import com.atsuishio.superbwarfare.tools.ParticleTool;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -48,6 +49,7 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
     private static final TicketType<Entity> MISSILE_TICKET = TicketType.create("ballistic_missile", (entity1, entity2) -> 0);
     private ChunkPos currentTicketChunk = null;
     private ChunkPos targetTicketChunk = null;
+    private ChunkPos aheadTicketChunk = null;
 
     public BallisticMissileEntity(LivingEntity shooter, Level level) {
         super(ModEntities.BALLISTIC_MISSILE.get(), shooter, level);
@@ -100,20 +102,38 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
             ChunkPos newChunk = new ChunkPos(this.blockPosition());
             if (currentTicketChunk == null || !newChunk.equals(currentTicketChunk)) {
                 if (currentTicketChunk != null) {
-                    serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, currentTicketChunk, 10, this);
+                    serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, currentTicketChunk, 3, this);
                 }
-                serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, newChunk, 10, this);
+                serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, newChunk, 3, this);
                 currentTicketChunk = newChunk;
             }
             if (this.targetPos != null) {
                 ChunkPos newTargetChunk = new ChunkPos((int) Math.floor(targetPos.x) >> 4, (int) Math.floor(targetPos.z) >> 4);
                 if (targetTicketChunk == null || !newTargetChunk.equals(targetTicketChunk)) {
                     if (targetTicketChunk != null) {
-                        serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, targetTicketChunk, 10, this);
+                        serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, targetTicketChunk, 3, this);
                     }
-                    serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, newTargetChunk, 10, this);
+                    serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, newTargetChunk, 3, this);
                     targetTicketChunk = newTargetChunk;
                 }
+            }
+            
+            // Lookahead ticket
+            Vec3 motion = this.getDeltaMovement();
+            if (motion.lengthSqr() > 0.1) {
+                 BlockPos aheadPos = this.blockPosition().offset(
+                     (int)(motion.x * 32), 
+                     (int)(motion.y * 32), 
+                     (int)(motion.z * 32)
+                 );
+                 ChunkPos newAheadChunk = new ChunkPos(aheadPos);
+                 if (aheadTicketChunk == null || !newAheadChunk.equals(aheadTicketChunk)) {
+                      if (aheadTicketChunk != null) {
+                          serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, aheadTicketChunk, 3, this);
+                      }
+                      serverLevel.getChunkSource().addRegionTicket(MISSILE_TICKET, newAheadChunk, 3, this);
+                      aheadTicketChunk = newAheadChunk;
+                 }
             }
         }
 
@@ -131,20 +151,58 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
                 return;
             }
 
-            Vec3 desiredDirection = toTarget.normalize();
-            Vec3 desiredVelocity = desiredDirection.scale(MAX_SPEED);
-
-            Vec3 steering = desiredVelocity.subtract(currentVelocity);
-            if (steering.length() > MAX_ACCELERATION) {
-                steering = steering.normalize().scale(MAX_ACCELERATION);
+            // --- NEW FLIGHT LOGIC ---
+            
+            // Max speed (blocks per tick). Reduced to 3.0 to help with chunk loading.
+            double maxSpeed = 3.0; 
+            
+            // Dynamic launch phase
+            int boostTicks = 20;
+            if (distance < 200) boostTicks = 10;
+            if (distance < 100) boostTicks = 5;
+            if (distance < 50) boostTicks = 2; // Immediate turn for short range
+            
+            // Phase 1: Launch / Boost
+            if (ticksAlive < boostTicks) {
+                 this.setDeltaMovement(currentVelocity.scale(0.98));
+            } 
+            // Phase 2: Guided Flight
+            else {
+                 Vec3 targetDirection = toTarget.normalize();
+                 Vec3 currentDirection = currentVelocity.normalize();
+                 
+                 // Dynamic turn rate
+                 double turnRate = 0.15; 
+                 
+                 if (distance < 100) turnRate = 0.3;
+                 if (distance < 50) turnRate = 0.5;
+                 if (distance < 20) turnRate = 1.0; 
+                 
+                 // Smoothly interpolate direction
+                 Vec3 newDirection = new Vec3(
+                     net.minecraft.util.Mth.lerp(turnRate, currentDirection.x, targetDirection.x),
+                     net.minecraft.util.Mth.lerp(turnRate, currentDirection.y, targetDirection.y),
+                     net.minecraft.util.Mth.lerp(turnRate, currentDirection.z, targetDirection.z)
+                 ).normalize();
+                 
+                 // Speed control
+                 double currentSpeed = currentVelocity.length();
+                 double newSpeed = currentSpeed;
+                 
+                 if (currentSpeed < maxSpeed) {
+                     newSpeed += 0.15; 
+                 } else {
+                     newSpeed = maxSpeed;
+                 }
+                 
+                 this.setDeltaMovement(newDirection.scale(newSpeed));
+                 
+                 // Rotate entity to face movement direction
+                 this.setXRot((float)(net.minecraft.util.Mth.atan2(newDirection.y, Math.sqrt(newDirection.x * newDirection.x + newDirection.z * newDirection.z)) * (180F / (float)Math.PI)));
+                 this.setYRot((float)(net.minecraft.util.Mth.atan2(newDirection.x, newDirection.z) * (180F / (float)Math.PI)));
             }
-
-            Vec3 gravityAccel = new Vec3(0, -GRAVITY, 0);
-            Vec3 newVelocity = currentVelocity.add(steering).add(gravityAccel);
-            newVelocity = newVelocity.scale(1.03);
-
-            this.setDeltaMovement(newVelocity);
-            this.move(MoverType.SELF, newVelocity);
+            
+            this.move(MoverType.SELF, this.getDeltaMovement());
 
             if (this.ticksAlive == 1 && !this.level().isClientSide()) {
                 ServerLevel serverLevel = (ServerLevel) this.level();
@@ -318,16 +376,17 @@ public class BallisticMissileEntity extends ThrowableProjectile implements GeoAn
     private void stopChank() {
         if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
             if (currentTicketChunk != null) {
-                serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, currentTicketChunk, 10, this);
+                serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, currentTicketChunk, 3, this);
                 currentTicketChunk = null;
             }
             if (targetTicketChunk != null) {
-                serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, targetTicketChunk, 10, this);
+                serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, targetTicketChunk, 3, this);
                 targetTicketChunk = null;
+            }
+            if (aheadTicketChunk != null) {
+                serverLevel.getChunkSource().removeRegionTicket(MISSILE_TICKET, aheadTicketChunk, 3, this);
+                aheadTicketChunk = null;
             }
         }
     }
 }
-
-
-

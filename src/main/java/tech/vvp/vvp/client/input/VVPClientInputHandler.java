@@ -22,7 +22,6 @@ public class VVPClientInputHandler {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        // Переключение серверного радара (и HUD через S2C)
         while (VVPKeyMappings.TOGGLE_RADAR.consumeClick()) {
             var v = mc.player.getVehicle();
             if (v instanceof IRadarVehicle && v.getFirstPassenger() == mc.player) {
@@ -38,15 +37,19 @@ public class VVPClientInputHandler {
             );
         }
         
-        // Переключение режима HIMARS и 2C3M
         while (VVPKeyMappings.TOGGLE_FIRING_MODE.consumeClick()) {
-            var v = mc.player.getVehicle();
-            if (v instanceof tech.vvp.vvp.entity.vehicle.M142HimarsEntity himars && v.getFirstPassenger() == mc.player) {
-                // Отправляем пакет на сервер для переключения режима
+            var vehicle = mc.player.getVehicle();
+            if (vehicle instanceof tech.vvp.vvp.entity.vehicle.M142HimarsEntity himars && vehicle.getFirstPassenger() == mc.player) {
                 VVPNetwork.VVP_HANDLER.sendToServer(new tech.vvp.vvp.network.message.C2SHimarsToggleModePacket());
-            } else if (v instanceof tech.vvp.vvp.entity.vehicle.C3MEntity c3m && v.getFirstPassenger() == mc.player) {
-                // Отправляем пакет на сервер для переключения режима 2C3M
+            } else if (vehicle instanceof tech.vvp.vvp.entity.vehicle.C3MEntity c3m && vehicle.getFirstPassenger() == mc.player) {
                 VVPNetwork.VVP_HANDLER.sendToServer(new tech.vvp.vvp.network.message.C2SC3MToggleModePacket());
+            }
+        }
+        
+        while (VVPKeyMappings.OPEN_COORDINATE_INPUT.consumeClick()) {
+            var coordVehicle = mc.player.getVehicle();
+            if (coordVehicle instanceof tech.vvp.vvp.init.CoordinateTargetVehicle coordinateVehicle && coordVehicle.getFirstPassenger() == mc.player) {
+                mc.setScreen(new tech.vvp.vvp.client.screen.CoordinateInputScreen(coordinateVehicle));
             }
         }
     }

@@ -40,12 +40,20 @@ public class VVPKeyMappings {
             "key.categories.vvp"
     );
 
+    public static final KeyMapping OPEN_COORDINATE_INPUT = new KeyMapping(
+            "key.vvp.open_coordinate_input",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_G,
+            "key.categories.vvp"
+    );
+
     @SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(TOGGLE_RADAR);
         event.register(MOVE_RADAR_POS);
         event.register(TOGGLE_FIRING_MODE);
         event.register(TOGGLE_SUPPORTS);
+        event.register(OPEN_COORDINATE_INPUT);
     }
 
 

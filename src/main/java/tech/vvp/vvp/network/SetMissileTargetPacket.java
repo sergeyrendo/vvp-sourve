@@ -41,7 +41,7 @@ public class SetMissileTargetPacket {
             Entity entity = level.getEntity(msg.entityId);
             
             if (entity instanceof M142HimarsEntity himars) {
-                himars.shootMissileTo(player, new Vec3(msg.x, msg.y, msg.z));
+                himars.setTargetCoordinates(player, new Vec3(msg.x, msg.y, msg.z));
             }
         });
         ctx.get().setPacketHandled(true);

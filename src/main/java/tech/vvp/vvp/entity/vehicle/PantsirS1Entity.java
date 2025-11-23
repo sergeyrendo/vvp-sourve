@@ -123,11 +123,11 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     // Смещение дуль относительно центра стволбокса
     private static final float CANNON_MUZZLE_X_OFFSET = 14f/16f; // влево/вправо (подстрой под модель)
     private static final float CANNON_MUZZLE_Y       = 60f/16f - 58.5662f/16f;
-    private static final float CANNON_MUZZLE_Z       = -23f/16f;
+    private static final float CANNON_MUZZLE_Z       = 23f/16f;
 
     private static final float MISSILE_MUZZLE_X_OFFSET = 23f/16f;
     private static final float MISSILE_MUZZLE_Y       = 60f/16f - 58.5662f/16f;
-    private static final float MISSILE_MUZZLE_Z       = -23f/16f;
+    private static final float MISSILE_MUZZLE_Z       = 23f/16f;
 
     private Vec3 getCannonMuzzlePos(float ticks, boolean left) {
         Matrix4f transform = getBarrelTransform(ticks);
@@ -154,9 +154,9 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     public PantsirS1Entity(EntityType<PantsirS1Entity> type, Level world) {
         super(type, world);
         this.setMaxUpStep(1.5f);
-        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(52f/32f, 34f/32f, 48f/32f), new Quaternionf(), OBB.Part.BODY);
-        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(52f/32f, 27f/32f, 126f/32f), new Quaternionf(), OBB.Part.BODY);
-        this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(52f/32f, 21f/32f, 54f/32f), new Quaternionf(), OBB.Part.TURRET);
+        this.obb1 = new OBB(this.position().toVector3f(), new Vector3f(48f/32f, 35f/32f, 60f/32f), new Quaternionf(), OBB.Part.BODY);
+        this.obb2 = new OBB(this.position().toVector3f(), new Vector3f(48f/32f, 23f/32f, 114f/32f), new Quaternionf(), OBB.Part.BODY);
+        this.obbTurret = new OBB(this.position().toVector3f(), new Vector3f(48f/32f, 22f/32f, 58f/32f), new Quaternionf(), OBB.Part.TURRET);
     }
 
     @Override
@@ -622,20 +622,12 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
 
         Vector4f worldPosition;
         if (i == 0) {
-            worldPosition = transformPosition(transform, -0.75f, -0.2f, -1.6f);
+            worldPosition = transformPosition(transform, 12.2336f/16f, 20f/16f, 38.5864f/16f);
         } else if (i == 1) {
-            worldPosition = transformPosition(transformV, 0f, 1.2f, 0f);
+            worldPosition = transformPosition(transformV, 0.7664f/16f, 20f/16f, 38.5864f/16f);
         } else if (i == 2) {
-            worldPosition = transformPosition(transformV, 0f, 1.2f, 0f);
-        } else if (i == 3) {
-            worldPosition = transformPosition(transformV, 0f, 1.2f, 0f);
-        } else if (i == 4) {
-            worldPosition = transformPosition(transformV, 0f, 1.2f, 0f);
-        } else if (i == 5) {
-            worldPosition = transformPosition(transformV, 0f, 1.2f, 0f);
-        } else if (i == 6) {
-            worldPosition = transformPosition(transformV, 0f, 1.2f, 0f);
-        }else {
+            worldPosition = transformPosition(transformV, -12.2336f/16f, 20f/16f, 38.5864f/16f);
+        } else {
             worldPosition = transformPosition(transformV, 0, 1, 0);
         }
         passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
@@ -651,7 +643,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     }
 
     public int getMaxPassengers() {
-        return 7;
+        return 3;
     }
 
     @Override
@@ -822,7 +814,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
 
     @Override
     public boolean hidePassenger(int index) {
-        return true;
+        return false;
     }
 
     @Override
@@ -983,11 +975,11 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     public void updateOBB() {
         Matrix4f transform = getVehicleTransform(1);
 
-        Vector4f worldPosition1 = transformPosition(transform, 0.0f, 39f/16f, -67f/16f);
+        Vector4f worldPosition1 = transformPosition(transform, 0.0f, 40.5f/16f, 29f/16f);
         this.obb1.center().set(new Vector3f(worldPosition1.x, worldPosition1.y, worldPosition1.z));
         this.obb1.setRotation(VectorTool.combineRotations(1, this));
 
-        Vector4f worldPosition2 = transformPosition(transform, 0.0f, 35.5f/16f, 20f/16f);
+        Vector4f worldPosition2 = transformPosition(transform, 0.0f, 37.5f/16f, -58f/16f);
         this.obb2.center().set(new Vector3f(worldPosition2.x, worldPosition2.y, worldPosition2.z));
         this.obb2.setRotation(VectorTool.combineRotations(1, this));
 
