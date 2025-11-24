@@ -641,8 +641,8 @@ public class F16Entity extends ContainerMobileVehicleEntity implements GeoEntity
 
         // Позиція пілота: (0, 2.16, 6.04)
         float x = 0f;
-        float y = 2.16f + (float) passenger.getMyRidingOffset();
-        float z = 6.04f;
+        float y = 2.2f + (float) passenger.getMyRidingOffset();
+        float z = 6.24f;
 
         Vector4f worldPosition = transformPosition(transform, x, y, z);
         passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);

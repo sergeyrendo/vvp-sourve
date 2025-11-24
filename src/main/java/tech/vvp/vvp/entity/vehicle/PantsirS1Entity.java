@@ -397,7 +397,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
     // 炮塔最大仰角
     @Override
     public float turretMaxPitch() {
-        return 30;
+        return 75;
     }
     // 炮弹发射位置
 //    @Override

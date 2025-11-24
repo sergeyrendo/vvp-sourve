@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.entity.vehicle.M142HimarsEntity;
 import tech.vvp.vvp.init.CoordinateTargetVehicle;
 import tech.vvp.vvp.network.SetMissileTargetPacket;
 
@@ -154,6 +155,13 @@ public class CoordinateInputScreen extends Screen {
         
         // Мини-карта (сдвинута левее на 14 пикселей)
         renderMiniMap(guiGraphics, centerX - 24, panelTop + 30, mouseX, mouseY);
+        
+        if (vehicle instanceof M142HimarsEntity himars && himars.hasGuidanceData()) {
+            int infoX = centerX + 70;
+            int infoY = panelTop + 30;
+            guiGraphics.drawString(font, String.format("Req Yaw/Азимут: %.1f°", himars.getGuidanceYaw()), infoX, infoY, 0xFFFFFFFF);
+            guiGraphics.drawString(font, String.format("Req Pitch/Угол: %.1f°", himars.getGuidancePitch()), infoX, infoY + 12, 0xFFFFFFFF);
+        }
         
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }

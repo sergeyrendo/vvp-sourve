@@ -380,7 +380,7 @@ public class SosnaEntity extends ContainerMobileVehicleEntity implements GeoEnti
     // 炮塔最大仰角
     @Override
     public float turretMaxPitch() {
-        return 30;
+        return 80;
     }
     // 炮弹发射位置
     @Override
