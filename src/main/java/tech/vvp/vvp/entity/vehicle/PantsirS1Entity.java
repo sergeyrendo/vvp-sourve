@@ -622,7 +622,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
 
         Vector4f worldPosition;
         if (i == 0) {
-            worldPosition = transformPosition(transform, 12.2336f/16f, 20f/16f, 38.5864f/16f);
+            worldPosition = transformPosition(transformV, 12.2336f/16f, 20f/16f, 38.5864f/16f);
         } else if (i == 1) {
             worldPosition = transformPosition(transformV, 0.7664f/16f, 20f/16f, 38.5864f/16f);
         } else if (i == 2) {
@@ -746,7 +746,6 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
 
     @Override
     public void onPassengerTurned(@NotNull Entity entity) {
-        this.clampRotation(entity);
     }
 
 
@@ -932,34 +931,38 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         return this.getSeatIndex(entity) != 0;
     }
 
+//    @OnlyIn(Dist.CLIENT)
+//    @Override
+//    public @Nullable Vec2 getCameraRotation(float partialTicks, Player player, boolean zoom, boolean isFirstPerson) {
+//        if (zoom || isFirstPerson) {
+//            if (this.getSeatIndex(player) == 0) {
+//                return new Vec2((float) -getYRotFromVector(this.getBarrelVec(partialTicks)), (float) -getXRotFromVector(this.getBarrelVec(partialTicks)));
+//            } else {
+//                return new Vec2(Mth.lerp(partialTicks, player.yHeadRotO, player.getYHeadRot()), Mth.lerp(partialTicks, player.xRotO, player.getXRot()));
+//            }
+//        }
+//        return super.getCameraRotation(partialTicks, player, false, false);
+//    }
+//
+    //摄像机位置
     @OnlyIn(Dist.CLIENT)
-    @Override
-    public @Nullable Vec2 getCameraRotation(float partialTicks, Player player, boolean zoom, boolean isFirstPerson) {
-        if (zoom || isFirstPerson) {
-            if (this.getSeatIndex(player) == 0) {
-                return new Vec2((float) -getYRotFromVector(this.getBarrelVec(partialTicks)), (float) -getXRotFromVector(this.getBarrelVec(partialTicks)));
-            } else {
-                return new Vec2(Mth.lerp(partialTicks, player.yHeadRotO, player.getYHeadRot()), Mth.lerp(partialTicks, player.xRotO, player.getXRot()));
-            }
-        }
-        return super.getCameraRotation(partialTicks, player, false, false);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
     public Vec3 getCameraPosition(float partialTicks, Player player, boolean zoom, boolean isFirstPerson) {
-        if (zoom || isFirstPerson) {
-            if (this.getSeatIndex(player) == 0) {
-                if (zoom) {
-                    return new Vec3(this.driverZoomPos(partialTicks).x, Mth.lerp(partialTicks, player.yo + player.getEyeHeight(), player.getEyeY()), this.driverZoomPos(partialTicks).z);
-                } else {
-                    return new Vec3(Mth.lerp(partialTicks, player.xo, player.getX()), Mth.lerp(partialTicks, player.yo + player.getEyeHeight(), player.getEyeY()), Mth.lerp(partialTicks, player.zo, player.getZ()));
+        Matrix4f transform = this.getTurretTransform(partialTicks);
+
+        if (this.getSeatIndex(player) == 1) {
+            transform.rotate(Axis.YP.rotationDegrees(getRoll()));
+            Vector4f maxCameraPosition = this.transformPosition(transform, 0F, 28f/16f - 1.45f, 60f/16f);
+            if(isFirstPerson) {
+                if (zoom){
+                    return CameraTool.getMaxZoom(transform, maxCameraPosition);
                 }
-            } else {
-                return new Vec3(Mth.lerp(partialTicks, player.xo, player.getX()) - 6 * player.getViewVector(partialTicks).x,
-                        Mth.lerp(partialTicks, player.yo + player.getEyeHeight() + 1, player.getEyeY() + 1) - 6 * player.getViewVector(partialTicks).y,
-                        Mth.lerp(partialTicks, player.zo, player.getZ()) - 6 * player.getViewVector(partialTicks).z);
+                return new Vec3(
+                        Mth.lerp(partialTicks, player.xo, player.getX())
+                        , Mth.lerp(partialTicks, player.yo + (double)player.getEyeHeight(), player.getEyeY())
+                        , Mth.lerp(partialTicks, player.zo, player.getZ())
+                );
             }
+            return CameraTool.getMaxZoom(transform, maxCameraPosition);
         }
         return super.getCameraPosition(partialTicks, player, false, false);
     }
@@ -1098,7 +1101,7 @@ public class PantsirS1Entity extends ContainerMobileVehicleEntity implements Geo
         triggerSupportsAnimation(newState);
     }
     
-public boolean areSupportsDeployed() {
+    public boolean areSupportsDeployed() {
         return this.entityData.get(SUPPORTS_DEPLOYED);
     }
 
