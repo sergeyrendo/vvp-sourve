@@ -179,6 +179,12 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
 
         if (!currentMode) {
             this.setDeltaMovement(Vec3.ZERO);
+        } else {
+            // При переключении в driving mode сбрасываем координаты цели
+            this.targetPosition = null;
+            this.targetYaw = 0;
+            this.targetPitch = 0;
+            syncGuidanceState(false);
         }
 
     }
@@ -277,7 +283,7 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
             float relativeYaw = Mth.wrapDegrees(playerYaw - this.getYRot());
             this.setTurretYRot(relativeYaw);
 
-            this.setTurretXRot(Mth.clamp(playerPitch, -60F, 0F));
+            this.setTurretXRot(Mth.clamp(playerPitch, turretMinPitch(), turretMaxPitch()));
 
             this.entityData.set(MOUSE_SPEED_X, 0f);
             this.entityData.set(MOUSE_SPEED_Y, 0f);
@@ -338,13 +344,16 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
 
     @Override
     public float turretMinPitch() {
-        return -7.5f;
+        return -45f;  // Максимум вверх (45°)
     }
 
     @Override
     public float turretMaxPitch() {
-        return 60f;
+        return 0f;  // Горизонтально (0°)
     }
+    
+    // Минимальный угол для стрельбы
+    private static final float MIN_FIRING_PITCH = -18f;
 
     private void updateAimGuidance() {
         if (!hasGuidanceData()) {
@@ -378,9 +387,12 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         double angle = Math.atan2(diff.z, diff.x);
         float worldYaw = (float) Math.toDegrees(angle) - 90.0F;
         float relativeYaw = Mth.wrapDegrees(worldYaw - this.getYRot());
+        
+        // Используем баллистические расчеты для определения pitch
         double horizontal = Math.sqrt(diff.x * diff.x + diff.z * diff.z);
-        float worldPitch = (float) -Math.toDegrees(Math.atan2(diff.y, horizontal));
-        float relativePitch = Mth.clamp(worldPitch, turretMinPitch(), turretMaxPitch());
+        double ballisticPitch = tech.vvp.vvp.tools.HimarsBallistics.computePitch(horizontal);
+        float relativePitch = (float) -ballisticPitch; // Инвертируем, т.к. в Minecraft отрицательный pitch = вверх
+        
         this.targetYaw = relativeYaw;
         this.targetPitch = relativePitch;
         this.targetPosition = targetPos;
@@ -433,11 +445,13 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     private void fireMissile(Player player) {
         if (this.level().isClientSide) return;
         if (targetPosition == null) {
-            player.sendSystemMessage(Component.literal("§cНет цели. Используйте G для ввода координат."));
             return;
         }
         if (this.entityData.get(AMMO) <= 0) {
-            player.sendSystemMessage(Component.literal("§cНет ракет. Требуется перезарядка."));
+            return;
+        }
+        // Проверка минимального угла для стрельбы
+        if (this.getTurretXRot() > MIN_FIRING_PITCH) {
             return;
         }
         if (!isAimAligned()) {
@@ -465,6 +479,12 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
     private int launchSmokeTicks = 0;
 
     private void actuallyLaunchMissile(Player player, Vec3 targetPos) {
+        // Проверяем ammo перед выстрелом
+        int currentAmmo = this.entityData.get(AMMO);
+        if (currentAmmo <= 0) {
+            return;
+        }
+        
         Matrix4f transform = this.getBarrelTransform(1.0F);
         float x = shotToggled ? -0.5F : 0.5F;
         float y = 0.5F;
@@ -473,11 +493,20 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
 
         Vector4f worldPosition = this.transformPosition(transform, x, y, z);
 
+        // Добавляем погрешность 3-6 блоков по X и Z
+        double inaccuracyX = (this.random.nextDouble() - 0.5) * 2 * (3 + this.random.nextDouble() * 3); // От -6 до +6
+        double inaccuracyZ = (this.random.nextDouble() - 0.5) * 2 * (3 + this.random.nextDouble() * 3); // От -6 до +6
+        Vec3 inaccurateTarget = new Vec3(
+            targetPos.x + inaccuracyX,
+            targetPos.y,
+            targetPos.z + inaccuracyZ
+        );
+
         BallisticMissileEntity missile = ((BallisticMissileWeapon) this.getWeapon(0)).create(player);
         missile.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
         missile.setXRot(90);
         missile.setYRot(180);
-        missile.setTargetPosition(targetPos);
+        missile.setTargetPosition(inaccurateTarget);
 
         this.level().addFreshEntity(missile);
 
@@ -504,6 +533,11 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
 
         this.entityData.set(CANNON_RECOIL_TIME, 60);
         this.entityData.set(FIRE_ANIM, 3);
+        
+        // Тратим ammo только после успешного выстрела
+        if (!this.level().isClientSide) {
+            this.entityData.set(AMMO, currentAmmo - 1);
+        }
 
     }
 
@@ -559,10 +593,6 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
                 : endPos;
 
         fireMissile(player);
-
-        if (!this.level().isClientSide) {
-            this.entityData.set(AMMO, currentAmmo - 1);
-        }
 
         fireCooldown = FIRE_COOLDOWN_TIME;
     }
@@ -778,20 +808,31 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         }
 
         float requiredYaw = getRequiredYaw();
-        float requiredPitch = getRequiredPitch();
+        float requiredPitch = -getRequiredPitch(); // Инвертируем для отображения
         float currentYaw = this.getTurretYRot();
-        float currentPitch = this.getTurretXRot();
+        float currentPitch = -this.getTurretXRot(); // Инвертируем для отображения
         boolean aligned = isAimAligned();
-        int diffColor = aligned ? 0x00FF00 : 0xFFAA00;
+        boolean canFire = this.getTurretXRot() <= MIN_FIRING_PITCH;
+        int diffColor = aligned && canFire ? 0x00FF00 : (aligned ? 0xFFFF00 : 0xFFAA00);
 
-        int startX = screenWidth - 185;
-        int startY = 20;
+        int startX = screenWidth - 190;  // На 5 пикселей левее (было -185)
+        int startY = 30;  // На 10 пикселей ниже (было 20)
 
         guiGraphics.drawString(font, Component.literal(String.format("Target/Цель: Y %.1f° | P %.1f°", requiredYaw, requiredPitch)), startX, startY, color, false);
         guiGraphics.drawString(font, Component.literal(String.format("Turret/Башня: Y %.1f° | P %.1f°", currentYaw, currentPitch)), startX, startY + 12, color, false);
         guiGraphics.drawString(font, Component.literal(String.format("Offset/Отклонение: ΔY %.1f° | ΔP %.1f°", currentYawError, currentPitchError)), startX, startY + 24, diffColor, false);
+        
+        String statusText;
+        if (!canFire) {
+            statusText = "MIN 18° / МИН 18°";
+        } else if (aligned) {
+            statusText = "READY / ГОТОВ";
+        } else {
+            statusText = "ALIGN / НАВЕДИТЕ";
+        }
+        
         guiGraphics.drawString(font,
-                Component.literal(aligned ? "READY / ГОТОВ" : "ALIGN / НАВЕДИТЕ"),
+                Component.literal(statusText),
                 startX,
                 startY + 36,
                 diffColor,
@@ -806,11 +847,12 @@ public class M142HimarsEntity extends ContainerMobileVehicleEntity implements Ge
         }
 
         boolean aligned = isAimAligned();
-        int diffColor = aligned ? 0x00FF00 : 0xFFAA00;
+        boolean canFire = this.getTurretXRot() <= MIN_FIRING_PITCH;
+        int diffColor = aligned && canFire ? 0x00FF00 : (aligned ? 0xFFFF00 : 0xFFAA00);
         guiGraphics.drawString(font,
                 Component.literal(String.format("HIMARS ΔY %.1f° | ΔP %.1f°", currentYawError, currentPitchError)),
-                screenWidth - 185,
-                20,
+                screenWidth - 190,  // На 5 пикселей левее
+                30,  // На 10 пикселей ниже
                 diffColor,
                 false);
     }

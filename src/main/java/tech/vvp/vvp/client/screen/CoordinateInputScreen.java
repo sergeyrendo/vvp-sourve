@@ -48,6 +48,18 @@ public class CoordinateInputScreen extends Screen {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
             this.mapCenter = player.position();
+            
+            // Проверяем, есть ли сохраненные координаты и активна ли система наведения
+            boolean hasGuidance = false;
+            if (vehicle instanceof M142HimarsEntity himars) {
+                hasGuidance = himars.hasGuidanceData();
+            }
+            
+            // Если система наведения неактивна, сбрасываем сохраненные координаты
+            if (!hasGuidance) {
+                savedPositions.remove(vehicle.getId());
+            }
+            
             Vec3 saved = savedPositions.getOrDefault(vehicle.getId(), player.position());
             this.targetPos = saved;
         }
@@ -59,21 +71,34 @@ public class CoordinateInputScreen extends Screen {
         int centerY = this.height / 2;
         
         Player player = Minecraft.getInstance().player;
-        Vec3 saved = savedPositions.getOrDefault(vehicle.getId(), 
-            player != null ? player.position() : new Vec3(0, 64, 0));
+        
+        // Проверяем, есть ли активная система наведения
+        boolean hasGuidance = false;
+        if (vehicle instanceof M142HimarsEntity himars) {
+            hasGuidance = himars.hasGuidanceData();
+        }
+        
+        // Если нет наведения, используем текущую позицию и очищаем поля
+        Vec3 saved;
+        if (!hasGuidance) {
+            saved = player != null ? player.position() : new Vec3(0, 64, 0);
+        } else {
+            saved = savedPositions.getOrDefault(vehicle.getId(), 
+                player != null ? player.position() : new Vec3(0, 64, 0));
+        }
 
         int inputY = centerY - 60;
         
         xInput = new EditBox(font, centerX - 150, inputY, 100, 20, Component.literal("X"));
-        xInput.setValue(String.format(java.util.Locale.US, "%.0f", saved.x));
+        xInput.setValue(hasGuidance ? String.format(java.util.Locale.US, "%.0f", saved.x) : "");
         xInput.setResponder(this::onCoordinateChange);
         
         yInput = new EditBox(font, centerX - 150, inputY + 30, 100, 20, Component.literal("Y"));
-        yInput.setValue(String.format(java.util.Locale.US, "%.0f", saved.y));
+        yInput.setValue(hasGuidance ? String.format(java.util.Locale.US, "%.0f", saved.y) : "");
         yInput.setResponder(this::onCoordinateChange);
         
         zInput = new EditBox(font, centerX - 150, inputY + 60, 100, 20, Component.literal("Z"));
-        zInput.setValue(String.format(java.util.Locale.US, "%.0f", saved.z));
+        zInput.setValue(hasGuidance ? String.format(java.util.Locale.US, "%.0f", saved.z) : "");
         zInput.setResponder(this::onCoordinateChange);
 
         this.addRenderableWidget(xInput);
@@ -91,7 +116,7 @@ public class CoordinateInputScreen extends Screen {
         }).bounds(centerX - 150, inputY + 90, 100, 20).build();
         this.addRenderableWidget(currentPosButton);
 
-        submitButton = Button.builder(Component.literal("§a§lFIRE"), btn -> {
+        submitButton = Button.builder(Component.literal("§a§lSET"), btn -> {
             try {
                 double x = Double.parseDouble(xInput.getValue());
                 double y = Double.parseDouble(yInput.getValue());
@@ -130,8 +155,13 @@ public class CoordinateInputScreen extends Screen {
         // Главная панель
         drawPanel(guiGraphics, centerX - 170, panelTop, 340, 220);
         
-        // Заголовок
-        guiGraphics.drawCenteredString(font, "§l§aFIRE CONTROL SYSTEM", centerX, panelTop + 10, HIGHLIGHT_COLOR);
+        // Определяем язык один раз для всего экрана
+        String language = Minecraft.getInstance().getLanguageManager().getSelected();
+        boolean isRussian = language.startsWith("ru");
+        
+        // Заголовок с локализацией
+        String title = isRussian ? "§l§aСИСТЕМА УПРАВЛЕНИЯ ОГНЁМ" : "§l§aFIRE CONTROL SYSTEM";
+        guiGraphics.drawCenteredString(font, title, centerX, panelTop + 10, HIGHLIGHT_COLOR);
         
         // Подписи (сдвинуты правее на 6 пикселей)
         int inputY = centerY - 60;
@@ -157,10 +187,14 @@ public class CoordinateInputScreen extends Screen {
         renderMiniMap(guiGraphics, centerX - 24, panelTop + 30, mouseX, mouseY);
         
         if (vehicle instanceof M142HimarsEntity himars && himars.hasGuidanceData()) {
-            int infoX = centerX + 70;
-            int infoY = panelTop + 30;
-            guiGraphics.drawString(font, String.format("Req Yaw/Азимут: %.1f°", himars.getGuidanceYaw()), infoX, infoY, 0xFFFFFFFF);
-            guiGraphics.drawString(font, String.format("Req Pitch/Угол: %.1f°", himars.getGuidancePitch()), infoX, infoY + 12, 0xFFFFFFFF);
+            int infoX = centerX + 74; // Правее на 4 пикселя (было 70)
+            int infoY = panelTop + 5; // Еще выше на 10 пикселей (было 15)
+            
+            String yawLabel = isRussian ? "Азимут" : "Req Yaw";
+            String pitchLabel = isRussian ? "Угол" : "Req Pitch";
+            
+            guiGraphics.drawString(font, String.format("%s: %.1f°", yawLabel, -himars.getGuidanceYaw()), infoX, infoY, 0xFFFFFFFF);
+            guiGraphics.drawString(font, String.format("%s: %.1f°", pitchLabel, -himars.getGuidancePitch()), infoX, infoY + 12, 0xFFFFFFFF);
         }
         
         super.render(guiGraphics, mouseX, mouseY, partialTick);

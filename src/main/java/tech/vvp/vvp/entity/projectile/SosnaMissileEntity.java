@@ -273,9 +273,9 @@ public class SosnaMissileEntity extends FastThrowableProjectile implements GeoEn
         Vec3 currentVel = this.getDeltaMovement();
         double currentSpeed = currentVel.length();
         
-        // Постепенный разгон
-        double acceleration = this.tickCount < 10 ? 0.5 : 0.8;
-        double targetSpeed = Math.min(12.0, currentSpeed + acceleration);
+        // Постепенный разгон (медленнее чем у Панциря)
+        double acceleration = this.tickCount < 10 ? 0.3 : 0.5;
+        double targetSpeed = Math.min(8.0, currentSpeed + acceleration); // Макс скорость 8.0 вместо 12.0
         
         if (target != null && target.isAlive()) {
             // ЦЕЛЬ НАЙДЕНА - сбрасываем счётчик потери
