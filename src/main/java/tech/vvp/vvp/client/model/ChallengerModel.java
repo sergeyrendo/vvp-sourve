@@ -1,29 +1,12 @@
 package tech.vvp.vvp.client.model;
 
-import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.GeoModel;
-import tech.vvp.vvp.VVP;
+import com.atsuishio.superbwarfare.client.model.entity.VehicleModel;
 import tech.vvp.vvp.entity.vehicle.ChallengerEntity;
 
-public class ChallengerModel extends GeoModel<ChallengerEntity> {
+public class ChallengerModel extends VehicleModel<ChallengerEntity> {
 
     @Override
-    public ResourceLocation getAnimationResource(ChallengerEntity entity) {
-        return new ResourceLocation(VVP.MOD_ID, "animations/lav.animation.json");
-    }
-
-    @Override
-    public ResourceLocation getModelResource(ChallengerEntity entity) {
-        return new ResourceLocation(VVP.MOD_ID, "geo/challenger.geo.json");
-    }
-
-    @Override
-    public ResourceLocation getTextureResource(ChallengerEntity animatable) {
-        int camoType = animatable.getEntityData().get(ChallengerEntity.CAMOUFLAGE_TYPE);
-        switch (camoType) {
-            case 1: return new ResourceLocation("vvp", "textures/entity/challenger_camo.png");
-            case 2: return new ResourceLocation("vvp", "textures/entity/challenger_white.png");
-            default: return new ResourceLocation("vvp", "textures/entity/challenger_green.png");
-        }
+    public boolean hideForTurretControllerWhileZooming() {
+        return true;
     }
 }

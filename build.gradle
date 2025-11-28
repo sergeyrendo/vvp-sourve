@@ -20,7 +20,7 @@ plugins {
 //apply plugin: 'org.spongepowered.mixin'
 
 group = mod_group_id
-version = '0.1.8'
+version = '0.2.0'
 
 base {
     archivesName = "vvp"
@@ -177,7 +177,7 @@ dependencies {
     
     implementation fg.deobf("curse.maven:geckolib-388172:6658942")
     // implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.20.1:4.4.6')
-    implementation fg.deobf("curse.maven:superb-warfare-1218165:6982132")
+    implementation fg.deobf("curse.maven:superb-warfare-1218165:7270841")
     implementation fg.deobf("curse.maven:jei-238222:6600311")
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings

@@ -47,6 +47,8 @@ public class ModItems {
     public static final RegistryObject<Item> SPRAY = REGISTRY.register("spray", SprayItem::new);
     public static final RegistryObject<Item> TENT = REGISTRY.register("tent", TentItem::new);
     public static final RegistryObject<Item> FAB_500_ITEM = REGISTRY.register("fab_500_item", Fab500Item::new);
+    public static final RegistryObject<Item> FAB_250_ITEM = REGISTRY.register("fab_250_item", Fab250Item::new);
+    public static final RegistryObject<Item> R73_ITEM = REGISTRY.register("r73_item", R73Item::new);
     public static final RegistryObject<Item> S_13 = REGISTRY.register("s_13", S13Item::new);
     public static final RegistryObject<Item> GMLRS_M31 = REGISTRY.register("gmlrs_m31", 
             () -> new Item(new Item.Properties().stacksTo(6)));

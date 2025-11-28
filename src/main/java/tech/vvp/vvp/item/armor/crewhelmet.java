@@ -11,7 +11,7 @@ import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import software.bernie.geckolib.util.GeckoLibUtil;
-import tech.vvp.vvp.client.overlay.crewRenderer;
+import tech.vvp.vvp.client.renderer.armor.crewRenderer;
 import tech.vvp.vvp.tiers.ModArmorMaterial;
 
 import java.util.function.Consumer;

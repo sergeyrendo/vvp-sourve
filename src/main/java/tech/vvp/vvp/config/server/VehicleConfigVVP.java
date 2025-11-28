@@ -186,8 +186,8 @@ public class VehicleConfigVVP {
 
         BUILDER.push("terminator");
         TERMINATOR_ENERGY_COST = BUILDER.defineInRange("terminator_energy_cost", 80, 0, 2147483647);
-        TERMINATOR_CANNON_DAMAGE = BUILDER.defineInRange("terminator_cannon_damage", 38, 1, 10000000);
-        TERMINATOR_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("terminator_cannon_explosion_damage", 15, 1, 10000000);
+        TERMINATOR_CANNON_DAMAGE = BUILDER.defineInRange("terminator_cannon_damage", 32, 1, 10000000);
+        TERMINATOR_CANNON_EXPLOSION_DAMAGE = BUILDER.defineInRange("terminator_cannon_explosion_damage", 16, 1, 10000000);
         TERMINATOR_CANNON_EXPLOSION_RADIUS = BUILDER.defineInRange("terminator_cannon_explosion_radius", 6d, 1d, 10000000d);
         TERMINATOR_CANNON_DESTROY = BUILDER.define("terminator_cannon_destroy", true);
         BUILDER.pop();

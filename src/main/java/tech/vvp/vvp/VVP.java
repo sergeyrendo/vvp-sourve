@@ -19,10 +19,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import tech.vvp.vvp.network.VVPNetwork;
-import tech.vvp.vvp.network.message.S2CRadarSyncPacket;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
-import tech.vvp.vvp.network.message.C2SRadarTogglePacket;
 
 
 @Mod(VVP.MOD_ID)
@@ -36,7 +34,6 @@ public class VVP {
 
         ModItems.register(modEventBus);
         ModEntities.register(modEventBus);
-        ModVehicleItems.register(modEventBus);
         ModSounds.REGISTRY.register(modEventBus);
         ModTabs.TABS.register(modEventBus);
 
@@ -56,69 +53,6 @@ public class VVP {
 
     private void setup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            // Уже зарегистрированные пакеты...
-
-            // C2S: переключение радара
-            VVPNetwork.addNetworkMessage(
-                    tech.vvp.vvp.network.message.C2SRadarTogglePacket.class,
-                    tech.vvp.vvp.network.message.C2SRadarTogglePacket::encode,
-                    tech.vvp.vvp.network.message.C2SRadarTogglePacket::decode,
-                    tech.vvp.vvp.network.message.C2SRadarTogglePacket::handle,
-                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
-            );
-
-            // S2C: синхронизация списка целей
-            VVPNetwork.addNetworkMessage(
-                    tech.vvp.vvp.network.message.S2CRadarSyncPacket.class,
-                    tech.vvp.vvp.network.message.S2CRadarSyncPacket::buffer,
-                    tech.vvp.vvp.network.message.S2CRadarSyncPacket::new,
-                    tech.vvp.vvp.network.message.S2CRadarSyncPacket::handler,
-                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
-            );
-
-            // NEW: S2C: синхронизация состояния радара (для HUD)
-            VVPNetwork.addNetworkMessage(
-                    tech.vvp.vvp.network.message.S2CRadarStatePacket.class,
-                    tech.vvp.vvp.network.message.S2CRadarStatePacket::buffer,
-                    tech.vvp.vvp.network.message.S2CRadarStatePacket::new,
-                    tech.vvp.vvp.network.message.S2CRadarStatePacket::handler,
-                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
-            );
-
-            // C2S: установка цели для ракеты
-            VVPNetwork.addNetworkMessage(
-                    tech.vvp.vvp.network.SetMissileTargetPacket.class,
-                    tech.vvp.vvp.network.SetMissileTargetPacket::encode,
-                    tech.vvp.vvp.network.SetMissileTargetPacket::decode,
-                    tech.vvp.vvp.network.SetMissileTargetPacket::handle,
-                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
-            );
-
-            // C2S: переключение режима HIMARS
-            VVPNetwork.addNetworkMessage(
-                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket.class,
-                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket::toBytes,
-                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket::new,
-                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket::handle,
-                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
-            );
-            // C2S: переключение опор Панциря
-            VVPNetwork.addNetworkMessage(
-                    tech.vvp.vvp.network.message.C2SPantsirToggleSupportsPacket.class,
-                    tech.vvp.vvp.network.message.C2SPantsirToggleSupportsPacket::toBytes,
-                    tech.vvp.vvp.network.message.C2SPantsirToggleSupportsPacket::new,
-                    tech.vvp.vvp.network.message.C2SPantsirToggleSupportsPacket::handle,
-                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
-            );
-            // C2S: переключение режима 2C3M
-            VVPNetwork.addNetworkMessage(
-                    tech.vvp.vvp.network.message.C2SC3MToggleModePacket.class,
-                    tech.vvp.vvp.network.message.C2SC3MToggleModePacket::toBytes,
-                    tech.vvp.vvp.network.message.C2SC3MToggleModePacket::new,
-                    tech.vvp.vvp.network.message.C2SC3MToggleModePacket::handle,
-                    java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
-            );
-
         });
     }
 
