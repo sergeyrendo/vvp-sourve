@@ -1,0 +1,33 @@
+{
+  "ID": "vvp:toyota",
+  "Model": {
+    "Model": "vvp:geo/toyota.geo.json",
+    "Texture": "vvp:textures/entity/toyota.png"
+  },
+  "MaxHealth": 175,
+  "MaxEnergy": 5000000,
+  "OBB": [
+    {"Size": [0.3, 0.5, 0.5], "Position": [-0.9, 0.5, 1.2], "Part": "WheelRight"},
+    {"Size": [0.3, 0.5, 0.5], "Position": [0.9, 0.5, 1.2], "Part": "WheelLeft"},
+    {"Size": [0.3, 0.5, 0.5], "Position": [0.9, 0.5, -1.2], "Part": "WheelLeft"},
+    {"Size": [0.3, 0.5, 0.5], "Position": [-0.9, 0.5, -1.2], "Part": "WheelRight"},
+    {"Size": [1, 0.7, 2], "Position": [0, 1.2, 0]},
+    {"Size": [0.5, 0.4, 0.6], "Position": [0, 1.5, -1.5], "Part": "MainEngine"}
+  ],
+  "Seats": [
+    {"HidePassenger": false, "BanHand": true, "Transform": "Vehicle", "Position": [0.4, 0.8, 0.5], "CameraPos": {"UseSimulate3P": true, "Simulate3PPos": [5, 0.8]}},
+    {"HidePassenger": false, "CameraPos": {"Transform": "Barrel", "ZoomPosition": [0, 0.1, 0], "Direction": "Barrel"}, "Weapons": ["MachineGun"], "Transform": "Turret", "Position": [0, 0.5, -1], "CanRotateHead": true, "MinPitch": -15, "MaxPitch": 60, "Sensitivity": [0.8, 0.8, 1]}
+  ],
+  "Weapons": {
+    "MachineGun": {"Icon": "superbwarfare:textures/screens/vehicle_weapon/gun_12_7mm.png", "DefaultFireMode": "Auto", "AvailableFireModes": "Auto", "Spread": 0.6, "CrosshairColor": "0x66FF00", "Projectile": "superbwarfare:projectile", "RPM": 550, "Damage": 16, "BypassesArmor": 0.35, "Velocity": 32, "RecoilTime": 22, "RecoilForce": 0.12, "HeatPerShoot": 5, "NaturalCooldown": 1, "ShootAnimationTime": 2, "AmmoType": "superbwarfare:heavy_ammo", "ShootPos": {"Transform": "Barrel", "Positions": [[0, 0.1, 1]], "Directions": ["Barrel"]}, "Crosshair": "@VehicleCommonGun", "Name": "weapon.superbwarfare.12_7mm", "SoundInfo": {"Fire1P": "superbwarfare:m_2_hb_fire_1p", "Fire3P": "superbwarfare:m_2_hb_fire_3p", "Fire3PFar": "superbwarfare:m_2_hb_far", "Fire3PVeryFar": "superbwarfare:m_2_hb_veryfar"}, "SoundRadius": 16}
+  },
+  "EngineType": "Wheel",
+  "EngineInfo": {"Buoyancy": 0.03, "EnergyCostRate": 40, "WheelRotSpeed": 1.5, "WheelDifferential": 0.35, "MaxForwardSpeedRate": 1.3, "MaxBackwardSpeedRate": 0.6, "Increment": 0.04, "Decrement": 0.025, "SteeringSpeed": 0.1},
+  "TurretPos": [0, 1.8, -1], "TurretTurnSpeed": [20, 15], "TurretPitchRange": [-15, 60], "BarrelPos": [0, 0.2, 0.5],
+  "ThirdPersonCameraPos": [0, 0.8, 2], "HasDecoy": false, "UpStep": 1, "RotateOffsetHeight": 1.5, "Mass": 2.5,
+  "DamageModifiers": ["All * 0.3", "minecraft:explosion * 8", "superbwarfare:custom_explosion * 3", "superbwarfare:projectile_hit * 1.8", "#superbwarfare:projectile * 0.4", "superbwarfare:vehicle_strike * 8", "All - 5"],
+  "VehicleContainerType": "Small", "DestroyInfo": {"ParticleType": "Huge", "ExplosionDamage": 60, "ExplosionRadius": 4},
+  "VehicleIcon": "superbwarfare:textures/vehicle_icon/truck_icon.png", "ContainerIcon": "superbwarfare:textures/gui/vehicle/type/land.png", "Type": "Truck",
+  "CollisionLevel": {"Level": 1, "PowerLimits": [[0.1, 0.05, false]]},
+  "EngineSound": "superbwarfare:truck_engine", "MainWeaponHudType": "@Land", "TerrainCompat": [[0.8, 0, 1], [-0.8, 0, 1], [0.8, 0, -1], [-0.8, 0, -1]], "InertiaRotateRate": 1.5
+}
