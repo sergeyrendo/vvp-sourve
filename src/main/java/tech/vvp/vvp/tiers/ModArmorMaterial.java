@@ -30,7 +30,22 @@ public enum ModArmorMaterial implements ArmorMaterial {
     }), 10, SoundEvents.ARMOR_EQUIP_IRON, 1.0F, 0.0F, () -> Ingredient.of(ModItems.CEMENTED_CARBIDE_INGOT.get())),
     KEPKI("kepki", 50, Util.make(new EnumMap<>(ArmorItem.Type.class), p -> {
         p.put(ArmorItem.Type.HELMET, 1);
-    }), 10, SoundEvents.ARMOR_EQUIP_IRON, 0.0F, 0.0F, () -> Ingredient.of(ModItems.CEMENTED_CARBIDE_INGOT.get()));
+    }), 10, SoundEvents.ARMOR_EQUIP_IRON, 0.0F, 0.0F, () -> Ingredient.of(ModItems.CEMENTED_CARBIDE_INGOT.get())),
+    UKR("ukr", 50, Util.make(new EnumMap<>(ArmorItem.Type.class), p -> {
+        p.put(ArmorItem.Type.CHESTPLATE, 10);
+        p.put(ArmorItem.Type.LEGGINGS, 3);
+        p.put(ArmorItem.Type.HELMET, 6);
+    }), 10, SoundEvents.ARMOR_EQUIP_IRON, 1.5F, 0.2F, () -> Ingredient.of(ModItems.CEMENTED_CARBIDE_INGOT.get())),
+    RUS("rus", 50, Util.make(new EnumMap<>(ArmorItem.Type.class), p -> {
+        p.put(ArmorItem.Type.CHESTPLATE, 10);
+        p.put(ArmorItem.Type.LEGGINGS, 3);
+        p.put(ArmorItem.Type.HELMET, 6);
+    }), 10, SoundEvents.ARMOR_EQUIP_IRON, 1.5F, 0.2F, () -> Ingredient.of(ModItems.CEMENTED_CARBIDE_INGOT.get())),
+    PMC("pmc", 50, Util.make(new EnumMap<>(ArmorItem.Type.class), p -> {
+        p.put(ArmorItem.Type.CHESTPLATE, 10);
+        p.put(ArmorItem.Type.LEGGINGS, 3);
+        p.put(ArmorItem.Type.HELMET, 6);
+    }), 10, SoundEvents.ARMOR_EQUIP_IRON, 1.5F, 0.2F, () -> Ingredient.of(ModItems.CEMENTED_CARBIDE_INGOT.get()));
 
     private static final EnumMap<ArmorItem.Type, Integer> HEALTH_FUNCTION_FOR_TYPE = Util.make(new EnumMap<>(ArmorItem.Type.class), (p_266653_) -> {
         p_266653_.put(ArmorItem.Type.BOOTS, 13);

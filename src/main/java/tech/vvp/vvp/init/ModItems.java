@@ -73,6 +73,39 @@ public class ModItems {
     public static final RegistryObject<Item> BERETA = REGISTRY.register("bereta",
             () -> new bereta());
 
+    // RUS ARMOR
+    public static final RegistryObject<Item> RUS_ARMOR = REGISTRY.register("rus_armor",
+            () -> new rus_armor());
+    public static final RegistryObject<Item> RUS_ARMOR_2 = REGISTRY.register("rus_armor_2",
+            () -> new rus_armor_2());
+    public static final RegistryObject<Item> RUS_ARMOR_3 = REGISTRY.register("rus_armor_3",
+            () -> new rus_armor_3());
+    public static final RegistryObject<Item> RUS_HELMET = REGISTRY.register("rus_helmet",
+            () -> new rus_helmet());
+    public static final RegistryObject<Item> RUS_HELMET_2 = REGISTRY.register("rus_helmet_2",
+            () -> new rus_helmet_2());
+    public static final RegistryObject<Item> RUS_HELMET_3 = REGISTRY.register("rus_helmet_3",
+            () -> new rus_helmet_3());
+
+    // UKR_ARMOR
+
+    public static final RegistryObject<Item> UKR_CHEST = REGISTRY.register("ukr_chest",
+            () -> new ukr_chest());
+    public static final RegistryObject<Item> UKR_HELMET = REGISTRY.register("ukr_helmet",
+            () -> new ukr_helmet());
+    public static final RegistryObject<Item> UKR_V2_CHEST = REGISTRY.register("ukr_v2_chest",
+            () -> new ukr_v2_chest());
+    public static final RegistryObject<Item> UKR_V2_HELMET = REGISTRY.register("ukr_v2_helmet",
+            () -> new ukr_v2_helmet());
+
+    // PMC ARMOR
+    public static final RegistryObject<Item> PMC_HELMET = REGISTRY.register("pmc_helmet",
+            () -> new pmc_helmet());
+    public static final RegistryObject<Item> PMC_CHEST = REGISTRY.register("pmc_chest",
+            () -> new pmc_chest());
+    public static final RegistryObject<Item> PMC_V2_CHEST = REGISTRY.register("pmc_v2_chest",
+            () -> new pmc_v2_chest());
+
 
 
     public static final RegistryObject<Item> RADIOHEAD = REGISTRY.register("music_disc_radiohead",

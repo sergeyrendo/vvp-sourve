@@ -27,11 +27,18 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.STRYKER.get(), StrykerRenderer::new);
         event.registerEntityRenderer(ModEntities.STRYKER_M1296.get(), Stryker_M1296Renderer::new);
         event.registerEntityRenderer(ModEntities.TOYOTA.get(), ToyotaRenderer::new);
+        event.registerEntityRenderer(ModEntities.FMTV.get(), FMTVRenderer::new);
+        event.registerEntityRenderer(ModEntities.GAZ_TIGR.get(), GazTigrRenderer::new);
+        event.registerEntityRenderer(ModEntities.MI_28.get(), Mi28Renderer::new);
+        event.registerEntityRenderer(ModEntities.UH60_WEAPON.get(), Uh60WeaponRenderer::new);
         event.registerEntityRenderer(ModEntities.CHALLENGER.get(), ChallengerRenderer::new);
         event.registerEntityRenderer(ModEntities.BMP_2.get(), Bmp2Renderer::new);
         event.registerEntityRenderer(ModEntities.T72_B3M.get(), T72B3MRenderer::new);
         event.registerEntityRenderer(ModEntities.BMP_2M.get(), Bmp2MRenderer::new);
         event.registerEntityRenderer(ModEntities.C3M.get(), C3MRenderer::new);
+        event.registerEntityRenderer(ModEntities.URAL.get(), UralRenderer::new);
+        event.registerEntityRenderer(ModEntities.VARTA.get(), VartaRenderer::new);
+        event.registerEntityRenderer(ModEntities.TOW.get(), TowRenderer::new);
     }
 
     /**

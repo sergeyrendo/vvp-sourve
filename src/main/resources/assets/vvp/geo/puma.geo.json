@@ -2011,7 +2011,7 @@
 					]
 				},
 				{
-					"name": "cannon",
+					"name": "turret",
 					"parent": "base",
 					"pivot": [9.3372, 47.63358, 24.121],
 					"cubes": [
@@ -2696,7 +2696,7 @@
 				},
 				{
 					"name": "barrel",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [0.45416, 42.94714, 8.91742],
 					"cubes": [
 						{
@@ -2851,7 +2851,7 @@
 				},
 				{
 					"name": "ATGM",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [26.99386, 48.73442, 19.5],
 					"cubes": [
 						{
@@ -2963,7 +2963,7 @@
 				},
 				{
 					"name": "crap",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [-8.85614, 49.09475, 11],
 					"cubes": [
 						{
@@ -2984,7 +2984,7 @@
 				},
 				{
 					"name": "Sleeve",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [-8.15614, 47.49475, 11.45],
 					"cubes": [
 						{

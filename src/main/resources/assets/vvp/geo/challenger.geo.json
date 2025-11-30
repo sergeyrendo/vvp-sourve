@@ -26,13 +26,13 @@
 					"pivot": [0, 0, 0]
 				},
 				{
-					"name": "wheel",
+					"name": "Wheel",
 					"parent": "root",
 					"pivot": [22.25, 21.67447, 74.25007]
 				},
 				{
 					"name": "Gus_Right",
-					"parent": "wheel",
+					"parent": "Wheel",
 					"pivot": [22.25, 21.67447, 74.25007],
 					"cubes": [
 						{
@@ -172,7 +172,7 @@
 				},
 				{
 					"name": "Gus_Left",
-					"parent": "wheel",
+					"parent": "Wheel",
 					"pivot": [-22.25, 21.67447, 74.25007],
 					"cubes": [
 						{
@@ -311,13 +311,13 @@
 					]
 				},
 				{
-					"name": "wheelL",
-					"parent": "wheel",
+					"name": "WheelL",
+					"parent": "Wheel",
 					"pivot": [0, 0, 0]
 				},
 				{
 					"name": "wheelL0",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [22.65, 15.49, -52.135],
 					"cubes": [
 						{
@@ -373,7 +373,7 @@
 				},
 				{
 					"name": "wheelL1",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [22.03146, 8.20331, -37.21431],
 					"cubes": [
 						{
@@ -434,7 +434,7 @@
 				},
 				{
 					"name": "wheelL2",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [22.03146, 8.20331, -22.21431],
 					"cubes": [
 						{
@@ -495,7 +495,7 @@
 				},
 				{
 					"name": "wheelL3",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [22.03146, 8.20331, -8.21431],
 					"cubes": [
 						{
@@ -556,7 +556,7 @@
 				},
 				{
 					"name": "wheelL4",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [22.03146, 8.20331, 9.78569],
 					"cubes": [
 						{
@@ -617,7 +617,7 @@
 				},
 				{
 					"name": "wheelL5",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [22.03146, 8.20331, 23.78569],
 					"cubes": [
 						{
@@ -678,7 +678,7 @@
 				},
 				{
 					"name": "wheelL6",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [22.02146, 8.20331, 41.78569],
 					"cubes": [
 						{
@@ -739,7 +739,7 @@
 				},
 				{
 					"name": "wheelL7",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [22.65, 13.49, 54.865],
 					"cubes": [
 						{
@@ -804,13 +804,13 @@
 					]
 				},
 				{
-					"name": "wheelR",
-					"parent": "wheel",
+					"name": "WheelR",
+					"parent": "Wheel",
 					"pivot": [0, 0, 0]
 				},
 				{
 					"name": "wheelR0",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-22.65, 15.49, -52.135],
 					"cubes": [
 						{
@@ -866,7 +866,7 @@
 				},
 				{
 					"name": "wheelR1",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-22.03146, 8.20331, -37.21431],
 					"cubes": [
 						{
@@ -927,7 +927,7 @@
 				},
 				{
 					"name": "wheelR2",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-22.03146, 8.20331, -22.21431],
 					"cubes": [
 						{
@@ -988,7 +988,7 @@
 				},
 				{
 					"name": "wheelR3",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-22.03146, 8.20331, -8.21431],
 					"cubes": [
 						{
@@ -1049,7 +1049,7 @@
 				},
 				{
 					"name": "wheelR4",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-22.03146, 8.20331, 9.78569],
 					"cubes": [
 						{
@@ -1110,7 +1110,7 @@
 				},
 				{
 					"name": "wheelR5",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-22.03146, 8.20331, 23.78569],
 					"cubes": [
 						{
@@ -1171,7 +1171,7 @@
 				},
 				{
 					"name": "wheelR6",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-22.02146, 8.20331, 41.78569],
 					"cubes": [
 						{
@@ -1232,7 +1232,7 @@
 				},
 				{
 					"name": "wheelR7",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-22.65, 13.49, 54.865],
 					"cubes": [
 						{
@@ -4227,7 +4227,7 @@
 					]
 				},
 				{
-					"name": "cannon",
+					"name": "turret",
 					"parent": "base",
 					"pivot": [2.4471, 39.6971, -0.1546],
 					"cubes": [
@@ -6464,7 +6464,7 @@
 				},
 				{
 					"name": "barrel",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [0.09525, 32.22855, -25.2385],
 					"cubes": [
 						{
@@ -6762,8 +6762,8 @@
 					]
 				},
 				{
-					"name": "gun_cannon",
-					"parent": "cannon",
+					"name": "passengerWeaponStationYaw",
+					"parent": "turret",
 					"pivot": [10.22396, 43.87721, -9.43324],
 					"cubes": [
 						{
@@ -7030,8 +7030,8 @@
 					]
 				},
 				{
-					"name": "gun_barrel",
-					"parent": "gun_cannon",
+					"name": "passengerWeaponStationPitch",
+					"parent": "passengerWeaponStationYaw",
 					"pivot": [11.63736, 48.67968, -6.36938],
 					"rotation": [0, 180, 0],
 					"cubes": [
@@ -7214,7 +7214,7 @@
 				},
 				{
 					"name": "rushag2",
-					"parent": "gun_barrel",
+					"parent": "passengerWeaponStationPitch",
 					"pivot": [13.63908, 48.73004, -6.68317],
 					"cubes": [
 						{
@@ -7245,17 +7245,17 @@
 				},
 				{
 					"name": "bone2",
-					"parent": "gun_barrel",
+					"parent": "passengerWeaponStationPitch",
 					"pivot": [12.44447, 44.9565, -7.35367]
 				},
 				{
 					"name": "bone3",
-					"parent": "gun_barrel",
+					"parent": "passengerWeaponStationPitch",
 					"pivot": [10.17112, 47.3704, -2.98965]
 				},
 				{
 					"name": "stvol2",
-					"parent": "gun_barrel",
+					"parent": "passengerWeaponStationPitch",
 					"pivot": [11.26058, 47.20956, -3.4419],
 					"cubes": [
 						{
@@ -7339,7 +7339,7 @@
 				},
 				{
 					"name": "group7",
-					"parent": "gun_barrel",
+					"parent": "passengerWeaponStationPitch",
 					"pivot": [12.375, 48.72855, -11.23223],
 					"rotation": [0, 180, 0],
 					"cubes": [

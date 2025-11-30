@@ -4227,7 +4227,7 @@
 					]
 				},
 				{
-					"name": "cannon",
+					"name": "turret",
 					"parent": "body",
 					"pivot": [0.08124, 41.997, -8.71204],
 					"cubes": [
@@ -6238,7 +6238,7 @@
 				},
 				{
 					"name": "SEPTTAWER",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [-4.08336, 45.89414, 9.59117],
 					"cubes": [
 						{
@@ -7127,7 +7127,7 @@
 					]
 				},
 				{
-					"name": "gun",
+					"name": "passengerWeaponStationYaw",
 					"parent": "SEPTTAWER",
 					"pivot": [-14.76341, 51.08584, -13.7573],
 					"cubes": [
@@ -7400,8 +7400,8 @@
 					]
 				},
 				{
-					"name": "gun_barrel",
-					"parent": "gun",
+					"name": "passengerWeaponStationPitch",
+					"parent": "passengerWeaponStationYaw",
 					"pivot": [-14.02662, 65.76785, -13.64522],
 					"cubes": [
 						{
@@ -8211,7 +8211,7 @@
 				},
 				{
 					"name": "FG2",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [0, 45.2273, -19],
 					"cubes": [
 						{
@@ -8246,7 +8246,7 @@
 				},
 				{
 					"name": "barrel",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [0.01716, 37.70808, -33.88047],
 					"cubes": [
 						{
@@ -8883,7 +8883,7 @@
 				},
 				{
 					"name": "Hatch2",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [5.92859, 49.00159, 13.94475],
 					"rotation": [0, -27.5, 0],
 					"cubes": [
@@ -8978,7 +8978,7 @@
 				},
 				{
 					"name": "hatch3",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [-10.48039, 53.32282, 11.44331],
 					"cubes": [
 						{
@@ -9071,7 +9071,7 @@
 				},
 				{
 					"name": "M1a2DF",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [14.51704, 52.44616, -12.24909],
 					"cubes": [
 						{
@@ -9135,7 +9135,7 @@
 				},
 				{
 					"name": "M2a2ser",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [-3.16902, 43.47099, 63.63461],
 					"cubes": [
 						{
@@ -9228,7 +9228,7 @@
 				},
 				{
 					"name": "bone",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [2.24077, 46.39689, 50.0951],
 					"cubes": [
 						{
@@ -9399,18 +9399,18 @@
 					]
 				},
 				{
-					"name": "wheel",
+					"name": "Wheel",
 					"parent": "root",
 					"pivot": [0.0904, 9.0904, -3.7292]
 				},
 				{
-					"name": "wheelL",
-					"parent": "wheel",
+					"name": "WheelL",
+					"parent": "Wheel",
 					"pivot": [29.25327, 16.50583, -67.51257]
 				},
 				{
 					"name": "wheelL0",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [29.25327, 16.50583, -67.51257],
 					"cubes": [
 						{
@@ -9543,7 +9543,7 @@
 				},
 				{
 					"name": "wheelL1",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [29.16367, 7.10555, -47.13545],
 					"cubes": [
 						{
@@ -9690,7 +9690,7 @@
 				},
 				{
 					"name": "wheelL2",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [29.16367, 7.10555, -29.03545],
 					"cubes": [
 						{
@@ -9837,7 +9837,7 @@
 				},
 				{
 					"name": "wheelL3",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [29.16367, 7.10555, -13.63545],
 					"cubes": [
 						{
@@ -9984,7 +9984,7 @@
 				},
 				{
 					"name": "wheelL4",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [29.16367, 7.10555, 1.66455],
 					"cubes": [
 						{
@@ -10131,7 +10131,7 @@
 				},
 				{
 					"name": "wheelL5",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [29.16367, 7.10555, 16.66455],
 					"cubes": [
 						{
@@ -10278,7 +10278,7 @@
 				},
 				{
 					"name": "wheelL6",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [29.16367, 7.10555, 32.06455],
 					"cubes": [
 						{
@@ -10425,7 +10425,7 @@
 				},
 				{
 					"name": "wheelL7",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [29.16367, 7.10555, 47.86455],
 					"cubes": [
 						{
@@ -10572,7 +10572,7 @@
 				},
 				{
 					"name": "wheelL8",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [29.10813, 17.25572, 64.32227],
 					"cubes": [
 						{
@@ -10801,7 +10801,7 @@
 				},
 				{
 					"name": "GUSt",
-					"parent": "wheel",
+					"parent": "Wheel",
 					"pivot": [-26.64423, 1.64978, 2.7658],
 					"cubes": [
 						{
@@ -13019,13 +13019,13 @@
 					]
 				},
 				{
-					"name": "wheelR",
-					"parent": "wheel",
+					"name": "WheelR",
+					"parent": "Wheel",
 					"pivot": [-29.10813, 17.25572, 64.32227]
 				},
 				{
 					"name": "wheelR0",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-29.25327, 16.50583, -67.51257],
 					"cubes": [
 						{
@@ -13158,7 +13158,7 @@
 				},
 				{
 					"name": "wheelR1",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-29.16367, 7.10555, -47.13545],
 					"cubes": [
 						{
@@ -13305,7 +13305,7 @@
 				},
 				{
 					"name": "wheelR2",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-29.16367, 7.10555, -29.03545],
 					"cubes": [
 						{
@@ -13452,7 +13452,7 @@
 				},
 				{
 					"name": "wheelR3",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-29.16367, 7.10555, -13.63545],
 					"cubes": [
 						{
@@ -13599,7 +13599,7 @@
 				},
 				{
 					"name": "wheelR4",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-29.16367, 7.10555, 1.66455],
 					"cubes": [
 						{
@@ -13746,7 +13746,7 @@
 				},
 				{
 					"name": "wheelR5",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-29.16367, 7.10555, 16.66455],
 					"cubes": [
 						{
@@ -13893,7 +13893,7 @@
 				},
 				{
 					"name": "wheelR6",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-29.16367, 7.10555, 32.06455],
 					"cubes": [
 						{
@@ -14040,7 +14040,7 @@
 				},
 				{
 					"name": "wheelR7",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-29.16367, 7.10555, 47.86455],
 					"cubes": [
 						{
@@ -14187,7 +14187,7 @@
 				},
 				{
 					"name": "wheelR8",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-29.10813, 17.25572, 64.32227],
 					"cubes": [
 						{

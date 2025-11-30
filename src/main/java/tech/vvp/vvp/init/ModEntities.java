@@ -70,11 +70,32 @@ public class ModEntities {
     public static final RegistryObject<EntityType<ToyotaEntity>> TOYOTA = register("toyota",
             EntityType.Builder.of(ToyotaEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3f, 2f));
 
+    public static final RegistryObject<EntityType<FMTVEntity>> FMTV = register("fmtv",
+            EntityType.Builder.of(FMTVEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
+
+    public static final RegistryObject<EntityType<Mi28Entity>> MI_28 = register("mi_28",
+            EntityType.Builder.of(Mi28Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
+
+    public static final RegistryObject<EntityType<Uh60WeaponEntity>> UH60_WEAPON = register("uh60_weapon",
+            EntityType.Builder.of(Uh60WeaponEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
+
+    public static final RegistryObject<EntityType<GazTigrEntity>> GAZ_TIGR = register("gaz_tigr",
+            EntityType.Builder.of(GazTigrEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3f, 2f));
+
     public static final RegistryObject<EntityType<ChallengerEntity>> CHALLENGER = register("challenger",
             EntityType.Builder.of(ChallengerEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 
     public static final RegistryObject<EntityType<T72B3MEntity>> T72_B3M = register("t72_b3m",
             EntityType.Builder.of(T72B3MEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
+
+    public static final RegistryObject<EntityType<UralEntity>> URAL = register("ural",
+            EntityType.Builder.of(UralEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 5f));
+
+    public static final RegistryObject<EntityType<VartaEntity>> VARTA = register("varta",
+            EntityType.Builder.of(VartaEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3f, 3.5f));
+
+    public static final RegistryObject<EntityType<TowEntity>> TOW = register("tow",
+            EntityType.Builder.of(TowEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(0.5f, 1.5f));
 
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
         return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));

@@ -23,16 +23,11 @@ public class ModTabs {
             .icon(() -> new ItemStack(ModItems.NATO_TAB_ICON.get()))
             .title(Component.translatable("natotab.vvp_natovehicle_tab"))
             .displayItems((parameters, output) -> {
-                output.accept(ContainerBlockItem.createInstance(ModEntities.BUSHMASTER.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.BRADLEY.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_M1296.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.PUMA.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2_SEP.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.CHALLENGER.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_4.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.TOYOTA.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2_SEP.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.VARTA.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.FMTV.get()));
 
             })
             .build());
@@ -45,14 +40,12 @@ public class ModTabs {
                         output.accept(ContainerBlockItem.createInstance(ModEntities.BMP_3.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.BMP_2.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.BMP_2M.get()));
-                        output.accept(ContainerBlockItem.createInstance(ModEntities.BRM.get()));
-                        output.accept(ContainerBlockItem.createInstance(ModEntities.CHRYZANTEMA.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.T72_B3M.get()));
-                        output.accept(ContainerBlockItem.createInstance(ModEntities.T90_A.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.T90_M.get()));
-                        output.accept(ContainerBlockItem.createInstance(ModEntities.T90_M_22.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.TERMINATOR.get()));
-                        output.accept(ContainerBlockItem.createInstance(ModEntities.C3M.get()));
+                        output.accept(ContainerBlockItem.createInstance(ModEntities.URAL.get()));
+                        output.accept(ContainerBlockItem.createInstance(ModEntities.GAZ_TIGR.get()));
+                        output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28.get()));
 
                     })
                     .build());
@@ -65,6 +58,18 @@ public class ModTabs {
                                 output.accept(ModItems.MULTICAM_HELMET.get());
                                 output.accept(ModItems.MULTICAM_CHEST.get());
                                 output.accept(ModItems.CREW_HELMET.get());
+                                output.accept(ModItems.UKR_V2_HELMET.get());
+                                output.accept(ModItems.UKR_CHEST.get());
+                                output.accept(ModItems.UKR_V2_CHEST.get());
+                                output.accept(ModItems.PMC_HELMET.get());
+                                output.accept(ModItems.PMC_CHEST.get());
+                                output.accept(ModItems.PMC_V2_CHEST.get());
+                                output.accept(ModItems.RUS_HELMET.get());
+                                output.accept(ModItems.RUS_HELMET_2.get());
+                                output.accept(ModItems.RUS_HELMET_3.get());
+                                output.accept(ModItems.RUS_ARMOR.get());
+                                output.accept(ModItems.RUS_ARMOR_2.get());
+                                output.accept(ModItems.RUS_ARMOR_3.get());
                                 output.accept(ModItems.PANAMA.get());
                                 output.accept(ModItems.KEPKA.get());
                                 output.accept(ModItems.BERETA.get());
