@@ -46,6 +46,7 @@ public class ModTabs {
                         output.accept(ContainerBlockItem.createInstance(ModEntities.URAL.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.GAZ_TIGR.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28.get()));
+                        output.accept(ContainerBlockItem.createInstance(ModEntities.PANTSIR_S1.get()));
 
                     })
                     .build());

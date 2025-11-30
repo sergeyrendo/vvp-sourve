@@ -8,6 +8,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.entity.projectile.E6_57Entity;
 import tech.vvp.vvp.entity.vehicle.*;
 
 public class ModEntities {
@@ -96,6 +97,12 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<TowEntity>> TOW = register("tow",
             EntityType.Builder.of(TowEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(0.5f, 1.5f));
+
+    public static final RegistryObject<EntityType<PantsirS1Entity>> PANTSIR_S1 = register("pantsir_s1",
+            EntityType.Builder.of(PantsirS1Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
+
+    public static final RegistryObject<EntityType<E6_57Entity>> ENTITY_57E6 = register("57e6_missile",
+            EntityType.Builder.<E6_57Entity>of(E6_57Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).fireImmune().sized(0.5f, 0.5f));
 
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
         return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));
