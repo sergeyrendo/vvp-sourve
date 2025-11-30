@@ -138,5 +138,9 @@
   
   "//": "==================== MISSILES ====================",
   "des.vvp.57e6_item": "Surface-to-air guided missile for Pantsir-S1 SPAAG. Range up to 20 km.",
-  "des.vvp.9m340_item": "Surface-to-air guided missile for Sosna-R ATGM. Range up to 10 km."
+  "des.vvp.9m340_item": "Surface-to-air guided missile for Sosna-R ATGM. Range up to 10 km.",
+  
+  "//": "==================== WEAPON NAMES IN GUI ====================",
+  "weapon.vvp.2a42_30mm": "2A38M 30mm %s",
+  "weapon.vvp.57e6_missile": "57E6 SAM %s"
 }
