@@ -8,6 +8,7 @@ import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.client.renderer.entity.projectile.E6_57Renderer;
 import tech.vvp.vvp.client.renderer.entity.projectile.Fab250Renderer;
 import tech.vvp.vvp.client.renderer.entity.projectile.Fab500Renderer;
+import tech.vvp.vvp.client.renderer.entity.X25Renderer;
 import tech.vvp.vvp.client.renderer.entity.vehicle.*;
 
 @Mod.EventBusSubscriber(modid = VVP.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -43,9 +44,11 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.VARTA.get(), VartaRenderer::new);
         event.registerEntityRenderer(ModEntities.TOW.get(), TowRenderer::new);
         event.registerEntityRenderer(ModEntities.PANTSIR_S1.get(), PantsirS1Renderer::new);
+        event.registerEntityRenderer(ModEntities.SU_25.get(), Su25Renderer::new);
         event.registerEntityRenderer(ModEntities.ENTITY_57E6.get(), E6_57Renderer::new);
         event.registerEntityRenderer(ModEntities.FAB_500.get(), Fab500Renderer::new);
         event.registerEntityRenderer(ModEntities.FAB_250.get(), Fab250Renderer::new);
+        event.registerEntityRenderer(ModEntities.X25.get(), X25Renderer::new);
     }
 
     /**
