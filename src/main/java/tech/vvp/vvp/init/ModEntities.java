@@ -8,6 +8,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.entity.projectile.BallisticMissileEntity;
 import tech.vvp.vvp.entity.projectile.E6_57Entity;
 import tech.vvp.vvp.entity.projectile.Fab250Entity;
 import tech.vvp.vvp.entity.projectile.Fab500Entity;
@@ -118,6 +119,12 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<X25Entity>> X25 = register("x25",
             EntityType.Builder.<X25Entity>of(X25Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).fireImmune().sized(0.5f, 0.5f));
+
+    public static final RegistryObject<EntityType<M142HimarsEntity>> M142_HIMARS = register("m142_himars",
+            EntityType.Builder.of(M142HimarsEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 3.5f));
+
+    public static final RegistryObject<EntityType<BallisticMissileEntity>> BALLISTIC_MISSILE = register("ballistic_missile",
+            EntityType.Builder.<BallisticMissileEntity>of(BallisticMissileEntity::new, MobCategory.MISC).setTrackingRange(256).setUpdateInterval(1).fireImmune().sized(0.5f, 0.5f));
 
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
         return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));

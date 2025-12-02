@@ -5,6 +5,7 @@ import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.client.renderer.entity.projectile.BallisticMissileRenderer;
 import tech.vvp.vvp.client.renderer.entity.projectile.E6_57Renderer;
 import tech.vvp.vvp.client.renderer.entity.projectile.Fab250Renderer;
 import tech.vvp.vvp.client.renderer.entity.projectile.Fab500Renderer;
@@ -49,6 +50,8 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.FAB_500.get(), Fab500Renderer::new);
         event.registerEntityRenderer(ModEntities.FAB_250.get(), Fab250Renderer::new);
         event.registerEntityRenderer(ModEntities.X25.get(), X25Renderer::new);
+        event.registerEntityRenderer(ModEntities.M142_HIMARS.get(), M142HimarsRenderer::new);
+        event.registerEntityRenderer(ModEntities.BALLISTIC_MISSILE.get(), BallisticMissileRenderer::new);
     }
 
     /**
