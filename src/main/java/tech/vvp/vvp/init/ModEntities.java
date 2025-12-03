@@ -11,7 +11,7 @@ import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.entity.projectile.E6_57Entity;
 import tech.vvp.vvp.entity.projectile.Fab250Entity;
 import tech.vvp.vvp.entity.projectile.Fab500Entity;
-import tech.vvp.vvp.entity.projectile.X25Entity;
+import tech.vvp.vvp.entity.projectile.R73Entity;
 import tech.vvp.vvp.entity.vehicle.*;
 
 public class ModEntities {
@@ -80,8 +80,14 @@ public class ModEntities {
     public static final RegistryObject<EntityType<Mi28Entity>> MI_28 = register("mi_28",
             EntityType.Builder.of(Mi28Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 
+    public static final RegistryObject<EntityType<Mi24Entity>> MI_24 = register("mi_24",
+            EntityType.Builder.of(Mi24Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
+
     public static final RegistryObject<EntityType<Uh60WeaponEntity>> UH60_WEAPON = register("uh60_weapon",
             EntityType.Builder.of(Uh60WeaponEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
+
+    public static final RegistryObject<EntityType<Leopard2A7VEntity>> LEOPARD_2A7V = register("leopard_2a7v",
+            EntityType.Builder.of(Leopard2A7VEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 
     public static final RegistryObject<EntityType<GazTigrEntity>> GAZ_TIGR = register("gaz_tigr",
             EntityType.Builder.of(GazTigrEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3f, 2f));
@@ -116,8 +122,8 @@ public class ModEntities {
     public static final RegistryObject<EntityType<Fab250Entity>> FAB_250 = register("fab_250",
             EntityType.Builder.<Fab250Entity>of(Fab250Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).noSave().sized(0.8f, 0.8f));
 
-    public static final RegistryObject<EntityType<X25Entity>> X25 = register("x25",
-            EntityType.Builder.<X25Entity>of(X25Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).fireImmune().sized(0.5f, 0.5f));
+    public static final RegistryObject<EntityType<R73Entity>> R73 = register("r73",
+            EntityType.Builder.<R73Entity>of(R73Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).fireImmune().sized(0.5f, 0.5f));
 
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
         return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));

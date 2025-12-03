@@ -24,8 +24,8 @@ public class ModTabs {
             .title(Component.translatable("natotab.vvp_natovehicle_tab"))
             .displayItems((parameters, output) -> {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.PUMA.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.CHALLENGER.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2_SEP.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.LEOPARD_2A7V.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.VARTA.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.FMTV.get()));
 
@@ -37,17 +37,16 @@ public class ModTabs {
                     .title(Component.translatable("rutab.vvp_ruvehicle_tab"))
                     .icon(() -> new ItemStack(ModItems.RU_TAB_ICON.get()))
                     .displayItems((parameters, output) -> {
-                        output.accept(ContainerBlockItem.createInstance(ModEntities.BMP_3.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.BMP_2.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.BMP_2M.get()));
+                        output.accept(ContainerBlockItem.createInstance(ModEntities.BMP_3.get()));
+                        output.accept(ContainerBlockItem.createInstance(ModEntities.BRM.get()));
+                        output.accept(ContainerBlockItem.createInstance(ModEntities.CHRYZANTEMA.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.T72_B3M.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.T90_M.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.TERMINATOR.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.URAL.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.GAZ_TIGR.get()));
-                        output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28.get()));
-                        output.accept(ContainerBlockItem.createInstance(ModEntities.PANTSIR_S1.get()));
-                        output.accept(ContainerBlockItem.createInstance(ModEntities.SU_25.get()));
 
                     })
                     .build());
