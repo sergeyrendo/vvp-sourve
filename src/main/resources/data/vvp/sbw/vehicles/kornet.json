@@ -1,78 +1,74 @@
 {
   "ID": "vvp:kornet",
-  "Model": {
-    "Model": "vvp:geo/kornet.geo.json",
-    "Texture": "vvp:textures/entity/kornet.png"
-  },
   "MaxHealth": 60,
   "MaxEnergy": 0,
-  "TurretPos": [0, 1.2, 0],
-  "TurretTurnSpeed": [6, 6],
-  "TurretPitchRange": [-20, 20],
-  "BarrelPos": [0, 0.25, 0],
+  "TurretPos": [0.00223125, 1.49955625, -0.00223125],
+  "TurretTurnSpeed": [10, 10],
+  "TurretPitchRange": [-40, 40],
+  "BarrelPos": [0.00223125, 0.19575625, 0.00223125],
   "Seats": {
     "Transform": "Turret",
-    "Position": [0, -1.0, -0.8],
-    "BanHand": true,
-    "MinPitch": -20,
-    "MaxPitch": 20,
+    "Position": [-0.3, -1.3689, -0.6],
+    "MinPitch": -40,
+    "MaxPitch": 40,
     "CameraPos": {
-      "Transform": "Barrel",
+      "Transform": "Turret",
       "UseFixedCameraPos": true,
-      "Position": [0, 0.1, 0.2],
+      "Position": [
+        0.2535875, -0.5, 0.121875
+      ],
       "Direction": "Barrel"
     },
     "Weapons": ["Missile"],
-    "Sensitivity": [0.5, 0.7, 1],
+    "Sensitivity": [0.55, 0.75, 1],
     "DismountInfo": {
-      "Transform": "Vehicle",
-      "Position": [1.0, 0, 0]
+      "Transform": "Turret",
+      "Position": [0.3, -0.8, -0.6]
     }
   },
-  "UsePassengerCreativeAmmoBox": true,
+  "UsePassengerCreativeAmmoBox": false,
   "Weapons": {
     "Missile": {
       "DefaultFireMode": "Semi",
       "AvailableFireModes": "Semi",
-      "Name": "weapon.vvp.kornet",
+      "Name": "weapon.superbwarfare.tow_missile",
       "AmmoType": "superbwarfare:medium_anti_ground_missile",
       "Projectile": "superbwarfare:wire_guide_missile",
-      "DefaultZoom": 4,
+      "DefaultZoom": 3,
       "Magazine": 1,
-      "Damage": 800,
-      "ExplosionDamage": 100,
+      "Damage": 600,
+      "ExplosionDamage": 60,
       "ExplosionRadius": 6,
-      "RPM": 6,
-      "Velocity": 3.5,
-      "ShootShake": [8, 8, 16],
+      "RPM": 8,
+      "Velocity": 3,
+      "ShootShake": [6, 6, 14],
       "ShootPos": {
         "Transform": "Barrel",
-        "Positions": [[0, 0.1, -0.3]],
+        "Positions": [[0, 0.035, 0]],
         "Directions": ["Barrel"]
       },
       "SoundInfo": {
         "Fire1P": "superbwarfare:bmp_2_missile_fire_1p",
         "Fire3P": "superbwarfare:bmp_2_missile_fire_3p"
       },
-      "SoundRadius": 16,
+      "SoundRadius": 12,
       "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/missile_tow.png",
       "Crosshair": "@VehicleCommonMissile"
     }
   },
-  "ThirdPersonCameraPos": [0, 1.5, -2],
-  "Mass": 0.04,
+  "ThirdPersonCameraPos": [-0.3, 1, -1],
+  "Mass": 0.05,
   "DamageModifiers": [
-    "minecraft:lava * 2.5",
-    "All * 0.7",
-    "@minecraft:tnt * 3.5",
-    "@minecraft:tnt_minecart * 3.5"
+    "minecraft:lava * 2.667",
+    "All * 0.75",
+    "@minecraft:tnt * 3",
+    "@minecraft:tnt_minecart * 3"
   ],
   "EngineType": "Fixed",
   "VehicleContainerType": "Empty",
   "HasLowHealthWarning": false,
   "SelfHurtPercent": 0,
-  "VehicleIcon": "vvp:textures/vehicle_icon/kornet_icon.png",
+  "VehicleIcon": "superbwarfare:textures/vehicle_icon/tow_icon.png",
   "ContainerIcon": "vvp:textures/gui/vehicle/type/defense.png",
-  "Type": "Defense",
-  "HudType": "@Land"
+  "Type": "Defense"
 }

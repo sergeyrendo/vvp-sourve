@@ -1,0 +1,7 @@
+{
+  "ID": "vvp:hk_gmg",
+  "Model": {
+    "Model": "vvp:geo/hk_gmg.geo.json",
+    "Texture": "vvp:textures/entity/hk_gmg.png"
+  }
+}
