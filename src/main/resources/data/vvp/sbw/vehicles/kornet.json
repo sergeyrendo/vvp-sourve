@@ -1,0 +1,78 @@
+{
+  "ID": "vvp:kornet",
+  "Model": {
+    "Model": "vvp:geo/kornet.geo.json",
+    "Texture": "vvp:textures/entity/kornet.png"
+  },
+  "MaxHealth": 60,
+  "MaxEnergy": 0,
+  "TurretPos": [0, 1.2, 0],
+  "TurretTurnSpeed": [6, 6],
+  "TurretPitchRange": [-20, 20],
+  "BarrelPos": [0, 0.25, 0],
+  "Seats": {
+    "Transform": "Turret",
+    "Position": [0, -1.0, -0.8],
+    "BanHand": true,
+    "MinPitch": -20,
+    "MaxPitch": 20,
+    "CameraPos": {
+      "Transform": "Barrel",
+      "UseFixedCameraPos": true,
+      "Position": [0, 0.1, 0.2],
+      "Direction": "Barrel"
+    },
+    "Weapons": ["Missile"],
+    "Sensitivity": [0.5, 0.7, 1],
+    "DismountInfo": {
+      "Transform": "Vehicle",
+      "Position": [1.0, 0, 0]
+    }
+  },
+  "UsePassengerCreativeAmmoBox": true,
+  "Weapons": {
+    "Missile": {
+      "DefaultFireMode": "Semi",
+      "AvailableFireModes": "Semi",
+      "Name": "weapon.vvp.kornet",
+      "AmmoType": "superbwarfare:medium_anti_ground_missile",
+      "Projectile": "superbwarfare:wire_guide_missile",
+      "DefaultZoom": 4,
+      "Magazine": 1,
+      "Damage": 800,
+      "ExplosionDamage": 100,
+      "ExplosionRadius": 6,
+      "RPM": 6,
+      "Velocity": 3.5,
+      "ShootShake": [8, 8, 16],
+      "ShootPos": {
+        "Transform": "Barrel",
+        "Positions": [[0, 0.1, -0.3]],
+        "Directions": ["Barrel"]
+      },
+      "SoundInfo": {
+        "Fire1P": "superbwarfare:bmp_2_missile_fire_1p",
+        "Fire3P": "superbwarfare:bmp_2_missile_fire_3p"
+      },
+      "SoundRadius": 16,
+      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/missile_tow.png",
+      "Crosshair": "@VehicleCommonMissile"
+    }
+  },
+  "ThirdPersonCameraPos": [0, 1.5, -2],
+  "Mass": 0.04,
+  "DamageModifiers": [
+    "minecraft:lava * 2.5",
+    "All * 0.7",
+    "@minecraft:tnt * 3.5",
+    "@minecraft:tnt_minecart * 3.5"
+  ],
+  "EngineType": "Fixed",
+  "VehicleContainerType": "Empty",
+  "HasLowHealthWarning": false,
+  "SelfHurtPercent": 0,
+  "VehicleIcon": "vvp:textures/vehicle_icon/kornet_icon.png",
+  "ContainerIcon": "vvp:textures/gui/vehicle/type/defense.png",
+  "Type": "Defense",
+  "HudType": "@Land"
+}

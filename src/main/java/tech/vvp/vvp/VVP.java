@@ -53,6 +53,21 @@ public class VVP {
 
     private void setup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            // Регистрация сетевых пакетов для HIMARS
+            VVPNetwork.addNetworkMessage(
+                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket.class,
+                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket::toBytes,
+                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket::new,
+                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket::handle,
+                    Optional.of(NetworkDirection.PLAY_TO_SERVER)
+            );
+            VVPNetwork.addNetworkMessage(
+                    tech.vvp.vvp.network.message.C2SSetMissileTargetPacket.class,
+                    tech.vvp.vvp.network.message.C2SSetMissileTargetPacket::toBytes,
+                    tech.vvp.vvp.network.message.C2SSetMissileTargetPacket::new,
+                    tech.vvp.vvp.network.message.C2SSetMissileTargetPacket::handle,
+                    Optional.of(NetworkDirection.PLAY_TO_SERVER)
+            );
         });
     }
 

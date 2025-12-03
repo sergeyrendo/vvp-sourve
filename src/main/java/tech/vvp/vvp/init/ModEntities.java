@@ -8,6 +8,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.entity.projectile.BallisticMissileEntity;
 import tech.vvp.vvp.entity.projectile.E6_57Entity;
 import tech.vvp.vvp.entity.projectile.Fab250Entity;
 import tech.vvp.vvp.entity.projectile.Fab500Entity;
@@ -124,6 +125,18 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<R73Entity>> R73 = register("r73",
             EntityType.Builder.<R73Entity>of(R73Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).fireImmune().sized(0.5f, 0.5f));
+
+    public static final RegistryObject<EntityType<M142HimarsEntity>> M142_HIMARS = register("m142_himars",
+            EntityType.Builder.of(M142HimarsEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 3.5f));
+
+    public static final RegistryObject<EntityType<BallisticMissileEntity>> BALLISTIC_MISSILE = register("ballistic_missile",
+            EntityType.Builder.<BallisticMissileEntity>of(BallisticMissileEntity::new, MobCategory.MISC).setTrackingRange(256).setUpdateInterval(1).fireImmune().sized(0.5f, 0.5f));
+
+    public static final RegistryObject<EntityType<HkGmgEntity>> HK_GMG = register("hk_gmg",
+            EntityType.Builder.of(HkGmgEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(1f, 1.5f));
+
+    public static final RegistryObject<EntityType<KornetEntity>> KORNET = register("kornet",
+            EntityType.Builder.of(KornetEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(1f, 2f));
 
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
         return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));

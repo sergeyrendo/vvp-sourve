@@ -4,7 +4,7 @@ import com.atsuishio.superbwarfare.init.ModItems;
 import net.minecraft.Util;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.LazyLoadedValue;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -60,7 +60,7 @@ public enum ModArmorMaterial implements ArmorMaterial {
     private final SoundEvent sound;
     private final float toughness;
     private final float knockbackResistance;
-    private final LazyLoadedValue<Ingredient> repairIngredient;
+    private final Lazy<Ingredient> repairIngredient;
 
     ModArmorMaterial(String pName, int pDurabilityMultiplier, EnumMap<ArmorItem.Type, Integer> pProtectionFunctionForType, int pEnchantmentValue, SoundEvent pSound, float pToughness, float pKnockbackResistance, Supplier<Ingredient> pRepairIngredient) {
         this.name = pName;
@@ -70,7 +70,7 @@ public enum ModArmorMaterial implements ArmorMaterial {
         this.sound = pSound;
         this.toughness = pToughness;
         this.knockbackResistance = pKnockbackResistance;
-        this.repairIngredient = new LazyLoadedValue<>(pRepairIngredient);
+        this.repairIngredient = Lazy.of(pRepairIngredient);
     }
 
     public int getDurabilityForType(ArmorItem.Type pType) {
