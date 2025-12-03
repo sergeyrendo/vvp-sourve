@@ -3313,7 +3313,7 @@
 					]
 				},
 				{
-					"name": "cannon",
+					"name": "turret",
 					"parent": "M1128",
 					"pivot": [0.28133, 41.1683, 13.54453],
 					"cubes": [
@@ -3739,7 +3739,7 @@
 				},
 				{
 					"name": "M2Mashingun",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [-15.73107, 46.9914, 13.10598],
 					"cubes": [
 						{
@@ -4309,7 +4309,7 @@
 				},
 				{
 					"name": "barrel",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [-0.70715, 47.84421, 28.68867],
 					"cubes": [
 						{
@@ -5511,7 +5511,7 @@
 					]
 				},
 				{
-					"name": "wheel",
+					"name": "Wheel",
 					"parent": "root",
 					"pivot": [0.14875, 10.71345, -4.10483],
 					"cubes": [
@@ -5678,8 +5678,8 @@
 					]
 				},
 				{
-					"name": "wheel1",
-					"parent": "wheel",
+					"name": "wheelL0Turn",
+					"parent": "Wheel",
 					"pivot": [20.66736, 11.53165, -40.69472],
 					"cubes": [
 						{
@@ -5831,8 +5831,8 @@
 					]
 				},
 				{
-					"name": "wheel2",
-					"parent": "wheel",
+					"name": "wheelR0Turn",
+					"parent": "Wheel",
 					"pivot": [-20.06736, 11.53165, -40.69472],
 					"cubes": [
 						{
@@ -5984,8 +5984,8 @@
 					]
 				},
 				{
-					"name": "wheel3",
-					"parent": "wheel",
+					"name": "wheelL0",
+					"parent": "Wheel",
 					"pivot": [20.66736, 11.53165, -18.69472],
 					"cubes": [
 						{
@@ -6137,8 +6137,8 @@
 					]
 				},
 				{
-					"name": "wheel4",
-					"parent": "wheel",
+					"name": "wheelR0",
+					"parent": "Wheel",
 					"pivot": [-20.06736, 11.53165, -18.69472],
 					"cubes": [
 						{
@@ -6290,8 +6290,8 @@
 					]
 				},
 				{
-					"name": "wheel5",
-					"parent": "wheel",
+					"name": "wheelL1",
+					"parent": "Wheel",
 					"pivot": [20.66736, 11.53165, 8.30528],
 					"cubes": [
 						{
@@ -6443,8 +6443,8 @@
 					]
 				},
 				{
-					"name": "wheel6",
-					"parent": "wheel",
+					"name": "wheelR1",
+					"parent": "Wheel",
 					"pivot": [-20.06736, 11.53165, 8.30528],
 					"cubes": [
 						{
@@ -6596,8 +6596,8 @@
 					]
 				},
 				{
-					"name": "wheel7",
-					"parent": "wheel",
+					"name": "wheelL2",
+					"parent": "Wheel",
 					"pivot": [20.66736, 11.53165, 32.00528],
 					"cubes": [
 						{
@@ -6749,8 +6749,8 @@
 					]
 				},
 				{
-					"name": "wheel8",
-					"parent": "wheel",
+					"name": "wheelR2",
+					"parent": "Wheel",
 					"pivot": [-20.06736, 11.53165, 32.00528],
 					"cubes": [
 						{

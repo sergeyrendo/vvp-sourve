@@ -53,25 +53,25 @@
     },
     {
       "IsEnclosed": true,
+      "CanRotateBody": true,
       "CameraPos": {
-        "Transform": "WeaponStationBarrel",
-        "ZoomPosition": [0, 0.1, -0.3],
-        "Direction": "WeaponStationBarrel"
+        "Transform": "Barrel",
+        "UseFixedCameraPos": true,
+        "Position": [0, 0.5, 0.3],
+        "ZoomPosition": [0, 0, 0.8],
+        "Direction": "Barrel"
       },
       "Transform": "Vehicle",
       "Position": [-0.59, 0.8, -0.98793125],
-      "MinPitch": -20,
-      "MaxPitch": 70,
-      "MinYaw": -95,
-      "MaxYaw": 95,
+      "MinPitch": -60,
+      "MaxPitch": 60,
       "Weapons": ["PassengerMachineGun"]
     },
-
     {
       "IsEnclosed": true,
       "Transform": "Vehicle",
       "Position": [-0.78625, 0.8, 0.45625],
-      "MinPitch": -60,
+      "MinPitch": -10,
       "MaxPitch": 60,
       "MinYaw": -95,
       "MaxYaw": 95
@@ -82,6 +82,7 @@
 
     {
       "IsEnclosed": true,
+      "Orientation": 90.0,
       "Transform": "Vehicle",
       "Position": [0.89831875, 0.7, -0.80043125],
       "MinPitch": -60,
@@ -94,6 +95,7 @@
 
     {
       "IsEnclosed": true,
+      "Orientation": 90.0,
       "Transform": "Vehicle",
       "Position": [0.58581875, 0.7, -1.67543125],
       "MinPitch": -60,
@@ -104,6 +106,7 @@
 
     {
       "IsEnclosed": true,
+      "Orientation": 90.0,
       "Transform": "Vehicle",
       "Position": [0.58581875, 0.7, -2.48793125],
       "MinPitch": -60,
@@ -116,6 +119,7 @@
 
     {
       "IsEnclosed": true,
+      "Orientation": -90.0,
       "Transform": "Vehicle",
       "Position": [-0.58581875, 0.7, -1.67543125],
       "MinPitch": -60,
@@ -126,6 +130,7 @@
 
     {
       "IsEnclosed": true,
+      "Orientation": -90.0,
       "Transform": "Vehicle",
       "Position": [-0.58581875, 0.7, -2.48793125],
       "MinPitch": -60,
@@ -155,9 +160,9 @@
       "ShootAnimationTime": 1,
       "AmmoType": "@HeavyAmmo",
       "ShootPos": {
-        "Transform": "WeaponStationBarrel",
-        "Positions": [[-0.1416, 0.25, 1.8]],
-        "Directions": ["WeaponStationBarrel"]
+        "Transform": "Barrel",
+        "Positions": [[-0.1416, 0.5, 1.8]],
+        "Directions": ["Barrel"]
       },
       "Crosshair": "@VehicleCommonGun",
       "Name": "weapon.superbwarfare.50_cal_gun",
@@ -185,10 +190,11 @@
     "Decrement": 0.015,
     "SteeringSpeed": 0.1
   },
-  "PassengerWeaponStationPos": [-0.0210125, 3.16440625, 0.31465],
-  "PassengerWeaponStationBarrelPos": [0.1416, 0.00461875, 0.3074125],
-  "PassengerWeaponStationTurnSpeed": [15, 15],
-  "PassengerWeaponStationPitchRange": [-10, 60],
+  "TurretPos": [-0.0210125, 3.16440625, 0.31465],
+  "BarrelPos": [0.1416, 0.00461875, 0.3074125],
+  "TurretTurnSpeed": [15, 15],
+  "TurretPitchRange": [-10, 60],
+  "TurretControllerIndex": 1,
   "ThirdPersonCameraPos": [0, 1, 3],
   "HasDecoy": false,
   "UpStep": 2.2,
@@ -219,6 +225,7 @@
     "@superbwarfare:gun_grenade * 1.5",
     "@superbwarfare:javelin_missile * 0.8",
     "@superbwarfare:igla_9k38_missile * 0.75",
+    "@superbwarfare:wire_guide_missile * 1",
     "All - 11"
   ],
   "VehicleContainerType": "Small",
@@ -228,7 +235,7 @@
     "ExplosionRadius": 7
   },
   "VehicleIcon": "superbwarfare:textures/vehicle_icon/lav_150_icon.png",
-  "ContainerIcon": "vvp:textures/gui/vehicle/type/land.png",
+  "ContainerIcon": "vvp:textures/gui/vehicle/type/land_ru.png",
   "Type": "APC",
   "CollisionLevel": {
     "Level": 3,

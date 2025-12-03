@@ -1,10 +1,6 @@
 {
   "ID": "vvp:bmp_2",
-  "Model": {
-    "Model": "vvp:geo/bmp2.geo.json",
-    "Texture": "vvp:textures/entity/bmp_2.png"
-  },
-  "MaxHealth": 325,
+  "MaxHealth": 300,
   "MaxEnergy": 5250000,
   "OBB": [
     {
@@ -195,7 +191,7 @@
       "Projectile": "superbwarfare:wire_guide_missile",
       "Magazine": 1,
       "EmptyReloadTime": 140,
-      "Damage": 500,
+      "Damage": 350,
       "ExplosionDamage": 80,
       "ExplosionRadius": 8,
       "Velocity": 3,
@@ -228,7 +224,7 @@
     "TrackRotSpeed": 1.9,
     "TrackDifferential": 0.8,
     "MaxForwardSpeedRate": 0.75,
-    "MaxBackwardSpeedRate": 0.2,
+    "MaxBackwardSpeedRate": 0.4,
     "Increment": 0.025,
     "Decrement": 0.015,
     "SteeringSpeed": 0.1
@@ -267,6 +263,7 @@
     "@superbwarfare:gun_grenade * 1.5",
     "@superbwarfare:javelin_missile * 0.8",
     "@superbwarfare:igla_9k38_missile * 0.75",
+    "@superbwarfare:wire_guide_missile * 1",
     "All - 11"
   ],
   "VehicleContainerType": "Medium",

@@ -1,9 +1,5 @@
 {
   "ID": "vvp:varta",
-  "Model": {
-    "Model": "vvp:geo/varta.geo.json",
-    "Texture": "vvp:textures/entity/varta.png"
-  },
   "MaxHealth": 175,
   "MaxEnergy": 5250000,
   "OBB": [
@@ -51,17 +47,16 @@
     },
     {
       "IsEnclosed": true,
+      "CanRotateBody": true,
       "CameraPos": {
-        "Transform": "WeaponStationBarrel",
+        "Transform": "Barrel",
         "ZoomPosition": [0, 0.1, 0],
-        "Direction": "WeaponStationBarrel"
+        "Direction": "Barrel"
       },
       "Transform": "Vehicle",
       "Position": [0, 2.3, 0.09375],
-      "MinPitch": -60,
+      "MinPitch": -10,
       "MaxPitch": 60,
-      "MinYaw": -95,
-      "MaxYaw": 95,
       "Weapons": ["PassengerMachineGun"]
     },
 
@@ -71,26 +66,28 @@
       "Position": [-0.70394375, 1.1, 1.18831875],
       "MinPitch": -60,
       "MaxPitch": 60,
-      "MinYaw": -95,
-      "MaxYaw": 95
+      "MinYaw": -90,
+      "MaxYaw": 90
     },
     {
       "IsEnclosed": true,
+      "Orientation": 180.0,
       "Transform": "Vehicle",
       "Position": [0.70394375, 1.1, 0.31168125],
       "MinPitch": -60,
       "MaxPitch": 60,
-      "MinYaw": -95,
-      "MaxYaw": 95
+      "MinYaw": -90,
+      "MaxYaw": 90
     },
     {
       "IsEnclosed": true,
+      "Orientation": 180.0,
       "Transform": "Vehicle",
       "Position": [-0.70394375, 1.1, 0.31168125],
       "MinPitch": -60,
       "MaxPitch": 60,
-      "MinYaw": -95,
-      "MaxYaw": 95
+      "MinYaw": -90,
+      "MaxYaw": 90
     },
 
 
@@ -98,60 +95,66 @@
 
     {
       "IsEnclosed": true,
+      "Orientation": 90.0,
       "Transform": "Vehicle",
       "Position": [0.703125, 1, -0.6875],
       "MinPitch": -60,
       "MaxPitch": 60,
-      "MinYaw": -95,
-      "MaxYaw": 95
+      "MinYaw": -90,
+      "MaxYaw": 90
     },
     {
       "IsEnclosed": true,
+      "Orientation": 90.0,
       "Transform": "Vehicle",
       "Position": [0.703125, 1, -1.5],
       "MinPitch": -60,
       "MaxPitch": 60,
-      "MinYaw": -95,
-      "MaxYaw": 95
+      "MinYaw": -90,
+      "MaxYaw": 90
     },
     {
       "IsEnclosed": true,
+      "Orientation": 90.0,
       "Transform": "Vehicle",
       "Position": [0.703125, 1, -2.25],
       "MinPitch": -60,
       "MaxPitch": 60,
-      "MinYaw": -95,
-      "MaxYaw": 95
+      "MinYaw": -90,
+      "MaxYaw": 90
     },
 
 
 
     {
       "IsEnclosed": true,
+      "Orientation": -90.0,
       "Transform": "Vehicle",
       "Position": [-0.703125, 1, -0.6875],
       "MinPitch": -60,
       "MaxPitch": 60,
-      "MinYaw": -95,
-      "MaxYaw": 95
+      "MinYaw": -90,
+      "MaxYaw": 90
     },
     {
       "IsEnclosed": true,
+      "Orientation": -90.0,
       "Transform": "Vehicle",
       "Position": [-0.703125, 1, -1.5],
       "MinPitch": -60,
       "MaxPitch": 60,
-      "MinYaw": -95,
-      "MaxYaw": 95
+      "MinYaw": -90,
+      "MaxYaw": 90
     },
     {
       "IsEnclosed": true,
+      "Orientation": -90.0,
       "Transform": "Vehicle",
       "Position": [-0.703125, 1, -2.25],
       "MinPitch": -60,
       "MaxPitch": 60,
-      "MinYaw": -95,
-      "MaxYaw": 95
+      "MinYaw": -90,
+      "MaxYaw": 90
     }
 
   ],
@@ -175,9 +178,9 @@
       "ShootAnimationTime": 1,
       "AmmoType": "@HeavyAmmo",
       "ShootPos": {
-        "Transform": "WeaponStationBarrel",
+        "Transform": "Barrel",
         "Positions": [[-0.1416, 0.25, 1.8]],
-        "Directions": ["WeaponStationBarrel"]
+        "Directions": ["Barrel"]
       },
       "Crosshair": "@VehicleCommonGun",
       "Name": "weapon.superbwarfare.50_cal_gun",
@@ -205,10 +208,11 @@
     "Decrement": 0.015,
     "SteeringSpeed": 0.1
   },
-  "PassengerWeaponStationPos": [-0.00225625, 3.3026625, 0.23451875],
-  "PassengerWeaponStationBarrelPos": [0.1416, 0.00461875, 0.3074125],
-  "PassengerWeaponStationTurnSpeed": [15, 15],
-  "PassengerWeaponStationPitchRange": [-10, 60],
+  "TurretPos": [-0.00225625, 3.3026625, 0.23451875],
+  "BarrelPos": [0.1416, 0.00461875, 0.3074125],
+  "TurretTurnSpeed": [10, 10],
+  "TurretPitchRange": [-10, 35],
+  "TurretControllerIndex": 1,
   "ThirdPersonCameraPos": [0, 1, 3],
   "HasDecoy": false,
   "UpStep": 2.2,
@@ -239,6 +243,7 @@
     "@superbwarfare:gun_grenade * 1.5",
     "@superbwarfare:javelin_missile * 0.8",
     "@superbwarfare:igla_9k38_missile * 0.75",
+    "@superbwarfare:wire_guide_missile * 1",
     "All - 11"
   ],
   "VehicleContainerType": "Small",

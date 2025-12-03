@@ -161,6 +161,7 @@
     "@superbwarfare:rgo_grenade * 3",
     "@superbwarfare:hand_grenade * 2.5",
     "@superbwarfare:mortar_shell * 2",
+    "@superbwarfare:wire_guide_missile * 1",
     "All - 4"
   ],
   "VehicleContainerType": "Huge",

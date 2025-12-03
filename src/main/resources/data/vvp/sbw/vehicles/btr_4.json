@@ -1,34 +1,59 @@
 {
   "ID": "vvp:btr_4",
-  "Model": {
-    "Model": "vvp:geo/bmp2.geo.json",
-    "Texture": "vvp:textures/entity/bmp_2.png"
-  },
   "MaxHealth": 325,
   "MaxEnergy": 5250000,
   "OBB": [
     {
-      "Size": [0.25, 0.7109375, 3.5078125],
-      "Position": [-1.5625, 0.7265625, -0.3046875],
-      "Part": "WheelRight"
-    },
-    {
-      "Size":[0.25, 0.7109375, 3.5078125],
-      "Position": [1.5625, 0.7265625, -0.3046875],
+      "Size": [0.25781, 0.60156, 0.59375],
+      "Position": [1.53906, 0.67969, 2.78125],
       "Part": "WheelLeft"
     },
     {
-      "Size": [1.34375, 0.8046875, 3.3125],
-      "Position": [0, 1.53125, -0.8125]
+      "Size": [0.25781, 0.60156, 0.59375],
+      "Position": [1.53906, 0.67969, 1.15625],
+      "Part": "WheelLeft"
     },
     {
-      "Size": [1.34375, 0.8046875, 0.84375],
-      "Position": [0, 1.3203125, 3.34375],
-      "Part": "MainEngine"
+      "Size": [0.25781, 0.60156, 0.59375],
+      "Position": [1.53906, 0.67969, -0.90625],
+      "Part": "WheelLeft"
     },
     {
-      "Size": [1.34375, 0.3359375, 1.375],
-      "Position": [0, 0.5, 0],
+      "Size": [0.25781, 0.60156, 0.59375],
+      "Position": [1.53906, 0.67969, -2.53125],
+      "Part": "WheelLeft"
+    },
+    {
+      "Size": [0.25781, 0.60156, 0.59375],
+      "Position": [-1.53906, 0.67969, 2.78125],
+      "Part": "WheelRight"
+    },
+    {
+      "Size": [0.25781, 0.60156, 0.59375],
+      "Position": [-1.53906, 0.67969, 1.15625],
+      "Part": "WheelRight"
+    },
+    {
+      "Size": [0.25781, 0.60156, 0.59375],
+      "Position": [-1.53906, 0.67969, -0.90625],
+      "Part": "WheelRight"
+    },
+    {
+      "Size": [0.25781, 0.60156, 0.59375],
+      "Position": [-1.53906, 0.67969, -2.53125],
+      "Part": "WheelRight"
+    },
+    {
+      "Size": [1.60938, 0.65625, 1.35156],
+      "Position": [0.0, 1.9296875, 3.5390625]
+    },
+    {
+      "Size": [1.78125, 0.60938, 3.28125],
+      "Position": [0.0, 1.9609375, -1.03125]
+    },
+    {
+      "Size": [0.8984375, 0.53125, 0.90625],
+      "Position": [0.0, 0.0, 0.0],
       "Part": "Turret",
       "Transform": "Turret",
       "Rotation": "Turret"
@@ -36,29 +61,29 @@
   ],
   "Seats": [
     {
-      "HidePassenger": true,
       "CameraPos": {
         "Transform": "Barrel",
-        "ZoomPosition": [0.1, 0.0517, 0],
+        "UseFixedCameraPos": true,
+        "Position": [-0.5, 1.2, -0.7],
+        "ZoomPosition": [0, 0, 1.2],
         "Direction": "Barrel"
       },
       "Weapons": ["Cannon", "MainMachineGun", "Missile"],
-      "Transform": "Turret",
-      "Position": [-0.5, -0.6, 0.8],
-      "CanRotateHead": false,
+      "Transform": "Vehicle",
+      "Position": [0.49375, 0.6, 3],
+      "CanRotateHead": true,
       "MinPitch": -15,
       "MaxPitch": 32.5,
       "Sensitivity": [0.55, 0.73, 1]
     },
     {
-      "HidePassenger": true,
-      "BanHand": true,
+      "IsEnclosed": true,
       "Transform": "Vehicle",
-      "Position": [0, 1.2, 0],
-      "CameraPos": {
-        "UseSimulate3P": true,
-        "Simulate3PPos": [6, 1]
-      }
+      "Position": [-0.49375, 0.6, 3],
+      "MinPitch": -60,
+      "MaxPitch": 60,
+      "MinYaw": -95,
+      "MaxYaw": 95
     },
     {
       "HidePassenger": true,
@@ -193,9 +218,9 @@
       "Name": "weapon.superbwarfare.9m113_missile",
       "AmmoType": "superbwarfare:medium_anti_ground_missile",
       "Projectile": "superbwarfare:wire_guide_missile",
-      "Magazine": 1,
+      "Magazine": 2,
       "EmptyReloadTime": 140,
-      "Damage": 500,
+      "Damage": 365,
       "ExplosionDamage": 80,
       "ExplosionRadius": 8,
       "Velocity": 3,
@@ -219,7 +244,7 @@
       "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/missile_9m113.png"
     }
   },
-  "EngineType": "Track",
+  "EngineType": "Wheel",
   "EngineInfo": {
     "Buoyancy": 0,
     "EnergyCostRate": 96,
@@ -228,15 +253,15 @@
     "TrackRotSpeed": 1.9,
     "TrackDifferential": 0.8,
     "MaxForwardSpeedRate": 0.75,
-    "MaxBackwardSpeedRate": 0.2,
+    "MaxBackwardSpeedRate": 0.5,
     "Increment": 0.025,
     "Decrement": 0.015,
     "SteeringSpeed": 0.1
   },
-  "TurretPos": [0.0018125, 1.865975, -0.9994875],
+  "TurretPos": [-0.0235437, 3.1875000, -1.3038750],
   "TurretTurnSpeed": [12.5, 10],
   "TurretPitchRange": [-7.5, 74],
-  "BarrelPos": [-0.0078125, 0.5540125, 1.06474375],
+  "BarrelPos": [0.2685625, -0.2432250, 0.3661125],
   "ThirdPersonCameraPos": [0, 1, 3],
   "HasDecoy": true,
   "UpStep": 1.5,
@@ -267,6 +292,7 @@
     "@superbwarfare:gun_grenade * 1.5",
     "@superbwarfare:javelin_missile * 0.8",
     "@superbwarfare:igla_9k38_missile * 0.75",
+    "@superbwarfare:wire_guide_missile * 1",
     "All - 11"
   ],
   "VehicleContainerType": "Medium",

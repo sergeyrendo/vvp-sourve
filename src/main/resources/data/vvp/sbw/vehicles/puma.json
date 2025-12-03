@@ -1,6 +1,6 @@
 {
   "ID": "vvp:puma",
-  "MaxHealth": 335,
+  "MaxHealth": 315,
   "MaxEnergy": 5250000,
   "OBB": [
     {
@@ -195,7 +195,7 @@
       "Projectile": "superbwarfare:wire_guide_missile",
       "Magazine": 2,
       "EmptyReloadTime": 140,
-      "Damage": 550,
+      "Damage": 350,
       "ExplosionDamage": 80,
       "ExplosionRadius": 8,
       "Velocity": 3,

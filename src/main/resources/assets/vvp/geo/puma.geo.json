@@ -4075,18 +4075,18 @@
 					"pivot": [8.5, 14.69923, -26.45353]
 				},
 				{
-					"name": "wheel",
+					"name": "Wheel",
 					"parent": "root",
 					"pivot": [-0.69843, 30.78346, -10.98167]
 				},
 				{
-					"name": "wheelR",
-					"parent": "wheel",
+					"name": "WheelR",
+					"parent": "Wheel",
 					"pivot": [-0.69843, 30.78346, -10.98167]
 				},
 				{
 					"name": "wheelR0",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-26.85552, 17.32059, -48.35222],
 					"cubes": [
 						{
@@ -4233,7 +4233,7 @@
 				},
 				{
 					"name": "wheelR1",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-26.10876, 8.32469, -33.09223],
 					"cubes": [
 						{
@@ -4380,7 +4380,7 @@
 				},
 				{
 					"name": "wheelR2",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-26.10876, 8.32469, -19.69223],
 					"cubes": [
 						{
@@ -4527,7 +4527,7 @@
 				},
 				{
 					"name": "wheelR3",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-26.10876, 8.32469, -5.69223],
 					"cubes": [
 						{
@@ -4674,7 +4674,7 @@
 				},
 				{
 					"name": "wheelR4",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-26.10876, 8.32469, 12.30777],
 					"cubes": [
 						{
@@ -4821,7 +4821,7 @@
 				},
 				{
 					"name": "wheelR5",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-26.10876, 8.32469, 26.30777],
 					"cubes": [
 						{
@@ -4968,7 +4968,7 @@
 				},
 				{
 					"name": "wheelR6",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-26.10876, 8.32469, 41.30777],
 					"cubes": [
 						{
@@ -5115,7 +5115,7 @@
 				},
 				{
 					"name": "wheelR7",
-					"parent": "wheelR",
+					"parent": "WheelR",
 					"pivot": [-26.85552, 16.72059, 52.44778],
 					"cubes": [
 						{
@@ -5262,7 +5262,7 @@
 				},
 				{
 					"name": "CATERPILLARS",
-					"parent": "wheel",
+					"parent": "Wheel",
 					"pivot": [-23.5, -25.39541, 58.87404],
 					"cubes": [
 						{
@@ -5567,7 +5567,7 @@
 				},
 				{
 					"name": "CATERPILLARS2",
-					"parent": "wheel",
+					"parent": "Wheel",
 					"pivot": [10.6, -25.39541, 58.87404],
 					"cubes": [
 						{
@@ -5871,13 +5871,13 @@
 					]
 				},
 				{
-					"name": "wheelL",
-					"parent": "wheel",
+					"name": "WheelL",
+					"parent": "Wheel",
 					"pivot": [-0.30157, 30.78346, -10.98167]
 				},
 				{
 					"name": "wheelL0",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [25.85552, 17.32059, -48.35222],
 					"cubes": [
 						{
@@ -6024,7 +6024,7 @@
 				},
 				{
 					"name": "wheelL1",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [25.10876, 8.32469, -33.09223],
 					"cubes": [
 						{
@@ -6171,7 +6171,7 @@
 				},
 				{
 					"name": "wheelL2",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [25.10876, 8.32469, -19.69223],
 					"cubes": [
 						{
@@ -6318,7 +6318,7 @@
 				},
 				{
 					"name": "wheelL3",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [25.10876, 8.32469, -5.69223],
 					"cubes": [
 						{
@@ -6465,7 +6465,7 @@
 				},
 				{
 					"name": "wheelL4",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [25.10876, 8.32469, 12.30777],
 					"cubes": [
 						{
@@ -6612,7 +6612,7 @@
 				},
 				{
 					"name": "wheelL5",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [25.10876, 8.32469, 26.30777],
 					"cubes": [
 						{
@@ -6759,7 +6759,7 @@
 				},
 				{
 					"name": "wheelL6",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [25.10876, 8.32469, 41.30777],
 					"cubes": [
 						{
@@ -6906,7 +6906,7 @@
 				},
 				{
 					"name": "wheelL7",
-					"parent": "wheelL",
+					"parent": "WheelL",
 					"pivot": [25.85552, 16.72059, 52.44778],
 					"cubes": [
 						{

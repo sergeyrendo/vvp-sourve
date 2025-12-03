@@ -1,10 +1,6 @@
 {
   "ID": "vvp:bmp_2m",
-  "Model": {
-    "Model": "vvp:geo/bmp2m.geo.json",
-    "Texture": "vvp:textures/entity/bmp_2.png"
-  },
-  "MaxHealth": 325,
+  "MaxHealth": 30,
   "MaxEnergy": 5250000,
   "OBB": [
     {
@@ -195,7 +191,7 @@
       "Projectile": "superbwarfare:wire_guide_missile",
       "Magazine": 4,
       "EmptyReloadTime": 220,
-      "Damage": 400,
+      "Damage": 300,
       "ExplosionDamage": 80,
       "ExplosionRadius": 8,
       "Velocity": 3,
@@ -228,7 +224,7 @@
     "TrackRotSpeed": 1.9,
     "TrackDifferential": 0.8,
     "MaxForwardSpeedRate": 0.82,
-    "MaxBackwardSpeedRate": 0.2,
+    "MaxBackwardSpeedRate": 0.4,
     "Increment": 0.025,
     "Decrement": 0.015,
     "SteeringSpeed": 0.1
@@ -236,7 +232,7 @@
   "TurretPos": [0.06906875, 1.8959, -1.08369375],
   "TurretTurnSpeed": [12.5, 10],
   "TurretPitchRange": [-7.5, 74],
-  "BarrelPos": [0.06906875, 0.54579375, 1.2153],
+  "BarrelPos": [0.24138124, 0.10408759, 0.958325],
   "ThirdPersonCameraPos": [0, 1, 3],
   "HasDecoy": true,
   "UpStep": 1.5,
@@ -267,6 +263,7 @@
     "@superbwarfare:gun_grenade * 1.5",
     "@superbwarfare:javelin_missile * 0.8",
     "@superbwarfare:igla_9k38_missile * 0.75",
+    "@superbwarfare:wire_guide_missile * 1",
     "All - 11"
   ],
   "VehicleContainerType": "Medium",

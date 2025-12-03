@@ -5,32 +5,38 @@
   "OBB": [
     {
       "Size": [0.6875, 1.15625, 6.1875],
-      "Position": [0, 2.375, -0.9375]
+      "Position": [0.0, 2.34375, 1.1875]
     },
     {
       "Size": [3.0625, 0.34375, 1.53125],
-      "Position": [0, 2.34375, -0.46875]
+      "Position": [4.5625, 2.65625, -1.84375]
     },
     {
-      "Size": [0.40625, 0.40625, 3.5625],
-      "Position": [-1.125, 2.46875, -2.9375],
+      "Size": [3.0625, 0.34375, 1.53125],
+      "Position": [-4.5625, 2.65625, -1.84375]
+    },
+    {
+      "Size": [0.40625, 1.15625, 3.5625],
+      "Position": [1.09375, 2.34375, -1.75],
       "Part": "MainEngine"
     },
     {
-      "Size": [0.40625, 0.40625, 3.5625],
-      "Position": [1.125, 2.46875, -2.9375],
+      "Size": [0.40625, 1.15625, 3.5625],
+      "Position": [-1.09375, 2.34375, -1.75],
       "Part": "SubEngine"
     },
     {
-      "Size": [0.40625, 2.03125, 1.5625],
-      "Position": [0, 3.28125, -6.71875]
+      "Size": [0.6875, 2.03125, 1.5625],
+      "Position": [0.0, 3.78125, -6.6875],
+      "Part": "SubEngine"
     }
-  ],
+  ]
+,
   "MouseSpeed": [0.3, 0.3],
   "Seats": {
     "IsEnclosed": true,
     "Transform": "Vehicle",
-    "Position": [0, 2.5, 3],
+    "Position": [0, -0.3, 3],
     "CanRotateHead": false,
     "Sensitivity": [0, 0, 0],
     "CameraPos": {
@@ -48,7 +54,7 @@
       "EjectDirection": "Up",
       "EjectForce": 4
     },
-    "Weapons": ["Cannon", "Rocket", "Bomb", "X25Missile"]
+    "Weapons": ["Cannon", "Rocket", "Bomb", "DriverAAMissile"]
   },
   "HudType": "@Aircraft",
   "Weapons": {
@@ -156,34 +162,34 @@
       "CrosshairColor": "0x66FF00",
       "SoundRadius": 8
     },
-    "X25Missile": {
-      "AmmoType": "vvp:x25_item",
-      "Icon": "vvp:textures/screens/vehicle_weapon/x_25.png",
-      "DefaultZoom": 3,
+    "DriverAAMissile": {
+      "AmmoType": "superbwarfare:medium_anti_air_missile",
+      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/ru_9m336.png",
+      "DefaultZoom": 2,
       "DefaultFireMode": "Semi",
       "AvailableFireModes": "Semi",
-      "Magazine": 2,
+      "Magazine": 4,
       "RPM": 60,
-      "EmptyReloadTime": 400,
-      "Projectile": "vvp:x25",
-      "Name": "weapon.vvp.x25_missile",
-      "Damage": 800,
-      "ExplosionDamage": 100,
-      "ExplosionRadius": 10,
+      "EmptyReloadTime": 260,
+      "Projectile": "vvp:r73",
+      "Name": "weapon.superbwarfare.9m_336_missile",
+      "Damage": 260,
+      "ExplosionDamage": 90,
+      "ExplosionRadius": 6,
       "Velocity": 3,
       "SeekWeaponInfo": {
         "SeekDirection": "Default",
         "SeekRange": 384,
         "SeekAngle": 20,
         "SeekTime": 20,
-        "MinTargetHeight": 5,
+        "MinTargetHeight": 32,
         "MinTargetSize": 0.1,
         "OnlyLockEntity": true
       },
       "ShootPos": {
         "Transform": "Vehicle",
-        "ShootPositionForHud": [0, 2.1, 3],
-        "Positions": [[-6, 2.125, -2], [6, 2.125, -2]],
+        "ShootPositionForHud": [0, 1.0625, 5.625],
+        "Positions": [[-6, 2.125, -2.0625], [6, 2.125, -2.0625]],
         "BoundUpWithAmmoAmount": true
       },
       "SoundInfo": {
@@ -191,9 +197,11 @@
         "Fire3P": "superbwarfare:bomb_release",
         "VehicleReload3p": "superbwarfare:bomb_reload",
         "VehicleReloadSoundTime": 11,
-        "Change": "superbwarfare:into_missile"
+        "Change": "superbwarfare:into_missile",
+        "Locking": "superbwarfare:javelin_locking",
+        "Locked": "superbwarfare:javelin_locked"
       },
-      "CrosshairColor": "0x66FF00",
+      "CrosshairColor": "0xFFC700",
       "Crosshair": "@VehicleCommonSeekMissile",
       "SoundRadius": 8
     }

@@ -9,12 +9,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import tech.vvp.vvp.client.model.X25Model;
+import tech.vvp.vvp.client.model.R73Model;
 import tech.vvp.vvp.entity.projectile.R73Entity;
 
-public class X25Renderer extends GeoEntityRenderer<R73Entity> {
-    public X25Renderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new X25Model());
+public class R73Renderer extends GeoEntityRenderer<R73Entity> {
+    public R73Renderer(EntityRendererProvider.Context renderManager) {
+        super(renderManager, new R73Model());
     }
 
     @Override

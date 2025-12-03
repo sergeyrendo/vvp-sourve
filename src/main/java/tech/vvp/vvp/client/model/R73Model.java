@@ -6,7 +6,7 @@ import software.bernie.geckolib.model.GeoModel;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.entity.projectile.R73Entity;
 
-public class X25Model extends GeoModel<R73Entity> {
+public class R73Model extends GeoModel<R73Entity> {
 
     @Override
     public ResourceLocation getAnimationResource(R73Entity entity) {

@@ -1,30 +1,34 @@
 {
-  "ID": "vvp:m1a2_sep",
+  "ID": "vvp:leopard_2a7v",
   "MaxHealth": 475,
   "MaxEnergy": 20000000,
   "OBB": [
     {
-      "Size": [1.5, 0.766, 3.156],
-      "Position": [0.0, 1.234, 1.844]
+      "Size": [1.1875, 0.7578125, 3.53125],
+      "Position": [0, 1.2578125, 0.65625]
     },
     {
-      "Size": [1.5, 0.984, 1.906],
-      "Position": [0.0, 1.453, -3.219],
+      "Size": [2, 0.2890625, 4.15625],
+      "Position": [0, 1.7890625, 0.03125]
+    },
+    {
+      "Size": [1.1875, 0.8203125, 0.75],
+      "Position": [0, 1.3203125, -3.625],
       "Part": "MainEngine"
     },
     {
-      "Size": [0.438, 0.953, 4.688],
-      "Position": [1.938, 1.047, 0.313],
+      "Size": [0.375, 0.7578125, 4.0625],
+      "Position": [1.5625, 0.7578125, -0.0625],
       "Part": "WheelLeft"
     },
     {
-      "Size": [0.438, 0.953, 4.688],
-      "Position": [-1.938, 1.047, 0.313],
+      "Size": [0.375, 0.7578125, 4.0625],
+      "Position": [-1.5625, 0.7578125, -0.0625],
       "Part": "WheelRight"
     },
     {
-      "Size": [2.156, 0.672, 2.906],
-      "Position": [0.0, 0.0, -0.5378625],
+      "Size": [1.375, 0.4765625, 2.34375],
+      "Position": [0.0, 0.25, 0],
       "Part": "Turret",
       "Transform": "Turret",
       "Rotation": "Turret"
@@ -49,7 +53,7 @@
       "Sensitivity": [0.52, 0.72, 0.9]
     },
     {
-      "HidePassenger": false,
+      "HidePassenger": true,
       "Transform": "Turret",
       "CameraPos": {
         "Transform": "WeaponStationBarrel",
@@ -57,7 +61,7 @@
         "Direction": "WeaponStationBarrel"
       },
       "Position": [
-        -0.5, 0.2, -1
+        0, 0, 0
       ],
       "Weapons": ["PassengerMachineGun"],
       "CanRotateHead": false,
@@ -230,19 +234,19 @@
     "WheelDifferential": 0.75,
     "TrackRotSpeed": 1.3,
     "TrackDifferential": 0.6,
-    "MaxForwardSpeedRate": 0.76,
-    "MaxBackwardSpeedRate": 0.65,
+    "MaxForwardSpeedRate": 0.77,
+    "MaxBackwardSpeedRate": 0.64,
     "Increment": 0.02,
     "Decrement": 0.01,
     "SteeringSpeed": 0.1,
     "EngineSoundVolume" : 0.6
   },
-  "TurretPos": [-0.111725, 2.51238125, 0.6438625],
-  "BarrelPos": [0.1128, 0.155625, 1.47366875],
+  "TurretPos": [0, 2.3796875, -0.375],
+  "BarrelPos": [0, 0.2185625, 1.43271875],
   "TurretTurnSpeed": [7, 6],
   "TurretPitchRange": [-10, 30],
-  "PassengerWeaponStationPos": [-1.0344375, 0.68048125, 0.21596875],
-  "PassengerWeaponStationBarrelPos": [-0.04605, 0.917625, 0.00700625],
+  "PassengerWeaponStationPos": [1.0113625, 0.785325, -0.97569375],
+  "PassengerWeaponStationBarrelPos": [0, 0, 0],
   "PassengerWeaponStationTurnSpeed": [15, 15],
   "PassengerWeaponStationPitchRange": [-10, 60],
   "HasDecoy": true,

@@ -1,9 +1,5 @@
 {
-  "ID": "vvp:bmp_2",
-  "Model": {
-    "Model": "vvp:geo/bmp2.geo.json",
-    "Texture": "vvp:textures/entity/bmp_2.png"
-  },
+  "ID": "vvp:challenger",
   "MaxHealth": 325,
   "MaxEnergy": 5250000,
   "OBB": [
@@ -123,8 +119,8 @@
       "AmmoType": "superbwarfare:medium_anti_ground_missile",
       "Projectile": "superbwarfare:wire_guide_missile",
       "Magazine": 2,
-      "EmptyReloadTime": 140,
-      "Damage": 500,
+      "EmptyReloadTime": 120,
+      "Damage": 300,
       "ExplosionDamage": 80,
       "ExplosionRadius": 8,
       "Velocity": 3,
@@ -196,6 +192,7 @@
     "@superbwarfare:gun_grenade * 1.5",
     "@superbwarfare:javelin_missile * 0.8",
     "@superbwarfare:igla_9k38_missile * 0.75",
+    "@superbwarfare:wire_guide_missile * 1",
     "All - 11"
   ],
   "VehicleContainerType": "Medium",
@@ -205,7 +202,7 @@
     "ExplosionRadius": 7
   },
   "VehicleIcon": "superbwarfare:textures/vehicle_icon/lav_150_icon.png",
-  "ContainerIcon": "vvp:textures/gui/vehicle/type/land_ru.png",
+  "ContainerIcon": "vvp:textures/gui/vehicle/type/land.png",
   "Type": "APC",
   "CollisionLevel": {
     "Level": 3,
