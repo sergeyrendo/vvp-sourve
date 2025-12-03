@@ -151,5 +151,10 @@
   "//": "==================== HK GMG ====================",
   "entity.vvp.hk_gmg": "HK GMG",
   "item.vvp.hk_gmg_item": "HK GMG Deployer",
-  "weapon.vvp.hk_gmg": "HK GMG 40mm %s"
+  "weapon.vvp.hk_gmg": "HK GMG 40mm %s",
+  
+  "//": "==================== KORNET ====================",
+  "entity.vvp.kornet": "9M133 Kornet",
+  "item.vvp.kornet_item": "Kornet ATGM Deployer",
+  "weapon.vvp.kornet": "9M133 Kornet %s"
 }
