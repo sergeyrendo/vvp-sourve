@@ -2,10 +2,10 @@
   "ID": "vvp:kornet",
   "MaxHealth": 60,
   "MaxEnergy": 0,
-  "TurretPos": [0.00223125, 1.49955625, -0.00223125],
+  "TurretPos": [0.0200625, 1.2055, 0.03],
   "TurretTurnSpeed": [10, 10],
   "TurretPitchRange": [-40, 40],
-  "BarrelPos": [0.00223125, 0.19575625, 0.00223125],
+  "BarrelPos": [0.03424375, 0.25836875, 0.12611875],
   "Seats": {
     "Transform": "Turret",
     "Position": [-0.3, -1.3689, -0.6],
@@ -39,7 +39,7 @@
       "Damage": 600,
       "ExplosionDamage": 60,
       "ExplosionRadius": 6,
-      "RPM": 8,
+      "RPM": 340,
       "Velocity": 3,
       "ShootShake": [6, 6, 14],
       "ShootPos": {

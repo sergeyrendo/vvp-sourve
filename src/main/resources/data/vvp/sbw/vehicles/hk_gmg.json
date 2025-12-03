@@ -29,7 +29,7 @@
       "Position": [1.0, 0, 0]
     }
   },
-  "UsePassengerCreativeAmmoBox": true,
+  "UsePassengerCreativeAmmoBox": false,
   "Weapons": {
     "Grenade": {
       "DefaultFireMode": "Auto",
@@ -37,6 +37,7 @@
       "Projectile": "superbwarfare:small_cannon_shell",
       "DefaultZoom": 2,
       "RPM": 170,
+      "Magazine": 30,
       "Velocity": 7,
       "Damage": 20,
       "ExplosionDamage": 80,

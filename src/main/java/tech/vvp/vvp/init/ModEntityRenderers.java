@@ -54,6 +54,7 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.R73.get(), R73Renderer::new);
         event.registerEntityRenderer(ModEntities.KORNET.get(), KornetRenderer::new);
         event.registerEntityRenderer(ModEntities.HK_GMG.get(), HkGmgRenderer::new);
+        event.registerEntityRenderer(ModEntities.M142_HIMARS.get(), M142HimarsRenderer::new);
     }
 
     /**
