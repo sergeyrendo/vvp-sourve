@@ -52,6 +52,7 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.X25.get(), X25Renderer::new);
         event.registerEntityRenderer(ModEntities.M142_HIMARS.get(), M142HimarsRenderer::new);
         event.registerEntityRenderer(ModEntities.BALLISTIC_MISSILE.get(), BallisticMissileRenderer::new);
+        event.registerEntityRenderer(ModEntities.HK_GMG.get(), HkGmgRenderer::new);
     }
 
     /**

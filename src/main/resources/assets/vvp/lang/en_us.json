@@ -146,5 +146,10 @@
   "weapon.vvp.gsh_30_2": "GSh-30-2 30mm %s",
   "weapon.vvp.s8_rocket": "S-8 Rocket %s",
   "weapon.vvp.fab_500": "FAB-500 %s",
-  "weapon.vvp.x25_missile": "Kh-25 AGM %s"
+  "weapon.vvp.x25_missile": "Kh-25 AGM %s",
+  
+  "//": "==================== HK GMG ====================",
+  "entity.vvp.hk_gmg": "HK GMG",
+  "item.vvp.hk_gmg_item": "HK GMG Deployer",
+  "weapon.vvp.hk_gmg": "HK GMG 40mm %s"
 }

@@ -126,6 +126,9 @@ public class ModEntities {
     public static final RegistryObject<EntityType<BallisticMissileEntity>> BALLISTIC_MISSILE = register("ballistic_missile",
             EntityType.Builder.<BallisticMissileEntity>of(BallisticMissileEntity::new, MobCategory.MISC).setTrackingRange(256).setUpdateInterval(1).fireImmune().sized(0.5f, 0.5f));
 
+    public static final RegistryObject<EntityType<HkGmgEntity>> HK_GMG = register("hk_gmg",
+            EntityType.Builder.of(HkGmgEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(1f, 1.5f));
+
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
         return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));
     }

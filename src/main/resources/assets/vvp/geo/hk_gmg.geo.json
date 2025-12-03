@@ -16,13 +16,13 @@
 					"pivot": [0, 0, 0]
 				},
 				{
-					"name": "cannon",
+					"name": "turret",
 					"parent": "root",
 					"pivot": [0, 0, 0]
 				},
 				{
 					"name": "baseforammo",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [-4.21185, 8.65931, 2.883],
 					"cubes": [
 						{
@@ -77,7 +77,7 @@
 				},
 				{
 					"name": "barrel",
-					"parent": "cannon",
+					"parent": "turret",
 					"pivot": [-0.00539, 13.75, 0.01321],
 					"cubes": [
 						{

@@ -63,6 +63,9 @@ public class ModItems {
 
     public static final RegistryObject<Item> CACTUS_TURRET_ITEM = REGISTRY.register("cactus_turret", CactusTurretItem::new);
     public static final RegistryObject<Item> BMP3M_BODY = REGISTRY.register("bmp3m_body", Bmp3MBodyItem::new);
+    
+    public static final RegistryObject<Item> HK_GMG_ITEM = REGISTRY.register("hk_gmg_item",
+            () -> new tech.vvp.vvp.item.VehicleSpawnItem(ModEntities.HK_GMG::get, new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> CREW_HELMET = REGISTRY.register("crewhelmet",
             () -> new crewhelmet());
