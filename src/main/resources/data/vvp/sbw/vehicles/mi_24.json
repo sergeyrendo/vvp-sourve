@@ -34,7 +34,7 @@
   "Seats": [
     {
       "Transform": "Vehicle",
-      "Position": [0, 3.4, 0.35],
+      "Position": [0, 1.5, 0.25],
       "Sensitivity": [0, 0, 0],
       "CameraPos": {
         "Transform": "Vehicle",
@@ -56,7 +56,7 @@
     },
     {
       "Transform": "Vehicle",
-      "Position": [0, 1, 2],
+      "Position": [0, 1, 1.8],
       "Sensitivity": [0.59, 0.8, 0.9],
       "MinPitch": -60,
       "MaxPitch": 10,
@@ -230,7 +230,7 @@
     "ExplosionRadius": 14,
     "CrashPassengers": true
   },
-  "HUDColor": "0xFFC700",
+  "HUDColor": "0x66FF00",
   "VehicleIcon": "superbwarfare:textures/vehicle_icon/mi_28_icon.png",
   "ContainerIcon": "vvp:textures/gui/vehicle/type/aircraft_ru.png",
   "Type": "Helicopter",

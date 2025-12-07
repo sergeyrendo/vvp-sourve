@@ -65,6 +65,11 @@ public class KornetEntity extends GeoVehicleEntity {
 
     @Override
     public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
+        if (player.isShiftKeyDown()) {
+            retrieve(player);
+            return InteractionResult.SUCCESS;
+        }
+
         var gunData = getGunData(0);
         if (gunData == null) return InteractionResult.SUCCESS;
 
@@ -93,6 +98,22 @@ public class KornetEntity extends GeoVehicleEntity {
             entityData.set(LOADED, false);
         }
         return InteractionResult.SUCCESS;
+    }
+
+    private void retrieve(Player player) {
+        if (level().isClientSide) {
+            return;
+        }
+
+        for (var stack : getRetrieveItems()) {
+            var copy = stack.copy();
+            if (!player.addItem(copy)) {
+                player.drop(copy, false);
+            }
+        }
+
+        ejectPassengers();
+        discard();
     }
 
     @Override

@@ -261,7 +261,7 @@
     "SteeringSpeed": 0.1
   },
   "TurretPos": [-0.1238125, 2.51569375, -0.82226875],
-  "TurretTurnSpeed": [12.5, 10],
+  "TurretTurnSpeed": [2, 3],
   "TurretPitchRange": [-7.5, 74],
   "BarrelPos": [-0.07961875, -0.38081875, 0.970775],
   "ThirdPersonCameraPos": [0, 1, 3],

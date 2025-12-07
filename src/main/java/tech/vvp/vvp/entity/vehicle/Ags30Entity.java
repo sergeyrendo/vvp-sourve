@@ -15,16 +15,16 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HkGmgEntity extends GeoVehicleEntity {
+public class Ags30Entity extends GeoVehicleEntity {
 
-    public HkGmgEntity(EntityType<HkGmgEntity> type, Level world) {
+    public Ags30Entity(EntityType<Ags30Entity> type, Level world) {
         super(type, world);
     }
 
     @Override
     public @NotNull List<ItemStack> getRetrieveItems() {
         var list = new ArrayList<ItemStack>();
-        list.add(new ItemStack(tech.vvp.vvp.init.ModItems.HK_GMG_ITEM.get()));
+        list.add(new ItemStack(tech.vvp.vvp.init.ModItems.AGS_30_ITEM.get()));
         return list;
     }
 

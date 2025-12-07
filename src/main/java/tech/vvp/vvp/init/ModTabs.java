@@ -24,12 +24,14 @@ public class ModTabs {
             .title(Component.translatable("natotab.vvp_natovehicle_tab"))
             .displayItems((parameters, output) -> {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.PUMA.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_4.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_M1296.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.AH_64.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2_SEP.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.LEOPARD_2A7V.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.VARTA.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.FMTV.get()));
-                output.accept(ContainerBlockItem.createInstance(ModEntities.M142_HIMARS.get()));
-                output.accept(ModItems.HK_GMG_ITEM.get());
 
             })
             .build());
@@ -50,9 +52,8 @@ public class ModTabs {
                         output.accept(ContainerBlockItem.createInstance(ModEntities.URAL.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.GAZ_TIGR.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.MI_28.get()));
+                        output.accept(ContainerBlockItem.createInstance(ModEntities.MI_24.get()));
                         output.accept(ContainerBlockItem.createInstance(ModEntities.PANTSIR_S1.get()));
-                        output.accept(ContainerBlockItem.createInstance(ModEntities.SU_25.get()));
-                        output.accept(ModItems.KORNET_ITEM.get());
 
                     })
                     .build());
@@ -82,28 +83,6 @@ public class ModTabs {
                                 output.accept(ModItems.BERETA.get());
                                 output.accept(ModItems.MI_28_HELMET.get());
                                 output.accept(ModItems.MI_28_CHEST.get());
-                                output.accept(ModItems.MANGAL_TURRET.get());
-                                output.accept(ModItems.MANGAL_BODY.get());
-                                output.accept(ModItems.SETKA_BODY.get());
-                                output.accept(ModItems.SETKA_TURRET.get());
-                                output.accept(ModItems.BMP3M_BODY.get());
-                                output.accept(ModItems.CACTUS_TURRET_ITEM.get());
-                                output.accept(ModItems.TENT.get());
-                                output.accept(ModItems.KOROBKI.get());
-                                output.accept(ModItems.SPRAY.get());
-                                output.accept(ModItems.WRENCH.get());
-                                output.accept(ModItems.FAB_500_ITEM.get());
-                                output.accept(ModItems.FAB_250_ITEM.get());
-                                output.accept(ModItems.LMUR_ITEM.get());
-                                output.accept(ModItems.X25_ITEM.get());
-                                output.accept(ModItems.AIM_120_ITEM.get());
-                                output.accept(ModItems.R73_ITEM.get());
-                                output.accept(ModItems.ITEM_57E6.get());
-                                output.accept(ModItems.ITEM_9M340.get());
-                                output.accept(ModItems.HFIRE_ITEM.get());
-                                output.accept(ModItems.HRYZANTEMA_ITEM.get());
-                                output.accept(ModItems.S_13.get());
-                                output.accept(ModItems.GMLRS_M31.get());
 
                             })
                             .build());

@@ -65,6 +65,11 @@ public class TowEntity extends GeoVehicleEntity {
 
     @Override
     public @NotNull InteractionResult interact(Player player, @NotNull InteractionHand hand) {
+        if (player.isShiftKeyDown()) {
+            retrieve(player);
+            return InteractionResult.SUCCESS;
+        }
+
         var gunData = getGunData(0);
         if (gunData == null) return InteractionResult.SUCCESS;
 
@@ -95,6 +100,22 @@ public class TowEntity extends GeoVehicleEntity {
         return InteractionResult.SUCCESS;
     }
 
+    private void retrieve(Player player) {
+        if (level().isClientSide) {
+            return;
+        }
+
+        for (var stack : getRetrieveItems()) {
+            var copy = stack.copy();
+            if (!player.addItem(copy)) {
+                player.drop(copy, false);
+            }
+        }
+
+        ejectPassengers();
+        discard();
+    }
+
     @Override
     public void baseTick() {
         super.baseTick();
@@ -106,7 +127,7 @@ public class TowEntity extends GeoVehicleEntity {
     @Override
     public @NotNull List<ItemStack> getRetrieveItems() {
         var list = new ArrayList<ItemStack>();
-        list.add(new ItemStack(ModItems.TOW_DEPLOYER.get()));
+        list.add(new ItemStack(tech.vvp.vvp.init.ModItems.TOW_ITEM.get()));
 
         var data = getGunData(0);
         if (entityData.get(LOADED) && data != null) {

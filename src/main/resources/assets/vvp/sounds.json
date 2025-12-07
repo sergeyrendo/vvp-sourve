@@ -289,14 +289,19 @@
       "vvp:t72_autoreload"
     ]
   },
-  "pantsir_locking": {
+  "hk_gmg_1p": {
     "sounds": [
-      "vvp:locking"
+      "vvp:hk_gmg_1p"
     ]
   },
-  "pantsir_locked": {
+  "hk_gmg_3p": {
     "sounds": [
-      "vvp:locked"
+      "vvp:hk_gmg_3p"
+    ]
+  },
+  "hk_gmg_reload": {
+    "sounds": [
+      "vvp:hk_gmg_reload"
     ]
   }
 }

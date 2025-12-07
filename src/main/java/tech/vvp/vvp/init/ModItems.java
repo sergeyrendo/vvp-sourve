@@ -65,10 +65,15 @@ public class ModItems {
     public static final RegistryObject<Item> BMP3M_BODY = REGISTRY.register("bmp3m_body", Bmp3MBodyItem::new);
     
     public static final RegistryObject<Item> HK_GMG_ITEM = REGISTRY.register("hk_gmg_item",
-            () -> new tech.vvp.vvp.item.VehicleSpawnItem(ModEntities.HK_GMG::get, new Item.Properties().stacksTo(1)));
+            () -> new tech.vvp.vvp.item.VehicleSpawnItem(ModEntities.HK_GMG::get, new Item.Properties().stacksTo(64)));
+    public static final RegistryObject<Item> AGS_30_ITEM = REGISTRY.register("ags_30_item",
+            () -> new tech.vvp.vvp.item.VehicleSpawnItem(ModEntities.AGS_30::get, new Item.Properties().stacksTo(64)));
     
     public static final RegistryObject<Item> KORNET_ITEM = REGISTRY.register("kornet_item",
-            () -> new tech.vvp.vvp.item.VehicleSpawnItem(ModEntities.KORNET::get, new Item.Properties().stacksTo(1)));
+            () -> new tech.vvp.vvp.item.VehicleSpawnItem(ModEntities.KORNET::get, new Item.Properties().stacksTo(64)));
+
+    public static final RegistryObject<Item> TOW_ITEM = REGISTRY.register("tow_item",
+            () -> new tech.vvp.vvp.item.VehicleSpawnItem(ModEntities.TOW::get, new Item.Properties().stacksTo(64)));
 
     public static final RegistryObject<Item> CREW_HELMET = REGISTRY.register("crewhelmet",
             () -> new crewhelmet());

@@ -36,7 +36,7 @@
   "Seats": {
     "IsEnclosed": true,
     "Transform": "Vehicle",
-    "Position": [0, -0.3, 3],
+    "Position": [0, 1.3, 3],
     "CanRotateHead": false,
     "Sensitivity": [0, 0, 0],
     "CameraPos": {
@@ -96,7 +96,7 @@
       "DefaultZoom": 2,
       "DefaultFireMode": "Auto",
       "AvailableFireModes": "Semi",
-      "Magazine": 52,
+      "Magazine": 62,
       "EmptyReloadTime": 160,
       "Projectile": "superbwarfare:small_rocket",
       "Spread": 0.4,
@@ -111,7 +111,7 @@
         "Transform": "Vehicle",
         "ShootPositionForHud": [0, 1.5, 0],
         "ShootDirectionForHud": [0, -0.03, 1],
-        "Positions": [[-2.5, 1.5, 0], [2.5, 1.5, 0]],
+        "Positions": [[4.1875, 1.8125, 0], [-4.1875, 1.8125, 0], [5.0625, 1.8125, 0], [-5.0625, 1.8125, 0]],
         "Directions": [[-0.003, -0.03, 1], [0.003, -0.03, 1]]
       },
       "SoundInfo": {
@@ -145,7 +145,7 @@
         "Transform": "Vehicle",
         "ShootPositionForHud": [0, 1.2, 0],
         "ShootDirectionForHud": "Bomb",
-        "Positions": [[-1.5, 1.2, 0], [1.5, 1.2, 0]],
+        "Positions": [[-3.1875, 1.8125, -0.5625], [3.1875, 1.8125, -0.5625]],
         "BoundUpWithAmmoAmount": true,
         "Directions": ["DeltaMovement"],
         "ViewPosition": [0, 1.2, 0],
@@ -164,14 +164,13 @@
     },
     "DriverAAMissile": {
       "AmmoType": "superbwarfare:medium_anti_air_missile",
-      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/ru_9m336.png",
+      "Icon": "superbwarfare:textures/screens/vehicle_weapon/ru_9m336.png",
       "DefaultZoom": 2,
       "DefaultFireMode": "Semi",
       "AvailableFireModes": "Semi",
       "Magazine": 4,
-      "RPM": 60,
       "EmptyReloadTime": 260,
-      "Projectile": "vvp:r73",
+      "Projectile": "superbwarfare:ru_9m336_missile",
       "Name": "weapon.superbwarfare.9m_336_missile",
       "Damage": 260,
       "ExplosionDamage": 90,
@@ -189,7 +188,7 @@
       "ShootPos": {
         "Transform": "Vehicle",
         "ShootPositionForHud": [0, 1.0625, 5.625],
-        "Positions": [[-6, 2.125, -2.0625], [6, 2.125, -2.0625]],
+        "Positions": [[-2.806, 1.932, 0], [-2.806, 1.67, 0], [-2.993, 1.932, 0], [-2.993, 1.67, 0]],
         "BoundUpWithAmmoAmount": true
       },
       "SoundInfo": {
@@ -199,7 +198,7 @@
         "VehicleReloadSoundTime": 11,
         "Change": "superbwarfare:into_missile",
         "Locking": "superbwarfare:javelin_locking",
-        "Locked": "superbwarfare:javelin_locked"
+        "Locked": "superbwarfare:javelin_locking"
       },
       "CrosshairColor": "0xFFC700",
       "Crosshair": "@VehicleCommonSeekMissile",

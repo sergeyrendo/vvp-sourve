@@ -240,7 +240,7 @@
   },
   "TurretPos": [-0.01153125, 2.272375, 0.1752375],
   "BarrelPos": [-0.01153125, 0.2364625, 1.56148125],
-  "TurretTurnSpeed": [7, 6],
+  "TurretTurnSpeed": [2, 3],
   "TurretPitchRange": [-10, 30],
   "PassengerWeaponStationPos": [0.6168875, 0.7952750, -1.0803625],
   "PassengerWeaponStationBarrelPos": [0, 0.35984375, 0.0551625],

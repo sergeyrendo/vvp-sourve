@@ -43,6 +43,7 @@
   "entity.vvp.challenger": "Challenger 2 OES",
   "entity.vvp.uh60_weapon": "UH-60 Weapon",
   "entity.vvp.leopard_2a7v": "Leopard 2A7V",
+  "entity.vvp.ah_64": "AH-64 Apache",
   "entity.vvp.ural": "Ural",
 
   "//": "==================== LIGHT VEHICLES ====================",
@@ -153,7 +154,10 @@
   "entity.vvp.hk_gmg": "HK GMG",
   "item.vvp.hk_gmg_item": "HK GMG Deployer",
   "weapon.vvp.hk_gmg": "HK GMG 40mm %s",
-  
+  "entity.vvp.ags_30": "AGS-30",
+  "item.vvp.ags_30_item": "AGS-30 Deployer",
+  "weapon.vvp.ags_30": "AGS-30 30mm %s",
+
   "//": "==================== KORNET ====================",
   "entity.vvp.kornet": "9M133 Kornet",
   "item.vvp.kornet_item": "Kornet ATGM Deployer",

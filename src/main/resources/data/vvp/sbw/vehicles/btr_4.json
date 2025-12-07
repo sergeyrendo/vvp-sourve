@@ -302,7 +302,7 @@
     "ExplosionRadius": 7
   },
   "VehicleIcon": "superbwarfare:textures/vehicle_icon/lav_150_icon.png",
-  "ContainerIcon": "vvp:textures/gui/vehicle/type/land_ru.png",
+  "ContainerIcon": "vvp:textures/gui/vehicle/type/land.png",
   "Type": "APC",
   "CollisionLevel": {
     "Level": 3,

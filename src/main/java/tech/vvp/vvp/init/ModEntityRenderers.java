@@ -38,6 +38,7 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.MI_24.get(), Mi24Renderer::new);
         event.registerEntityRenderer(ModEntities.UH60_WEAPON.get(), Uh60WeaponRenderer::new);
         event.registerEntityRenderer(ModEntities.LEOPARD_2A7V.get(), Leopard2A7VRenderer::new);
+        event.registerEntityRenderer(ModEntities.AH_64.get(), Ah64Renderer::new);
         event.registerEntityRenderer(ModEntities.CHALLENGER.get(), ChallengerRenderer::new);
         event.registerEntityRenderer(ModEntities.BMP_2.get(), Bmp2Renderer::new);
         event.registerEntityRenderer(ModEntities.T72_B3M.get(), T72B3MRenderer::new);
@@ -54,7 +55,9 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.R73.get(), R73Renderer::new);
         event.registerEntityRenderer(ModEntities.KORNET.get(), KornetRenderer::new);
         event.registerEntityRenderer(ModEntities.HK_GMG.get(), HkGmgRenderer::new);
+        event.registerEntityRenderer(ModEntities.AGS_30.get(), Ags30Renderer::new);
         event.registerEntityRenderer(ModEntities.M142_HIMARS.get(), M142HimarsRenderer::new);
+        event.registerEntityRenderer(ModEntities.BALLISTIC_MISSILE.get(), BallisticMissileRenderer::new);
     }
 
     /**
