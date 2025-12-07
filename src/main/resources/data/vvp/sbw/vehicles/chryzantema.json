@@ -123,7 +123,7 @@
       "HeatPerShoot": 0.5,
       "Spread": 0.5,
       "CrosshairColor": "0x66FF00",
-      "Name": "weapon.superbwarfare.9m113_missile",
+      "Name": "weapon.vvp.9m123_chrysanthemum",
       "AmmoType": "superbwarfare:medium_anti_ground_missile",
       "Projectile": "superbwarfare:wire_guide_missile",
       "Magazine": 2,

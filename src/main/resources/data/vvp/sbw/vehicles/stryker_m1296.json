@@ -144,7 +144,7 @@
       "Spread": 0.5,
       "Crosshair": "@VehicleRuApc",
       "CrosshairColor": "0x66FF00",
-      "Name": "weapon.superbwarfare.30mm_2a42",
+      "Name": "weapon.vvp.30mm_cannon",
       "SoundInfo": {
         "Fire1P": "superbwarfare:bmp_2_cannon_fire_1p",
         "Fire3P": "superbwarfare:bmp_2_cannon_fire_3p",
@@ -187,7 +187,7 @@
         "Directions": ["Barrel"]
       },
       "Crosshair": "@VehicleCommonGun",
-      "Name": "weapon.superbwarfare.50_cal_gun",
+      "Name": "weapon.vvp.m2_50cal",
       "SoundInfo": {
         "Fire1P": "superbwarfare:m_2_hb_fire_1p",
         "Fire3P": "superbwarfare:m_2_hb_fire_3p",

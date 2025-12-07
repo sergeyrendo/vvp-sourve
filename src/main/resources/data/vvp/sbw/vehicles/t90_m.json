@@ -94,7 +94,7 @@
       "ShootAnimationTime": 10,
       "Crosshair": "@VehicleUsTank",
       "CrosshairColor": "0x00ff66",
-      "Name": "weapon.superbwarfare.cannon_ap",
+      "Name": "weapon.vvp.125mm_cannon",
       "AmmoType": [
         "superbwarfare:ap_5_inches",
         {
@@ -107,7 +107,7 @@
             "Damage": 250,
             "ExplosionDamage": 120,
             "ExplosionRadius": 10,
-            "Name": "weapon.superbwarfare.cannon_he"
+            "Name": "weapon.vvp.125mm_cannon"
           }
         },
         {
@@ -122,7 +122,7 @@
             "Damage": 300,
             "ExplosionDamage": 180,
             "ExplosionRadius": 6,
-            "Name": "weapon.superbwarfare.cannon_cm"
+            "Name": "weapon.vvp.125mm_cannon"
           }
         },
         {
@@ -137,7 +137,7 @@
             "Damage": 1000,
             "ExplosionDamage": 180,
             "ExplosionRadius": 6,
-            "Name": "weapon.superbwarfare.cannon_gs"
+            "Name": "weapon.vvp.125mm_cannon"
           }
         }
       ],
@@ -183,7 +183,7 @@
         "Directions": ["Barrel"]
       },
       "Crosshair": "@VehicleCommonGun",
-      "Name": "weapon.superbwarfare.50_cal_gun",
+      "Name": "weapon.vvp.12_7mm",
       "SoundInfo": {
         "Fire1P": "superbwarfare:m_2_hb_fire_1p",
         "Fire3P": "superbwarfare:m_2_hb_fire_3p",
@@ -217,7 +217,7 @@
         "Directions": ["WeaponStationBarrel"]
       },
       "Crosshair": "@VehicleCommonGun",
-      "Name": "weapon.superbwarfare.50_cal_gun",
+      "Name": "weapon.vvp.12_7mm",
       "SoundInfo": {
         "Fire1P": "superbwarfare:m_2_hb_fire_1p",
         "Fire3P": "superbwarfare:m_2_hb_fire_3p",

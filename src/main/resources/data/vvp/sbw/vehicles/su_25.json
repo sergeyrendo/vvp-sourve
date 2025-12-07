@@ -171,7 +171,7 @@
       "Magazine": 4,
       "EmptyReloadTime": 260,
       "Projectile": "superbwarfare:ru_9m336_missile",
-      "Name": "weapon.superbwarfare.9m_336_missile",
+      "Name": "weapon.vvp.x25_missile",
       "Damage": 260,
       "ExplosionDamage": 90,
       "ExplosionRadius": 6,

@@ -109,7 +109,7 @@
       "RecoilTime": 31,
       "RecoilForce": 0.62,
       "Spread": 0.25,
-      "Name": "weapon.superbwarfare.30mm_2a42",
+      "Name": "weapon.vvp.30mm_cannon",
       "SoundInfo": {
         "Fire1P": "superbwarfare:mi_28_cannon_fire_1p",
         "Fire3P": "superbwarfare:bmp_2_cannon_fire_3p",
@@ -137,7 +137,7 @@
       "EmptyReloadTime": 220,
       "Projectile": "superbwarfare:small_rocket",
       "Spread": 0.25,
-      "Name": "weapon.superbwarfare.80mm_rocket",
+      "Name": "weapon.vvp.hydra_rocket",
       "RPM": 450,
       "Damage": 85,
       "ExplosionDamage": 42,
@@ -171,7 +171,7 @@
           "Ammo": "superbwarfare:large_anti_ground_missile",
           "ShouldUnload": false,
           "Override": {
-            "Name": "weapon.superbwarfare.kh_39_missile_block",
+            "Name": "weapon.vvp.hellfire_missile",
             "SeekWeaponInfo": {
               "SeekDirection": "Vehicle",
               "SeekRange": 384,
@@ -190,7 +190,7 @@
       "Magazine": 2,
       "EmptyReloadTime": 260,
       "Projectile": "superbwarfare:kh_39",
-      "Name": "weapon.superbwarfare.kh_39_missile_entity",
+      "Name": "weapon.vvp.hellfire_missile",
       "Damage": 650,
       "ExplosionDamage": 180,
       "ExplosionRadius": 12,

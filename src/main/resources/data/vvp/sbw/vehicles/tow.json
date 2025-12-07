@@ -31,7 +31,7 @@
     "Missile": {
       "DefaultFireMode": "Semi",
       "AvailableFireModes": "Semi",
-      "Name": "weapon.superbwarfare.tow_missile",
+      "Name": "weapon.vvp.tow_missile",
       "AmmoType": "superbwarfare:medium_anti_ground_missile",
       "Projectile": "superbwarfare:wire_guide_missile",
       "DefaultZoom": 3,
