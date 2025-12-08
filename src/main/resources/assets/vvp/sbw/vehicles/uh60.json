@@ -1,0 +1,7 @@
+{
+  "ID": "vvp:uh60",
+  "Model": {
+    "Model": "vvp:geo/uh60.geo.json",
+    "Texture": "vvp:textures/entity/uh60black.png"
+  }
+}

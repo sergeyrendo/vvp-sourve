@@ -58,6 +58,11 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.AGS_30.get(), Ags30Renderer::new);
         event.registerEntityRenderer(ModEntities.M142_HIMARS.get(), M142HimarsRenderer::new);
         event.registerEntityRenderer(ModEntities.BALLISTIC_MISSILE.get(), BallisticMissileRenderer::new);
+        event.registerEntityRenderer(ModEntities.F_16.get(), F16Renderer::new);
+        event.registerEntityRenderer(ModEntities.COBRA.get(), CobraRenderer::new);
+        event.registerEntityRenderer(ModEntities.MI_8.get(), Mi8Renderer::new);
+        event.registerEntityRenderer(ModEntities.UH_60.get(), Uh60Renderer::new);
+        event.registerEntityRenderer(ModEntities.UH60_MOD.get(), Uh60ModRenderer::new);
     }
 
     /**

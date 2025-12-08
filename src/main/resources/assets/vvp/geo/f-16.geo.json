@@ -1,4 +1,4 @@
-{
+﻿{
 	"format_version": "1.12.0",
 	"minecraft:geometry": [
 		{
@@ -736,7 +736,7 @@
 					"rotation": [1.75, 0, 0]
 				},
 				{
-					"name": "Chassis",
+					"name": "gear",
 					"parent": "capp",
 					"pivot": [-0.38388, 21.06678, 74.66441],
 					"cubes": [
@@ -831,8 +831,8 @@
 					]
 				},
 				{
-					"name": "Whell",
-					"parent": "Chassis",
+					"name": "wheel1",
+					"parent": "gear",
 					"pivot": [-0.43251, 5.1644, 74.4124],
 					"cubes": [
 						{
@@ -1015,7 +1015,7 @@
 					]
 				},
 				{
-					"name": "Chassis2",
+					"name": "gear2",
 					"parent": "cap",
 					"pivot": [-10.00069, 23.08818, 5.01946],
 					"rotation": [109.70155, -74.77677, 175.07181],
@@ -1065,8 +1065,8 @@
 					]
 				},
 				{
-					"name": "Whell2",
-					"parent": "Chassis2",
+					"name": "wheel2",
+					"parent": "gear2",
 					"pivot": [-9.48428, 24.16283, 22.86782],
 					"rotation": [-17.28217, 2.57594, 9.6658],
 					"cubes": [
@@ -1253,7 +1253,7 @@
 					]
 				},
 				{
-					"name": "Chassis3",
+					"name": "gear3",
 					"parent": "cap2",
 					"pivot": [10.19931, 22.68818, 5.01946],
 					"rotation": [109.70155, 74.77677, -175.07181],
@@ -1303,8 +1303,8 @@
 					]
 				},
 				{
-					"name": "Whell3",
-					"parent": "Chassis3",
+					"name": "wheel3",
+					"parent": "gear3",
 					"pivot": [9.74388, 23.68044, 22.43314],
 					"rotation": [-17.28217, -2.57594, -9.6658],
 					"cubes": [

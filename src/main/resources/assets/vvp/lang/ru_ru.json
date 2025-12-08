@@ -5,7 +5,6 @@
   "entity.vvp.uh60mod": "MH-60L Sikorsky",
   "entity.vvp.uh60": "UH-60 Black Hawk",
   "entity.vvp.mi_28": "Ми-28Н «Ночной Охотник»",
-  "entity.vvp.mi_28_1": "Ми-28Н «Ночной Охотник» (Версия 1)",
   "entity.vvp.tu22m3": "ТУ-22M3",
 
   "//": "==================== ТЯЖЕЛАЯ И СРЕДНЯЯ БРОНЕТЕХНИКА ====================",
@@ -169,5 +168,9 @@
   "weapon.vvp.l30a1_120mm": "L30A1 120мм %s",
   "weapon.vvp.rh120_120mm": "Rh-120 L/55 120мм %s",
   "weapon.vvp.m1128_105mm": "M68A2 105мм %s",
-  "weapon.vvp.gmlrs_m31": "GMLRS M31 %s"
+  "weapon.vvp.gmlrs_m31": "GMLRS M31 %s",
+  "weapon.vvp.m61_vulcan": "M61 Вулкан 20мм %s",
+  "weapon.vvp.aim_120": "AIM-120 AMRAAM %s",
+  "weapon.vvp.m197_20mm": "M197 20мм %s",
+  "weapon.vvp.m134_minigun": "M134 Миниган %s"
 }
