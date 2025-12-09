@@ -7,8 +7,19 @@ import net.minecraft.world.level.Level;
 
 public class UralEntity extends GeoVehicleEntity {
 
+    private float steeringAngle = 0f;
+    private float prevSteeringAngle = 0f;
+
     public UralEntity(EntityType<UralEntity> type, Level world) {
         super(type, world);
+    }
+
+    public float getSteeringAngle() {
+        return steeringAngle;
+    }
+
+    public float getPrevSteeringAngle() {
+        return prevSteeringAngle;
     }
 
     @Override
@@ -20,5 +31,10 @@ public class UralEntity extends GeoVehicleEntity {
     @Override
     public void baseTick() {
         super.baseTick();
+        
+        // Обновляем угол поворота руля на основе поворота машины
+        prevSteeringAngle = steeringAngle;
+        float targetAngle = this.getYRot() - this.yRotO;
+        steeringAngle = steeringAngle * 0.7f + targetAngle * 0.3f;
     }
 }

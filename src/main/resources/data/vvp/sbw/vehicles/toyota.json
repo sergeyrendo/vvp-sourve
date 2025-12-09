@@ -29,5 +29,5 @@
   "VehicleContainerType": "Small", "DestroyInfo": {"ParticleType": "Huge", "ExplosionDamage": 60, "ExplosionRadius": 4},
   "VehicleIcon": "superbwarfare:textures/vehicle_icon/truck_icon.png", "ContainerIcon": "superbwarfare:textures/gui/vehicle/type/land.png", "Type": "Truck",
   "CollisionLevel": {"Level": 1, "PowerLimits": [[0.1, 0.05, false]]},
-  "EngineSound": "superbwarfare:truck_engine", "MainWeaponHudType": "@Land", "TerrainCompat": [[0.8, 0, 1], [-0.8, 0, 1], [0.8, 0, -1], [-0.8, 0, -1]], "InertiaRotateRate": 1.5
+  "EngineSound": "superbwarfare:truck_engine", "HudType": "@Land", "MainWeaponHudType": "@Land", "TerrainCompat": [[0.8, 0, 1], [-0.8, 0, 1], [0.8, 0, -1], [-0.8, 0, -1]], "InertiaRotateRate": 1.5
 }
