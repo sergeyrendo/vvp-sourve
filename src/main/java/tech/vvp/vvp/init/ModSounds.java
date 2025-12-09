@@ -26,6 +26,9 @@ public class ModSounds {
     public static final RegistryObject<SoundEvent> M1128_RELOAD = register("m1128_reload");
 
     public static final RegistryObject<SoundEvent> HK_GMG_RELOAD = register("hk_gmg_reload");
+    
+    // Звук спрея для смены камуфляжа
+    public static final RegistryObject<SoundEvent> SPRAY = register("spray");
 
 
 

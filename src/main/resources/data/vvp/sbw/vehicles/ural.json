@@ -226,5 +226,5 @@
   "HornSound": "superbwarfare:truck_horn",
   "HudType": "@Land",
   "TerrainCompat": [[1.1875, 0, 3.1875], [-1.1875, 0, 3.1875], [1.1875, 0, -1.0625], [-1.1875, 0, -1.0625]],
-  "InertiaRotateRate": 0.3
+  "InertiaRotateRate": 0.8
 }

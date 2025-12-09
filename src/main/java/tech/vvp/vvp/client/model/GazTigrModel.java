@@ -1,6 +1,8 @@
 package tech.vvp.vvp.client.model;
 
 import com.atsuishio.superbwarfare.client.model.entity.VehicleModel;
+import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 import tech.vvp.vvp.entity.vehicle.GazTigrEntity;
 
 public class GazTigrModel extends VehicleModel<GazTigrEntity> {
@@ -8,5 +10,26 @@ public class GazTigrModel extends VehicleModel<GazTigrEntity> {
     @Override
     public boolean hideForTurretControllerWhileZooming() {
         return true;
+    }
+
+    @Override
+    public @Nullable TransformContext<GazTigrEntity> collectTransform(String boneName) {
+        return switch (boneName) {
+            // Передние колёса с поворотом (wheelL0Turn, wheelR0Turn)
+            case "wheelL0Turn", "wheelR0Turn" -> (bone, vehicle, state) -> {
+                float wheelRot = Mth.lerp(state.getPartialTick(), vehicle.getPrevWheelRotation(), vehicle.getWheelRotation());
+                bone.setRotX((float) Math.toRadians(-wheelRot));
+                
+                float steeringAngle = Mth.lerp(state.getPartialTick(), vehicle.getPrevSteeringAngle(), vehicle.getSteeringAngle());
+                steeringAngle = Mth.clamp(steeringAngle, -30f, 30f);
+                bone.setRotY((float) Math.toRadians(steeringAngle));
+            };
+            // Задние колёса - только вращение
+            case "wheelL0", "wheelR0" -> (bone, vehicle, state) -> {
+                float wheelRot = Mth.lerp(state.getPartialTick(), vehicle.getPrevWheelRotation(), vehicle.getWheelRotation());
+                bone.setRotX((float) Math.toRadians(-wheelRot));
+            };
+            default -> super.collectTransform(boneName);
+        };
     }
 }

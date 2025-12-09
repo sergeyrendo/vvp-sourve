@@ -89,6 +89,9 @@ public class ModTabs {
                                 output.accept(ModItems.BERETA.get());
                                 output.accept(ModItems.MI_28_HELMET.get());
                                 output.accept(ModItems.MI_28_CHEST.get());
+                                
+                                // Инструменты
+                                output.accept(ModItems.SPRAY.get());
 
                             })
                             .build());
