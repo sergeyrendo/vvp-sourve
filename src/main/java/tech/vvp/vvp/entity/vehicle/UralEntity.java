@@ -2,24 +2,48 @@ package tech.vvp.vvp.entity.vehicle;
 
 import com.atsuishio.superbwarfare.entity.vehicle.base.GeoVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 
 public class UralEntity extends GeoVehicleEntity {
 
-    private float steeringAngle = 0f;
+    private static final EntityDataAccessor<Float> STEERING_ANGLE = SynchedEntityData.defineId(UralEntity.class, EntityDataSerializers.FLOAT);
+    
     private float prevSteeringAngle = 0f;
+    private float wheelRotation = 0f;
+    private float prevWheelRotation = 0f;
 
     public UralEntity(EntityType<UralEntity> type, Level world) {
         super(type, world);
     }
 
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(STEERING_ANGLE, 0f);
+    }
+
     public float getSteeringAngle() {
-        return steeringAngle;
+        return this.entityData.get(STEERING_ANGLE);
+    }
+
+    public void setSteeringAngle(float angle) {
+        this.entityData.set(STEERING_ANGLE, angle);
     }
 
     public float getPrevSteeringAngle() {
         return prevSteeringAngle;
+    }
+
+    public float getWheelRotation() {
+        return wheelRotation;
+    }
+
+    public float getPrevWheelRotation() {
+        return prevWheelRotation;
     }
 
     @Override
@@ -32,9 +56,42 @@ public class UralEntity extends GeoVehicleEntity {
     public void baseTick() {
         super.baseTick();
         
-        // Обновляем угол поворота руля на основе поворота машины
-        prevSteeringAngle = steeringAngle;
-        float targetAngle = this.getYRot() - this.yRotO;
-        steeringAngle = steeringAngle * 0.7f + targetAngle * 0.3f;
+        prevSteeringAngle = getSteeringAngle();
+        float currentAngle = getSteeringAngle();
+        
+        // Проверяем движется ли машина
+        double speed = Math.sqrt(this.getDeltaMovement().x * this.getDeltaMovement().x + 
+                                 this.getDeltaMovement().z * this.getDeltaMovement().z);
+        boolean isMoving = speed > 0.05;
+        
+        // Ловим нажатие клавиш A/D напрямую
+        boolean turningLeft = this.leftInputDown();
+        boolean turningRight = this.rightInputDown();
+        
+        // Если жмём клавиши поворота - крутим колёса
+        if (turningLeft && !turningRight) {
+            currentAngle += 2.0f;
+            currentAngle = Math.min(45f, currentAngle);
+            setSteeringAngle(currentAngle);
+        } else if (turningRight && !turningLeft) {
+            currentAngle -= 2.0f;
+            currentAngle = Math.max(-45f, currentAngle);
+            setSteeringAngle(currentAngle);
+        } else if (isMoving && Math.abs(currentAngle) > 0.5f) {
+            // Быстрое центрирование при движении
+            currentAngle *= 0.9f;
+            setSteeringAngle(currentAngle);
+        }
+        // Если стоим - колёса остаются на месте!
+        
+        // Если машина движется и колёса повёрнуты - поворачиваем машину
+        if (isMoving && Math.abs(currentAngle) > 1f) {
+            float turnAmount = currentAngle * 0.008f * (float)speed;
+            this.setYRot(this.getYRot() + turnAmount);
+        }
+        
+        // Вращение колёс на основе скорости движения
+        prevWheelRotation = wheelRotation;
+        wheelRotation += (float) (speed * 20);
     }
 }

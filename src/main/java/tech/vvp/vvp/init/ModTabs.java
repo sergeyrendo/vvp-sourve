@@ -92,6 +92,9 @@ public class ModTabs {
                                 output.accept(ModItems.AGS_30_ITEM.get());
                                 output.accept(ModItems.KORNET_ITEM.get());
                                 output.accept(ModItems.ITEM_40_MM.get());
+                                
+                                // Инструменты
+                                output.accept(ModItems.SPRAY.get());
 
                             })
                             .build());
