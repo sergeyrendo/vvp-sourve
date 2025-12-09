@@ -183,6 +183,7 @@
   "entity.vvp.ags_30": "AGS-30",
   "item.vvp.ags_30_item": "AGS-30 Deployer",
   "weapon.vvp.ags_30": "AGS-30 30mm %s",
+  "item.vvp.item_40_mm": "Ammo-box 40 mm",
 
   "//": "==================== KORNET ====================",
   "entity.vvp.kornet": "9M133 Kornet",

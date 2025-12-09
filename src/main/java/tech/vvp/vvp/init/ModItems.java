@@ -38,31 +38,10 @@ public class ModItems {
             () -> new mi28chest());
 
 
-    public static final RegistryObject<Item> MANGAL_BODY = REGISTRY.register("mangal_body", MangalBodyItem::new);
-    public static final RegistryObject<Item> MANGAL_TURRET = REGISTRY.register("mangal_turret", MangalTurretItem::new);
-    public static final RegistryObject<Item> SETKA_BODY = REGISTRY.register("setka_body", SetkaBodyItem::new);
-    public static final RegistryObject<Item> SETKA_TURRET = REGISTRY.register("setka_turret", SetkaTurretItem::new);
-    public static final RegistryObject<Item> WRENCH = REGISTRY.register("wrench", WrenchItem::new);
-    public static final RegistryObject<Item> KOROBKI = REGISTRY.register("korobki", KorobkiItem::new);
-    public static final RegistryObject<Item> SPRAY = REGISTRY.register("spray", SprayItem::new);
-    public static final RegistryObject<Item> TENT = REGISTRY.register("tent", TentItem::new);
-    public static final RegistryObject<Item> FAB_500_ITEM = REGISTRY.register("fab_500_item", Fab500Item::new);
-    public static final RegistryObject<Item> FAB_250_ITEM = REGISTRY.register("fab_250_item", Fab250Item::new);
-    public static final RegistryObject<Item> R73_ITEM = REGISTRY.register("r73_item", R73Item::new);
-    public static final RegistryObject<Item> S_13 = REGISTRY.register("s_13", S13Item::new);
     public static final RegistryObject<Item> GMLRS_M31 = REGISTRY.register("gmlrs_m31", 
             () -> new Item(new Item.Properties().stacksTo(6)));
 
-    public static final RegistryObject<Item> LMUR_ITEM = REGISTRY.register("lmur_item", LmurItem::new);
-    public static final RegistryObject<Item> X25_ITEM = REGISTRY.register("x25_item", X25Item::new);
-    public static final RegistryObject<Item> AIM_120_ITEM = REGISTRY.register("aim_120_item", tech.vvp.vvp.item.varies.Aim120Item::new);
     public static final RegistryObject<Item> ITEM_57E6 = REGISTRY.register("57e6_item", () -> new tech.vvp.vvp.item.varies.E6_57Item());
-    public static final RegistryObject<Item> ITEM_9M340 = REGISTRY.register("9m340_item", () -> new tech.vvp.vvp.item.varies.M337Item());
-    public static final RegistryObject<Item> HFIRE_ITEM = REGISTRY.register("hfire_item", HFireItem::new);
-    public static final RegistryObject<Item> HRYZANTEMA_ITEM = REGISTRY.register("hryzantema_item", HFireItem::new);
-
-    public static final RegistryObject<Item> CACTUS_TURRET_ITEM = REGISTRY.register("cactus_turret", CactusTurretItem::new);
-    public static final RegistryObject<Item> BMP3M_BODY = REGISTRY.register("bmp3m_body", Bmp3MBodyItem::new);
     
     public static final RegistryObject<Item> HK_GMG_ITEM = REGISTRY.register("hk_gmg_item",
             () -> new tech.vvp.vvp.item.VehicleSpawnItem(ModEntities.HK_GMG::get, new Item.Properties().stacksTo(64)));
@@ -83,6 +62,9 @@ public class ModItems {
             () -> new kepka());
     public static final RegistryObject<Item> BERETA = REGISTRY.register("bereta",
             () -> new bereta());
+
+    public static final RegistryObject<Item> ITEM_40_MM = REGISTRY.register("item_40_mm",
+            () -> new Item(new Item.Properties().stacksTo(2)));
 
     // RUS ARMOR
     public static final RegistryObject<Item> RUS_ARMOR = REGISTRY.register("rus_armor",
