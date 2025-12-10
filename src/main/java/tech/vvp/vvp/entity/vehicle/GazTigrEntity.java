@@ -53,6 +53,20 @@ public class GazTigrEntity extends GeoVehicleEntity {
     }
 
     @Override
+    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putFloat("SteeringAngle", getSteeringAngle());
+    }
+
+    @Override
+    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        if (compound.contains("SteeringAngle")) {
+            setSteeringAngle(compound.getFloat("SteeringAngle"));
+        }
+    }
+
+    @Override
     public void baseTick() {
         super.baseTick();
         
