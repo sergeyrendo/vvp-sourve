@@ -9,7 +9,6 @@ import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.eventbus.api.IEventBus;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.item.armor.*;
-import tech.vvp.vvp.item.varies.*;
 
 
 public class ModItems {
@@ -99,7 +98,9 @@ public class ModItems {
     public static final RegistryObject<Item> PMC_V2_CHEST = REGISTRY.register("pmc_v2_chest",
             () -> new pmc_v2_chest());
 
-
+    // SPRAY FOR CAMO
+    public static final RegistryObject<Item> SPRAY = REGISTRY.register("spray",
+            () -> new tech.vvp.vvp.item.varies.SprayItem());
 
     public static final RegistryObject<Item> RADIOHEAD = REGISTRY.register("music_disc_radiohead",
                         () -> new RecordItem(15, ModSounds.RADIOHEAD, // 15 = comparator signal strength
