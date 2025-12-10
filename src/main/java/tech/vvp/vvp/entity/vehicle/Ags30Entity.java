@@ -40,12 +40,31 @@ public class Ags30Entity extends GeoVehicleEntity {
             return InteractionResult.SUCCESS;
         }
 
+        var stack = player.getItemInHand(hand);
+        
+        // Check if player is using item_40_mm for full reload
+        if (stack.is(tech.vvp.vvp.init.ModItems.ITEM_40_MM.get())) {
+            if (!level().isClientSide) {
+                // Full reload - reload multiple times to fill magazine
+                for (int i = 0; i < 30; i++) {
+                    modifyGunData(0, data -> data.reloadAmmo(player));
+                }
+                
+                // Consume one item_40_mm
+                if (!player.isCreative()) {
+                    stack.shrink(1);
+                }
+                
+                level().playSound(null, getOnPos(), tech.vvp.vvp.init.ModSounds.HK_GMG_RELOAD.get(), SoundSource.PLAYERS, 1f, random.nextFloat() * 0.1f + 0.9f);
+            }
+            return InteractionResult.SUCCESS;
+        }
+
         // Let players mount normally when the gun is ready to fire.
         if (gunData.hasEnoughAmmoToShoot(player)) {
             return super.interact(player, hand);
         }
 
-        var stack = player.getItemInHand(hand);
         if (!gunData.selectedAmmoConsumer().isAmmoItem(stack)) {
             return super.interact(player, hand);
         }

@@ -8,7 +8,7 @@
   "BarrelPos": [-0.00114375, 0.12296875, -0.15090625],
   "Seats": {
     "Transform": "Vehicle",
-    "Position": [0, 0, -1.5],
+    "Position": [0, -0.25, -1.5],
     "BanHand": true,
     "MinYaw": -90,
     "MaxYaw": 90,
@@ -56,7 +56,7 @@
         "Fire3PFar": "vvp:hk_gmg_3p"
       },
       "SoundRadius": 16,
-      "AmmoType": "superbwarfare:small_shell",
+      "AmmoType": "vvp:item_40_mm",
       "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/gun_7_62mm.png",
       "ShootPos": {
         "Transform": "Barrel",
