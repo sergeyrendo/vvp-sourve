@@ -1,7 +1,0 @@
-{
-  "ID": "vvp:mi_8",
-  "Model": {
-    "Model": "vvp:geo/mi8_defolt.geo.json",
-    "Texture": "vvp:textures/entity/mi8.png"
-  }
-}

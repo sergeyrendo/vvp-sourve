@@ -1,7 +1,0 @@
-{
-  "ID": "vvp:uh60_weapon",
-  "Model": {
-    "Model": "vvp:geo/uh60mod.geo.json",
-    "Texture": "vvp:textures/entity/uh60mod.png"
-  }
-}

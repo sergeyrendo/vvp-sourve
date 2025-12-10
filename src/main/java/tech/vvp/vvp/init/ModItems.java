@@ -63,6 +63,9 @@ public class ModItems {
     public static final RegistryObject<Item> BERETA = REGISTRY.register("bereta",
             () -> new bereta());
 
+    public static final RegistryObject<Item> SPRAY = REGISTRY.register("spray",
+            () -> new SprayItem());
+
     public static final RegistryObject<Item> ITEM_40_MM = REGISTRY.register("item_40_mm",
             () -> new Item(new Item.Properties().stacksTo(2)));
 

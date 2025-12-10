@@ -18,16 +18,8 @@ public class ModSounds {
 
     public static final RegistryObject<SoundEvent> DOOR = register("door");
 
-    // Звуки для ПТУРА
-    public static final RegistryObject<SoundEvent> TOW_1P = register("tow_1p");
-
-    // Ваша музыка
-    public static final RegistryObject<SoundEvent> RADIOHEAD = register("radiohead");
-    public static final RegistryObject<SoundEvent> M1128_RELOAD = register("m1128_reload");
-
     public static final RegistryObject<SoundEvent> HK_GMG_RELOAD = register("hk_gmg_reload");
-    
-    // Звук спрея для смены камуфляжа
+
     public static final RegistryObject<SoundEvent> SPRAY = register("spray");
 
 

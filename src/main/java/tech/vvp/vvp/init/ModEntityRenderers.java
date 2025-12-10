@@ -20,7 +20,6 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.BRADLEY.get(), BradleyRenderer::new);
         event.registerEntityRenderer(ModEntities.TERMINATOR.get(), TerminatorRenderer::new);
         event.registerEntityRenderer(ModEntities.T90_M.get(), T90MRenderer::new);
-        event.registerEntityRenderer(ModEntities.T90_M_22.get(), T90M22Renderer::new);
         event.registerEntityRenderer(ModEntities.T90_A.get(), T90ARenderer::new);
         event.registerEntityRenderer(ModEntities.BRM.get(), BrmRenderer::new);
         event.registerEntityRenderer(ModEntities.BMP_3.get(), Bmp3Renderer::new);
@@ -31,12 +30,10 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.BUSHMASTER.get(), BushmasterRenderer::new);
         event.registerEntityRenderer(ModEntities.STRYKER.get(), StrykerRenderer::new);
         event.registerEntityRenderer(ModEntities.STRYKER_M1296.get(), Stryker_M1296Renderer::new);
-        event.registerEntityRenderer(ModEntities.TOYOTA.get(), ToyotaRenderer::new);
         event.registerEntityRenderer(ModEntities.FMTV.get(), FMTVRenderer::new);
         event.registerEntityRenderer(ModEntities.GAZ_TIGR.get(), GazTigrRenderer::new);
         event.registerEntityRenderer(ModEntities.MI_28.get(), Mi28Renderer::new);
         event.registerEntityRenderer(ModEntities.MI_24.get(), Mi24Renderer::new);
-        event.registerEntityRenderer(ModEntities.UH60_WEAPON.get(), Uh60WeaponRenderer::new);
         event.registerEntityRenderer(ModEntities.LEOPARD_2A7V.get(), Leopard2A7VRenderer::new);
         event.registerEntityRenderer(ModEntities.AH_64.get(), Ah64Renderer::new);
         event.registerEntityRenderer(ModEntities.CHALLENGER.get(), ChallengerRenderer::new);
@@ -46,7 +43,6 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.C3M.get(), C3MRenderer::new);
         event.registerEntityRenderer(ModEntities.URAL.get(), UralRenderer::new);
         event.registerEntityRenderer(ModEntities.VARTA.get(), VartaRenderer::new);
-        event.registerEntityRenderer(ModEntities.TOW.get(), TowRenderer::new);
         event.registerEntityRenderer(ModEntities.PANTSIR_S1.get(), PantsirS1Renderer::new);
         event.registerEntityRenderer(ModEntities.SU_25.get(), Su25Renderer::new);
         event.registerEntityRenderer(ModEntities.ENTITY_57E6.get(), E6_57Renderer::new);
@@ -54,15 +50,10 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.FAB_250.get(), Fab250Renderer::new);
         event.registerEntityRenderer(ModEntities.R73.get(), R73Renderer::new);
         event.registerEntityRenderer(ModEntities.KORNET.get(), KornetRenderer::new);
-        event.registerEntityRenderer(ModEntities.HK_GMG.get(), HkGmgRenderer::new);
         event.registerEntityRenderer(ModEntities.AGS_30.get(), Ags30Renderer::new);
-        event.registerEntityRenderer(ModEntities.M142_HIMARS.get(), M142HimarsRenderer::new);
         event.registerEntityRenderer(ModEntities.BALLISTIC_MISSILE.get(), BallisticMissileRenderer::new);
         event.registerEntityRenderer(ModEntities.F_16.get(), F16Renderer::new);
         event.registerEntityRenderer(ModEntities.COBRA.get(), CobraRenderer::new);
-        event.registerEntityRenderer(ModEntities.MI_8.get(), Mi8Renderer::new);
-        event.registerEntityRenderer(ModEntities.UH_60.get(), Uh60Renderer::new);
-        event.registerEntityRenderer(ModEntities.UH60_MOD.get(), Uh60ModRenderer::new);
     }
 
     /**

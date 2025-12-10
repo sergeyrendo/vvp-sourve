@@ -54,9 +54,6 @@ public class ModEntities {
     public static final RegistryObject<EntityType<T90MEntity>> T90_M = register("t90_m",
             EntityType.Builder.of(T90MEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3.5f));
 
-    public static final RegistryObject<EntityType<T90M22Entity>> T90_M_22 = register("t90_m_22",
-            EntityType.Builder.of(T90M22Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3.5f));
-
     public static final RegistryObject<EntityType<T90AEntity>> T90_A = register("t90_a",
             EntityType.Builder.of(T90AEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3.5f));
 
@@ -72,9 +69,6 @@ public class ModEntities {
     public static final RegistryObject<EntityType<BushmasterEntity>> BUSHMASTER = register("bushmaster",
             EntityType.Builder.of(BushmasterEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 
-    public static final RegistryObject<EntityType<ToyotaEntity>> TOYOTA = register("toyota",
-            EntityType.Builder.of(ToyotaEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3f, 2f));
-
     public static final RegistryObject<EntityType<FMTVEntity>> FMTV = register("fmtv",
             EntityType.Builder.of(FMTVEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 
@@ -83,9 +77,6 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<Mi24Entity>> MI_24 = register("mi_24",
             EntityType.Builder.of(Mi24Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
-
-    public static final RegistryObject<EntityType<Uh60WeaponEntity>> UH60_WEAPON = register("uh60_weapon",
-            EntityType.Builder.of(Uh60WeaponEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 
     public static final RegistryObject<EntityType<Leopard2A7VEntity>> LEOPARD_2A7V = register("leopard_2a7v",
             EntityType.Builder.of(Leopard2A7VEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
@@ -108,9 +99,6 @@ public class ModEntities {
     public static final RegistryObject<EntityType<VartaEntity>> VARTA = register("varta",
             EntityType.Builder.of(VartaEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3f, 3.5f));
 
-    public static final RegistryObject<EntityType<TowEntity>> TOW = register("tow",
-            EntityType.Builder.of(TowEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(0.5f, 1.5f));
-
     public static final RegistryObject<EntityType<PantsirS1Entity>> PANTSIR_S1 = register("pantsir_s1",
             EntityType.Builder.of(PantsirS1Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 
@@ -129,14 +117,8 @@ public class ModEntities {
     public static final RegistryObject<EntityType<R73Entity>> R73 = register("r73",
             EntityType.Builder.<R73Entity>of(R73Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).fireImmune().sized(0.5f, 0.5f));
 
-    public static final RegistryObject<EntityType<M142HimarsEntity>> M142_HIMARS = register("m142_himars",
-            EntityType.Builder.of(M142HimarsEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 3.5f));
-
     public static final RegistryObject<EntityType<BallisticMissileEntity>> BALLISTIC_MISSILE = register("ballistic_missile",
             EntityType.Builder.<BallisticMissileEntity>of(BallisticMissileEntity::new, MobCategory.MISC).setTrackingRange(256).setUpdateInterval(1).fireImmune().sized(0.5f, 0.5f));
-
-    public static final RegistryObject<EntityType<HkGmgEntity>> HK_GMG = register("hk_gmg",
-            EntityType.Builder.of(HkGmgEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(1f, 1.5f));
 
     public static final RegistryObject<EntityType<Ags30Entity>> AGS_30 = register("ags_30",
             EntityType.Builder.of(Ags30Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(1f, 1.5f));
@@ -149,15 +131,6 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<CobraEntity>> COBRA = register("cobra",
             EntityType.Builder.of(CobraEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
-
-    public static final RegistryObject<EntityType<Mi8Entity>> MI_8 = register("mi_8",
-            EntityType.Builder.of(Mi8Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
-
-    public static final RegistryObject<EntityType<Uh60Entity>> UH_60 = register("uh60",
-            EntityType.Builder.of(Uh60Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
-
-    public static final RegistryObject<EntityType<Uh60ModEntity>> UH60_MOD = register("uh60mod",
-            EntityType.Builder.of(Uh60ModEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
         return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));
