@@ -15,7 +15,7 @@ public class ModItems {
     public static final DeferredRegister<Item> REGISTRY = 
             DeferredRegister.create(ForgeRegistries.ITEMS, VVP.MOD_ID);
 
-    public static final RegistryObject<Item> NATO_TAB_ICON = REGISTRY.register("nato_tab_icon",
+    public static final RegistryObject<Item> NATO_TAB_ICON = REGISTRY.register("vvp_blue",
             () -> new Item(new Item.Properties()));
 
     public static final RegistryObject<Item> RU_TAB_ICON = REGISTRY.register("ru_tab_icon",
@@ -56,7 +56,7 @@ public class ModItems {
             () -> new bereta());
 
     public static final RegistryObject<Item> SPRAY = REGISTRY.register("spray",
-            () -> new Item(new Item.Properties().stacksTo(1)));
+            () -> new tech.vvp.vvp.item.varies.SprayItem());
 
     public static final RegistryObject<Item> ITEM_40_MM = REGISTRY.register("item_40_mm",
             () -> new Item(new Item.Properties().stacksTo(2)));

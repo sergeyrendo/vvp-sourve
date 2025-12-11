@@ -9,13 +9,13 @@ public class PumaEntity extends CamoVehicleBase {
 
     // Текстуры камуфляжей
     private static final ResourceLocation[] CAMO_TEXTURES = {
+        new ResourceLocation("vvp", "textures/entity/puma_green.png"),
         new ResourceLocation("vvp", "textures/entity/puma_haki.png"),
-        new ResourceLocation("vvp", "textures/entity/puma_pink.png"),
-        new ResourceLocation("vvp", "textures/entity/puma_green.png")
+        new ResourceLocation("vvp", "textures/entity/puma_pink.png")
     };
     
     // Названия камуфляжей
-    private static final String[] CAMO_NAMES = {"Haki", "Pink", "Green"};
+    private static final String[] CAMO_NAMES = {"Green", "Haki", "Pink"};
 
     public PumaEntity(EntityType<PumaEntity> type, Level world) {
         super(type, world);
