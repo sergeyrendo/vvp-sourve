@@ -20,6 +20,6 @@ public class VartaRenderer extends VehicleRenderer<VartaEntity> {
             return textures[camoType];
         }
 
-        return super.getTextureLocation(entity);
+        return textures[0];
     }
 }

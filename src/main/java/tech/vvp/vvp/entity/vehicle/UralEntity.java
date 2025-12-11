@@ -1,14 +1,21 @@
 package tech.vvp.vvp.entity.vehicle;
 
-import com.atsuishio.superbwarfare.entity.vehicle.base.GeoVehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 
-public class UralEntity extends GeoVehicleEntity {
+public class UralEntity extends CamoVehicleBase {
+
+    private static final ResourceLocation[] CAMO_TEXTURES = {
+        new ResourceLocation("vvp", "textures/entity/ural.png"),
+        new ResourceLocation("vvp", "textures/entity/ural_1.png")
+    };
+    
+    private static final String[] CAMO_NAMES = {"Standard", "Camo"};
 
     private static final EntityDataAccessor<Float> STEERING_ANGLE = SynchedEntityData.defineId(UralEntity.class, EntityDataSerializers.FLOAT);
     
@@ -18,6 +25,16 @@ public class UralEntity extends GeoVehicleEntity {
 
     public UralEntity(EntityType<UralEntity> type, Level world) {
         super(type, world);
+    }
+
+    @Override
+    public ResourceLocation[] getCamoTextures() {
+        return CAMO_TEXTURES;
+    }
+    
+    @Override
+    public String[] getCamoNames() {
+        return CAMO_NAMES;
     }
 
     @Override
