@@ -31,7 +31,6 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
-import tech.vvp.vvp.config.server.ExplosionConfigVVP;
 import tech.vvp.vvp.init.ModEntities;
 
 public class Fab250Entity extends FastThrowableProjectile implements GeoEntity {
@@ -45,16 +44,16 @@ public class Fab250Entity extends FastThrowableProjectile implements GeoEntity {
     public Fab250Entity(EntityType<? extends Fab250Entity> type, Level world) {
         super(type, world);
         this.noCulling = true;
-        this.explosionDamage = ExplosionConfigVVP.FAB_250_EXPLOSION_DAMAGE.get();
-        this.explosionRadius = ExplosionConfigVVP.FAB_250_EXPLOSION_RADIUS.get().floatValue();
+        this.explosionDamage = 1;
+        this.explosionRadius = 1;
         this.gravity = 0.06f;
     }
 
     public Fab250Entity(LivingEntity entity, Level level) {
         super(ModEntities.FAB_250.get(), entity, level);
         this.noCulling = true;
-        this.explosionDamage = ExplosionConfigVVP.FAB_250_EXPLOSION_DAMAGE.get();
-        this.explosionRadius = ExplosionConfigVVP.FAB_250_EXPLOSION_RADIUS.get().floatValue();
+        this.explosionDamage = 1;
+        this.explosionRadius = 1;
         this.gravity = 0.06f;
     }
 

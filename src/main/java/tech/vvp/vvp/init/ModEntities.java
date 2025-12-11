@@ -9,7 +9,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.entity.projectile.BallisticMissileEntity;
-import tech.vvp.vvp.entity.projectile.E6_57Entity;
 import tech.vvp.vvp.entity.projectile.Fab250Entity;
 import tech.vvp.vvp.entity.projectile.Fab500Entity;
 import tech.vvp.vvp.entity.projectile.R73Entity;
@@ -105,9 +104,6 @@ public class ModEntities {
     public static final RegistryObject<EntityType<Su25Entity>> SU_25 = register("su_25",
             EntityType.Builder.of(Su25Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 
-    public static final RegistryObject<EntityType<E6_57Entity>> ENTITY_57E6 = register("57e6_missile",
-            EntityType.Builder.<E6_57Entity>of(E6_57Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).fireImmune().sized(0.5f, 0.5f));
-
     public static final RegistryObject<EntityType<Fab500Entity>> FAB_500 = register("fab_500",
             EntityType.Builder.<Fab500Entity>of(Fab500Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).noSave().sized(0.8f, 0.8f));
 
@@ -131,6 +127,7 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<CobraEntity>> COBRA = register("cobra",
             EntityType.Builder.of(CobraEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
+
 
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
         return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));

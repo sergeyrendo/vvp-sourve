@@ -6,12 +6,8 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.network.NetworkDirection;
-import java.util.Optional;
 
 import org.slf4j.Logger;
-import tech.vvp.vvp.config.server.VehicleConfigVVP;
-import tech.vvp.vvp.config.server.ExplosionConfigVVP;
 import tech.vvp.vvp.init.*;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraft.world.item.BlockItem;
@@ -19,8 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import tech.vvp.vvp.network.VVPNetwork;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.config.ModConfig;
 
 
 @Mod(VVP.MOD_ID)
@@ -37,12 +31,6 @@ public class VVP {
         ModSounds.REGISTRY.register(modEventBus);
         ModTabs.TABS.register(modEventBus);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, VehicleConfigVVP.SPEC, "vvp-vehicle.toml");
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ExplosionConfigVVP.SPEC, "vvp-explosion.toml");
-
-
-
-
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::setup);
 
@@ -53,21 +41,6 @@ public class VVP {
 
     private void setup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            // Регистрация сетевых пакетов для HIMARS
-            VVPNetwork.addNetworkMessage(
-                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket.class,
-                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket::toBytes,
-                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket::new,
-                    tech.vvp.vvp.network.message.C2SHimarsToggleModePacket::handle,
-                    Optional.of(NetworkDirection.PLAY_TO_SERVER)
-            );
-            VVPNetwork.addNetworkMessage(
-                    tech.vvp.vvp.network.message.C2SSetMissileTargetPacket.class,
-                    tech.vvp.vvp.network.message.C2SSetMissileTargetPacket::toBytes,
-                    tech.vvp.vvp.network.message.C2SSetMissileTargetPacket::new,
-                    tech.vvp.vvp.network.message.C2SSetMissileTargetPacket::handle,
-                    Optional.of(NetworkDirection.PLAY_TO_SERVER)
-            );
         });
     }
 
