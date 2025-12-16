@@ -100,7 +100,7 @@
   ],
   "Weapons": {
     "Cannon": {
-      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/cannon_30mm.png",
+      "Icon": "vvp:textures/screens/vehicle_weapon/30_mm.png",
       "DefaultFireMode": "Auto",
       "AvailableFireModes": "Auto",
       "Projectile": "superbwarfare:small_cannon_shell",
@@ -129,7 +129,7 @@
         "Change": "superbwarfare:into_missile"
       },
       "SoundRadius": 24,
-      "AmmoType": "superbwarfare:small_shell",
+      "AmmoType": "vvp:item_30mm",
       "ShootPos": {
         "Transform": "Barrel",
         "Positions": [[-0.44, 0.05, 1.5], [0.44, 0.05, 1.5]],
@@ -139,7 +139,7 @@
     },
     "Missile57E6": {
       "AmmoType": "superbwarfare:medium_anti_air_missile",
-      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/cannon_30mm.png",
+      "Icon": "vvp:textures/screens/vehicle_weapon/57e6.png",
       "DefaultZoom": 3,
       "DefaultFireMode": "Semi",
       "AvailableFireModes": "Semi",

@@ -30,7 +30,18 @@ public class VehicleSpawnItem extends Item {
             EntityType<?> entityType = this.entityTypeSupplier.get();
             Entity entity = entityType.create(serverLevel.getLevel());
             if (entity != null) {
+                // Устанавливаем позицию
                 entity.setPos(context.getClickLocation().x, context.getClickLocation().y, context.getClickLocation().z);
+                
+                // Устанавливаем поворот по направлению стороны блока
+                net.minecraft.core.Direction direction = context.getHorizontalDirection();
+                float yaw = direction.toYRot(); // Конвертируем направление в угол поворота
+                
+                entity.setYRot(yaw);
+                entity.setXRot(0); // Горизонтально
+                entity.yRotO = yaw;
+                entity.xRotO = 0;
+                
                 serverLevel.getLevel().addFreshEntity(entity);
                 
                 if (context.getPlayer() != null && !context.getPlayer().getAbilities().instabuild) {

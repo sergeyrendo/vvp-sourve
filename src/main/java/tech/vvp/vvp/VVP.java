@@ -30,7 +30,6 @@ public class VVP {
         ModEntities.register(modEventBus);
         ModSounds.REGISTRY.register(modEventBus);
         ModTabs.TABS.register(modEventBus);
-        ModParticles.REGISTRY.register(modEventBus);
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::setup);

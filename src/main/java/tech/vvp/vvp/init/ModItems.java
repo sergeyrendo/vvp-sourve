@@ -15,7 +15,7 @@ public class ModItems {
     public static final DeferredRegister<Item> REGISTRY = 
             DeferredRegister.create(ForgeRegistries.ITEMS, VVP.MOD_ID);
 
-    public static final RegistryObject<Item> NATO_TAB_ICON = REGISTRY.register("vvp_blue",
+    public static final RegistryObject<Item> NATO_TAB_ICON = REGISTRY.register("nato_tab_icon",
             () -> new Item(new Item.Properties()));
 
     public static final RegistryObject<Item> RU_TAB_ICON = REGISTRY.register("ru_tab_icon",
@@ -45,6 +45,7 @@ public class ModItems {
     
     public static final RegistryObject<Item> KORNET_ITEM = REGISTRY.register("kornet_item",
             () -> new tech.vvp.vvp.item.VehicleSpawnItem(ModEntities.KORNET::get, new Item.Properties().stacksTo(64)));
+
 
     public static final RegistryObject<Item> CREW_HELMET = REGISTRY.register("crewhelmet",
             () -> new crewhelmet());
@@ -93,6 +94,26 @@ public class ModItems {
             () -> new pmc_chest());
     public static final RegistryObject<Item> PMC_V2_CHEST = REGISTRY.register("pmc_v2_chest",
             () -> new pmc_v2_chest());
+
+
+    // AMMO
+    public static final RegistryObject<Item> ITEM_30MM = REGISTRY.register("item_30mm",
+            () -> new Item(new Item.Properties().stacksTo(64)));
+
+    public static final RegistryObject<Item> ITEM_20MM = REGISTRY.register("item_20mm",
+            () -> new Item(new Item.Properties().stacksTo(64)));
+
+    public static final RegistryObject<Item> ITEM_AP_SHELL = REGISTRY.register("ap_shell",
+            () -> new Item(new Item.Properties().stacksTo(64)));
+
+    public static final RegistryObject<Item> ITEM_HE_SHELL = REGISTRY.register("he_shell",
+            () -> new Item(new Item.Properties().stacksTo(64)));
+
+    public static final RegistryObject<Item> ITEM_7_62MM = REGISTRY.register("item_7_62mm",
+            () -> new Item(new Item.Properties().stacksTo(64)));
+
+    public static final RegistryObject<Item> ITEM_12_7MM = REGISTRY.register("item_12_7mm",
+            () -> new Item(new Item.Properties().stacksTo(64)));
 
     public static void register(IEventBus eventBus) {
         REGISTRY.register(eventBus);

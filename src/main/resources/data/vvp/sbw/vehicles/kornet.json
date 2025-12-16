@@ -52,7 +52,7 @@
         "Fire3P": "superbwarfare:bmp_2_missile_fire_3p"
       },
       "SoundRadius": 12,
-      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/missile_tow.png",
+      "Icon": "vvp:textures/screens/vehicle_weapon/atgm.png",
       "Crosshair": "@VehicleCommonMissile"
     }
   },

@@ -49,11 +49,13 @@
       "Sensitivity": [0.52, 0.72, 0.9]
     },
     {
-      "HidePassenger": false,
+      "HidePassenger": true,
       "Transform": "Turret",
       "CameraPos": {
+        "UseFixedCameraPos": true,
+        "Position": [-0.03, 0.25, -0.2],
         "Transform": "WeaponStationBarrel",
-        "ZoomPosition": [0, 0.1, 0],
+        "ZoomPosition": [0, 0.0, 1.2],
         "Direction": "WeaponStationBarrel"
       },
       "Position": [
@@ -68,7 +70,7 @@
   ],
   "Weapons": {
     "Cannon": {
-      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/ap_shell.png",
+      "Icon": "vvp:textures/screens/vehicle_weapon/ap_shell.png",
       "DefaultFireMode": "Semi",
       "AvailableFireModes": "Semi",
       "Projectile": "superbwarfare:cannon_shell",
@@ -89,47 +91,17 @@
       "CrosshairColor": "0x00ff66",
       "Name": "weapon.vvp.120mm_cannon",
       "AmmoType": [
-        "superbwarfare:ap_5_inches",
+        "vvp:ap_shell",
         {
-          "Ammo": "superbwarfare:he_5_inches",
+          "Ammo": "vvp:he_shell",
           "Override": {
-            "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/he_shell.png",
+            "Icon": "vvp:textures/screens/vehicle_weapon/he_shell.png",
             "IsArmorPiercingProjectile": false,
             "IsHighExplosiveProjectile": true,
             "Velocity": 25,
             "Damage": 250,
             "ExplosionDamage": 120,
             "ExplosionRadius": 10,
-            "Name": "weapon.vvp.120mm_cannon"
-          }
-        },
-        {
-          "Ammo": "superbwarfare:cm_5_inches",
-          "Override": {
-            "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/cm_shell.png",
-            "IsArmorPiercingProjectile": false,
-            "IsClusterMunitionsProjectile": true,
-            "SpreadAmount": 18,
-            "SpreadAngle": 8,
-            "Velocity": 25,
-            "Damage": 300,
-            "ExplosionDamage": 180,
-            "ExplosionRadius": 6,
-            "Name": "weapon.vvp.120mm_cannon"
-          }
-        },
-        {
-          "Ammo": "superbwarfare:gs_5_inches",
-          "Override": {
-            "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/grape_shell.png",
-            "IsArmorPiercingProjectile": false,
-            "IsGrapeShotProjectile": true,
-            "SpreadAmount": 36,
-            "SpreadAngle": 5,
-            "Velocity": 15,
-            "Damage": 1000,
-            "ExplosionDamage": 180,
-            "ExplosionRadius": 6,
             "Name": "weapon.vvp.120mm_cannon"
           }
         }
@@ -153,7 +125,7 @@
       }
     },
     "MachineGun": {
-      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/gun_12_7mm.png",
+      "Icon": "vvp:textures/screens/vehicle_weapon/12_7mm.png",
       "DefaultFireMode": "Auto",
       "AvailableFireModes": "Auto",
       "Spread": 0.25,
@@ -169,7 +141,7 @@
       "HeatPerShoot": 5,
       "NaturalCooldown": 1,
       "ShootAnimationTime": 1,
-      "AmmoType": "@HeavyAmmo",
+      "AmmoType": "vvp:item_12_7mm",
       "ShootPos": {
         "Transform": "Barrel",
         "Positions": [[0, 0.2, 2]],
@@ -187,7 +159,7 @@
       "SoundRadius": 16
     },
     "PassengerMachineGun": {
-      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/gun_12_7mm.png",
+      "Icon": "vvp:textures/screens/vehicle_weapon/12_7mm.png",
       "DefaultFireMode": "Auto",
       "AvailableFireModes": "Auto",
       "Spread": 0.25,
@@ -203,10 +175,10 @@
       "HeatPerShoot": 5,
       "NaturalCooldown": 1,
       "ShootAnimationTime": 1,
-      "AmmoType": "@HeavyAmmo",
+      "AmmoType": "vvp:item_12_7mm",
       "ShootPos": {
         "Transform": "WeaponStationBarrel",
-        "Positions": [[0.45, 0, 0.75]],
+        "Positions": [[-0.0185, -0.0317, 1.6435]],
         "Directions": ["WeaponStationBarrel"]
       },
       "Crosshair": "@VehicleCommonGun",
@@ -237,12 +209,12 @@
     "SteeringSpeed": 0.1,
     "EngineSoundVolume" : 0.6
   },
-  "TurretPos": [-0.111725, 2.51238125, 0.6438625],
-  "BarrelPos": [0.1128, 0.155625, 1.47366875],
+  "TurretPos": [0.0051, 2.6248, 0.5445],
+  "BarrelPos": [-0.004, -0.2681, 1.573],
   "TurretTurnSpeed": [3, 4],
   "TurretPitchRange": [-10, 30],
-  "PassengerWeaponStationPos": [-1.0344375, 0.68048125, 0.21596875],
-  "PassengerWeaponStationBarrelPos": [-0.04605, 0.917625, 0.00700625],
+  "PassengerWeaponStationPos": [-0.9278, 0.568, 0.3153],
+  "PassengerWeaponStationBarrelPos": [0.0461, 0.9176, -0.007],
   "PassengerWeaponStationTurnSpeed": [15, 15],
   "PassengerWeaponStationPitchRange": [-10, 60],
   "HasDecoy": true,

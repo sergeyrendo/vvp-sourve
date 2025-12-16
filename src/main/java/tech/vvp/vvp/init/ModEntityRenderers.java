@@ -52,6 +52,7 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.BALLISTIC_MISSILE.get(), BallisticMissileRenderer::new);
         event.registerEntityRenderer(ModEntities.F_16.get(), F16Renderer::new);
         event.registerEntityRenderer(ModEntities.COBRA.get(), CobraRenderer::new);
+        event.registerEntityRenderer(ModEntities.CENTAURO.get(), CentauroRenderer::new);
     }
 
     /**

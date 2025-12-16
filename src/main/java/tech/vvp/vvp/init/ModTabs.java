@@ -25,6 +25,7 @@ public class ModTabs {
             .displayItems((parameters, output) -> {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.PUMA.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_4.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.CENTAURO.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_M1296.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.AH_64.get()));
@@ -88,7 +89,13 @@ public class ModTabs {
                                 output.accept(ModItems.AGS_30_ITEM.get());
                                 output.accept(ModItems.KORNET_ITEM.get());
                                 output.accept(ModItems.ITEM_40_MM.get());
-                                
+                                output.accept(ModItems.ITEM_20MM.get());
+                                output.accept(ModItems.ITEM_30MM.get());
+                                output.accept(ModItems.ITEM_7_62MM.get());
+                                output.accept(ModItems.ITEM_12_7MM.get());
+                                output.accept(ModItems.ITEM_AP_SHELL.get());
+                                output.accept(ModItems.ITEM_HE_SHELL.get());
+
                                 // Инструменты
                                 output.accept(ModItems.SPRAY.get());
 

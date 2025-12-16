@@ -88,6 +88,11 @@ public class KornetEntity extends GeoVehicleEntity {
 
             if (level() instanceof ServerLevel serverLevel && entityData.get(RELOAD_COOLDOWN) == 0) {
                 modifyGunData(0, data -> data.reloadAmmo(player));
+                
+                // Расходуем снаряд из инвентаря игрока
+                if (!player.isCreative()) {
+                    stack.shrink(1);
+                }
 
                 entityData.set(LOADED, true);
                 serverLevel.playSound(null, getOnPos(), ModSounds.TYPE_63_RELOAD.get(), SoundSource.PLAYERS, 1f, random.nextFloat() * 0.1f + 0.9f);

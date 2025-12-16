@@ -57,7 +57,7 @@
       },
       "SoundRadius": 16,
       "AmmoType": "vvp:item_40_mm",
-      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/gun_7_62mm.png",
+      "Icon": "vvp:textures/screens/vehicle_weapon/40_mm.png",
       "ShootPos": {
         "Transform": "Barrel",
         "Positions": [[0, 0, 0.3]],

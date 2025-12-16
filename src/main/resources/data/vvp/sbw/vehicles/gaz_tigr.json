@@ -142,7 +142,7 @@
   ],
   "Weapons": {
     "PassengerMachineGun": {
-      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/gun_12_7mm.png",
+      "Icon": "vvp:textures/screens/vehicle_weapon/12_7mm.png",
       "DefaultFireMode": "Auto",
       "AvailableFireModes": "Auto",
       "Spread": 0.25,
@@ -158,7 +158,7 @@
       "HeatPerShoot": 5,
       "NaturalCooldown": 1,
       "ShootAnimationTime": 1,
-      "AmmoType": "@HeavyAmmo",
+      "AmmoType": "vvp:item_12_7mm",
       "ShootPos": {
         "Transform": "Barrel",
         "Positions": [[-0.1416, 0.5, 1.8]],

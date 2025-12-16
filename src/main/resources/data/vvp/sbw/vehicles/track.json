@@ -1,0 +1,111 @@
+{
+  "_description": "Track Builder Export - use this data to create VehicleModel for SBW",
+  "trackCount": 106,
+  "animationLength": 212,
+  "wrapRange": 212,
+  "trackSpacing": 2,
+  "pivot": {
+    "y": "20.00",
+    "z": "-48.75",
+    "firstRotX": "177.55",
+    "_note": "Set X to your track's horizontal position (e.g. 25.5 for left, -25.5 for right)",
+    "_blockbench": "Pivot Point: [YOUR_X, 20.00, -48.75]"
+  },
+  "pivotConstants": {
+    "PIVOT_Y": "20.00",
+    "PIVOT_Z": "-48.75"
+  },
+  "wheels": {
+    "front": {
+      "z": 64,
+      "y": 16.5,
+      "d": 10
+    },
+    "back": {
+      "z": -48.75,
+      "y": 14.5,
+      "d": 10
+    },
+    "support": [
+      {
+        "index": 0,
+        "z": 0.0047,
+        "y": 8.6364,
+        "d": 14
+      },
+      {
+        "index": 1,
+        "z": 16.5048,
+        "y": 8.6364,
+        "d": 14
+      },
+      {
+        "index": 2,
+        "z": 32.7047,
+        "y": 8.6364,
+        "d": 14
+      },
+      {
+        "index": 3,
+        "z": 49.9047,
+        "y": 8.6364,
+        "d": 14
+      },
+      {
+        "index": 4,
+        "z": -16.6953,
+        "y": 8.6364,
+        "d": 14
+      },
+      {
+        "index": 5,
+        "z": -32.9952,
+        "y": 8.6364,
+        "d": 14
+      }
+    ],
+    "returnRollers": [
+      {
+        "z": 41,
+        "y": 19,
+        "d": 4
+      },
+      {
+        "z": 8,
+        "y": 19,
+        "d": 4
+      },
+      {
+        "z": -24.5,
+        "y": 19,
+        "d": 4
+      }
+    ]
+  },
+  "trackParams": {
+    "offset": 0.5,
+    "sag": 0,
+    "width": 2.5,
+    "height": 1,
+    "gap": 0,
+    "overlap": 0
+  },
+  "javaCode": "@Override\npublic float getBoneRotX(float t) {\n    if (t <= 2F) return Mth.lerp((t - 0F) / 2F, 177.55F, 153.08F);\n    if (t <= 4F) return Mth.lerp((t - 2F) / 2F, 153.08F, 128.41F);\n    if (t <= 6F) return Mth.lerp((t - 4F) / 2F, 128.41F, 102.76F);\n    if (t <= 8F) return Mth.lerp((t - 6F) / 2F, 102.76F, 76.14F);\n    if (t <= 10F) return Mth.lerp((t - 8F) / 2F, 76.14F, 51.52F);\n    if (t <= 12F) return Mth.lerp((t - 10F) / 2F, 51.52F, 34.00F);\n    if (t <= 14F) return Mth.lerp((t - 12F) / 2F, 34.00F, 27.69F);\n    if (t <= 16F) return Mth.lerp((t - 14F) / 2F, 27.69F, 27.06F);\n    if (t <= 18F) return 27.06F;\n    if (t <= 20F) return 27.06F;\n    if (t <= 22F) return 27.06F;\n    if (t <= 24F) return Mth.lerp((t - 22F) / 2F, 27.06F, 25.98F);\n    if (t <= 26F) return Mth.lerp((t - 24F) / 2F, 25.98F, 19.48F);\n    if (t <= 28F) return Mth.lerp((t - 26F) / 2F, 19.48F, 7.58F);\n    if (t <= 30F) return Mth.lerp((t - 28F) / 2F, 7.58F, 1.08F);\n    if (t <= 32F) return Mth.lerp((t - 30F) / 2F, 1.08F, 0.00F);\n    if (t <= 34F) return 0.00F;\n    if (t <= 36F) return 0.00F;\n    if (t <= 38F) return 0.00F;\n    if (t <= 40F) return 0.00F;\n    if (t <= 42F) return 0.00F;\n    if (t <= 44F) return 0.00F;\n    if (t <= 46F) return 0.00F;\n    if (t <= 48F) return 0.00F;\n    if (t <= 50F) return 0.00F;\n    if (t <= 52F) return 0.00F;\n    if (t <= 54F) return 0.00F;\n    if (t <= 56F) return 0.00F;\n    if (t <= 58F) return 0.00F;\n    if (t <= 60F) return 0.00F;\n    if (t <= 62F) return 0.00F;\n    if (t <= 64F) return 0.00F;\n    if (t <= 66F) return 0.00F;\n    if (t <= 68F) return 0.00F;\n    if (t <= 70F) return 0.00F;\n    if (t <= 72F) return 0.00F;\n    if (t <= 74F) return 0.00F;\n    if (t <= 76F) return 0.00F;\n    if (t <= 78F) return 0.00F;\n    if (t <= 80F) return 0.00F;\n    if (t <= 82F) return 0.00F;\n    if (t <= 84F) return 0.00F;\n    if (t <= 86F) return 0.00F;\n    if (t <= 88F) return 0.00F;\n    if (t <= 90F) return 0.00F;\n    if (t <= 92F) return Mth.lerp((t - 90F) / 2F, 0.00F, -0.62F);\n    if (t <= 94F) return Mth.lerp((t - 92F) / 2F, -0.62F, -5.14F);\n    if (t <= 96F) return Mth.lerp((t - 94F) / 2F, -5.14F, -16.89F);\n    if (t <= 98F) return Mth.lerp((t - 96F) / 2F, -16.89F, -29.67F);\n    if (t <= 100F) return Mth.lerp((t - 98F) / 2F, -29.67F, -35.24F);\n    if (t <= 102F) return Mth.lerp((t - 100F) / 2F, -35.24F, -36.06F);\n    if (t <= 104F) return -36.06F;\n    if (t <= 106F) return Mth.lerp((t - 104F) / 2F, -36.06F, -35.60F);\n    if (t <= 108F) return Mth.lerp((t - 106F) / 2F, -35.60F, -34.01F);\n    if (t <= 110F) return Mth.lerp((t - 108F) / 2F, -34.01F, -37.02F);\n    if (t <= 112F) return Mth.lerp((t - 110F) / 2F, -37.02F, -54.19F);\n    if (t <= 114F) return Mth.lerp((t - 112F) / 2F, -54.19F, -78.61F);\n    if (t <= 116F) return Mth.lerp((t - 114F) / 2F, -78.61F, -103.68F);\n    if (t <= 118F) return Mth.lerp((t - 116F) / 2F, -103.68F, -129.48F);\n    if (t <= 120F) return Mth.lerp((t - 118F) / 2F, -129.48F, -154.93F);\n    if (t <= 122F) return Mth.lerp((t - 120F) / 2F, -154.93F, -173.14F);\n    if (t <= 124F) return Mth.lerp((t - 122F) / 2F, -173.14F, -179.95F);\n    if (t <= 126F) return Mth.lerp((t - 124F) / 2F, -179.95F, -181.14F);\n    if (t <= 128F) return Mth.lerp((t - 126F) / 2F, -181.14F, -181.25F);\n    if (t <= 130F) return -181.25F;\n    if (t <= 132F) return -181.25F;\n    if (t <= 134F) return -181.25F;\n    if (t <= 136F) return -181.25F;\n    if (t <= 138F) return -181.25F;\n    if (t <= 140F) return Mth.lerp((t - 138F) / 2F, -181.25F, -180.90F);\n    if (t <= 142F) return Mth.lerp((t - 140F) / 2F, -180.90F, -180.35F);\n    if (t <= 144F) return Mth.lerp((t - 142F) / 2F, -180.35F, -180.00F);\n    if (t <= 146F) return -180.00F;\n    if (t <= 148F) return -180.00F;\n    if (t <= 150F) return -180.00F;\n    if (t <= 152F) return -180.00F;\n    if (t <= 154F) return -180.00F;\n    if (t <= 156F) return -180.00F;\n    if (t <= 158F) return -180.00F;\n    if (t <= 160F) return -180.00F;\n    if (t <= 162F) return -180.00F;\n    if (t <= 164F) return -180.00F;\n    if (t <= 166F) return -180.00F;\n    if (t <= 168F) return -180.00F;\n    if (t <= 170F) return -180.00F;\n    if (t <= 172F) return -180.00F;\n    if (t <= 174F) return -180.00F;\n    if (t <= 176F) return -180.00F;\n    if (t <= 178F) return -180.00F;\n    if (t <= 180F) return -180.00F;\n    if (t <= 182F) return -180.00F;\n    if (t <= 184F) return -180.00F;\n    if (t <= 186F) return -180.00F;\n    if (t <= 188F) return -180.00F;\n    if (t <= 190F) return Mth.lerp((t - 188F) / 2F, -180.00F, -180.14F);\n    if (t <= 192F) return Mth.lerp((t - 190F) / 2F, -180.14F, -180.99F);\n    if (t <= 194F) return Mth.lerp((t - 192F) / 2F, -180.99F, -182.55F);\n    if (t <= 196F) return Mth.lerp((t - 194F) / 2F, -182.55F, -183.40F);\n    if (t <= 198F) return Mth.lerp((t - 196F) / 2F, -183.40F, -183.54F);\n    if (t <= 200F) return -183.54F;\n    if (t <= 202F) return -183.54F;\n    if (t <= 204F) return -183.54F;\n    if (t <= 206F) return -183.54F;\n    if (t <= 208F) return -183.54F;\n    if (t <= 210F) return -183.54F;\n\n    return Mth.lerp((t - 210F) / 2F, -183.54F, -182.45F);\n}\n\n@Override\npublic float getBoneMoveY(float t) {\n    if (t <= 2F) return Mth.lerp((t - 0F) / 2F, 20.00F, 19.44F);\n    if (t <= 4F) return Mth.lerp((t - 2F) / 2F, 19.44F, 17.87F);\n    if (t <= 6F) return Mth.lerp((t - 4F) / 2F, 17.87F, 15.62F);\n    if (t <= 8F) return Mth.lerp((t - 6F) / 2F, 15.62F, 13.15F);\n    if (t <= 10F) return Mth.lerp((t - 8F) / 2F, 13.15F, 10.94F);\n    if (t <= 12F) return Mth.lerp((t - 10F) / 2F, 10.94F, 9.46F);\n    if (t <= 14F) return Mth.lerp((t - 12F) / 2F, 9.46F, 8.45F);\n    if (t <= 16F) return Mth.lerp((t - 14F) / 2F, 8.45F, 7.32F);\n    if (t <= 18F) return Mth.lerp((t - 16F) / 2F, 7.32F, 6.18F);\n    if (t <= 20F) return Mth.lerp((t - 18F) / 2F, 6.18F, 5.04F);\n    if (t <= 22F) return Mth.lerp((t - 20F) / 2F, 5.04F, 3.90F);\n    if (t <= 24F) return Mth.lerp((t - 22F) / 2F, 3.90F, 2.76F);\n    if (t <= 26F) return Mth.lerp((t - 24F) / 2F, 2.76F, 1.63F);\n    if (t <= 28F) return Mth.lerp((t - 26F) / 2F, 1.63F, 1.14F);\n    if (t <= 30F) return 1.14F;\n    if (t <= 32F) return 1.14F;\n    if (t <= 34F) return 1.14F;\n    if (t <= 36F) return 1.14F;\n    if (t <= 38F) return 1.14F;\n    if (t <= 40F) return 1.14F;\n    if (t <= 42F) return 1.14F;\n    if (t <= 44F) return 1.14F;\n    if (t <= 46F) return 1.14F;\n    if (t <= 48F) return 1.14F;\n    if (t <= 50F) return 1.14F;\n    if (t <= 52F) return 1.14F;\n    if (t <= 54F) return 1.14F;\n    if (t <= 56F) return 1.14F;\n    if (t <= 58F) return 1.14F;\n    if (t <= 60F) return 1.14F;\n    if (t <= 62F) return 1.14F;\n    if (t <= 64F) return 1.14F;\n    if (t <= 66F) return 1.14F;\n    if (t <= 68F) return 1.14F;\n    if (t <= 70F) return 1.14F;\n    if (t <= 72F) return 1.14F;\n    if (t <= 74F) return 1.14F;\n    if (t <= 76F) return 1.14F;\n    if (t <= 78F) return 1.14F;\n    if (t <= 80F) return 1.14F;\n    if (t <= 82F) return 1.14F;\n    if (t <= 84F) return 1.14F;\n    if (t <= 86F) return 1.14F;\n    if (t <= 88F) return 1.14F;\n    if (t <= 90F) return 1.14F;\n    if (t <= 92F) return 1.14F;\n    if (t <= 94F) return 1.14F;\n    if (t <= 96F) return Mth.lerp((t - 94F) / 2F, 1.14F, 1.48F);\n    if (t <= 98F) return Mth.lerp((t - 96F) / 2F, 1.48F, 2.79F);\n    if (t <= 100F) return Mth.lerp((t - 98F) / 2F, 2.79F, 4.26F);\n    if (t <= 102F) return Mth.lerp((t - 100F) / 2F, 4.26F, 5.74F);\n    if (t <= 104F) return Mth.lerp((t - 102F) / 2F, 5.74F, 7.21F);\n    if (t <= 106F) return Mth.lerp((t - 104F) / 2F, 7.21F, 8.68F);\n    if (t <= 108F) return Mth.lerp((t - 106F) / 2F, 8.68F, 10.15F);\n    if (t <= 110F) return Mth.lerp((t - 108F) / 2F, 10.15F, 11.56F);\n    if (t <= 112F) return Mth.lerp((t - 110F) / 2F, 11.56F, 13.12F);\n    if (t <= 114F) return Mth.lerp((t - 112F) / 2F, 13.12F, 15.37F);\n    if (t <= 116F) return Mth.lerp((t - 114F) / 2F, 15.37F, 17.85F);\n    if (t <= 118F) return Mth.lerp((t - 116F) / 2F, 17.85F, 20.06F);\n    if (t <= 120F) return Mth.lerp((t - 118F) / 2F, 20.06F, 21.53F);\n    if (t <= 122F) return Mth.lerp((t - 120F) / 2F, 21.53F, 21.97F);\n    if (t <= 124F) return 21.97F;\n    if (t <= 126F) return 21.94F;\n    if (t <= 128F) return 21.89F;\n    if (t <= 130F) return 21.83F;\n    if (t <= 132F) return 21.78F;\n    if (t <= 134F) return 21.72F;\n    if (t <= 136F) return 21.67F;\n    if (t <= 138F) return 21.61F;\n    if (t <= 140F) return 21.56F;\n    if (t <= 142F) return 21.51F;\n    if (t <= 144F) return 21.50F;\n    if (t <= 146F) return 21.50F;\n    if (t <= 148F) return 21.50F;\n    if (t <= 150F) return 21.50F;\n    if (t <= 152F) return 21.50F;\n    if (t <= 154F) return 21.50F;\n    if (t <= 156F) return 21.50F;\n    if (t <= 158F) return 21.50F;\n    if (t <= 160F) return 21.50F;\n    if (t <= 162F) return 21.50F;\n    if (t <= 164F) return 21.50F;\n    if (t <= 166F) return 21.50F;\n    if (t <= 168F) return 21.50F;\n    if (t <= 170F) return 21.50F;\n    if (t <= 172F) return 21.50F;\n    if (t <= 174F) return 21.50F;\n    if (t <= 176F) return 21.50F;\n    if (t <= 178F) return 21.50F;\n    if (t <= 180F) return 21.50F;\n    if (t <= 182F) return 21.50F;\n    if (t <= 184F) return 21.50F;\n    if (t <= 186F) return 21.50F;\n    if (t <= 188F) return 21.50F;\n    if (t <= 190F) return 21.50F;\n    if (t <= 192F) return 21.50F;\n    if (t <= 194F) return Mth.lerp((t - 192F) / 2F, 21.50F, 21.39F);\n    if (t <= 196F) return Mth.lerp((t - 194F) / 2F, 21.39F, 21.24F);\n    if (t <= 198F) return Mth.lerp((t - 196F) / 2F, 21.24F, 21.08F);\n    if (t <= 200F) return Mth.lerp((t - 198F) / 2F, 21.08F, 20.93F);\n    if (t <= 202F) return Mth.lerp((t - 200F) / 2F, 20.93F, 20.77F);\n    if (t <= 204F) return Mth.lerp((t - 202F) / 2F, 20.77F, 20.62F);\n    if (t <= 206F) return Mth.lerp((t - 204F) / 2F, 20.62F, 20.46F);\n    if (t <= 208F) return Mth.lerp((t - 206F) / 2F, 20.46F, 20.31F);\n    if (t <= 210F) return Mth.lerp((t - 208F) / 2F, 20.31F, 20.15F);\n\n    return Mth.lerp((t - 210F) / 2F, 20.15F, 20.00F);\n}\n\n@Override\npublic float getBoneMoveZ(float t) {\n    if (t <= 2F) return Mth.lerp((t - 0F) / 2F, 48.75F, 51.16F);\n    if (t <= 4F) return Mth.lerp((t - 2F) / 2F, 51.16F, 53.09F);\n    if (t <= 6F) return Mth.lerp((t - 4F) / 2F, 53.09F, 54.13F);\n    if (t <= 8F) return 54.13F;\n    if (t <= 10F) return Mth.lerp((t - 8F) / 2F, 54.08F, 52.94F);\n    if (t <= 12F) return Mth.lerp((t - 10F) / 2F, 52.94F, 50.95F);\n    if (t <= 14F) return Mth.lerp((t - 12F) / 2F, 50.95F, 48.67F);\n    if (t <= 16F) return Mth.lerp((t - 14F) / 2F, 48.67F, 46.44F);\n    if (t <= 18F) return Mth.lerp((t - 16F) / 2F, 46.44F, 44.21F);\n    if (t <= 20F) return Mth.lerp((t - 18F) / 2F, 44.21F, 41.99F);\n    if (t <= 22F) return Mth.lerp((t - 20F) / 2F, 41.99F, 39.76F);\n    if (t <= 24F) return Mth.lerp((t - 22F) / 2F, 39.76F, 37.53F);\n    if (t <= 26F) return Mth.lerp((t - 24F) / 2F, 37.53F, 35.30F);\n    if (t <= 28F) return Mth.lerp((t - 26F) / 2F, 35.30F, 32.89F);\n    if (t <= 30F) return Mth.lerp((t - 28F) / 2F, 32.89F, 30.38F);\n    if (t <= 32F) return Mth.lerp((t - 30F) / 2F, 30.38F, 27.88F);\n    if (t <= 34F) return Mth.lerp((t - 32F) / 2F, 27.88F, 25.38F);\n    if (t <= 36F) return Mth.lerp((t - 34F) / 2F, 25.38F, 22.88F);\n    if (t <= 38F) return Mth.lerp((t - 36F) / 2F, 22.88F, 20.38F);\n    if (t <= 40F) return Mth.lerp((t - 38F) / 2F, 20.38F, 17.88F);\n    if (t <= 42F) return Mth.lerp((t - 40F) / 2F, 17.88F, 15.37F);\n    if (t <= 44F) return Mth.lerp((t - 42F) / 2F, 15.37F, 12.87F);\n    if (t <= 46F) return Mth.lerp((t - 44F) / 2F, 12.87F, 10.37F);\n    if (t <= 48F) return Mth.lerp((t - 46F) / 2F, 10.37F, 7.87F);\n    if (t <= 50F) return Mth.lerp((t - 48F) / 2F, 7.87F, 5.37F);\n    if (t <= 52F) return Mth.lerp((t - 50F) / 2F, 5.37F, 2.87F);\n    if (t <= 54F) return Mth.lerp((t - 52F) / 2F, 2.87F, 0.37F);\n    if (t <= 56F) return Mth.lerp((t - 54F) / 2F, 0.37F, -2.14F);\n    if (t <= 58F) return Mth.lerp((t - 56F) / 2F, -2.14F, -4.64F);\n    if (t <= 60F) return Mth.lerp((t - 58F) / 2F, -4.64F, -7.14F);\n    if (t <= 62F) return Mth.lerp((t - 60F) / 2F, -7.14F, -9.64F);\n    if (t <= 64F) return Mth.lerp((t - 62F) / 2F, -9.64F, -12.14F);\n    if (t <= 66F) return Mth.lerp((t - 64F) / 2F, -12.14F, -14.64F);\n    if (t <= 68F) return Mth.lerp((t - 66F) / 2F, -14.64F, -17.15F);\n    if (t <= 70F) return Mth.lerp((t - 68F) / 2F, -17.15F, -19.65F);\n    if (t <= 72F) return Mth.lerp((t - 70F) / 2F, -19.65F, -22.15F);\n    if (t <= 74F) return Mth.lerp((t - 72F) / 2F, -22.15F, -24.65F);\n    if (t <= 76F) return Mth.lerp((t - 74F) / 2F, -24.65F, -27.15F);\n    if (t <= 78F) return Mth.lerp((t - 76F) / 2F, -27.15F, -29.65F);\n    if (t <= 80F) return Mth.lerp((t - 78F) / 2F, -29.65F, -32.15F);\n    if (t <= 82F) return Mth.lerp((t - 80F) / 2F, -32.15F, -34.66F);\n    if (t <= 84F) return Mth.lerp((t - 82F) / 2F, -34.66F, -37.16F);\n    if (t <= 86F) return Mth.lerp((t - 84F) / 2F, -37.16F, -39.66F);\n    if (t <= 88F) return Mth.lerp((t - 86F) / 2F, -39.66F, -42.16F);\n    if (t <= 90F) return Mth.lerp((t - 88F) / 2F, -42.16F, -44.66F);\n    if (t <= 92F) return Mth.lerp((t - 90F) / 2F, -44.66F, -47.16F);\n    if (t <= 94F) return Mth.lerp((t - 92F) / 2F, -47.16F, -49.67F);\n    if (t <= 96F) return Mth.lerp((t - 94F) / 2F, -49.67F, -52.13F);\n    if (t <= 98F) return Mth.lerp((t - 96F) / 2F, -52.13F, -54.24F);\n    if (t <= 100F) return Mth.lerp((t - 98F) / 2F, -54.24F, -56.26F);\n    if (t <= 102F) return Mth.lerp((t - 100F) / 2F, -56.26F, -58.28F);\n    if (t <= 104F) return Mth.lerp((t - 102F) / 2F, -58.28F, -60.31F);\n    if (t <= 106F) return Mth.lerp((t - 104F) / 2F, -60.31F, -62.33F);\n    if (t <= 108F) return Mth.lerp((t - 106F) / 2F, -62.33F, -64.35F);\n    if (t <= 110F) return Mth.lerp((t - 108F) / 2F, -64.35F, -66.41F);\n    if (t <= 112F) return Mth.lerp((t - 110F) / 2F, -66.41F, -68.34F);\n    if (t <= 114F) return Mth.lerp((t - 112F) / 2F, -68.34F, -69.38F);\n    if (t <= 116F) return -69.38F;\n    if (t <= 118F) return Mth.lerp((t - 116F) / 2F, -69.33F, -68.19F);\n    if (t <= 120F) return Mth.lerp((t - 118F) / 2F, -68.19F, -66.21F);\n    if (t <= 122F) return Mth.lerp((t - 120F) / 2F, -66.21F, -63.77F);\n    if (t <= 124F) return Mth.lerp((t - 122F) / 2F, -63.77F, -61.27F);\n    if (t <= 126F) return Mth.lerp((t - 124F) / 2F, -61.27F, -58.77F);\n    if (t <= 128F) return Mth.lerp((t - 126F) / 2F, -58.77F, -56.26F);\n    if (t <= 130F) return Mth.lerp((t - 128F) / 2F, -56.26F, -53.76F);\n    if (t <= 132F) return Mth.lerp((t - 130F) / 2F, -53.76F, -51.26F);\n    if (t <= 134F) return Mth.lerp((t - 132F) / 2F, -51.26F, -48.76F);\n    if (t <= 136F) return Mth.lerp((t - 134F) / 2F, -48.76F, -46.26F);\n    if (t <= 138F) return Mth.lerp((t - 136F) / 2F, -46.26F, -43.76F);\n    if (t <= 140F) return Mth.lerp((t - 138F) / 2F, -43.76F, -41.26F);\n    if (t <= 142F) return Mth.lerp((t - 140F) / 2F, -41.26F, -38.76F);\n    if (t <= 144F) return Mth.lerp((t - 142F) / 2F, -38.76F, -36.26F);\n    if (t <= 146F) return Mth.lerp((t - 144F) / 2F, -36.26F, -33.75F);\n    if (t <= 148F) return Mth.lerp((t - 146F) / 2F, -33.75F, -31.25F);\n    if (t <= 150F) return Mth.lerp((t - 148F) / 2F, -31.25F, -28.75F);\n    if (t <= 152F) return Mth.lerp((t - 150F) / 2F, -28.75F, -26.25F);\n    if (t <= 154F) return Mth.lerp((t - 152F) / 2F, -26.25F, -23.75F);\n    if (t <= 156F) return Mth.lerp((t - 154F) / 2F, -23.75F, -21.25F);\n    if (t <= 158F) return Mth.lerp((t - 156F) / 2F, -21.25F, -18.75F);\n    if (t <= 160F) return Mth.lerp((t - 158F) / 2F, -18.75F, -16.24F);\n    if (t <= 162F) return Mth.lerp((t - 160F) / 2F, -16.24F, -13.74F);\n    if (t <= 164F) return Mth.lerp((t - 162F) / 2F, -13.74F, -11.24F);\n    if (t <= 166F) return Mth.lerp((t - 164F) / 2F, -11.24F, -8.74F);\n    if (t <= 168F) return Mth.lerp((t - 166F) / 2F, -8.74F, -6.24F);\n    if (t <= 170F) return Mth.lerp((t - 168F) / 2F, -6.24F, -3.74F);\n    if (t <= 172F) return Mth.lerp((t - 170F) / 2F, -3.74F, -1.23F);\n    if (t <= 174F) return Mth.lerp((t - 172F) / 2F, -1.23F, 1.27F);\n    if (t <= 176F) return Mth.lerp((t - 174F) / 2F, 1.27F, 3.77F);\n    if (t <= 178F) return Mth.lerp((t - 176F) / 2F, 3.77F, 6.27F);\n    if (t <= 180F) return Mth.lerp((t - 178F) / 2F, 6.27F, 8.77F);\n    if (t <= 182F) return Mth.lerp((t - 180F) / 2F, 8.77F, 11.27F);\n    if (t <= 184F) return Mth.lerp((t - 182F) / 2F, 11.27F, 13.77F);\n    if (t <= 186F) return Mth.lerp((t - 184F) / 2F, 13.77F, 16.28F);\n    if (t <= 188F) return Mth.lerp((t - 186F) / 2F, 16.28F, 18.78F);\n    if (t <= 190F) return Mth.lerp((t - 188F) / 2F, 18.78F, 21.28F);\n    if (t <= 192F) return Mth.lerp((t - 190F) / 2F, 21.28F, 23.78F);\n    if (t <= 194F) return Mth.lerp((t - 192F) / 2F, 23.78F, 26.28F);\n    if (t <= 196F) return Mth.lerp((t - 194F) / 2F, 26.28F, 28.78F);\n    if (t <= 198F) return Mth.lerp((t - 196F) / 2F, 28.78F, 31.27F);\n    if (t <= 200F) return Mth.lerp((t - 198F) / 2F, 31.27F, 33.77F);\n    if (t <= 202F) return Mth.lerp((t - 200F) / 2F, 33.77F, 36.27F);\n    if (t <= 204F) return Mth.lerp((t - 202F) / 2F, 36.27F, 38.76F);\n    if (t <= 206F) return Mth.lerp((t - 204F) / 2F, 38.76F, 41.26F);\n    if (t <= 208F) return Mth.lerp((t - 206F) / 2F, 41.26F, 43.76F);\n    if (t <= 210F) return Mth.lerp((t - 208F) / 2F, 43.76F, 46.25F);\n\n    return Mth.lerp((t - 210F) / 2F, 46.25F, 48.75F);\n}\n",
+  "boneNaming": {
+    "pattern": "track(Mov|Rot)(L|R){index}",
+    "examples": [
+      "trackMovL0, trackMovL1, ... trackMovL105",
+      "trackRotL0, trackRotL1, ... trackRotL105",
+      "trackMovR0, trackMovR1, ... trackMovR105",
+      "trackRotR0, trackRotR1, ... trackRotR105"
+    ],
+    "totalBones": 424
+  },
+  "instructions": [
+    "1. Create model with bones: trackMovL0-105, trackRotL0-105 (same for R)",
+    "2. Create VehicleModel class extending VehicleModel<YourEntity>",
+    "3. Override getBoneRotX, getBoneMoveY, getBoneMoveZ with generated code",
+    "4. Set trackAnimationLength in vehicle data JSON to 212",
+    "5. Each track bone offset = index * 2 (e.g. track5 uses t = leftTrack + 10)"
+  ]
+}
