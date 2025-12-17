@@ -2,10 +2,10 @@
   "ID": "vvp:ags_30",
   "MaxHealth": 80,
   "MaxEnergy": 0,
-  "TurretPos": [-0.00114375, 0.700075, -0.113025],
+  "TurretPos": [-0.0011, 0.7001, -0.113],
   "TurretTurnSpeed": [8, 8],
   "TurretPitchRange": [-15, 45],
-  "BarrelPos": [-0.00114375, 0.12296875, -0.15090625],
+  "BarrelPos": [0.0011, 0.123, -0.1197],
   "Seats": {
     "Transform": "Vehicle",
     "Position": [0, -0.25, -1.5],
@@ -43,8 +43,8 @@
       "ExplosionRadius": 4,
       "HeatPerShoot": 5,
       "NaturalCooldown": 1,
-      "RecoilTime": 20,
-      "RecoilForce": 0.3,
+      "RecoilTime": 30,
+      "RecoilForce": 3.0,
       "ShootAnimationTime": 3,
       "Spread": 0.8,
       "Crosshair": "@VehicleCommon",
@@ -60,7 +60,7 @@
       "Icon": "vvp:textures/screens/vehicle_weapon/40_mm.png",
       "ShootPos": {
         "Transform": "Barrel",
-        "Positions": [[0, 0, 0.3]],
+        "Positions": [[0, -0.0268, 1.4419]],
         "Directions": ["Barrel"]
       }
     }
