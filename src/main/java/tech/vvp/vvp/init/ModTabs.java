@@ -96,6 +96,9 @@ public class ModTabs {
                                 output.accept(ModItems.ITEM_AP_SHELL.get());
                                 output.accept(ModItems.ITEM_HE_SHELL.get());
 
+                                // Оружие
+                                output.accept(ModItems.AT4.get());
+
                                 // Инструменты
                                 output.accept(ModItems.SPRAY.get());
 
