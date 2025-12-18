@@ -115,6 +115,7 @@
   "tooltip.vvp.model_author": "Model by VVP Team",
   "tooltip.vvp.usage_restriction": "Usage of these models outside of the addon is prohibited",
   "key.categories.vvp": "VVP",
+  "key.vvp.thermal_vision": "Thermal Vision",
   "key.vvp.toggle_radar": "Toggle Radar",
   "key.vvp.move_radar_pos": "Move Radar (position)",
   "key.vvp.toggle_nvg": "Toggle Night Vision",

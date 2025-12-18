@@ -155,7 +155,7 @@
       "Spread": 0.5,
       "Crosshair": "@VehicleRuApc",
       "CrosshairColor": "0x66FF00",
-      "Name": "weapon.vvp.30mm_cannon",
+      "Name": "weapon.vvp.2a72_30mm",
       "SoundInfo": {
         "Fire1P": "superbwarfare:bmp_2_cannon_fire_1p",
         "Fire3P": "superbwarfare:bmp_2_cannon_fire_3p",
@@ -176,7 +176,7 @@
             "Damage": 17,
             "ExplosionDamage": 75,
             "ExplosionRadius": 6,
-            "Name": "weapon.vvp.30mm_cannon_he"
+            "Name": "weapon.vvp.2a72_30mm_he"
           }
         }
       ],

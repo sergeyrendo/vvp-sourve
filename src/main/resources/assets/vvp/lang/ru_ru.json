@@ -122,6 +122,7 @@
 
 
   "key.categories.vvp": "VVP",
+  "key.vvp.thermal_vision": "Тепловизионное зрение",
   "key.vvp.toggle_radar": "Переключить радар",
   "key.vvp.move_radar_pos": "Переместить радар (позиция)",
   "key.vvp.toggle_nvg": "Переключить ПНВ",

@@ -87,7 +87,7 @@
       "ShootShake": [8, 10, 60],
       "Spread": 0.02,
       "ShootAnimationTime": 10,
-      "Crosshair": "@VehicleUsTank",
+      "Crosshair": "@Empty",
       "CrosshairColor": "0x00ff66",
       "Name": "weapon.vvp.120mm_cannon",
       "AmmoType": [

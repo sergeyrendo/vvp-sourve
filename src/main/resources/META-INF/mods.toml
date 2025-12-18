@@ -12,6 +12,10 @@ loaderVersion = "[47,)" #mandatory This is typically bumped every Minecraft vers
 license = "MIT"
 # A URL to refer people to when problems occur with this mod
 #issueTrackerURL="https://change.me.to.your.issue.tracker.example.invalid/" #optional
+# Mixin configuration
+[[mixins]]
+config = "vvp.mixins.json"
+
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
 # The modid of the mod
