@@ -94,6 +94,7 @@
   "item.vvp.hryzantema_item": "9M123 Хризантема",
   "item.vvp.aim_120_item": "AIM-120 AMRAAM",
   "item.vvp.gmlrs_m31": "GMLRS M31",
+  "item.vvp.at4": "AT4 Противотанковая ракетница",
   "des.vvp.mangal_body": "Мангал основания техники.",
   "des.vvp.mangal_turret": "Мангал для башни техники.",
   "des.vvp.setka_body": "Листва для основания техники.",
@@ -123,6 +124,7 @@
 
 
   "key.categories.vvp": "VVP",
+  "key.vvp.thermal_vision": "Тепловизионное зрение",
   "key.vvp.toggle_radar": "Переключить радар",
   "key.vvp.move_radar_pos": "Переместить радар (позиция)",
   "key.vvp.toggle_nvg": "Переключить ПНВ",

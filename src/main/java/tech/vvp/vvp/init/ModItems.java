@@ -1,8 +1,6 @@
 package tech.vvp.vvp.init;
 
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.RecordItem;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -114,6 +112,9 @@ public class ModItems {
 
     public static final RegistryObject<Item> ITEM_12_7MM = REGISTRY.register("item_12_7mm",
             () -> new Item(new Item.Properties().stacksTo(64)));
+
+    public static final RegistryObject<Item> AT4 = REGISTRY.register("at4",
+            () -> new tech.vvp.vvp.item.gun.At4Item());
 
     public static void register(IEventBus eventBus) {
         REGISTRY.register(eventBus);
