@@ -184,6 +184,35 @@
       "vvp:pushka_2a72_veryfar"
     ]
   },
+  "2a42_1p": {
+    "sounds": [
+      "vvp:autocannon/2a42/closure_1",
+      "vvp:autocannon/2a42/closure_2",
+      "vvp:autocannon/2a42/closure_3",
+      "vvp:autocannon/2a42/closure_4"
+    ]
+  },
+  "2a42_3p": {
+    "sounds": [
+      "vvp:autocannon/2a42/close_1",
+      "vvp:autocannon/2a42/close_2",
+      "vvp:autocannon/2a42/close_3",
+      "vvp:autocannon/2a42/close_4"
+    ]
+  },
+  "2a42_far": {
+    "sounds": [
+      "vvp:autocannon/2a42/medium_distance_1",
+      "vvp:autocannon/2a42/medium_distance_2",
+      "vvp:autocannon/2a42/medium_distance_3",
+      "vvp:autocannon/2a42/medium_distance_4"
+    ]
+  },
+  "2a42_veryfar": {
+    "sounds": [
+      "vvp:autocannon/2a42/far_distance"
+    ]
+  },
   "abrams_1p": {
     "sounds": [
       "vvp:abrams_1p"
@@ -302,6 +331,30 @@
   "hk_gmg_reload": {
     "sounds": [
       "vvp:hk_gmg_reload"
+    ]
+  },
+  "into_atgm": {
+    "sounds": [
+      "vvp:switch_weapon/into_atgm"
+    ]
+  },
+  "into_autocannon": {
+    "sounds": [
+      "vvp:switch_weapon/into_autocannon"
+    ]
+  },
+  "into_coax": {
+    "sounds": [
+      "vvp:switch_weapon/into_coax_0",
+      "vvp:switch_weapon/into_coax_1",
+      "vvp:switch_weapon/into_coax_2",
+      "vvp:switch_weapon/into_coax_3",
+      "vvp:switch_weapon/into_coax_4"
+    ]
+  },
+  "into_main_cannon": {
+    "sounds": [
+      "vvp:switch_weapon/into_main_cannon"
     ]
   }
 }

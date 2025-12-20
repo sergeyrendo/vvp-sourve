@@ -4,12 +4,14 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tech.vvp.vvp.VVP;
+import tech.vvp.vvp.client.hud.ReticleOverlay;
 import tech.vvp.vvp.init.ModKeyMappings;
 
 /**
@@ -102,13 +104,38 @@ public class ThermalVisionHandler {
             }
         }
         
+        // Проверяем, разрешено ли ТПВ для текущей техники (если игрок в технике)
+        if (isInVehicle && isFirstPerson && thermalVisionEnabled) {
+            VehicleEntity vehicleEntity = (VehicleEntity) vehicle;
+            Player player = mc.player;
+            int seatIndex = vehicleEntity.getSeatIndex(player);
+            boolean thermalVisionAllowed = ReticleOverlay.isThermalVisionAllowed(vehicleEntity, seatIndex);
+            
+            // Если ТПВ включено, но для этой техники оно запрещено - выключаем
+            if (!thermalVisionAllowed) {
+                thermalVisionEnabled = false;
+                applyThermalShader();
+                System.out.println("[VVP] Thermal Vision отключен для этой техники, выключаем");
+            }
+        }
+        
         // Проверяем нажатие клавиши thermal vision (только если в технике и от первого лица)
         boolean isKeyPressed = ModKeyMappings.THERMAL_VISION.isDown();
         if (isKeyPressed && !wasKeyPressed) {
             if (isInVehicle && isFirstPerson) {
-                // Клавиша только что была нажата, игрок в технике и от первого лица
-                System.out.println("[VVP] Нажата клавиша Thermal Vision, текущее состояние: " + thermalVisionEnabled);
-                toggleThermalVision();
+                // Проверяем, разрешено ли ТПВ для этой техники
+                VehicleEntity vehicleEntity = (VehicleEntity) vehicle;
+                Player player = mc.player;
+                int seatIndex = vehicleEntity.getSeatIndex(player);
+                boolean thermalVisionAllowed = ReticleOverlay.isThermalVisionAllowed(vehicleEntity, seatIndex);
+                
+                if (thermalVisionAllowed) {
+                    // Клавиша только что была нажата, игрок в технике и от первого лица, ТПВ разрешено
+                    System.out.println("[VVP] Нажата клавиша Thermal Vision, текущее состояние: " + thermalVisionEnabled);
+                    toggleThermalVision();
+                } else {
+                    System.out.println("[VVP] Thermal Vision отключен для этой техники!");
+                }
             } else {
                 if (!isInVehicle) {
                     System.out.println("[VVP] Thermal Vision можно включить только в технике!");

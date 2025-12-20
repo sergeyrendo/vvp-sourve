@@ -126,7 +126,7 @@
         "Fire3P": "vvp:bushmaster_3p",
         "Fire3PFar": "vvp:bushmaster_far",
         "Fire3PVeryFar": "vvp:bushmaster_veryfar",
-        "Change": "superbwarfare:into_missile"
+        "Change": "vvp:into_atgm"
       },
       "SoundRadius": 24,
       "AmmoType": "vvp:item_30mm",
@@ -179,7 +179,7 @@
         "Fire3P": "superbwarfare:bomb_release",
         "VehicleReload3p": "superbwarfare:bomb_reload",
         "VehicleReloadSoundTime": 11,
-        "Change": "superbwarfare:into_missile",
+        "Change": "vvp:into_atgm",
         "Locking": "superbwarfare:missile_locking",
         "Locked": "superbwarfare:missile_locked"
       },
