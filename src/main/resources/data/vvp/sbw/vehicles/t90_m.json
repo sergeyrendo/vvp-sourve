@@ -117,7 +117,7 @@
         "Fire3PFar": "vvp:abrams_far",
         "Fire3PVeryFar": "vvp:abrams_veryfar",
         "VehicleReload": "vvp:t90_autoreload",
-        "Change": "superbwarfare:into_cannon",
+        "Change": "vvp:into_main_cannon",
         "CancellableSounds": [
           "vvp:t90_autoreload"
         ]
@@ -159,7 +159,7 @@
         "Fire3P": "superbwarfare:m_2_hb_fire_3p",
         "Fire3PFar": "superbwarfare:m_2_hb_far",
         "Fire3PVeryFar": "superbwarfare:m_2_hb_veryfar",
-        "Change": "superbwarfare:into_cannon"
+        "Change": "vvp:into_coax"
       },
       "SoundRadius": 16
     },
@@ -193,7 +193,7 @@
         "Fire3P": "superbwarfare:m_2_hb_fire_3p",
         "Fire3PFar": "superbwarfare:m_2_hb_far",
         "Fire3PVeryFar": "superbwarfare:m_2_hb_veryfar",
-        "Change": "superbwarfare:into_cannon"
+        "Change": "vvp:into_coax"
       },
       "SoundRadius": 16
     }

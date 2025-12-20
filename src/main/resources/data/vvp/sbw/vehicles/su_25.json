@@ -79,7 +79,7 @@
         "Fire3P": "superbwarfare:bmp_2_cannon_fire_3p",
         "Fire3PFar": "superbwarfare:mi_28_cannon_far",
         "Fire3PVeryFar": "superbwarfare:mi_28_cannon_veryfar",
-        "Change": "superbwarfare:into_cannon"
+        "Change": "vvp:into_autocannon"
       },
       "Crosshair": "@AirCraftCommon",
       "CrosshairColor": "0x66FF00",
@@ -119,7 +119,7 @@
         "Fire3P": "superbwarfare:small_rocket_fire_3p",
         "VehicleReload3p": "superbwarfare:missile_reload",
         "VehicleReloadSoundTime": 7,
-        "Change": "superbwarfare:into_missile"
+        "Change": "vvp:into_atgm"
       },
       "Crosshair": "@AirCraftCommon",
       "CrosshairColor": "0x66FF00",
@@ -156,7 +156,7 @@
         "Fire3P": "superbwarfare:bomb_release",
         "VehicleReload3p": "superbwarfare:bomb_reload",
         "VehicleReloadSoundTime": 11,
-        "Change": "superbwarfare:into_missile"
+        "Change": "vvp:into_atgm"
       },
       "Crosshair": "@AirBomb",
       "CrosshairColor": "0x66FF00",
@@ -196,7 +196,7 @@
         "Fire3P": "superbwarfare:bomb_release",
         "VehicleReload3p": "superbwarfare:bomb_reload",
         "VehicleReloadSoundTime": 11,
-        "Change": "superbwarfare:into_missile",
+        "Change": "vvp:into_atgm",
         "Locking": "superbwarfare:javelin_locking",
         "Locked": "superbwarfare:javelin_locking"
       },

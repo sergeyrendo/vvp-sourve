@@ -5,6 +5,7 @@ import com.atsuishio.superbwarfare.data.gun.GunData;
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
 import com.atsuishio.superbwarfare.init.ModKeyMappings;
+import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.client.ThermalVisionHandler;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -24,16 +25,22 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Универсальный класс для кастомных прицелов техники с эффектом шума при выстреле
  * и собственным HUD
  */
 @OnlyIn(Dist.CLIENT)
-@Mod.EventBusSubscriber(modid = "vvp", value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = VVP.MOD_ID, value = Dist.CLIENT)
 public class ReticleOverlay {
 
     // Реестр конфигураций прицелов для разных типов техники
@@ -51,6 +58,8 @@ public class ReticleOverlay {
     private static final ResourceLocation LEFT_WHEEL = new ResourceLocation("superbwarfare", "textures/overlay/vehicle/land/left_wheel.png");
     private static final ResourceLocation RIGHT_WHEEL = new ResourceLocation("superbwarfare", "textures/overlay/vehicle/land/right_wheel.png");
     private static final ResourceLocation ENGINE = new ResourceLocation("superbwarfare", "textures/overlay/vehicle/land/engine.png");
+    // Текстура для digital scope (вместо шейдера)
+    private static final ResourceLocation TV_FRAME = new ResourceLocation("superbwarfare", "textures/overlay/vehicle/land/tv_frame.png");
     
     // Текстуры для выбора боеприпасов
     private static final ResourceLocation CHOSEN = new ResourceLocation("superbwarfare", "textures/gui/attachment/chosen.png");
@@ -66,7 +75,12 @@ public class ReticleOverlay {
     // Отслеживание состояния
     private static boolean wasInVehicle = false;
     private static double lastRecoilShake = 0;
-    private static int lastShootAnimTimer = 0;
+    // Map для отслеживания последнего значения shootAnimationTimer для каждого оружия
+    // Ключ: "seatIndex_weaponIndex", значение: последний таймер
+    private static final Map<String, Integer> lastShootAnimTimers = new HashMap<>();
+    
+    // Состояние digital sight (теперь работает через текстуру tv_frame.png вместо шейдера)
+    private static boolean digitalSightActive = false;
     
     // HUD цвет (зеленый как в SBW)
     private static final int HUD_COLOR = 0x66FF00;
@@ -92,6 +106,7 @@ public class ReticleOverlay {
                 .setReticleScale(1.0f)
                 .setZoomScale(1.5f)
                 .setNoiseEnabled(true)
+                .setDigital(true)
                 .setNoiseDuration(15)
                 .setNoiseAlpha(0.3f)
                 .setSeatIndex(0)
@@ -109,6 +124,7 @@ public class ReticleOverlay {
                 .setReticleScale(1.0f)
                 .setZoomScale(1.5f)
                 .setNoiseEnabled(true)
+                .setDigital(true)
                 .setNoiseDuration(15)
                 .setNoiseAlpha(0.3f)
                 .setSeatIndex(1)
@@ -126,6 +142,7 @@ public class ReticleOverlay {
                 .setReticleScale(1.0f)
                 .setZoomScale(1.5f)
                 .setNoiseEnabled(true)
+                .setDigital(true)
                 .setNoiseDuration(15)
                 .setNoiseAlpha(0.3f)
                 .setSeatIndex(0)
@@ -142,6 +159,7 @@ public class ReticleOverlay {
                 .setReticleColor(1.0f, 1.0f, 1.0f, 1.0f)
                 .setReticleScale(1.0f)
                 .setZoomScale(1.5f)
+                .setDigital(true)
                 .setNoiseEnabled(true)
                 .setNoiseDuration(15)
                 .setNoiseAlpha(0.3f)
@@ -160,6 +178,8 @@ public class ReticleOverlay {
                 .setReticleScale(1.0f)
                 .setZoomScale(3.0f) // 12x zoom
                 .setNoiseEnabled(true)
+                .setDigital(true)
+                .setZoomScale(1.5f)
                 .setNoiseDuration(15)
                 .setNoiseAlpha(0.3f)
                 .setSeatIndex(0)
@@ -167,6 +187,49 @@ public class ReticleOverlay {
                 .setThermalReticle4x("vvp:textures/reticles/sosna-u-thermal_4x.png")
                 .setThermalReticle12x("vvp:textures/reticles/sosna-u-thermal_12x.png")
                 .setThermalOutline("vvp:textures/reticles/outline_sosna-u-thermal.png")
+        );
+        
+        // BMP-2 - сидушка 0 (наводчик)
+        registerConfig(
+            tech.vvp.vvp.entity.vehicle.Bmp2Entity.class,
+            0,
+            new ReticleConfig()
+                .setOutline("vvp:textures/reticles/outline_analogue.png")
+                .setOutlineScale(1.2f) // Увеличиваем outline для большего поля обзора
+                .setReticle("vvp:textures/reticles/bmp2_2a42_zoom.png") // По умолчанию для пушки
+                .setWeaponReticle("Cannon", "vvp:textures/reticles/bmp2_2a42_zoom.png")
+                .setWeaponReticle("Missile", "vvp:textures/reticles/bmp2_atgm_zoom.png")
+                .setReticleColor(1.0f, 1.0f, 1.0f, 1.0f)
+                .setReticleScale(1.0f)
+                .setThermalVisionAllowed(false)
+                .setZoomScale(1.5f)
+                .setNoiseEnabled(false)
+                .setNoiseDuration(15)
+                .setNoiseAlpha(0.3f)
+                .setSeatIndex(0)
+                .setHudRightSide(false)
+                .setFullscreenReticle(false) // Сохраняем пропорции для круглого прицела
+        );
+        
+        // BMP-2M - сидушка 0 (наводчик)
+        registerConfig(
+            tech.vvp.vvp.entity.vehicle.Bmp2MEntity.class,
+            0,
+            new ReticleConfig()
+                .setOutline("vvp:textures/reticles/outline_kord-rws.png")
+                .setReticle("vvp:textures/reticles/bmp2_2a42_zoom.png") // По умолчанию для пушки
+                .setWeaponReticle("Cannon", "vvp:textures/reticles/bmp2_2a42_zoom.png")
+                .setWeaponReticle("Missile", "vvp:textures/reticles/bmp2_atgm_zoom.png")
+                .setReticleColor(1.0f, 1.0f, 1.0f, 1.0f)
+                .setReticleScale(1.0f)
+                .setZoomScale(1.5f)
+                .setThermalVisionAllowed(true)
+                .setNoiseEnabled(true) 
+                .setDigital(true)
+                .setNoiseDuration(15)
+                .setNoiseAlpha(0.3f)
+                .setSeatIndex(0)
+                .setHudRightSide(false)
         );
     }
 
@@ -264,38 +327,90 @@ public class ReticleOverlay {
         ReticleConfig config = getConfigForVehicle(vehicleEntity, seatIndex);
         if (config == null) {
             wasInVehicle = false;
+            // Убираем digital sight шейдер, если вышли из техники
+            if (digitalSightActive) {
+                applyDigitalSightShader(false);
+            }
             return;
         }
         
         wasInVehicle = true;
         
         if (seatIndex != config.seatIndex) {
+            // Убираем digital sight шейдер, если не на нужном месте
+            if (digitalSightActive) {
+                applyDigitalSightShader(false);
+            }
             return;
         }
         
+        // Применяем или убираем digital sight шейдер
+        // Только если thermal vision не активен (thermal vision имеет приоритет)
+        boolean shouldBeDigital = config.isDigital && !ThermalVisionHandler.isThermalVisionEnabled();
+        if (shouldBeDigital != digitalSightActive) {
+            applyDigitalSightShader(shouldBeDigital);
+        } else if (ThermalVisionHandler.isThermalVisionEnabled() && digitalSightActive) {
+            // Если thermal vision включен, а digital sight активен - отключаем digital sight
+            applyDigitalSightShader(false);
+        }
+        
         // Отслеживаем выстрелы через recoilShake (как в SBW)
-        if (config.noiseEnabled) {
-            detectShot(vehicleEntity, config);
+        // Noise эффекты только для digital прицелов
+        if (config.noiseEnabled && config.isDigital) {
+            detectShot(vehicleEntity, player, config);
         }
     }
     
-    private static void detectShot(VehicleEntity vehicle, ReticleConfig config) {
+    private static void detectShot(VehicleEntity vehicle, Player player, ReticleConfig config) {
         try {
-            // Используем shootAnimationTimer для мгновенного детектирования выстрела
-            int seatIndex = 0; // Главный наводчик
-            int currentShootAnimTimer = vehicle.getShootAnimationTimer(seatIndex, 0);
-            
-            // Если таймер анимации стрельбы начался (увеличился с 0) - был выстрел
-            if (currentShootAnimTimer > 0 && lastShootAnimTimer == 0) {
-                triggerNoiseEffect(config.noiseDuration);
+            // Получаем реальный seatIndex игрока
+            int seatIndex = vehicle.getSeatIndex(player);
+            if (seatIndex < 0) {
+                return;
             }
             
-            lastShootAnimTimer = currentShootAnimTimer;
+            // Получаем текущее выбранное оружие
+            var gunData = vehicle.getGunData(player);
+            if (gunData == null) {
+                return;
+            }
             
-            // Также проверяем recoilShake как запасной вариант
+            // Используем shootAnimationTimer для детектирования выстрела
+            int currentShootAnimTimer = gunData.shootAnimationTimer.get();
+            String key = seatIndex + "_current";
+            Integer lastTimer = lastShootAnimTimers.get(key);
+            
+            // Получаем максимальное значение таймера (shootAnimationTime)
+            int maxTimer = gunData.compute().shootAnimationTime;
+            
+            // Если таймер увеличился (новый выстрел) или достиг максимума (только что выстрелили)
+            // При автоматической стрельбе таймер сбрасывается на максимум при каждом выстреле
+            if (currentShootAnimTimer > 0) {
+                if (lastTimer == null) {
+                    // Первый раз - инициализируем
+                    lastShootAnimTimers.put(key, currentShootAnimTimer);
+                } else if (currentShootAnimTimer > lastTimer || 
+                          (currentShootAnimTimer == maxTimer && lastTimer < maxTimer)) {
+                    // Таймер увеличился или достиг максимума - новый выстрел!
+                    triggerNoiseEffect(config.noiseDuration);
+                    lastShootAnimTimers.put(key, currentShootAnimTimer);
+                } else {
+                    // Таймер уменьшается (анимация идет) - просто обновляем значение
+                    lastShootAnimTimers.put(key, currentShootAnimTimer);
+                }
+            } else {
+                // Таймер вернулся в 0 - сбрасываем
+                lastShootAnimTimers.put(key, 0);
+            }
+            
+            // Также проверяем recoilShake как запасной вариант для быстрой стрельбы
             double currentRecoil = vehicle.getRecoilShake();
-            if (currentRecoil > lastRecoilShake + 0.5 && currentRecoil > 0.8 && noiseTimer == 0) {
-                triggerNoiseEffect(config.noiseDuration);
+            if (currentRecoil > lastRecoilShake + 0.3 && currentRecoil > 0.5) {
+                // Если откат увеличился значительно - возможно был выстрел
+                // Но только если таймер не активен (для избежания дублирования)
+                if (currentShootAnimTimer == 0) {
+                    triggerNoiseEffect(config.noiseDuration);
+                }
             }
             lastRecoilShake = currentRecoil;
         } catch (Exception ignored) {
@@ -310,8 +425,9 @@ public class ReticleOverlay {
         
         PoseStack poseStack = guiGraphics.pose();
         
-        // === СЛОЙ 1: Эффект шума при выстреле - ПОД outline ===
-        if (config.noiseEnabled && noiseTimer > 0) {
+        // === СЛОЙ 1: Эффект шума при выстреле - ПОД прицелом ===
+        // Noise эффекты только для digital прицелов
+        if (config.noiseEnabled && config.isDigital && noiseTimer > 0) {
             poseStack.pushPose();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
@@ -319,7 +435,27 @@ public class ReticleOverlay {
             poseStack.popPose();
         }
         
-        // === СЛОЙ 2: Рамка прицела (outline) - ПОВЕРХ шума ===
+        // === СЛОЙ 2: Сетка прицела (reticle) - ПОВЕРХ шума, ПОД outline ===
+        // Используем thermal прицел, если thermal vision включен
+        if (config.reticleTexture != null || (ThermalVisionHandler.isThermalVisionEnabled() && config.hasThermalReticle()) || !config.weaponReticles.isEmpty() || !config.thermalWeaponReticles.isEmpty()) {
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            renderMainReticle(guiGraphics, config, screenWidth, screenHeight, isZooming, vehicle, player);
+        }
+        
+        // === СЛОЙ 2.5: Digital scope frame (tv_frame.png) - ПОД outline, ПОВЕРХ прицела ===
+        // Рендерим tv_frame.png вместо шейдера, если digital scope активен
+        // Должен быть ЗА рамкой (outline), поэтому рендерим ПЕРЕД outline
+        if (config.isDigital && digitalSightActive && !ThermalVisionHandler.isThermalVisionEnabled()) {
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+            renderDigitalScopeFrame(guiGraphics, screenWidth, screenHeight);
+        }
+        
+        // === СЛОЙ 3: Рамка прицела (outline) - ПОВЕРХ всего (прицела и digital frame) ===
         // Используем thermal outline, если thermal vision включен
         ResourceLocation outlineToUse = (ThermalVisionHandler.isThermalVisionEnabled() && config.thermalOutlineTexture != null) 
             ? config.thermalOutlineTexture 
@@ -330,16 +466,7 @@ public class ReticleOverlay {
             RenderSystem.defaultBlendFunc();
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-            renderOutline(guiGraphics, outlineToUse, screenWidth, screenHeight);
-        }
-        
-        // === СЛОЙ 3: Сетка прицела (reticle) ===
-        // Используем thermal прицел, если thermal vision включен
-        if (config.reticleTexture != null || (ThermalVisionHandler.isThermalVisionEnabled() && config.hasThermalReticle())) {
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            renderMainReticle(guiGraphics, config, screenWidth, screenHeight, isZooming);
+            renderOutline(guiGraphics, outlineToUse, screenWidth, screenHeight, config.outlineScale);
         }
         
         // === СЛОЙ 4: Наш кастомный HUD (скорость, HP, smoke) ===
@@ -751,55 +878,78 @@ public class ReticleOverlay {
         RenderSystem.setShaderColor(r, g, b, 1.0f);
     }
     
-    private static void renderOutline(GuiGraphics guiGraphics, ResourceLocation outlineTexture, int screenWidth, int screenHeight) {
-        // Растягиваем текстуру за пределы экрана как SBW
+    private static void renderOutline(GuiGraphics guiGraphics, ResourceLocation outlineTexture, int screenWidth, int screenHeight, float outlineScale) {
+        // Растягиваем текстуру ровно на весь экран (как в BTR-4)
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         
-        // Добавляем небольшой запас за пределы экрана чтобы убрать полосы по краям
-        // Используем фиксированные значения для стабильности
-        float padding = 2f; // Небольшой отступ в пикселях
-        
-        // Рассчитываем размеры с учетом соотношения сторон
-        float renderWidth = screenWidth + padding * 2;
-        float renderHeight = screenHeight + padding * 2;
-        
-        // Используем preciseBlit из SBW для точного рендера
+        // Всегда растягиваем на весь экран без выхода за границы
+        // Используем preciseBlit для точного рендера
         RenderHelper.preciseBlit(
             guiGraphics,
             outlineTexture,
-            -padding,              // x - сдвиг влево
-            -padding,              // y - сдвиг вверх
+            0f,                    // x - начинаем с 0
+            0f,                    // y - начинаем с 0
             0f,                    // uOffset
             0f,                    // vOffset
-            renderWidth,           // width
-            renderHeight,          // height
-            renderWidth,           // textureWidth
-            renderHeight           // textureHeight
+            screenWidth,           // width - ровно на весь экран
+            screenHeight,          // height - ровно на весь экран
+            screenWidth,           // textureWidth
+            screenHeight           // textureHeight
         );
     }
     
-    private static void renderMainReticle(GuiGraphics guiGraphics, ReticleConfig config, int screenWidth, int screenHeight, boolean isZooming) {
-        // Масштаб: обычный или при зуме
-        float scale = isZooming ? config.zoomScale : config.reticleScale;
+    /**
+     * Рендерит tv_frame.png для digital scope (вместо шейдера)
+     * Использует тот же подход, что и в SuperbWarfare LandVehicleHud и DroneHudOverlay
+     */
+    private static void renderDigitalScopeFrame(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
+        // Рассчитываем дополнительные размеры для правильного соотношения сторон (как в SBW)
+        float addW = (screenWidth / (float) screenHeight) * 48f;
+        float addH = (screenWidth / (float) screenHeight) * 27f;
         
-        // Размер на экране с сохранением пропорций экрана (как было изначально)
-        int renderWidth = (int) (screenWidth * scale);
-        int renderHeight = (int) (screenHeight * scale);
-        
-        // Ограничиваем размер, чтобы прицел не выходил за границы экрана
-        renderWidth = Math.min(renderWidth, screenWidth);
-        renderHeight = Math.min(renderHeight, screenHeight);
-        
-        // Центрируем
-        int x = (screenWidth - renderWidth) / 2;
-        int y = (screenHeight - renderHeight) / 2;
-        
+        // Рендерим tv_frame.png с расчетом размеров (как в LandVehicleHud.kt и DroneHudOverlay.kt)
+        RenderHelper.preciseBlit(
+            guiGraphics,
+            TV_FRAME,
+            -addW / 2f,                    // x - сдвиг влево
+            -addH / 2f,                    // y - сдвиг вверх
+            10f,                           // blitOffset
+            0f,                            // uOffset
+            0f,                            // vOffset
+            screenWidth + addW,            // width
+            screenHeight + addH,           // height
+            screenWidth + addW,            // textureWidth
+            screenHeight + addH            // textureHeight
+        );
+    }
+    
+    private static void renderMainReticle(GuiGraphics guiGraphics, ReticleConfig config, int screenWidth, int screenHeight, boolean isZooming, VehicleEntity vehicle, Player player) {
         RenderSystem.setShaderColor(config.reticleColorR, config.reticleColorG, config.reticleColorB, config.reticleColorA);
         
-        // Выбираем прицел: thermal или обычный
-        ResourceLocation reticleToUse = config.reticleTexture;
-        if (ThermalVisionHandler.isThermalVisionEnabled() && config.hasThermalReticle()) {
-            // Используем thermal прицел: 4x или 12x в зависимости от зума
+        // Выбираем прицел: сначала проверяем thermal прицелы для оружий, потом обычные прицелы для оружий, потом thermal общие, потом обычный
+        ResourceLocation reticleToUse = null;
+        boolean isThermalVision = ThermalVisionHandler.isThermalVisionEnabled();
+        
+        // Получаем имя текущего оружия
+        String weaponName = null;
+        if (vehicle != null && player != null) {
+            try {
+                weaponName = vehicle.getGunName(vehicle.getSeatIndex(player));
+            } catch (Exception ignored) {}
+        }
+        
+        // Приоритет 1: Проверяем thermal прицел для текущего оружия (если ТПВ включен)
+        if (isThermalVision && weaponName != null && !config.thermalWeaponReticles.isEmpty() && config.thermalWeaponReticles.containsKey(weaponName)) {
+            reticleToUse = config.thermalWeaponReticles.get(weaponName);
+        }
+        
+        // Приоритет 2: Проверяем обычный прицел для текущего оружия (если ТПВ выключен или нет thermal прицела для этого оружия)
+        if (reticleToUse == null && weaponName != null && !config.weaponReticles.isEmpty() && config.weaponReticles.containsKey(weaponName)) {
+            reticleToUse = config.weaponReticles.get(weaponName);
+        }
+        
+        // Приоритет 3: Проверяем общие thermal прицелы (4x или 12x в зависимости от зума)
+        if (reticleToUse == null && isThermalVision && config.hasThermalReticle()) {
             if (isZooming && config.thermalReticleTexture12x != null) {
                 reticleToUse = config.thermalReticleTexture12x;
             } else if (config.thermalReticleTexture4x != null) {
@@ -807,13 +957,26 @@ public class ReticleOverlay {
             }
         }
         
+        // Приоритет 4: Используем обычный прицел по умолчанию
         if (reticleToUse == null) {
             reticleToUse = config.reticleTexture;
         }
         
         if (reticleToUse != null) {
-            // Рендерим текстуру на весь заданный размер
-            guiGraphics.blit(reticleToUse, x, y, renderWidth, renderHeight, 0, 0, 1456, 816, 1456, 816);
+            // Растягиваем прицел на весь экран (как в BTR-4)
+            // Используем preciseBlit для правильного растягивания
+            RenderHelper.preciseBlit(
+                guiGraphics,
+                reticleToUse,
+                0f,                    // x - начинаем с 0
+                0f,                    // y - начинаем с 0
+                0f,                    // uOffset
+                0f,                    // vOffset
+                screenWidth,           // width - на весь экран
+                screenHeight,          // height - на весь экран
+                screenWidth,           // textureWidth
+                screenHeight           // textureHeight
+            );
         }
     }
     
@@ -884,12 +1047,62 @@ public class ReticleOverlay {
     }
     
     /**
+     * Включает или выключает digital sight (теперь работает через текстуру tv_frame.png вместо шейдера)
+     */
+    private static void applyDigitalSightShader(boolean enable) {
+        // Теперь digital sight работает через текстуру tv_frame.png вместо шейдера
+        // Просто обновляем флаг состояния
+        digitalSightActive = enable;
+        if (enable) {
+            System.out.println("[VVP] Digital Sight: ВКЛЮЧЕНО (текстура tv_frame.png)");
+        } else {
+            System.out.println("[VVP] Digital Sight: ВЫКЛЮЧЕНО");
+        }
+    }
+    
+    // #region agent log
+    private static void debugLog(String location, String message, Map<String, Object> data, String hypothesisId) {
+        try {
+            Path logPath = Paths.get("c:\\Users\\kniki\\OneDrive\\Desktop\\pack\\vvp-sourve\\.cursor\\debug.log");
+            StringBuilder dataJson = new StringBuilder("{");
+            if (data != null && !data.isEmpty()) {
+                boolean first = true;
+                for (Map.Entry<String, Object> entry : data.entrySet()) {
+                    if (!first) dataJson.append(",");
+                    first = false;
+                    Object value = entry.getValue();
+                    String valueStr = value instanceof String ? "\"" + value.toString().replace("\"", "\\\"") + "\"" : 
+                                     value instanceof Boolean || value instanceof Number ? value.toString() : 
+                                     "\"" + String.valueOf(value).replace("\"", "\\\"") + "\"";
+                    dataJson.append("\"").append(entry.getKey()).append("\":").append(valueStr);
+                }
+            }
+            dataJson.append("}");
+            String logEntry = String.format(
+                "{\"id\":\"%s\",\"timestamp\":%d,\"location\":\"%s\",\"message\":\"%s\",\"data\":%s,\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"%s\"}\n",
+                UUID.randomUUID().toString(),
+                Instant.now().toEpochMilli(),
+                location.replace("\\", "\\\\").replace("\"", "\\\""),
+                message.replace("\\", "\\\\").replace("\"", "\\\""),
+                dataJson.toString(),
+                hypothesisId
+            );
+            Files.write(logPath, logEntry.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        } catch (Exception ignored) {}
+    }
+    // #endregion
+    
+    /**
      * Сбросить состояние
      */
     public static void resetState() {
         noiseTimer = 0;
         lastRecoilShake = 0;
-        lastShootAnimTimer = 0;
+        lastShootAnimTimers.clear();
+        // Убираем digital sight шейдер при сбросе состояния
+        if (digitalSightActive) {
+            applyDigitalSightShader(false);
+        }
     }
     
     /**
@@ -940,17 +1153,25 @@ public class ReticleOverlay {
         ResourceLocation thermalReticleTexture4x;
         ResourceLocation thermalReticleTexture12x;
         ResourceLocation thermalOutlineTexture;
+        // Разные прицелы для разных оружий (Map<weaponName, reticleTexture>)
+        Map<String, ResourceLocation> weaponReticles = new HashMap<>();
+        // Прицелы для оружий с ТПВ (Map<weaponName, reticleTexture>) - используются только при включенном ТПВ
+        Map<String, ResourceLocation> thermalWeaponReticles = new HashMap<>();
         float reticleColorR = 1.0f;
         float reticleColorG = 1.0f;
         float reticleColorB = 1.0f;
         float reticleColorA = 1.0f;
         float reticleScale = 1.0f;
         float zoomScale = 1.5f;
+        float outlineScale = 1.0f; // Масштаб для outline (для увеличения поля обзора)
         boolean noiseEnabled = false;
         int noiseDuration = 15;
         float noiseAlpha = 0.3f;
         int seatIndex = 0;
         boolean hudRightSide = false;
+        boolean thermalVisionAllowed = true; // Разрешено ли ТПВ для этой техники
+        boolean isDigital = false; // Применять ли digital sight шейдер
+        boolean fullscreenReticle = true; // Растягивать ли прицел на весь экран (true) или сохранять пропорции (false)
         
         public ReticleConfig setOutline(String path) {
             this.outlineTexture = new ResourceLocation(path.split(":")[0], path.split(":")[1]);
@@ -1023,5 +1244,46 @@ public class ReticleOverlay {
         public boolean hasThermalReticle() {
             return thermalReticleTexture4x != null || thermalReticleTexture12x != null;
         }
+        
+        public ReticleConfig setWeaponReticle(String weaponName, String path) {
+            this.weaponReticles.put(weaponName, new ResourceLocation(path.split(":")[0], path.split(":")[1]));
+            return this;
+        }
+        
+        public ReticleConfig setOutlineScale(float scale) {
+            this.outlineScale = scale;
+            return this;
+        }
+        
+        public ReticleConfig setThermalWeaponReticle(String weaponName, String path) {
+            this.thermalWeaponReticles.put(weaponName, new ResourceLocation(path.split(":")[0], path.split(":")[1]));
+            return this;
+        }
+        
+        public ReticleConfig setThermalVisionAllowed(boolean allowed) {
+            this.thermalVisionAllowed = allowed;
+            return this;
+        }
+        
+        public ReticleConfig setDigital(boolean digital) {
+            this.isDigital = digital;
+            return this;
+        }
+        
+        public ReticleConfig setFullscreenReticle(boolean fullscreen) {
+            this.fullscreenReticle = fullscreen;
+            return this;
+        }
+    }
+    
+    /**
+     * Проверяет, разрешено ли ТПВ для данной техники
+     */
+    public static boolean isThermalVisionAllowed(VehicleEntity vehicle, int seatIndex) {
+        ReticleConfig config = getConfigForVehicle(vehicle, seatIndex);
+        if (config == null) {
+            return true; // По умолчанию разрешено, если нет конфигурации
+        }
+        return config.thermalVisionAllowed;
     }
 }

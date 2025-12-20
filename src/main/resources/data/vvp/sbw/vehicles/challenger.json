@@ -138,7 +138,7 @@
         "Fire3P": "superbwarfare:bmp_2_missile_fire_3p",
         "VehicleReload3p": "superbwarfare:medium_missile_reload",
         "VehicleReloadSoundTime": 28,
-        "Change": "superbwarfare:into_missile"
+        "Change": "vvp:into_atgm"
       },
       "SoundRadius": 12,
       "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/missile_9m113.png"

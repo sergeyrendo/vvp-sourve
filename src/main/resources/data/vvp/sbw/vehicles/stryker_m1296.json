@@ -150,7 +150,7 @@
         "Fire3P": "superbwarfare:bmp_2_cannon_fire_3p",
         "Fire3PFar": "superbwarfare:mi_28_cannon_far",
         "Fire3PVeryFar": "superbwarfare:mi_28_cannon_veryfar",
-        "Change": "superbwarfare:into_missile"
+        "Change": "vvp:into_autocannon"
       },
       "SoundRadius": 24,
       "AmmoType": [
@@ -208,7 +208,7 @@
         "Fire3P": "superbwarfare:m_2_hb_fire_3p",
         "Fire3PFar": "superbwarfare:m_2_hb_far",
         "Fire3PVeryFar": "superbwarfare:m_2_hb_veryfar",
-        "Change": "superbwarfare:into_cannon"
+        "Change": "vvp:into_coax"
       },
       "SoundRadius": 16
     }

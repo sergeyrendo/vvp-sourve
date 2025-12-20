@@ -1,6 +1,6 @@
 {
   "ID": "vvp:bmp_2m",
-  "MaxHealth": 30,
+  "MaxHealth": 225,
   "MaxEnergy": 5250000,
   "OBB": [
     {
@@ -113,12 +113,12 @@
       "AvailableFireModes": "Auto",
       "Projectile": "superbwarfare:small_cannon_shell",
       "DefaultZoom": 3,
-      "RPM": 330,
+      "RPM": 400,
       "Velocity": 20,
       "Damage": 55,
       "ExplosionDamage": 15,
       "ExplosionRadius": 4,
-      "HeatPerShoot": 8,
+      "HeatPerShoot": 3,
       "NaturalCooldown": 1,
       "RecoilTime": 31,
       "RecoilForce": 0.62,
@@ -128,11 +128,11 @@
       "Crosshair": "@VehicleRuApc",
       "Name": "weapon.vvp.2a42_30mm",
       "SoundInfo": {
-        "Fire1P": "superbwarfare:bmp_2_cannon_fire_1p",
-        "Fire3P": "superbwarfare:bmp_2_cannon_fire_3p",
-        "Fire3PFar": "superbwarfare:mi_28_cannon_far",
-        "Fire3PVeryFar": "superbwarfare:mi_28_cannon_veryfar",
-        "Change": "superbwarfare:into_missile"
+        "Fire1P": "vvp:2a42_1p",
+        "Fire3P": "vvp:2a42_3p",
+        "Fire3PFar": "vvp:2a42_far",
+        "Fire3PVeryFar": "vvp:2a42_veryfar",
+        "Change": "vvp:into_autocannon"
       },
       "SoundRadius": 24,
       "AmmoType": [
@@ -189,7 +189,7 @@
         "Fire3P": "superbwarfare:m_60_fire_3p",
         "Fire3PFar": "superbwarfare:m_60_far",
         "Fire3PVeryFar": "superbwarfare:m_60_veryfar",
-        "Change": "superbwarfare:into_cannon"
+        "Change": "vvp:into_coax"
       },
       "SoundRadius": 12,
       "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/gun_7_62mm.png"
@@ -224,7 +224,7 @@
         "Fire3P": "superbwarfare:bmp_2_missile_fire_3p",
         "VehicleReload3p": "superbwarfare:medium_missile_reload",
         "VehicleReloadSoundTime": 28,
-        "Change": "superbwarfare:into_missile"
+        "Change": "vvp:into_atgm"
       },
       "SoundRadius": 12,
       "Icon": "vvp:textures/screens/vehicle_weapon/atgm.png"
