@@ -53,7 +53,7 @@
       "Transform": "Turret",
       "CameraPos": {
         "UseFixedCameraPos": true,
-        "Position": [-0.03, 0.25, -0.2],
+        "Position": [-0.035, -0.5, 0.75],
         "Transform": "WeaponStationBarrel",
         "ZoomPosition": [0, 0.0, 1.2],
         "Direction": "WeaponStationBarrel"

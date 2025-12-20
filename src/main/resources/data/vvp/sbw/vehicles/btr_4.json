@@ -277,7 +277,7 @@
   "TurretTurnSpeed": [12.5, 10],
   "TurretPitchRange": [-7.5, 74],
   "BarrelPos": [0.2685625, -0.2432250, 0.3661125],
-  "ThirdPersonCameraPos": [0, 1, 3],
+  "ThirdPersonCameraPos": [-2, 3, 7],
   "HasDecoy": true,
   "UpStep": 1.5,
   "RotateOffsetHeight": 2.2,
