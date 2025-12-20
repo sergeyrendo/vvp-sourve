@@ -34,6 +34,7 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.MI_28.get(), Mi28Renderer::new);
         event.registerEntityRenderer(ModEntities.MI_24.get(), Mi24Renderer::new);
         event.registerEntityRenderer(ModEntities.LEOPARD_2A7V.get(), Leopard2A7VRenderer::new);
+        event.registerEntityRenderer(ModEntities.LEOPARD_2A4.get(), Leopard2A4Renderer::new);
         event.registerEntityRenderer(ModEntities.AH_64.get(), Ah64Renderer::new);
         event.registerEntityRenderer(ModEntities.CHALLENGER.get(), ChallengerRenderer::new);
         event.registerEntityRenderer(ModEntities.BMP_2.get(), Bmp2Renderer::new);

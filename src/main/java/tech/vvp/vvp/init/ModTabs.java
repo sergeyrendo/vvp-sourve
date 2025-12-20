@@ -24,6 +24,7 @@ public class ModTabs {
             .title(Component.translatable("natotab.vvp_natovehicle_tab"))
             .displayItems((parameters, output) -> {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.PUMA.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BRADLEY.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.BTR_4.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.CENTAURO.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER.get()));
@@ -31,6 +32,7 @@ public class ModTabs {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.AH_64.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2_SEP.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.LEOPARD_2A7V.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.LEOPARD_2A4.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.VARTA.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.FMTV.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.F_16.get()));

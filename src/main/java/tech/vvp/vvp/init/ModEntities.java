@@ -80,6 +80,9 @@ public class ModEntities {
     public static final RegistryObject<EntityType<Leopard2A7VEntity>> LEOPARD_2A7V = register("leopard_2a7v",
             EntityType.Builder.of(Leopard2A7VEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 
+    public static final RegistryObject<EntityType<Leopard2A4Entity>> LEOPARD_2A4 = register("leopard_2a4",
+            EntityType.Builder.of(Leopard2A4Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
+
     public static final RegistryObject<EntityType<Ah64Entity>> AH_64 = register("ah_64",
             EntityType.Builder.of(Ah64Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 

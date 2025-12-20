@@ -1,6 +1,6 @@
 {
   "ID": "vvp:bmp_2m",
-  "MaxHealth": 225,
+  "MaxHealth": 300,
   "MaxEnergy": 5250000,
   "OBB": [
     {
