@@ -50,7 +50,8 @@
       "CanRotateBody": true,
       "CameraPos": {
         "Transform": "Barrel",
-        "ZoomPosition": [0, 0.1, 0],
+        "UseFixedCameraPos": true,
+        "ZoomPosition": [0, 1, 0],
         "Direction": "Barrel"
       },
       "Transform": "Vehicle",

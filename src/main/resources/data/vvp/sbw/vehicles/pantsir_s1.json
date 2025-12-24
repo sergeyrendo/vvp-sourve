@@ -156,9 +156,8 @@
         "Transform": "Barrel",
         "Directions": ["Barrel"],
         "ShootPositionForHud": [0, 0.6, 1.5],
-        "Positions": [
-          [-1.4261, 0.0279, 2.9101], [1.4261, 0.0279, 2.9101]
-        ],
+        "Positions":
+        [[-1.4261, 0.0279, 2.9101], [1.4261, 0.0279, 2.9101]],
         "BoundUpWithAmmoAmount": true
       },
       "SoundInfo": {

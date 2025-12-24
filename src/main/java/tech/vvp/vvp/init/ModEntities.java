@@ -8,12 +8,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tech.vvp.vvp.VVP;
-import tech.vvp.vvp.entity.projectile.BallisticMissileEntity;
-import tech.vvp.vvp.entity.projectile.Fab250Entity;
-import tech.vvp.vvp.entity.projectile.Fab500Entity;
-import tech.vvp.vvp.entity.projectile.PantsirMissileEntity;
-import tech.vvp.vvp.entity.projectile.R73Entity;
-import tech.vvp.vvp.entity.projectile.Tos1RocketEntity;
+import tech.vvp.vvp.entity.projectile.*;
 import tech.vvp.vvp.entity.vehicle.*;
 
 public class ModEntities {
@@ -30,9 +25,6 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<Bmp3Entity>> BMP_3 = register("bmp_3",
             EntityType.Builder.of(Bmp3Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3.5f));
-
-    public static final RegistryObject<EntityType<C3MEntity>> C3M = register("2c3m",
-            EntityType.Builder.of(C3MEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4.5f, 4.0f));
 
     public static final RegistryObject<EntityType<Bmp2Entity>> BMP_2 = register("bmp_2",
             EntityType.Builder.of(Bmp2Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3f));
@@ -58,9 +50,6 @@ public class ModEntities {
     public static final RegistryObject<EntityType<T90MEntity>> T90_M = register("t90_m",
             EntityType.Builder.of(T90MEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3.5f));
 
-    public static final RegistryObject<EntityType<T90AEntity>> T90_A = register("t90_a",
-            EntityType.Builder.of(T90AEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3.5f));
-
     public static final RegistryObject<EntityType<M1A2Entity>> M1A2 = register("m1a2",
             EntityType.Builder.of(M1A2Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(5f, 5f));
 
@@ -69,9 +58,6 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<PumaEntity>> PUMA = register("puma",
             EntityType.Builder.of(PumaEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
-
-    public static final RegistryObject<EntityType<BushmasterEntity>> BUSHMASTER = register("bushmaster",
-            EntityType.Builder.of(BushmasterEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 
     public static final RegistryObject<EntityType<FMTVEntity>> FMTV = register("fmtv",
             EntityType.Builder.of(FMTVEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
@@ -112,41 +98,17 @@ public class ModEntities {
     public static final RegistryObject<EntityType<PantsirS1Entity>> PANTSIR_S1 = register("pantsir_s1",
             EntityType.Builder.of(PantsirS1Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 
-    public static final RegistryObject<EntityType<Su25Entity>> SU_25 = register("su_25",
-            EntityType.Builder.of(Su25Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
-
-    public static final RegistryObject<EntityType<Fab500Entity>> FAB_500 = register("fab_500",
-            EntityType.Builder.<Fab500Entity>of(Fab500Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).noSave().sized(0.8f, 0.8f));
-
-    public static final RegistryObject<EntityType<Fab250Entity>> FAB_250 = register("fab_250",
-            EntityType.Builder.<Fab250Entity>of(Fab250Entity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(64).setUpdateInterval(1).noSave().sized(0.8f, 0.8f));
-
-    public static final RegistryObject<EntityType<R73Entity>> R73 = register("r73",
-            EntityType.Builder.<R73Entity>of(R73Entity::new, MobCategory.MISC).setTrackingRange(64).setUpdateInterval(1).fireImmune().sized(0.5f, 0.5f));
-
-    public static final RegistryObject<EntityType<BallisticMissileEntity>> BALLISTIC_MISSILE = register("ballistic_missile",
-            EntityType.Builder.<BallisticMissileEntity>of(BallisticMissileEntity::new, MobCategory.MISC).setTrackingRange(256).setUpdateInterval(1).fireImmune().sized(0.5f, 0.5f));
-
     public static final RegistryObject<EntityType<Ags30Entity>> AGS_30 = register("ags_30",
             EntityType.Builder.of(Ags30Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(1f, 1.5f));
 
     public static final RegistryObject<EntityType<KornetEntity>> KORNET = register("kornet",
             EntityType.Builder.of(KornetEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(1f, 2f));
 
-    public static final RegistryObject<EntityType<F16Entity>> F_16 = register("f_16",
-            EntityType.Builder.of(F16Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
-
     public static final RegistryObject<EntityType<CobraEntity>> COBRA = register("cobra",
             EntityType.Builder.of(CobraEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
 
     public static final RegistryObject<EntityType<CentauroEntity>> CENTAURO = register("centauro",
             EntityType.Builder.of(CentauroEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
-
-    public static final RegistryObject<EntityType<Tos1Entity>> TOS_1 = register("tos_1",
-            EntityType.Builder.of(Tos1Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
-
-    public static final RegistryObject<EntityType<Tos1RocketEntity>> TOS_1_ROCKET = register("tos_1_rocket",
-            EntityType.Builder.<Tos1RocketEntity>of(Tos1RocketEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(256).setUpdateInterval(1).noSave().sized(0.5f, 0.5f));
 
     public static final RegistryObject<EntityType<PantsirMissileEntity>> PANTSIR_MISSILE = register("pantsir_missile",
             EntityType.Builder.<PantsirMissileEntity>of(PantsirMissileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(256).setUpdateInterval(1).noSave().fireImmune().sized(0.5f, 0.5f));

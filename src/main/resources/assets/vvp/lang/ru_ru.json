@@ -46,12 +46,14 @@
   "entity.vvp.ah_64": "AH-64 Apache",
   "entity.vvp.ural": "Урал",
   "entity.vvp.centauro": "Centauro",
-  "entity.vvp.tos_1": "ТОС-1 «Солнцепёк»",
+  "entity.vvp.bmp_2_bakhcha": "БМП-2 Бахча",
 
   "//": "==================== ЛЕГКАЯ ТЕХНИКА ====================",
   "entity.vvp.m997_green": "Humvee M997",
   "entity.vvp.gaz_tigr": "ГАЗ Тигр",
   "entity.vvp.fmtv": "FMTV",
+  "entity.vvp.varta": "Варта",
+  "entity.vvp.varta_ptrk": "Варта ПТРК",
 
   "//": "==================== ЭКИПИРОВКА И ПРЕДМЕТЫ ====================",
   "item.vvp.multicamhelmet": "ACH Боевой Шлем США",
