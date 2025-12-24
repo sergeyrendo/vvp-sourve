@@ -6,12 +6,14 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
 import com.atsuishio.superbwarfare.init.ModDamageTypes;
 import com.atsuishio.superbwarfare.init.ModItems;
 import com.atsuishio.superbwarfare.init.ModSounds;
+import com.atsuishio.superbwarfare.init.ModTags;
 import com.atsuishio.superbwarfare.network.NetworkRegistry;
 import com.atsuishio.superbwarfare.network.message.receive.ClientIndicatorMessage;
 import com.atsuishio.superbwarfare.tools.DamageHandler;
 import com.atsuishio.superbwarfare.tools.EntityFindUtil;
 import com.atsuishio.superbwarfare.tools.ParticleTool;
 import com.atsuishio.superbwarfare.tools.ProjectileTool;
+import com.atsuishio.superbwarfare.tools.SeekTool;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -34,6 +36,9 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -117,11 +122,30 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
         spawnTrailParticles();
         
         if (!this.level().isClientSide && this.level() instanceof ServerLevel) {
+            // Проверяем decoy/flare как в Agm65Entity
+            checkForDecoy();
             tickGuidance();
         }
         
         if (this.tickCount > MAX_LIFETIME || this.isInWater()) {
             explodeAndDiscard();
+        }
+    }
+    
+    /**
+     * Проверяет наличие decoy/flare и переключается на них (как в Agm65Entity)
+     */
+    private void checkForDecoy() {
+        // Ищем decoy в радиусе 32 блоков с углом 90 градусов
+        List<Entity> decoy = SeekTool.seekLivingEntities(this, 32, 90);
+        
+        for (var e : decoy) {
+            if (e.getType().is(ModTags.EntityTypes.DECOY) && !this.distracted) {
+                // Переключаемся на decoy
+                this.entityData.set(TARGET_UUID, e.getStringUUID());
+                this.distracted = true;
+                break;
+            }
         }
     }
     

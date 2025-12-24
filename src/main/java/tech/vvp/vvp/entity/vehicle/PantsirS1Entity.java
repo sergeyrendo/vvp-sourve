@@ -4,6 +4,7 @@ import com.atsuishio.superbwarfare.data.vehicle.subdata.VehicleType;
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
 import com.atsuishio.superbwarfare.init.ModSounds;
+import com.atsuishio.superbwarfare.init.ModTags;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -40,9 +41,9 @@ public class PantsirS1Entity extends CamoVehicleBase {
 
     // Синхронизированные данные для автонаведения башни
     private static final EntityDataAccessor<Boolean> AUTO_AIM_ACTIVE = SynchedEntityData.defineId(PantsirS1Entity.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Float> AIM_TARGET_X = SynchedEntityData.defineId(PantsirS1Entity.class, EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Float> AIM_TARGET_Y = SynchedEntityData.defineId(PantsirS1Entity.class, EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Float> AIM_TARGET_Z = SynchedEntityData.defineId(PantsirS1Entity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> AIM_DIR_X = SynchedEntityData.defineId(PantsirS1Entity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> AIM_DIR_Y = SynchedEntityData.defineId(PantsirS1Entity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> AIM_DIR_Z = SynchedEntityData.defineId(PantsirS1Entity.class, EntityDataSerializers.FLOAT);
 
     private static final ResourceLocation[] CAMO_TEXTURES = {
         new ResourceLocation("vvp", "textures/entity/pantsir_s1.png"),
@@ -86,9 +87,9 @@ public class PantsirS1Entity extends CamoVehicleBase {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(AUTO_AIM_ACTIVE, false);
-        this.entityData.define(AIM_TARGET_X, 0f);
-        this.entityData.define(AIM_TARGET_Y, 0f);
-        this.entityData.define(AIM_TARGET_Z, 0f);
+        this.entityData.define(AIM_DIR_X, 0f);
+        this.entityData.define(AIM_DIR_Y, 0f);
+        this.entityData.define(AIM_DIR_Z, 1f); // По умолчанию смотрим вперёд
     }
 
     @Override
@@ -115,18 +116,15 @@ public class PantsirS1Entity extends CamoVehicleBase {
     public void adjustTurretAngle() {
         // Проверяем синхронизированный флаг автонаведения
         if (this.entityData.get(AUTO_AIM_ACTIVE)) {
-            // Получаем позицию цели из синхронизированных данных
-            Vec3 targetPos = new Vec3(
-                this.entityData.get(AIM_TARGET_X),
-                this.entityData.get(AIM_TARGET_Y),
-                this.entityData.get(AIM_TARGET_Z)
+            // Получаем вектор направления стрельбы из синхронизированных данных
+            Vec3 aimDirection = new Vec3(
+                this.entityData.get(AIM_DIR_X),
+                this.entityData.get(AIM_DIR_Y),
+                this.entityData.get(AIM_DIR_Z)
             );
             
-            // Вычисляем направление на цель
-            Vec3 shootPos = this.position().add(0, 2.5, 0);
-            Vec3 toTarget = targetPos.subtract(shootPos);
-            if (toTarget.lengthSqr() > 1) {
-                Vec3 aimDirection = toTarget.normalize();
+            // Передаём вектор направления напрямую в turretAutoAimFromVector
+            if (aimDirection.lengthSqr() > 0.001) {
                 this.turretAutoAimFromVector(aimDirection);
             }
             return;
@@ -275,17 +273,9 @@ public class PantsirS1Entity extends CamoVehicleBase {
             return !vehicle.onGround() && heightAboveRadar > 3.0;
         }
         
-        // Игроки с элитрой (флаеры) или в воздухе
-        if (entity instanceof Player player) {
-            // Не показываем игроков в этом же панцире
-            if (this.hasPassenger(player)) return false;
-            
-            // Проверяем летит ли игрок на элитре
-            if (player.isFallFlying()) {
-                return true;
-            }
-            // Или просто в воздухе достаточно высоко
-            return !player.onGround() && player.position().y > radarPos.y + 5;
+        // Игроков НЕ показываем на радаре (нельзя залочить)
+        if (entity instanceof Player) {
+            return false;
         }
         
         // Мобов НЕ показываем (летучие мыши, пчёлы и т.д. - пофиг на них)
@@ -367,6 +357,13 @@ public class PantsirS1Entity extends CamoVehicleBase {
                     disableAutoAim();
                     radarState = PantsirRadarSyncMessage.STATE_LOST;
                 } else {
+                    // Проверяем наличие decoy/flare рядом с целью - они могут перехватить лок
+                    Entity decoyNearTarget = findDecoyNearTarget(trackedTarget, 50.0);
+                    if (decoyNearTarget != null) {
+                        // Флаер перехватил лок! Переключаемся на него
+                        trackedTarget = decoyNearTarget;
+                    }
+                    
                     // Продолжаем захват (без автонаведения - ручное управление)
                     lockingProgress++;
                     disableAutoAim();
@@ -423,40 +420,56 @@ public class PantsirS1Entity extends CamoVehicleBase {
             return;
         }
         
+        // Получаем оператора для определения параметров оружия
+        LivingEntity operator = getOperator();
+        if (operator == null) {
+            this.entityData.set(AUTO_AIM_ACTIVE, false);
+            return;
+        }
+        
         // Позиция цели (центр)
         Vec3 targetPos = target.getBoundingBox().getCenter();
         
-        // Скорость цели для упреждения
-        Vec3 targetVel = target.getDeltaMovement();
+        // Позиция откуда стреляем
+        Vec3 shootPos = this.getShootPos(operator, 1);
         
-        // Для игроков увеличиваем горизонтальную скорость (они быстрее маневрируют)
-        if (target instanceof Player) {
-            targetVel = targetVel.multiply(1.2, 1, 1.2);
-        }
+        // Проверяем какое оружие выбрано (0 = пушка, 1 = ракеты)
+        int seatIndex = this.getSeatIndex(operator);
+        int weaponIndex = this.getSelectedWeapon(seatIndex);
         
-        // Позиция башни (откуда стреляем)
-        Vec3 shootPos = this.position().add(0, 2.5, 0);
+        Vec3 aimVector;
         
-        // Используем RangeTool.calculateFiringSolution для правильного упреждения
-        // Скорость снаряда пушки ~15 блоков/тик, гравитация ~0.05
-        Vec3 aimVector = com.atsuishio.superbwarfare.tools.RangeTool.calculateFiringSolution(
-            shootPos, targetPos, targetVel.scale(1.1), 15.0, 0.05
-        );
-        
-        // Если calculateFiringSolution вернул null или нулевой вектор - используем прямое направление
-        if (aimVector == null || aimVector.lengthSqr() < 0.001) {
+        if (weaponIndex == 1) {
+            // Ракеты - целимся прямо на цель (ракеты сами наводятся)
             aimVector = targetPos.subtract(shootPos).normalize();
+        } else {
+            // Пушка - используем упреждение с учётом скорости и гравитации
+            Vec3 targetVel = target.getDeltaMovement();
+            
+            // Получаем реальные параметры пушки
+            float velocity = this.getProjectileVelocity(operator);
+            float gravity = this.getProjectileGravity(operator);
+            
+            // Используем RangeTool.calculateFiringSolution для правильного упреждения
+            aimVector = com.atsuishio.superbwarfare.tools.RangeTool.calculateFiringSolution(
+                shootPos, targetPos, targetVel, velocity, gravity
+            );
+            
+            // Если calculateFiringSolution вернул null - используем прямое направление
+            if (aimVector == null || aimVector.lengthSqr() < 0.001) {
+                aimVector = targetPos.subtract(shootPos).normalize();
+            }
         }
         
         // Вычисляем точку куда целиться (для синхронизации)
-        double distance = shootPos.distanceTo(targetPos);
-        Vec3 predictedPos = shootPos.add(aimVector.normalize().scale(distance));
+        // Нормализуем вектор направления
+        aimVector = aimVector.normalize();
         
-        // Обновляем синхронизированные данные
+        // Обновляем синхронизированные данные (вектор направления)
         this.entityData.set(AUTO_AIM_ACTIVE, true);
-        this.entityData.set(AIM_TARGET_X, (float) predictedPos.x);
-        this.entityData.set(AIM_TARGET_Y, (float) predictedPos.y);
-        this.entityData.set(AIM_TARGET_Z, (float) predictedPos.z);
+        this.entityData.set(AIM_DIR_X, (float) aimVector.x);
+        this.entityData.set(AIM_DIR_Y, (float) aimVector.y);
+        this.entityData.set(AIM_DIR_Z, (float) aimVector.z);
     }
     
     /**
@@ -501,6 +514,31 @@ public class PantsirS1Entity extends CamoVehicleBase {
         
         double distance = target.position().distanceTo(radarPos);
         return distance <= RADAR_TRACK_RANGE * 1.2; // Немного больший радиус для удержания
+    }
+    
+    /**
+     * Ищет decoy/flare рядом с целью который может перехватить лок
+     * @param target текущая цель
+     * @param radius радиус поиска вокруг цели
+     * @return decoy entity или null
+     */
+    @Nullable
+    private Entity findDecoyNearTarget(Entity target, double radius) {
+        if (target == null) return null;
+        
+        Vec3 targetPos = target.position();
+        AABB searchBox = new AABB(targetPos, targetPos).inflate(radius);
+        
+        List<Entity> entities = this.level().getEntities(target, searchBox, e -> {
+            if (e == null || !e.isAlive()) return false;
+            // Проверяем что это decoy (флаер)
+            return e.getType().is(ModTags.EntityTypes.DECOY);
+        });
+        
+        // Возвращаем ближайший decoy к цели
+        return entities.stream()
+                .min(Comparator.comparingDouble(e -> e.position().distanceTo(targetPos)))
+                .orElse(null);
     }
     
     /**
