@@ -11,7 +11,9 @@ import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.entity.projectile.BallisticMissileEntity;
 import tech.vvp.vvp.entity.projectile.Fab250Entity;
 import tech.vvp.vvp.entity.projectile.Fab500Entity;
+import tech.vvp.vvp.entity.projectile.PantsirMissileEntity;
 import tech.vvp.vvp.entity.projectile.R73Entity;
+import tech.vvp.vvp.entity.projectile.Tos1RocketEntity;
 import tech.vvp.vvp.entity.vehicle.*;
 
 public class ModEntities {
@@ -133,6 +135,15 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<CentauroEntity>> CENTAURO = register("centauro",
             EntityType.Builder.of(CentauroEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
+
+    public static final RegistryObject<EntityType<Tos1Entity>> TOS_1 = register("tos_1",
+            EntityType.Builder.of(Tos1Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
+
+    public static final RegistryObject<EntityType<Tos1RocketEntity>> TOS_1_ROCKET = register("tos_1_rocket",
+            EntityType.Builder.<Tos1RocketEntity>of(Tos1RocketEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(256).setUpdateInterval(1).noSave().sized(0.5f, 0.5f));
+
+    public static final RegistryObject<EntityType<PantsirMissileEntity>> PANTSIR_MISSILE = register("pantsir_missile",
+            EntityType.Builder.<PantsirMissileEntity>of(PantsirMissileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(256).setUpdateInterval(1).noSave().fireImmune().sized(0.5f, 0.5f));
 
 
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {

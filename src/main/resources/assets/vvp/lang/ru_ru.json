@@ -46,6 +46,7 @@
   "entity.vvp.ah_64": "AH-64 Apache",
   "entity.vvp.ural": "Урал",
   "entity.vvp.centauro": "Centauro",
+  "entity.vvp.tos_1": "ТОС-1 «Солнцепёк»",
 
   "//": "==================== ЛЕГКАЯ ТЕХНИКА ====================",
   "entity.vvp.m997_green": "Humvee M997",
@@ -125,6 +126,7 @@
 
   "key.categories.vvp": "VVP",
   "key.vvp.thermal_vision": "Тепловизионное зрение",
+  "key.vvp.pantsir_lock": "Захват цели (Панцирь)",
   "key.vvp.toggle_radar": "Переключить радар",
   "key.vvp.move_radar_pos": "Переместить радар (позиция)",
   "key.vvp.toggle_nvg": "Переключить ПНВ",
@@ -200,6 +202,7 @@
   "weapon.vvp.aim_120": "AIM-120 AMRAAM %s",
   "weapon.vvp.m197_20mm": "M197 20мм %s",
   "weapon.vvp.m134_minigun": "M134 Миниган %s",
+  "weapon.vvp.tos1_rocket": "220мм Термобарическая ракета %s",
   "//": "==================== ZU-23 ====================",
   "entity.vvp.zu23": "ЗУ-23-2",
   "item.vvp.zu23_item": "ЗУ-23-2",

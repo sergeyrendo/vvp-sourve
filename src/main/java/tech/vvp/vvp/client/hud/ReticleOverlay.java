@@ -231,6 +231,24 @@ public class ReticleOverlay {
                 .setSeatIndex(0)
                 .setHudRightSide(false)
         );
+        
+        // TOS-1 - сидушка 0 (наводчик)
+        // БЕЗ прицела - только вычислитель траектории
+        registerConfig(
+            tech.vvp.vvp.entity.vehicle.Tos1Entity.class,
+            0,
+            new ReticleConfig()
+                .setReticleColor(1.0f, 1.0f, 1.0f, 1.0f)
+                .setReticleScale(1.0f)
+                .setZoomScale(1.5f)
+                .setThermalVisionAllowed(false)
+                .setNoiseEnabled(false)
+                .setNoiseDuration(15)
+                .setNoiseAlpha(0.3f)
+                .setSeatIndex(0)
+                .setHudRightSide(false)
+                .setFullscreenReticle(false)
+        );
     }
 
     /**

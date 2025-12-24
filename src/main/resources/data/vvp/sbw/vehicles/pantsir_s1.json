@@ -145,21 +145,13 @@
       "AvailableFireModes": "Semi",
       "Magazine": 12,
       "EmptyReloadTime": 240,
-      "Projectile": "superbwarfare:ru_9m336_missile",
+      "Projectile": "vvp:pantsir_missile",
       "Name": "weapon.vvp.57e6_missile",
       "Damage": 250,
       "RPM": 30,
       "ExplosionDamage": 120,
       "ExplosionRadius": 8,
-      "Velocity": 1.875,
-      "SeekWeaponInfo": {
-        "SeekDirection": "Barrel",
-        "SeekRange": 500,
-        "SeekAngle": 15,
-        "SeekTime": 10,
-        "MinTargetHeight": 5,
-        "OnlyLockEntity": true
-      },
+      "Velocity": 8,
       "ShootPos": {
         "Transform": "Barrel",
         "Directions": ["Barrel"],
