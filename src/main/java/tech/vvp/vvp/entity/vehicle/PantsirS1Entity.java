@@ -430,8 +430,8 @@ public class PantsirS1Entity extends CamoVehicleBase {
         // Позиция цели (центр)
         Vec3 targetPos = target.getBoundingBox().getCenter();
         
-        // Позиция откуда стреляем
-        Vec3 shootPos = this.getShootPos(operator, 1);
+        // Позиция откуда стреляем - используем позицию башни (не getShootPos который крашит)
+        Vec3 shootPos = this.position().add(0, 2.5, 0);
         
         // Проверяем какое оружие выбрано (0 = пушка, 1 = ракеты)
         int seatIndex = this.getSeatIndex(operator);
@@ -446,9 +446,9 @@ public class PantsirS1Entity extends CamoVehicleBase {
             // Пушка - используем упреждение с учётом скорости и гравитации
             Vec3 targetVel = target.getDeltaMovement();
             
-            // Получаем реальные параметры пушки
-            float velocity = this.getProjectileVelocity(operator);
-            float gravity = this.getProjectileGravity(operator);
+            // Параметры пушки 2А38М (фиксированные значения)
+            float velocity = 20.0f;
+            float gravity = 0.03f;
             
             // Используем RangeTool.calculateFiringSolution для правильного упреждения
             aimVector = com.atsuishio.superbwarfare.tools.RangeTool.calculateFiringSolution(
@@ -461,7 +461,6 @@ public class PantsirS1Entity extends CamoVehicleBase {
             }
         }
         
-        // Вычисляем точку куда целиться (для синхронизации)
         // Нормализуем вектор направления
         aimVector = aimVector.normalize();
         
@@ -719,7 +718,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
         
         // Ракеты (индекс 1) - требуется захват цели
         if (weaponIndex == 1) {
-            // На клиенте проверяем статус захвата через ClientEventHandler
+            // На клиенте проверяем статус захвата через ClientHandler
             if (this.level().isClientSide) {
                 return isTargetLocked() && super.canShoot(living);
             }
