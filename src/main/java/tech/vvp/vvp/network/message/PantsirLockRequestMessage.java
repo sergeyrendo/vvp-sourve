@@ -15,6 +15,8 @@ public class PantsirLockRequestMessage {
     
     public static final int ACTION_START_LOCK = 0;   // Начать захват
     public static final int ACTION_CANCEL_LOCK = 1;  // Отменить захват
+    public static final int ACTION_NEXT_TARGET = 2;  // Следующая цель
+    public static final int ACTION_PREV_TARGET = 3;  // Предыдущая цель
     
     public final int action;
     
@@ -42,10 +44,11 @@ public class PantsirLockRequestMessage {
             int seatIndex = pantsir.getSeatIndex(player);
             if (seatIndex != 1) return;
             
-            if (message.action == ACTION_START_LOCK) {
-                pantsir.requestLock(player);
-            } else if (message.action == ACTION_CANCEL_LOCK) {
-                pantsir.cancelLock(player);
+            switch (message.action) {
+                case ACTION_START_LOCK -> pantsir.requestLock(player);
+                case ACTION_CANCEL_LOCK -> pantsir.cancelLock(player);
+                case ACTION_NEXT_TARGET -> pantsir.selectNextTarget();
+                case ACTION_PREV_TARGET -> pantsir.selectPrevTarget();
             }
         });
         ctx.get().setPacketHandled(true);

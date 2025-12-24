@@ -26,6 +26,9 @@ public class PantsirRadarSyncMessage {
     public final double targetX;
     public final double targetY;
     public final double targetZ;
+    public final double targetVelX;   // Скорость цели для отображения
+    public final double targetVelY;
+    public final double targetVelZ;
     public final int lockProgress;    // 0-100, прогресс захвата
     public final double targetDistance;
     public final float radarAngle;    // Угол вращения радара в градусах (абсолютный)
@@ -42,7 +45,9 @@ public class PantsirRadarSyncMessage {
     public final double[] missileY;
     public final double[] missileZ;
     
-    public PantsirRadarSyncMessage(int vehicleId, int radarState, int targetEntityId, double targetX, double targetY, double targetZ, 
+    public PantsirRadarSyncMessage(int vehicleId, int radarState, int targetEntityId, 
+                                   double targetX, double targetY, double targetZ,
+                                   double targetVelX, double targetVelY, double targetVelZ,
                                    int lockProgress, double targetDistance, float radarAngle, float turretAngle,
                                    int[] allTargetIds, double[] allTargetX, double[] allTargetY, double[] allTargetZ,
                                    double[] missileX, double[] missileY, double[] missileZ) {
@@ -52,6 +57,9 @@ public class PantsirRadarSyncMessage {
         this.targetX = targetX;
         this.targetY = targetY;
         this.targetZ = targetZ;
+        this.targetVelX = targetVelX;
+        this.targetVelY = targetVelY;
+        this.targetVelZ = targetVelZ;
         this.lockProgress = lockProgress;
         this.targetDistance = targetDistance;
         this.radarAngle = radarAngle;
@@ -72,6 +80,9 @@ public class PantsirRadarSyncMessage {
         buffer.writeDouble(message.targetX);
         buffer.writeDouble(message.targetY);
         buffer.writeDouble(message.targetZ);
+        buffer.writeDouble(message.targetVelX);
+        buffer.writeDouble(message.targetVelY);
+        buffer.writeDouble(message.targetVelZ);
         buffer.writeInt(message.lockProgress);
         buffer.writeDouble(message.targetDistance);
         buffer.writeFloat(message.radarAngle);
@@ -102,6 +113,9 @@ public class PantsirRadarSyncMessage {
         double targetX = buffer.readDouble();
         double targetY = buffer.readDouble();
         double targetZ = buffer.readDouble();
+        double targetVelX = buffer.readDouble();
+        double targetVelY = buffer.readDouble();
+        double targetVelZ = buffer.readDouble();
         int lockProgress = buffer.readInt();
         double targetDistance = buffer.readDouble();
         float radarAngle = buffer.readFloat();
@@ -132,8 +146,10 @@ public class PantsirRadarSyncMessage {
         }
         
         return new PantsirRadarSyncMessage(
-            vehicleId, radarState, targetEntityId, targetX, targetY, targetZ, lockProgress, targetDistance, 
-            radarAngle, turretAngle, allTargetIds, allTargetX, allTargetY, allTargetZ,
+            vehicleId, radarState, targetEntityId, targetX, targetY, targetZ, 
+            targetVelX, targetVelY, targetVelZ,
+            lockProgress, targetDistance, radarAngle, turretAngle, 
+            allTargetIds, allTargetX, allTargetY, allTargetZ,
             missileX, missileY, missileZ
         );
     }

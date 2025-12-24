@@ -2,6 +2,7 @@ package tech.vvp.vvp.entity.projectile;
 
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 import com.atsuishio.superbwarfare.entity.projectile.MissileProjectile;
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
 import com.atsuishio.superbwarfare.init.ModDamageTypes;
 import com.atsuishio.superbwarfare.init.ModItems;
 import com.atsuishio.superbwarfare.init.ModSounds;
@@ -18,11 +19,14 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -136,10 +140,27 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
         }
         
         // Обновляем targetPos от цели по UUID
+        Entity target = null;
         if (hasUuidTarget) {
-            Entity target = EntityFindUtil.findEntity(this.level(), targetUuid);
+            target = EntityFindUtil.findEntity(this.level(), targetUuid);
             if (target != null && target.isAlive()) {
                 targetPos = target.position().add(0, target.getBbHeight() * 0.5, 0);
+                
+                // Оповещаем цель о приближающейся ракете
+                // Интервал зависит от дистанции - чем ближе, тем чаще пищит
+                int warningInterval = (int) Math.max(0.04 * this.distanceTo(target), 2);
+                if (this.tickCount % warningInterval == 0) {
+                    // Оповещаем: VehicleEntity, технику с пассажирами, или игроков (флаеров)
+                    boolean shouldWarn = target instanceof VehicleEntity 
+                        || !target.getPassengers().isEmpty()
+                        || target instanceof Player;
+                    
+                    if (shouldWarn) {
+                        target.level().playSound(null, target.getOnPos(), 
+                            target instanceof Pig ? SoundEvents.PIG_HURT : ModSounds.MISSILE_WARNING.get(), 
+                            SoundSource.PLAYERS, 2, 1f);
+                    }
+                }
             }
         }
         

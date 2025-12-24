@@ -14,10 +14,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.joml.Matrix4f;
+import org.lwjgl.glfw.GLFW;
 import tech.vvp.vvp.VVP;
 import tech.vvp.vvp.client.PantsirClientHandler;
 import tech.vvp.vvp.entity.vehicle.PantsirS1Entity;
@@ -45,12 +47,14 @@ public class PantsirOperatorOverlay {
     private static final int RADAR_SEGMENTS = 32;
     private static final int MARKER_SIZE = 24;
     private static final int MARKER_HALF = MARKER_SIZE / 2;
-    private static final double RADAR_RANGE = 700.0;
+    private static final double RADAR_RANGE = 800.0;
     private static final float SSC_HALF_ANGLE = 3.0f;
     
     private static boolean wasLockKeyPressed = false;
     private static int lastRadarState = -1;
     private static long lastLockingSoundTime = 0;
+    private static boolean wasNextKeyPressed = false;
+    private static boolean wasPrevKeyPressed = false;
 
     @SubscribeEvent
     public static void onRenderGui(RenderGuiEvent.Post event) {
@@ -69,6 +73,7 @@ public class PantsirOperatorOverlay {
         if (seatIndex != 1) return;
         
         handleLockKeyInput(player);
+        handleTargetSwitchInput(player);
         handleLockSounds(player);
 
         GuiGraphics guiGraphics = event.getGuiGraphics();
@@ -111,6 +116,38 @@ public class PantsirOperatorOverlay {
             }
         }
         wasLockKeyPressed = isPressed;
+    }
+    
+    /**
+     * Обработка переключения целей стрелочками
+     */
+    private static void handleTargetSwitchInput(Player player) {
+        Minecraft mc = Minecraft.getInstance();
+        long window = mc.getWindow().getWindow();
+        
+        // Стрелка влево - предыдущая цель
+        boolean leftPressed = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT) == GLFW.GLFW_PRESS;
+        if (leftPressed && !wasPrevKeyPressed) {
+            if (PantsirClientHandler.radarState != PantsirRadarSyncMessage.STATE_LOCKING &&
+                PantsirClientHandler.radarState != PantsirRadarSyncMessage.STATE_LOCKED) {
+                VVPNetwork.VVP_HANDLER.sendToServer(
+                    new PantsirLockRequestMessage(PantsirLockRequestMessage.ACTION_PREV_TARGET)
+                );
+            }
+        }
+        wasPrevKeyPressed = leftPressed;
+        
+        // Стрелка вправо - следующая цель
+        boolean rightPressed = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT) == GLFW.GLFW_PRESS;
+        if (rightPressed && !wasNextKeyPressed) {
+            if (PantsirClientHandler.radarState != PantsirRadarSyncMessage.STATE_LOCKING &&
+                PantsirClientHandler.radarState != PantsirRadarSyncMessage.STATE_LOCKED) {
+                VVPNetwork.VVP_HANDLER.sendToServer(
+                    new PantsirLockRequestMessage(PantsirLockRequestMessage.ACTION_NEXT_TARGET)
+                );
+            }
+        }
+        wasNextKeyPressed = rightPressed;
     }
     
     private static void handleLockSounds(Player player) {
@@ -162,7 +199,7 @@ public class PantsirOperatorOverlay {
         guiGraphics.drawString(mc.font, "W", centerX - RADAR_RADIUS - 10, centerY - 4, COLOR_RADAR_GREEN, false);
         guiGraphics.drawString(mc.font, "E", centerX + RADAR_RADIUS + 4, centerY - 4, COLOR_RADAR_GREEN, false);
         
-        guiGraphics.drawString(mc.font, "700m", centerX + RADAR_RADIUS - 20, centerY - RADAR_RADIUS + 5, COLOR_RADAR_DARK, false);
+        guiGraphics.drawString(mc.font, "800m", centerX + RADAR_RADIUS - 20, centerY - RADAR_RADIUS + 5, COLOR_RADAR_DARK, false);
         
         int targetCount = PantsirClientHandler.allTargets.size();
         if (targetCount > 0) {
@@ -397,9 +434,28 @@ public class PantsirOperatorOverlay {
         drawTargetBrackets(guiGraphics, x, y, COLOR_LOCKED);
         
         Minecraft mc = Minecraft.getInstance();
+        
+        // Дистанция
         String distText = String.format("%.0fm", PantsirClientHandler.targetDistance);
-        guiGraphics.drawString(mc.font, Component.literal(distText), x + MARKER_HALF + 5, y - 5, COLOR_LOCKED, false);
-        guiGraphics.drawString(mc.font, Component.literal("TRK"), x + MARKER_HALF + 5, y + 5, COLOR_LOCKED, false);
+        guiGraphics.drawString(mc.font, Component.literal(distText), x + MARKER_HALF + 5, y - 12, COLOR_LOCKED, false);
+        
+        // Скорость цели (блоков/тик -> м/с, 1 тик = 0.05 сек, так что *20)
+        double speed = Math.sqrt(
+            PantsirClientHandler.targetVelX * PantsirClientHandler.targetVelX +
+            PantsirClientHandler.targetVelY * PantsirClientHandler.targetVelY +
+            PantsirClientHandler.targetVelZ * PantsirClientHandler.targetVelZ
+        ) * 20; // блоков/сек
+        String speedText = String.format("%.0f m/s", speed);
+        guiGraphics.drawString(mc.font, Component.literal(speedText), x + MARKER_HALF + 5, y, COLOR_LOCKED, false);
+        
+        // Время до перехвата ракетой (примерно)
+        // Скорость ракеты ~8 блоков/тик = 160 м/с
+        double missileSpeed = 160.0; // м/с
+        double timeToIntercept = PantsirClientHandler.targetDistance / missileSpeed;
+        String timeText = String.format("ETA: %.1fs", timeToIntercept);
+        guiGraphics.drawString(mc.font, Component.literal(timeText), x + MARKER_HALF + 5, y + 12, COLOR_LOCKED, false);
+        
+        guiGraphics.drawString(mc.font, Component.literal("TRK"), x + MARKER_HALF + 5, y + 24, COLOR_LOCKED, false);
     }
     
     private static void drawTargetBrackets(GuiGraphics guiGraphics, int cx, int cy, int color) {
@@ -425,8 +481,10 @@ public class PantsirOperatorOverlay {
         String keyName = ModKeyMappings.VEHICLE_SEEK.getKey().getDisplayName().getString();
         String fireKey = ModKeyMappings.FIRE.getKey().getDisplayName().getString();
         String hint = switch (PantsirClientHandler.radarState) {
-            case PantsirRadarSyncMessage.STATE_IDLE -> "Radar scanning...";
-            case PantsirRadarSyncMessage.STATE_DETECTED -> "[" + keyName + "] Lock target";
+            case PantsirRadarSyncMessage.STATE_IDLE -> PantsirClientHandler.allTargets.isEmpty() 
+                ? "Radar scanning..." 
+                : "[←/→] Select target";
+            case PantsirRadarSyncMessage.STATE_DETECTED -> "[" + keyName + "] Lock | [←/→] Switch";
             case PantsirRadarSyncMessage.STATE_LOCKING -> "[" + keyName + "] Cancel";
             case PantsirRadarSyncMessage.STATE_LOCKED -> "◆ [" + fireKey + "] FIRE | [" + keyName + "] Release";
             case PantsirRadarSyncMessage.STATE_LOST -> "Target lost";

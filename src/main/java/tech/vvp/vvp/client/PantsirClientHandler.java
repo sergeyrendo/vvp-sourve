@@ -28,6 +28,11 @@ public class PantsirClientHandler {
     public static double targetY = 0;
     public static double targetZ = 0;
     
+    // Скорость цели (блоков/тик)
+    public static double targetVelX = 0;
+    public static double targetVelY = 0;
+    public static double targetVelZ = 0;
+    
     // Прогресс захвата (0-100)
     public static int lockProgress = 0;
     
@@ -105,6 +110,9 @@ public class PantsirClientHandler {
         targetX = message.targetX;
         targetY = message.targetY;
         targetZ = message.targetZ;
+        targetVelX = message.targetVelX;
+        targetVelY = message.targetVelY;
+        targetVelZ = message.targetVelZ;
         lockProgress = message.lockProgress;
         targetDistance = message.targetDistance;
         
@@ -181,6 +189,9 @@ public class PantsirClientHandler {
         targetX = 0;
         targetY = 0;
         targetZ = 0;
+        targetVelX = 0;
+        targetVelY = 0;
+        targetVelZ = 0;
         lockProgress = 0;
         targetDistance = 0;
         radarAngle = 0;
