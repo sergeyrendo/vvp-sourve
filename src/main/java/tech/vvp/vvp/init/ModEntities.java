@@ -37,6 +37,9 @@ public class ModEntities {
     public static final RegistryObject<EntityType<Bmp2Entity>> BMP_2 = register("bmp_2",
             EntityType.Builder.of(Bmp2Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3f));
 
+    public static final RegistryObject<EntityType<Bmp2BakhchaEntity>> BMP_2_BAKHCHA = register("bmp_2_bakhcha",
+            EntityType.Builder.of(Bmp2BakhchaEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3f));
+
     public static final RegistryObject<EntityType<Bmp2MEntity>> BMP_2M = register("bmp_2m",
             EntityType.Builder.of(Bmp2MEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3f));
 
@@ -102,6 +105,9 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<VartaEntity>> VARTA = register("varta",
             EntityType.Builder.of(VartaEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3f, 3.5f));
+
+    public static final RegistryObject<EntityType<VartaPTRKEntity>> VARTA_PTRK = register("varta_ptrk",
+            EntityType.Builder.of(VartaPTRKEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3f, 3.5f));
 
     public static final RegistryObject<EntityType<PantsirS1Entity>> PANTSIR_S1 = register("pantsir_s1",
             EntityType.Builder.of(PantsirS1Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));

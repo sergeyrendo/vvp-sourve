@@ -98,9 +98,6 @@ public class ModItems {
     public static final RegistryObject<Item> ITEM_30MM = REGISTRY.register("item_30mm",
             () -> new Item(new Item.Properties().stacksTo(64)));
 
-    public static final RegistryObject<Item> ITEM_20MM = REGISTRY.register("item_20mm",
-            () -> new Item(new Item.Properties().stacksTo(64)));
-
     public static final RegistryObject<Item> ITEM_AP_SHELL = REGISTRY.register("ap_shell",
             () -> new Item(new Item.Properties().stacksTo(64)));
 
