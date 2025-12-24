@@ -56,8 +56,8 @@ public class PantsirS1Entity extends CamoVehicleBase {
     private static final String[] CAMO_NAMES = {"Standard", "Haki", "Camo2", "Camo3", "Camo4"};
     
     // Параметры радара
-    private static final double RADAR_RANGE = 800.0;           // Дальность обзорного радара
-    private static final double RADAR_TRACK_RANGE = 700.0;     // Дальность сопровождения
+    private static final double RADAR_RANGE = 1100.0;          // Дальность обзорного радара
+    private static final double RADAR_TRACK_RANGE = 1000.0;    // Дальность сопровождения
     private static final int LOCK_TIME_TICKS = 40;             // Время захвата (2 секунды)
     
     // Параметры вращающегося радара (синхронизация с анимацией)
