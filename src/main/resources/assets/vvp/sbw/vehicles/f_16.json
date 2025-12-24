@@ -1,7 +1,0 @@
-{
-  "ID": "vvp:f_16",
-  "Model": {
-    "Model": "vvp:geo/f_16.geo.json",
-    "Texture": "vvp:textures/entity/f_16.png"
-  }
-}

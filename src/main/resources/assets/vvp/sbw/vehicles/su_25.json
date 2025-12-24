@@ -1,8 +1,0 @@
-{
-  "ID": "vvp:su_25",
-  "Model": {
-    "Model": "vvp:geo/su25.geo.json",
-    "Texture": "vvp:textures/entity/su25.png",
-    "Animation": "vvp:animations/su25.animation.json"
-  }
-}
