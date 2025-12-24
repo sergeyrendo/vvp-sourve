@@ -41,6 +41,7 @@ public class VVP {
 
     private void setup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            VVPNetwork.register();
         });
     }
 

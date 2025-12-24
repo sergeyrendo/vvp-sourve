@@ -9,6 +9,8 @@ import tech.vvp.vvp.client.renderer.entity.projectile.BallisticMissileRenderer;
 import tech.vvp.vvp.client.renderer.entity.projectile.Fab250Renderer;
 import tech.vvp.vvp.client.renderer.entity.projectile.Fab500Renderer;
 import tech.vvp.vvp.client.renderer.entity.R73Renderer;
+import tech.vvp.vvp.client.renderer.entity.PantsirMissileRenderer;
+import tech.vvp.vvp.client.renderer.entity.Tos1RocketRenderer;
 import tech.vvp.vvp.client.renderer.entity.vehicle.*;
 
 @Mod.EventBusSubscriber(modid = VVP.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -54,8 +56,10 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.F_16.get(), F16Renderer::new);
         event.registerEntityRenderer(ModEntities.COBRA.get(), CobraRenderer::new);
         event.registerEntityRenderer(ModEntities.CENTAURO.get(), CentauroRenderer::new);
+
         event.registerEntityRenderer(ModEntities.VARTA_PTRK.get(), VartaPTRKRenderer::new);
         event.registerEntityRenderer(ModEntities.BMP_2_BAKHCHA.get(), Bmp2BakhcaRenderer::new);
+
     }
 
     /**
