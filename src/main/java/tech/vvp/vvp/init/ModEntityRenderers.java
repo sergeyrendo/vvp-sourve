@@ -60,6 +60,10 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.VARTA_PTRK.get(), VartaPTRKRenderer::new);
         event.registerEntityRenderer(ModEntities.BMP_2_BAKHCHA.get(), Bmp2BakhcaRenderer::new);
 
+        event.registerEntityRenderer(ModEntities.TOS_1.get(), Tos1Renderer::new);
+        event.registerEntityRenderer(ModEntities.TOS_1_ROCKET.get(), Tos1RocketRenderer::new);
+        event.registerEntityRenderer(ModEntities.PANTSIR_MISSILE.get(), PantsirMissileRenderer::new);
+
     }
 
     /**
