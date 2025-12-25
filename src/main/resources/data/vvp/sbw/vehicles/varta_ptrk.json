@@ -47,11 +47,12 @@
     },
     {
       "IsEnclosed": true,
-      "CanRotateBody": true,
+      "CanRotateBody": false,
       "CameraPos": {
         "Transform": "Barrel",
         "UseFixedCameraPos": true,
-        "ZoomPosition": [0, 1, 0],
+        "Position": [0, 0.7, -0.1],
+        "ZoomPosition": [0, 0, 0.75],
         "Direction": "Barrel"
       },
       "Transform": "Vehicle",

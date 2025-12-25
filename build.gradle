@@ -23,7 +23,7 @@ group = mod_group_id
 version = '0.2.0'
 
 base {
-    archivesName = "vvp"
+    archivesName = "vvp-alpha-1.20.1"
 }
 
 java {
