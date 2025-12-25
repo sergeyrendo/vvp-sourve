@@ -20,6 +20,13 @@ public class PantsirRadarSyncMessage {
     public static final int STATE_LOCKED = 3;      // Цель захвачена
     public static final int STATE_LOST = 4;        // Захват потерян
     
+    // Типы целей для иконок
+    public static final int TARGET_TYPE_UNKNOWN = 0;
+    public static final int TARGET_TYPE_HELICOPTER = 1;
+    public static final int TARGET_TYPE_AIRPLANE = 2;
+    public static final int TARGET_TYPE_MISSILE = 3;      // Вражеская ракета
+    public static final int TARGET_TYPE_OWN_MISSILE = 4;  // Своя ракета
+    
     public final int vehicleId;       // ID панциря, от которого пришло сообщение
     public final int radarState;
     public final int targetEntityId;  // -1 если нет цели
@@ -39,6 +46,7 @@ public class PantsirRadarSyncMessage {
     public final double[] allTargetX;
     public final double[] allTargetY;
     public final double[] allTargetZ;
+    public final int[] allTargetTypes; // Тип каждой цели
     
     // Выпущенные ракеты для отображения на радаре
     public final double[] missileX;
@@ -50,6 +58,7 @@ public class PantsirRadarSyncMessage {
                                    double targetVelX, double targetVelY, double targetVelZ,
                                    int lockProgress, double targetDistance, float radarAngle, float turretAngle,
                                    int[] allTargetIds, double[] allTargetX, double[] allTargetY, double[] allTargetZ,
+                                   int[] allTargetTypes,
                                    double[] missileX, double[] missileY, double[] missileZ) {
         this.vehicleId = vehicleId;
         this.radarState = radarState;
@@ -68,6 +77,7 @@ public class PantsirRadarSyncMessage {
         this.allTargetX = allTargetX;
         this.allTargetY = allTargetY;
         this.allTargetZ = allTargetZ;
+        this.allTargetTypes = allTargetTypes;
         this.missileX = missileX;
         this.missileY = missileY;
         this.missileZ = missileZ;
@@ -95,6 +105,7 @@ public class PantsirRadarSyncMessage {
             buffer.writeDouble(message.allTargetX[i]);
             buffer.writeDouble(message.allTargetY[i]);
             buffer.writeDouble(message.allTargetZ[i]);
+            buffer.writeInt(message.allTargetTypes[i]);
         }
         
         // Ракеты
@@ -126,12 +137,14 @@ public class PantsirRadarSyncMessage {
         double[] allTargetX = new double[count];
         double[] allTargetY = new double[count];
         double[] allTargetZ = new double[count];
+        int[] allTargetTypes = new int[count];
         
         for (int i = 0; i < count; i++) {
             allTargetIds[i] = buffer.readInt();
             allTargetX[i] = buffer.readDouble();
             allTargetY[i] = buffer.readDouble();
             allTargetZ[i] = buffer.readDouble();
+            allTargetTypes[i] = buffer.readInt();
         }
         
         int missileCount = buffer.readInt();
@@ -149,7 +162,7 @@ public class PantsirRadarSyncMessage {
             vehicleId, radarState, targetEntityId, targetX, targetY, targetZ, 
             targetVelX, targetVelY, targetVelZ,
             lockProgress, targetDistance, radarAngle, turretAngle, 
-            allTargetIds, allTargetX, allTargetY, allTargetZ,
+            allTargetIds, allTargetX, allTargetY, allTargetZ, allTargetTypes,
             missileX, missileY, missileZ
         );
     }

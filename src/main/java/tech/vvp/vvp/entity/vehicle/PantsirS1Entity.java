@@ -1,6 +1,7 @@
 package tech.vvp.vvp.entity.vehicle;
 
 import com.atsuishio.superbwarfare.data.vehicle.subdata.VehicleType;
+import com.atsuishio.superbwarfare.entity.projectile.MissileProjectile;
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
 import com.atsuishio.superbwarfare.init.ModSounds;
@@ -58,7 +59,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
     // Параметры радара
     private static final double RADAR_RANGE = 1100.0;          // Дальность обзорного радара
     private static final double RADAR_TRACK_RANGE = 1000.0;    // Дальность сопровождения
-    private static final int LOCK_TIME_TICKS = 40;             // Время захвата (2 секунды)
+    private static final int LOCK_TIME_TICKS = 20;             // Время захвата (1 секунда)
     
     // Параметры вращающегося радара (синхронизация с анимацией)
     private static final float RADAR_ROTATION_TICKS = 42.5f;   // Тиков на полный оборот
@@ -201,7 +202,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
             this.getId(), PantsirRadarSyncMessage.STATE_IDLE, -1, 0, 0, 0, 
             0, 0, 0, // скорость цели
             0, 0, radarAngle, turretAngle,
-            new int[0], new double[0], new double[0], new double[0],
+            new int[0], new double[0], new double[0], new double[0], new int[0],
             new double[0], new double[0], new double[0]
         );
         
@@ -246,7 +247,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
     
     /**
      * Проверяет является ли entity валидной целью для радара
-     * Только игроки и техника (VehicleEntity)
+     * Техника (VehicleEntity) и вражеские ракеты (MissileProjectile, ThrowableProjectile)
      */
     private boolean isValidRadarTarget(Entity entity) {
         if (entity == null || !entity.isAlive()) return false;
@@ -258,6 +259,23 @@ public class PantsirS1Entity extends CamoVehicleBase {
         Vec3 radarPos = this.position().add(0, 2.5, 0);
         double distance = entity.position().distanceTo(radarPos);
         if (distance > RADAR_RANGE) return false;
+        
+        // Вражеские ракеты (MissileProjectile) - можно сбивать!
+        // Исключаем свои ракеты (PantsirMissileEntity с нашим launcherId)
+        if (entity instanceof MissileProjectile missile) {
+            // Свои ракеты не показываем как цели (они отдельно отображаются)
+            if (entity instanceof PantsirMissileEntity pantsirMissile) {
+                return pantsirMissile.getLauncherId() != this.getId();
+            }
+            return true; // Все остальные ракеты - вражеские
+        }
+        
+        // Баллистические ракеты (ThrowableProjectile) - тоже можно сбивать
+        // Проверяем по имени класса чтобы не импортировать лишнее
+        String className = entity.getClass().getSimpleName();
+        if (className.contains("Missile") || className.contains("Rocket") || className.contains("Bomb")) {
+            return true;
+        }
         
         // VehicleEntity из SBW/VVP - проверяем по типу техники
         if (entity instanceof VehicleEntity vehicle) {
@@ -541,6 +559,32 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
     
     /**
+     * Определяет тип цели для отображения иконки на радаре
+     */
+    private int getTargetType(Entity entity) {
+        // MissileProjectile из SBW
+        if (entity instanceof MissileProjectile) {
+            return PantsirRadarSyncMessage.TARGET_TYPE_MISSILE;
+        }
+        // Баллистические ракеты и бомбы по имени класса
+        String className = entity.getClass().getSimpleName();
+        if (className.contains("Missile") || className.contains("Rocket") || className.contains("Bomb")) {
+            return PantsirRadarSyncMessage.TARGET_TYPE_MISSILE;
+        }
+        // Техника
+        if (entity instanceof VehicleEntity vehicle) {
+            VehicleType type = vehicle.getVehicleType();
+            if (type == VehicleType.HELICOPTER) {
+                return PantsirRadarSyncMessage.TARGET_TYPE_HELICOPTER;
+            }
+            if (type == VehicleType.AIRPLANE) {
+                return PantsirRadarSyncMessage.TARGET_TYPE_AIRPLANE;
+            }
+        }
+        return PantsirRadarSyncMessage.TARGET_TYPE_UNKNOWN;
+    }
+    
+    /**
      * Синхронизирует состояние радара с клиентом
      * Передаёт: состояние, координаты цели, скорость цели, угол обзорного радара, угол башни, список всех целей, ракеты
      */
@@ -578,6 +622,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
         double[] targetXs = new double[targetIds.length];
         double[] targetYs = new double[targetIds.length];
         double[] targetZs = new double[targetIds.length];
+        int[] targetTypes = new int[targetIds.length];
         
         for (int i = 0; i < targetIds.length; i++) {
             Entity target = detectedTargets.get(i);
@@ -585,6 +630,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
             targetXs[i] = target.getX();
             targetYs[i] = target.getY() + target.getBbHeight() / 2;
             targetZs[i] = target.getZ();
+            targetTypes[i] = getTargetType(target);
         }
         
         // Собираем позиции ракет
@@ -604,7 +650,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
             this.getId(), radarState, targetId, targetX, targetY, targetZ, 
             targetVelX, targetVelY, targetVelZ,
             progress, distance, radarAngle, turretAngle,
-            targetIds, targetXs, targetYs, targetZs, missileX, missileY, missileZ
+            targetIds, targetXs, targetYs, targetZs, targetTypes, missileX, missileY, missileZ
         );
         
         VVPNetwork.VVP_HANDLER.send(PacketDistributor.PLAYER.with(() -> serverPlayer), message);
@@ -657,6 +703,9 @@ public class PantsirS1Entity extends CamoVehicleBase {
             currentIndex = detectedTargets.indexOf(trackedTarget);
         }
         
+        // Если текущая цель не в списке, начинаем с 0
+        if (currentIndex < 0) currentIndex = -1;
+        
         int nextIndex = (currentIndex + 1) % detectedTargets.size();
         trackedTarget = detectedTargets.get(nextIndex);
         
@@ -677,6 +726,9 @@ public class PantsirS1Entity extends CamoVehicleBase {
         if (trackedTarget != null) {
             currentIndex = detectedTargets.indexOf(trackedTarget);
         }
+        
+        // Если текущая цель не в списке, начинаем с конца
+        if (currentIndex < 0) currentIndex = 0;
         
         int prevIndex = currentIndex - 1;
         if (prevIndex < 0) prevIndex = detectedTargets.size() - 1;

@@ -47,7 +47,7 @@ public class PantsirOperatorOverlay {
     private static final int RADAR_SEGMENTS = 32;
     private static final int MARKER_SIZE = 24;
     private static final int MARKER_HALF = MARKER_SIZE / 2;
-    private static final double RADAR_RANGE = 800.0;
+    private static final double RADAR_RANGE = 1100.0;
     private static final float SSC_HALF_ANGLE = 3.0f;
     
     private static boolean wasLockKeyPressed = false;
@@ -187,7 +187,7 @@ public class PantsirOperatorOverlay {
         drawTurretBeam(poseStack, centerX, centerY, player);
         
         // Все цели на радаре
-        drawAllTargetBlips(guiGraphics, centerX, centerY, player);
+        drawAllTargetBlips(guiGraphics, poseStack, centerX, centerY, player);
         
         // Ракеты на радаре (с пунктирной линией)
         drawMissiles(guiGraphics, poseStack, centerX, centerY, player);
@@ -199,7 +199,7 @@ public class PantsirOperatorOverlay {
         guiGraphics.drawString(mc.font, "W", centerX - RADAR_RADIUS - 10, centerY - 4, COLOR_RADAR_GREEN, false);
         guiGraphics.drawString(mc.font, "E", centerX + RADAR_RADIUS + 4, centerY - 4, COLOR_RADAR_GREEN, false);
         
-        guiGraphics.drawString(mc.font, "800m", centerX + RADAR_RADIUS - 20, centerY - RADAR_RADIUS + 5, COLOR_RADAR_DARK, false);
+        guiGraphics.drawString(mc.font, "1100m", centerX + RADAR_RADIUS - 26, centerY - RADAR_RADIUS + 5, COLOR_RADAR_DARK, false);
         
         int targetCount = PantsirClientHandler.allTargets.size();
         if (targetCount > 0) {
@@ -267,7 +267,7 @@ public class PantsirOperatorOverlay {
         drawTriangle(poseStack, centerX, centerY, leftX, leftY, rightX, rightY, COLOR_SSC_SECTOR);
     }
 
-    private static void drawAllTargetBlips(GuiGraphics guiGraphics, int centerX, int centerY, Player player) {
+    private static void drawAllTargetBlips(GuiGraphics guiGraphics, PoseStack poseStack, int centerX, int centerY, Player player) {
         // Стабилизированный радар - используем позицию панциря, не игрока
         Entity vehicle = player.getVehicle();
         if (vehicle == null) return;
@@ -291,7 +291,6 @@ public class PantsirOperatorOverlay {
             
             boolean isMainTarget = (target.entityId == PantsirClientHandler.targetEntityId);
             int blipColor;
-            int size;
             
             if (isMainTarget) {
                 blipColor = switch (PantsirClientHandler.radarState) {
@@ -299,17 +298,20 @@ public class PantsirOperatorOverlay {
                     case PantsirRadarSyncMessage.STATE_LOCKING -> COLOR_TARGET_YELLOW;
                     default -> COLOR_TARGET_RED;
                 };
-                size = 3;
             } else {
-                blipColor = COLOR_TARGET_BLIP;
-                size = 2;
+                // Вражеские ракеты - красные, остальное - оранжевое
+                blipColor = (target.targetType == PantsirRadarSyncMessage.TARGET_TYPE_MISSILE) 
+                    ? COLOR_TARGET_RED : COLOR_TARGET_BLIP;
             }
             
-            guiGraphics.fill(blipX - size, blipY - size, blipX + size, blipY + size, blipColor);
+            // Рисуем иконку в зависимости от типа цели
+            drawTargetIcon(guiGraphics, poseStack, blipX, blipY, target.targetType, blipColor, isMainTarget);
             
+            // Рамка для залоченной цели
             if (isMainTarget && PantsirClientHandler.radarState == PantsirRadarSyncMessage.STATE_LOCKED) {
                 long time = System.currentTimeMillis();
                 if ((time / 250) % 2 == 0) {
+                    int size = 5;
                     guiGraphics.fill(blipX - size - 1, blipY - size - 1, blipX + size + 1, blipY - size, blipColor);
                     guiGraphics.fill(blipX - size - 1, blipY + size, blipX + size + 1, blipY + size + 1, blipColor);
                     guiGraphics.fill(blipX - size - 1, blipY - size - 1, blipX - size, blipY + size + 1, blipColor);
@@ -320,7 +322,51 @@ public class PantsirOperatorOverlay {
     }
     
     /**
-     * Рисует ракеты на радаре с пунктирной линией от центра
+     * Рисует иконку цели в зависимости от типа
+     */
+    private static void drawTargetIcon(GuiGraphics guiGraphics, PoseStack poseStack, int x, int y, int targetType, int color, boolean isMain) {
+        int size = isMain ? 4 : 3;
+        
+        switch (targetType) {
+            case PantsirRadarSyncMessage.TARGET_TYPE_HELICOPTER -> {
+                // Вертолёт: крестик с точкой в центре (как винт)
+                guiGraphics.fill(x - size, y - 1, x + size, y + 1, color); // горизонталь
+                guiGraphics.fill(x - 1, y - size, x + 1, y + size, color); // вертикаль
+                guiGraphics.fill(x - 1, y - 1, x + 1, y + 1, color); // центр
+            }
+            case PantsirRadarSyncMessage.TARGET_TYPE_AIRPLANE -> {
+                // Самолёт: треугольник (стрелка вверх)
+                drawTriangleUp(poseStack, x, y - size, x - size, y + size, x + size, y + size, color);
+            }
+            case PantsirRadarSyncMessage.TARGET_TYPE_MISSILE -> {
+                // Вражеская ракета: ромб
+                drawDiamond(poseStack, x, y, size, color);
+            }
+            default -> {
+                // Неизвестная цель: квадрат
+                guiGraphics.fill(x - size, y - size, x + size, y + size, color);
+            }
+        }
+    }
+    
+    /**
+     * Рисует треугольник вершиной вверх (для самолёта)
+     */
+    private static void drawTriangleUp(PoseStack poseStack, int topX, int topY, int leftX, int leftY, int rightX, int rightY, int color) {
+        drawTriangle(poseStack, topX, topY, leftX, leftY, rightX, rightY, color);
+    }
+    
+    /**
+     * Рисует ромб (для вражеской ракеты)
+     */
+    private static void drawDiamond(PoseStack poseStack, int centerX, int centerY, int size, int color) {
+        // Ромб из 4 треугольников
+        drawTriangle(poseStack, centerX, centerY - size, centerX - size, centerY, centerX, centerY + size, color);
+        drawTriangle(poseStack, centerX, centerY - size, centerX + size, centerY, centerX, centerY + size, color);
+    }
+    
+    /**
+     * Рисует свои ракеты на радаре с пунктирной линией от центра
      */
     private static void drawMissiles(GuiGraphics guiGraphics, PoseStack poseStack, int centerX, int centerY, Player player) {
         Entity vehicle = player.getVehicle();
@@ -344,9 +390,8 @@ public class PantsirOperatorOverlay {
             // Пунктирная линия от центра к ракете
             drawDashedLine(poseStack, centerX, centerY, blipX, blipY, COLOR_MISSILE, 4, 3);
             
-            // Точка ракеты (треугольник)
-            int size = 3;
-            guiGraphics.fill(blipX - size, blipY - size, blipX + size, blipY + size, COLOR_MISSILE);
+            // Своя ракета - маленький квадрат (точка)
+            guiGraphics.fill(blipX - 2, blipY - 2, blipX + 2, blipY + 2, COLOR_MISSILE);
         }
     }
 

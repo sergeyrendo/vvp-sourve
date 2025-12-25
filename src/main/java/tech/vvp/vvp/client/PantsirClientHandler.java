@@ -64,12 +64,14 @@ public class PantsirClientHandler {
     public static class RadarTarget {
         public final int entityId;
         public final double x, y, z;
+        public final int targetType; // Тип цели (вертолёт/самолёт/ракета)
         
-        public RadarTarget(int entityId, double x, double y, double z) {
+        public RadarTarget(int entityId, double x, double y, double z, int targetType) {
             this.entityId = entityId;
             this.x = x;
             this.y = y;
             this.z = z;
+            this.targetType = targetType;
         }
     }
     
@@ -131,7 +133,8 @@ public class PantsirClientHandler {
                 message.allTargetIds[i],
                 message.allTargetX[i],
                 message.allTargetY[i],
-                message.allTargetZ[i]
+                message.allTargetZ[i],
+                message.allTargetTypes[i]
             ));
         }
         

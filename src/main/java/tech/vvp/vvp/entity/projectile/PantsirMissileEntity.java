@@ -1,4 +1,4 @@
-package tech.vvp.vvp.entity.projectile;
+                                                    package tech.vvp.vvp.entity.projectile;
 
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig;
 import com.atsuishio.superbwarfare.entity.projectile.MissileProjectile;
@@ -52,26 +52,32 @@ import tech.vvp.vvp.entity.vehicle.PantsirS1Entity;
 /**
  * Ракета 57Э6 для ЗРПК Панцирь-С1
  * Наследует от MissileProjectile для интеграции со стандартной системой SuperbWarfare
- * 
- * Mid-course: наведение по Vec3 от радара (>200 блоков)
- * Terminal: активное самонаведение по UUID (<200 блоков)
+ * Ракета 57Э6 для ЗРПК Панцирь-С1
+ * Реалистичные характеристики:
+ * - Скорость: 1300 м/с (в игре ~10 блоков/тик для баланса)
+ * - Перегрузка: до 30g (ограниченный угол поворота)
+ * - Дальность: 20 км (в игре 2000 блоков)
  */
 public class PantsirMissileEntity extends MissileProjectile implements GeoEntity {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    // Параметры наведения
-    private static final float MID_COURSE_TURN_RATE = 8.0f;   // Градусов/тик на дальней дистанции
-    private static final float TERMINAL_TURN_RATE = 15.0f;    // Градусов/тик на ближней дистанции
-    private static final double TERMINAL_RANGE = 200.0;       // Дистанция перехода в terminal mode
-    private static final double PROXIMITY_FUSE_RANGE = 5.0;   // Дистанция срабатывания взрывателя
+    // Параметры ракеты 57Э6 (реалистичные, адаптированные для игры)
+    private static final double MISSILE_SPEED = 10.0;         // Блоков/тик (~200 м/с в игре)
+    private static final float MAX_TURN_RATE = 8.0f;          // Градусов/тик - реалистичный поворот (перегрузка ~20g)
+    private static final float MAX_LEAD_ANGLE = 45.0f;        // Максимальный угол упреждения
+    private static final double PROXIMITY_FUSE_MISSILE = 3.0; // Радиовзрыватель для ракет/баллистики - 3 блока
+    private static final double PROXIMITY_FUSE_AIRCRAFT = 7.0;// Радиовзрыватель для самолётов/вертолётов - 7 блоков
+    private static final double SHRAPNEL_RANGE = 15.0;        // Радиус поражения осколками
+    private static final float SHRAPNEL_MAX_DAMAGE = 80.0f;   // Максимальный урон осколками
     private static final int MAX_LIFETIME = 400;              // Максимальное время жизни (20 сек)
-    private static final int RADAR_UPDATE_INTERVAL = 10;      // Интервал обновления от радара (тиков)
     
     // Состояние
     private int launcherEntityId = -1;
-    private boolean inTerminalPhase = false;
-    private int updateCounter = 0;
+    private int targetEntityId = -1;  // ID цели для поиска (работает для всех entity, не только LivingEntity)
+    private boolean targetIsMissile = false; // Тип цели - ракета/баллистика или самолёт/вертолёт
+    private double lastDistanceToTarget = Double.MAX_VALUE;   // Для радиовзрывателя
+    private double minDistanceReached = Double.MAX_VALUE;     // Минимальная дистанция до цели
     
     public PantsirMissileEntity(EntityType<? extends PantsirMissileEntity> type, Level level) {
         super(type, level);
@@ -87,14 +93,14 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
     public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.launcherEntityId = compound.getInt("LauncherId");
-        this.inTerminalPhase = compound.getBoolean("Terminal");
+        this.targetEntityId = compound.getInt("TargetEntityId");
     }
 
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("LauncherId", launcherEntityId);
-        compound.putBoolean("Terminal", inTerminalPhase);
+        compound.putInt("TargetEntityId", targetEntityId);
     }
 
     @Override
@@ -106,6 +112,7 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
             buffer.writeDouble(targetPos.z);
         }
         buffer.writeInt(launcherEntityId);
+        buffer.writeInt(targetEntityId);
     }
 
     @Override
@@ -114,6 +121,7 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
             this.targetPos = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
         }
         this.launcherEntityId = buffer.readInt();
+        this.targetEntityId = buffer.readInt();
     }
 
     @Override
@@ -122,6 +130,11 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
         spawnTrailParticles();
         
         if (!this.level().isClientSide && this.level() instanceof ServerLevel) {
+            // КРИТИЧНО: На первом тике сразу ищем панцирь и цель
+            if (this.tickCount == 1) {
+                forceUpdateTargetFromRadar();
+            }
+            
             // Проверяем decoy/flare как в Agm65Entity
             checkForDecoy();
             tickGuidance();
@@ -151,43 +164,57 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
     
     /**
      * Основная логика наведения (только на сервере)
+     * Использует пропорциональное наведение для перехвата быстрых целей
      */
     private void tickGuidance() {
-        // Проверяем есть ли цель по UUID
-        String targetUuid = this.entityData.get(TARGET_UUID);
-        boolean hasUuidTarget = targetUuid != null && !targetUuid.equals("none");
+        // Обновляем цель от радара каждый тик
+        updateTargetFromRadar();
         
-        // Если нет ни UUID ни позиции - летим прямо
-        if (!hasUuidTarget && targetPos == null) {
-            maintainSpeed();
-            return;
+        // Ищем цель по ID (работает для ВСЕХ entity, включая projectile)
+        Entity target = null;
+        if (targetEntityId != -1) {
+            target = this.level().getEntity(targetEntityId);
         }
         
-        // Обновляем targetPos от цели по UUID
-        Entity target = null;
-        if (hasUuidTarget) {
-            target = EntityFindUtil.findEntity(this.level(), targetUuid);
-            if (target != null && target.isAlive()) {
-                targetPos = target.position().add(0, target.getBbHeight() * 0.5, 0);
-                
-                // Оповещаем цель о приближающейся ракете
-                // Интервал зависит от дистанции - чем ближе, тем чаще пищит
-                int warningInterval = (int) Math.max(0.04 * this.distanceTo(target), 2);
-                if (this.tickCount % warningInterval == 0) {
-                    // Оповещаем: VehicleEntity, технику с пассажирами, или игроков (флаеров)
-                    boolean shouldWarn = target instanceof VehicleEntity 
-                        || !target.getPassengers().isEmpty()
-                        || target instanceof Player;
-                    
-                    if (shouldWarn) {
-                        target.level().playSound(null, target.getOnPos(), 
-                            target instanceof Pig ? SoundEvents.PIG_HURT : ModSounds.MISSILE_WARNING.get(), 
-                            SoundSource.PLAYERS, 2, 1f);
-                    }
+        // Fallback на UUID для совместимости с обычными ракетами
+        if (target == null) {
+            String targetUuid = this.entityData.get(TARGET_UUID);
+            if (targetUuid != null && !targetUuid.equals("none")) {
+                target = EntityFindUtil.findEntity(this.level(), targetUuid);
+                if (target != null) {
+                    targetEntityId = target.getId();
+                    targetPos = target.position().add(0, target.getBbHeight() * 0.5, 0);
                 }
             }
         }
         
+        // Если нашли цель - вычисляем точку перехвата
+        if (target != null && target.isAlive()) {
+            Vec3 targetCenter = target.position().add(0, target.getBbHeight() * 0.5, 0);
+            Vec3 targetVelocity = target.getDeltaMovement();
+            
+            // Вычисляем точку перехвата с упреждением
+            targetPos = calculateInterceptPoint(targetCenter, targetVelocity);
+            
+            // Определяем тип цели для радиовзрывателя
+            targetIsMissile = isTargetMissile(target);
+            
+            // Оповещаем цель о приближающейся ракете
+            int warningInterval = (int) Math.max(0.04 * this.distanceTo(target), 2);
+            if (this.tickCount % warningInterval == 0) {
+                boolean shouldWarn = target instanceof VehicleEntity 
+                    || !target.getPassengers().isEmpty()
+                    || target instanceof Player;
+                
+                if (shouldWarn) {
+                    target.level().playSound(null, target.getOnPos(), 
+                        target instanceof Pig ? SoundEvents.PIG_HURT : ModSounds.MISSILE_WARNING.get(), 
+                        SoundSource.PLAYERS, 2, 1f);
+                }
+            }
+        }
+        
+        // Если нет targetPos - летим прямо (но продолжаем искать цель)
         if (targetPos == null) {
             maintainSpeed();
             return;
@@ -195,61 +222,129 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
         
         double distanceToTarget = this.position().distanceTo(targetPos);
         
-        // Взрыватель близости
-        if (distanceToTarget < PROXIMITY_FUSE_RANGE) {
-            explodeAndDiscard();
+        // Запоминаем минимальную дистанцию
+        if (distanceToTarget < minDistanceReached) {
+            minDistanceReached = distanceToTarget;
+        }
+        
+        // Радиовзрыватель: разный радиус для ракет (3) и самолётов/вертолётов (7)
+        double fuseRange = targetIsMissile ? PROXIMITY_FUSE_MISSILE : PROXIMITY_FUSE_AIRCRAFT;
+        
+        // Вариант 1: Сразу взрываемся если достаточно близко
+        if (distanceToTarget < fuseRange) {
+            explodeWithShrapnel();
             return;
         }
         
-        // Переход в terminal phase
-        if (!inTerminalPhase && distanceToTarget < TERMINAL_RANGE) {
-            inTerminalPhase = true;
+        // Вариант 2: Если пролетели мимо (дистанция начала увеличиваться) и были близко
+        if (distanceToTarget > lastDistanceToTarget + 0.5 && minDistanceReached < fuseRange * 2) {
+            explodeWithShrapnel();
+            return;
         }
         
-        if (inTerminalPhase) {
-            tickTerminalGuidance();
-        } else {
-            tickMidCourseGuidance();
-        }
+        lastDistanceToTarget = distanceToTarget;
+        
+        // Наводимся на точку перехвата с реалистичным ограничением поворота
+        turnToTarget(MAX_TURN_RATE);
         
         maintainSpeed();
         updateRotationFromVelocity();
     }
     
     /**
-     * Mid-course guidance: наведение по позиции от радара
-     * Обновление targetPos каждые RADAR_UPDATE_INTERVAL тиков
+     * Вычисляет точку перехвата с учётом скорости цели
+     * Использует итеративный метод для нахождения точки где ракета встретит цель
      */
-    private void tickMidCourseGuidance() {
-        updateCounter++;
-        if (updateCounter >= RADAR_UPDATE_INTERVAL) {
-            updateCounter = 0;
-            updateTargetFromRadar();
+    private Vec3 calculateInterceptPoint(Vec3 targetPos, Vec3 targetVelocity) {
+        Vec3 missilePos = this.position();
+        
+        // Используем константную скорость ракеты
+        double missileSpeed = MISSILE_SPEED;
+        
+        // Скорость цели
+        double targetSpeed = targetVelocity.length();
+        
+        // Если цель стоит - целимся прямо на неё
+        if (targetSpeed < 0.1) {
+            return targetPos;
         }
-        turnToTarget(MID_COURSE_TURN_RATE);
+        
+        // Итеративно вычисляем время до перехвата
+        double distance = missilePos.distanceTo(targetPos);
+        double timeToIntercept = distance / missileSpeed;
+        
+        // 3 итерации для уточнения
+        for (int i = 0; i < 3; i++) {
+            // Где будет цель через timeToIntercept тиков
+            Vec3 predictedPos = targetPos.add(targetVelocity.scale(timeToIntercept));
+            
+            // Новое расстояние до предсказанной позиции
+            distance = missilePos.distanceTo(predictedPos);
+            timeToIntercept = distance / missileSpeed;
+        }
+        
+        // Финальная предсказанная позиция
+        Vec3 interceptPoint = targetPos.add(targetVelocity.scale(timeToIntercept));
+        
+        return interceptPoint;
     }
     
     /**
-     * Terminal guidance: активное самонаведение по UUID
-     * Если цель доступна (чанк загружен) - обновляем позицию
-     * Иначе летим по последней известной позиции
+     * Принудительно ищет панцирь и цель при первом тике
+     * Ищет только панцирь владельца ракеты (для мультиплеера)
      */
-    private void tickTerminalGuidance() {
-        String targetUuid = this.entityData.get(TARGET_UUID);
-        if (!targetUuid.equals("none")) {
-            Entity target = EntityFindUtil.findEntity(this.level(), targetUuid);
-            if (target != null && target.isAlive()) {
-                // Цель доступна - обновляем позицию
-                targetPos = target.position().add(0, target.getBbHeight() * 0.5, 0);
+    private void forceUpdateTargetFromRadar() {
+        PantsirS1Entity pantsir = null;
+        
+        // Сначала пробуем через owner.getVehicle() - это самый надёжный способ
+        if (this.getOwner() != null) {
+            Entity vehicle = this.getOwner().getVehicle();
+            if (vehicle instanceof PantsirS1Entity p && p.hasLockedTarget()) {
+                pantsir = p;
+                launcherEntityId = p.getId();
             }
-            // Если цель недоступна - продолжаем лететь по последней targetPos
         }
-        turnToTarget(TERMINAL_TURN_RATE);
+        
+        // Если owner вышел из панциря - ищем панцирь рядом с owner
+        if (pantsir == null && this.getOwner() != null) {
+            List<PantsirS1Entity> nearby = this.level().getEntitiesOfClass(
+                PantsirS1Entity.class, 
+                this.getOwner().getBoundingBox().inflate(20),
+                p -> p.hasLockedTarget()
+            );
+            if (!nearby.isEmpty()) {
+                pantsir = nearby.get(0);
+                launcherEntityId = pantsir.getId();
+            }
+        }
+        
+        // Fallback - ищем ближайший панцирь к ракете (только если owner null)
+        if (pantsir == null && this.getOwner() == null) {
+            List<PantsirS1Entity> nearby = this.level().getEntitiesOfClass(
+                PantsirS1Entity.class, 
+                this.getBoundingBox().inflate(50),
+                p -> p.hasLockedTarget()
+            );
+            if (!nearby.isEmpty()) {
+                pantsir = nearby.stream()
+                    .min((a, b) -> Double.compare(this.distanceTo(a), this.distanceTo(b)))
+                    .orElse(nearby.get(0));
+                launcherEntityId = pantsir.getId();
+            }
+        }
+        
+        if (pantsir != null) {
+            Entity lockedTarget = pantsir.getLockedTarget();
+            if (lockedTarget != null && lockedTarget.isAlive()) {
+                targetPos = lockedTarget.position().add(0, lockedTarget.getBbHeight() * 0.5, 0);
+                targetEntityId = lockedTarget.getId();
+                this.entityData.set(TARGET_UUID, lockedTarget.getStringUUID());
+            }
+        }
     }
     
     /**
      * Обновляет targetPos от радара Панциря
-     * Вызывается только в mid-course phase
      */
     private void updateTargetFromRadar() {
         // Пробуем получить Pantsir через launcherId
@@ -271,12 +366,27 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
             }
         }
         
+        // Если всё ещё нет панциря - ищем ближайший в радиусе 100 блоков
+        if (pantsir == null) {
+            List<PantsirS1Entity> nearby = this.level().getEntitiesOfClass(
+                PantsirS1Entity.class, 
+                this.getBoundingBox().inflate(100),
+                p -> p.hasLockedTarget()
+            );
+            if (!nearby.isEmpty()) {
+                pantsir = nearby.get(0);
+                launcherEntityId = pantsir.getId();
+            }
+        }
+        
         if (pantsir != null) {
             Entity lockedTarget = pantsir.getLockedTarget();
             if (lockedTarget != null && lockedTarget.isAlive()) {
                 // Обновляем позицию цели от радара
                 targetPos = lockedTarget.position().add(0, lockedTarget.getBbHeight() * 0.5, 0);
-                // Обновляем UUID для terminal phase
+                // Обновляем ID цели для быстрого поиска
+                targetEntityId = lockedTarget.getId();
+                // Обновляем UUID для совместимости
                 this.entityData.set(TARGET_UUID, lockedTarget.getStringUUID());
             }
             // Если радар потерял цель - продолжаем лететь по последней позиции
@@ -284,7 +394,22 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
     }
     
     /**
-     * Поворот ракеты к цели с ограничением скорости поворота
+     * Определяет является ли цель ракетой/баллистикой (для радиовзрывателя)
+     */
+    private boolean isTargetMissile(Entity target) {
+        if (target == null) return false;
+        
+        // MissileProjectile из SBW
+        if (target instanceof MissileProjectile) return true;
+        
+        // Проверяем по имени класса
+        String className = target.getClass().getSimpleName();
+        return className.contains("Missile") || className.contains("Rocket") || className.contains("Bomb");
+    }
+    
+    /**
+     * Поворот ракеты к цели с реалистичным ограничением
+     * Ракета НЕ может разворачиваться на 180° - если цель позади, ракета промахивается
      */
     private void turnToTarget(float maxTurnRate) {
         if (targetPos == null) return;
@@ -299,10 +424,16 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
         double dot = currentDirection.dot(targetDirection);
         double angle = Math.toDegrees(Math.acos(Mth.clamp(dot, -1.0, 1.0)));
         
-        // Не поворачиваем если цель позади (>90°)
-        if (angle > 90) return;
+        // РЕАЛИСТИЧНОЕ ОГРАНИЧЕНИЕ: если цель под углом > 60° - ракета не может навестись
+        // Это предотвращает нереалистичные развороты на 180°
+        if (angle > 60) {
+            // Ракета продолжает лететь прямо - промах неизбежен
+            return;
+        }
         
-        double turnFactor = Math.min(maxTurnRate / Math.max(angle, 0.1), 1.0);
+        // Ограничиваем скорость поворота (реалистичная перегрузка)
+        double actualTurnRate = Math.min(maxTurnRate, MAX_TURN_RATE);
+        double turnFactor = Math.min(actualTurnRate / Math.max(angle, 0.1), 1.0);
         
         Vec3 newDirection = new Vec3(
             Mth.lerp(turnFactor, currentDirection.x, targetDirection.x),
@@ -315,14 +446,16 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
     }
     
     /**
-     * Поддерживает скорость ракеты
+     * Поддерживает скорость ракеты на постоянном уровне
      */
     private void maintainSpeed() {
         Vec3 velocity = this.getDeltaMovement();
         double currentSpeed = velocity.length();
         
-        if (currentSpeed < 0.1) {
-            this.setDeltaMovement(this.getLookAngle().scale(8.0));
+        // Поддерживаем постоянную скорость ракеты
+        if (currentSpeed < MISSILE_SPEED * 0.9 || currentSpeed > MISSILE_SPEED * 1.1) {
+            Vec3 direction = velocity.lengthSqr() > 0.001 ? velocity.normalize() : this.getLookAngle();
+            this.setDeltaMovement(direction.scale(MISSILE_SPEED));
         }
     }
     
@@ -362,6 +495,82 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
         }
         this.discard();
     }
+    
+    /**
+     * Взрыв с осколками (радиовзрыватель)
+     */
+    private void explodeWithShrapnel() {
+        if (this.level() instanceof ServerLevel serverLevel) {
+            // Основной взрыв
+            ProjectileTool.causeCustomExplode(this,
+                    ModDamageTypes.causeProjectileExplosionDamage(this.level().registryAccess(), this, this.getOwner()),
+                    this, this.explosionDamage, this.explosionRadius);
+            
+            // Эффекты осколков
+            spawnShrapnelEffects(serverLevel);
+            
+            // Урон осколками
+            damageEntitiesWithShrapnel();
+        }
+        this.discard();
+    }
+    
+    /**
+     * Эффекты разлёта осколков
+     */
+    private void spawnShrapnelEffects(ServerLevel serverLevel) {
+        double x = this.getX();
+        double y = this.getY();
+        double z = this.getZ();
+        
+        // Искры (осколки)
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.CRIT, x, y, z, 100, 1.5, 1.5, 1.5, 1.2, true);
+        
+        // Огненные искры
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, x, y, z, 60, 1.0, 1.0, 1.0, 0.8, true);
+        
+        // Лава (раскалённые осколки)
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.LAVA, x, y, z, 40, 1.0, 1.0, 1.0, 0.6, true);
+        
+        // Дым
+        ParticleTool.sendParticle(serverLevel, ParticleTypes.LARGE_SMOKE, x, y, z, 30, 1.0, 1.0, 1.0, 0.4, true);
+        
+        // Звук разлёта осколков
+        this.level().playSound(null, this.blockPosition(), SoundEvents.FIREWORK_ROCKET_BLAST, 
+                SoundSource.PLAYERS, 2.0F, 0.8F);
+    }
+    
+    /**
+     * Наносит урон осколками всем entity в радиусе
+     */
+    private void damageEntitiesWithShrapnel() {
+        net.minecraft.world.phys.AABB area = this.getBoundingBox().inflate(SHRAPNEL_RANGE);
+        List<Entity> entities = this.level().getEntities(this, area);
+        
+        for (Entity entity : entities) {
+            // Пропускаем владельца и его технику
+            if (this.getOwner() != null) {
+                if (entity == this.getOwner()) continue;
+                if (entity == this.getOwner().getVehicle()) continue;
+            }
+            
+            double dist = this.distanceTo(entity);
+            if (dist > SHRAPNEL_RANGE) continue;
+            
+            // Урон уменьшается с расстоянием
+            float damage = SHRAPNEL_MAX_DAMAGE * (float)(1.0 - (dist / SHRAPNEL_RANGE));
+            
+            if (damage > 0) {
+                // Наносим урон от осколков
+                entity.hurt(this.damageSources().explosion(this, this.getOwner()), damage);
+                
+                // Сбрасываем неуязвимость для повторного урона
+                if (entity instanceof LivingEntity living) {
+                    living.invulnerableTime = 0;
+                }
+            }
+        }
+    }
 
     @Override
     protected void onHitEntity(@NotNull EntityHitResult result) {
@@ -384,6 +593,7 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
                 entity.invulnerableTime = 0;
             }
             
+            // Прямое попадание - обычный взрыв (без осколков)
             explodeAndDiscard();
         }
     }
@@ -455,5 +665,19 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
      */
     public int getLauncherId() {
         return this.launcherEntityId;
+    }
+    
+    /**
+     * Устанавливает ID цели для наведения (работает для всех entity включая projectile)
+     */
+    public void setTargetEntityId(int id) {
+        this.targetEntityId = id;
+    }
+    
+    /**
+     * Возвращает ID цели
+     */
+    public int getTargetEntityId() {
+        return this.targetEntityId;
     }
 }
