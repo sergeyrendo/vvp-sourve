@@ -59,7 +59,7 @@ public class ReticleOverlay {
     private static final ResourceLocation RIGHT_WHEEL = new ResourceLocation("superbwarfare", "textures/overlay/vehicle/land/right_wheel.png");
     private static final ResourceLocation ENGINE = new ResourceLocation("superbwarfare", "textures/overlay/vehicle/land/engine.png");
     // Текстура для digital scope (вместо шейдера)
-    private static final ResourceLocation TV_FRAME = new ResourceLocation("superbwarfare", "textures/overlay/vehicle/land/tv_frame.png");
+    private static final ResourceLocation TV_FRAME = new ResourceLocation("vvp", "textures/overlay/tv_frame.png");
     
     // Текстуры для выбора боеприпасов
     private static final ResourceLocation CHOSEN = new ResourceLocation("superbwarfare", "textures/gui/attachment/chosen.png");
@@ -194,7 +194,7 @@ public class ReticleOverlay {
             tech.vvp.vvp.entity.vehicle.Bmp2Entity.class,
             0,
             new ReticleConfig()
-                .setOutline("vvp:textures/reticles/outline_analogue.png")
+                .setOutline("vvp:textures/reticles/outline_digital-4x3.png")
                 .setOutlineScale(1.2f) // Увеличиваем outline для большего поля обзора
                 .setReticle("vvp:textures/reticles/bmp2_2a42_zoom.png") // По умолчанию для пушки
                 .setWeaponReticle("Cannon", "vvp:textures/reticles/bmp2_2a42_zoom.png")
@@ -445,8 +445,6 @@ public class ReticleOverlay {
         }
         
         // === СЛОЙ 2.5: Digital scope frame (tv_frame.png) - ПОД outline, ПОВЕРХ прицела ===
-        // Рендерим tv_frame.png вместо шейдера, если digital scope активен
-        // Должен быть ЗА рамкой (outline), поэтому рендерим ПЕРЕД outline
         if (config.isDigital && digitalSightActive && !ThermalVisionHandler.isThermalVisionEnabled()) {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
@@ -455,7 +453,7 @@ public class ReticleOverlay {
             renderDigitalScopeFrame(guiGraphics, screenWidth, screenHeight);
         }
         
-        // === СЛОЙ 3: Рамка прицела (outline) - ПОВЕРХ всего (прицела и digital frame) ===
+        // === СЛОЙ 3: Рамка прицела (outline) - ПОВЕРХ всего ===
         // Используем thermal outline, если thermal vision включен
         ResourceLocation outlineToUse = (ThermalVisionHandler.isThermalVisionEnabled() && config.thermalOutlineTexture != null) 
             ? config.thermalOutlineTexture 
@@ -899,27 +897,23 @@ public class ReticleOverlay {
     }
     
     /**
-     * Рендерит tv_frame.png для digital scope (вместо шейдера)
-     * Использует тот же подход, что и в SuperbWarfare LandVehicleHud и DroneHudOverlay
+     * Рендерит tv_frame.png для digital scope
+     * Использует стандартный blit для лучшей совместимости
      */
     private static void renderDigitalScopeFrame(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
-        // Рассчитываем дополнительные размеры для правильного соотношения сторон (как в SBW)
-        float addW = (screenWidth / (float) screenHeight) * 48f;
-        float addH = (screenWidth / (float) screenHeight) * 27f;
+        // Размер текстуры tv_frame.png
+        int textureWidth = 1920;
+        int textureHeight = 1080;
         
-        // Рендерим tv_frame.png с расчетом размеров (как в LandVehicleHud.kt и DroneHudOverlay.kt)
-        RenderHelper.preciseBlit(
-            guiGraphics,
+        // Рендерим на весь экран используя стандартный blit
+        // blit(texture, x, y, width, height, u, v, uWidth, vHeight, textureWidth, textureHeight)
+        guiGraphics.blit(
             TV_FRAME,
-            -addW / 2f,                    // x - сдвиг влево
-            -addH / 2f,                    // y - сдвиг вверх
-            10f,                           // blitOffset
-            0f,                            // uOffset
-            0f,                            // vOffset
-            screenWidth + addW,            // width
-            screenHeight + addH,           // height
-            screenWidth + addW,            // textureWidth
-            screenHeight + addH            // textureHeight
+            0, 0,                          // x, y на экране
+            screenWidth, screenHeight,     // размер на экране
+            0, 0,                          // u, v в текстуре
+            textureWidth, textureHeight,   // размер области в текстуре
+            textureWidth, textureHeight    // полный размер текстуры
         );
     }
     
@@ -1051,13 +1045,7 @@ public class ReticleOverlay {
      */
     private static void applyDigitalSightShader(boolean enable) {
         // Теперь digital sight работает через текстуру tv_frame.png вместо шейдера
-        // Просто обновляем флаг состояния
         digitalSightActive = enable;
-        if (enable) {
-            System.out.println("[VVP] Digital Sight: ВКЛЮЧЕНО (текстура tv_frame.png)");
-        } else {
-            System.out.println("[VVP] Digital Sight: ВЫКЛЮЧЕНО");
-        }
     }
     
     // #region agent log

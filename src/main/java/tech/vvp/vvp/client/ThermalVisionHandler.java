@@ -55,16 +55,16 @@ public class ThermalVisionHandler {
             if (thermalVisionEnabled) {
                 // Применяем thermal шейдер
                 mc.gameRenderer.loadEffect(THERMAL_SHADER);
-                System.out.println("[VVP] Thermal Vision: ВКЛЮЧЕНО, шейдер: " + THERMAL_SHADER);
+                System.out.println("[VVP] Thermal Vision: ENABLED, shader: " + THERMAL_SHADER);
             } else {
-                // Убираем шейдер (загружаем пустой эффект)
-                mc.gameRenderer.loadEffect(null);
-                System.out.println("[VVP] Thermal Vision: ВЫКЛЮЧЕНО");
+                // Убираем шейдер
+                mc.gameRenderer.shutdownEffect();
+                System.out.println("[VVP] Thermal Vision: DISABLED");
             }
         } catch (Exception e) {
             // Если шейдер не загрузился, просто отключаем
             thermalVisionEnabled = false;
-            System.err.println("[VVP] Ошибка загрузки thermal шейдера: " + e.getMessage());
+            System.err.println("[VVP] Error loading thermal shader: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -98,9 +98,9 @@ public class ThermalVisionHandler {
             thermalVisionEnabled = false;
             applyThermalShader();
             if (!isInVehicle) {
-                System.out.println("[VVP] Игрок вышел из техники, Thermal Vision выключен");
+                System.out.println("[VVP] Player exited vehicle, Thermal Vision disabled");
             } else {
-                System.out.println("[VVP] Переключено на третье лицо, Thermal Vision выключен");
+                System.out.println("[VVP] Switched to third person, Thermal Vision disabled");
             }
         }
         
@@ -115,7 +115,7 @@ public class ThermalVisionHandler {
             if (!thermalVisionAllowed) {
                 thermalVisionEnabled = false;
                 applyThermalShader();
-                System.out.println("[VVP] Thermal Vision отключен для этой техники, выключаем");
+                System.out.println("[VVP] Thermal Vision not allowed for this vehicle, disabling");
             }
         }
         
@@ -131,16 +131,16 @@ public class ThermalVisionHandler {
                 
                 if (thermalVisionAllowed) {
                     // Клавиша только что была нажата, игрок в технике и от первого лица, ТПВ разрешено
-                    System.out.println("[VVP] Нажата клавиша Thermal Vision, текущее состояние: " + thermalVisionEnabled);
+                    System.out.println("[VVP] Thermal Vision key pressed, current state: " + thermalVisionEnabled);
                     toggleThermalVision();
                 } else {
-                    System.out.println("[VVP] Thermal Vision отключен для этой техники!");
+                    System.out.println("[VVP] Thermal Vision not allowed for this vehicle!");
                 }
             } else {
                 if (!isInVehicle) {
-                    System.out.println("[VVP] Thermal Vision можно включить только в технике!");
+                    System.out.println("[VVP] Thermal Vision can only be enabled in a vehicle!");
                 } else {
-                    System.out.println("[VVP] Thermal Vision можно включить только от первого лица!");
+                    System.out.println("[VVP] Thermal Vision can only be enabled in first person!");
                 }
             }
         }
