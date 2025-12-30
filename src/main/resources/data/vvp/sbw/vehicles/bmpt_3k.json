@@ -117,6 +117,8 @@
       "RPM": 80,
       "Velocity": 20,
       "Damage": 55,
+      "Magazine": 80,
+      "EmptyReloadTime": 100,
       "ExplosionDamage": 15,
       "ExplosionRadius": 4,
       "HeatPerShoot": 8,
@@ -127,7 +129,7 @@
       "Spread": 0.5,
       "CrosshairColor": "0x66FF00",
       "Crosshair": "@VehicleRuApc",
-      "Name": "weapon.vvp.2a42_30mm",
+      "Name": "weapon.vvp.2a91_57mm",
       "SoundInfo": {
         "Fire1P": "superbwarfare:bmp_2_cannon_fire_1p",
         "Fire3P": "superbwarfare:bmp_2_cannon_fire_3p",
@@ -145,10 +147,10 @@
             "IsArmorPiercingProjectile": false,
             "IsHighExplosiveProjectile": true,
             "Velocity": 25,
-            "Damage": 20,
-            "ExplosionDamage": 120,
-            "ExplosionRadius": 10,
-            "Name": "weapon.vvp.2a42_30mm_he"
+            "Damage": 25,
+            "ExplosionDamage": 140,
+            "ExplosionRadius": 12,
+            "Name": "weapon.vvp.2a91_57mm_he"
           }
         }
       ],
