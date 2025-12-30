@@ -42,6 +42,7 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.AGS_30.get(), Ags30Renderer::new);
         event.registerEntityRenderer(ModEntities.COBRA.get(), CobraRenderer::new);
         event.registerEntityRenderer(ModEntities.CENTAURO.get(), CentauroRenderer::new);
+        event.registerEntityRenderer(ModEntities.BMPT_3K.get(), BMPT3KRenderer::new);
 
         event.registerEntityRenderer(ModEntities.VARTA_PTRK.get(), VartaPTRKRenderer::new);
         event.registerEntityRenderer(ModEntities.BMP_2_BAKHCHA.get(), Bmp2BakhcaRenderer::new);

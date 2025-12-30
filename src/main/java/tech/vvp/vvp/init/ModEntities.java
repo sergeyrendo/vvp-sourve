@@ -47,6 +47,9 @@ public class ModEntities {
     public static final RegistryObject<EntityType<TerminatorEntity>> TERMINATOR = register("terminator",
             EntityType.Builder.of(TerminatorEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3.5f));
 
+    public static final RegistryObject<EntityType<BMPT3KEntity>> BMPT_3K = register("bmpt_3k",
+            EntityType.Builder.of(BMPT3KEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3.5f));
+
     public static final RegistryObject<EntityType<T90MEntity>> T90_M = register("t90_m",
             EntityType.Builder.of(T90MEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3.5f));
 

@@ -18,8 +18,25 @@
 				{
 					"name": "base",
 					"parent": "root",
+					"pivot": [0, 0, 0]
+				},
+				{
+					"name": "bone",
+					"parent": "base",
 					"pivot": [0, 0, 0],
 					"cubes": [
+						{
+							"origin": [-34, 18, 65],
+							"size": [12, 5, 1],
+							"uv": {
+								"north": {"uv": [337, 39], "uv_size": [-12, 5]},
+								"east": {"uv": [252, 309], "uv_size": [-1, 5]},
+								"south": {"uv": [57, 325], "uv_size": [-12, 5]},
+								"west": {"uv": [184, 295], "uv_size": [-1, 5]},
+								"up": {"uv": [13, 345], "uv_size": [12, -1]},
+								"down": {"uv": [67, 345], "uv_size": [12, -1]}
+							}
+						},
 						{
 							"origin": [-13, 35, -8],
 							"size": [26, 1, 21],
@@ -1350,18 +1367,6 @@
 								"south": {"uv": [45, 325], "uv_size": [12, 5]},
 								"west": {"uv": [251, 309], "uv_size": [1, 5]},
 								"up": {"uv": [13, 344], "uv_size": [12, 1]},
-								"down": {"uv": [67, 345], "uv_size": [12, -1]}
-							}
-						},
-						{
-							"origin": [-34, 18, 65],
-							"size": [12, 5, 1],
-							"uv": {
-								"north": {"uv": [337, 39], "uv_size": [-12, 5]},
-								"east": {"uv": [252, 309], "uv_size": [-1, 5]},
-								"south": {"uv": [57, 325], "uv_size": [-12, 5]},
-								"west": {"uv": [184, 295], "uv_size": [-1, 5]},
-								"up": {"uv": [13, 345], "uv_size": [12, -1]},
 								"down": {"uv": [67, 345], "uv_size": [12, -1]}
 							}
 						}
@@ -3229,7 +3234,7 @@
 					]
 				},
 				{
-					"name": "COMBATMODULE",
+					"name": "turret",
 					"parent": "base",
 					"pivot": [-0.69986, 42.89278, 4.73199],
 					"cubes": [
@@ -4086,7 +4091,7 @@
 				},
 				{
 					"name": "ATTACK",
-					"parent": "COMBATMODULE",
+					"parent": "turret",
 					"pivot": [-27.25303, 47.31134, 3.78333],
 					"cubes": [
 						{
@@ -4193,7 +4198,7 @@
 				},
 				{
 					"name": "Machinegun",
-					"parent": "COMBATMODULE",
+					"parent": "turret",
 					"pivot": [-14.07244, 48.66221, -10.64771],
 					"cubes": [
 						{
@@ -4280,8 +4285,8 @@
 					]
 				},
 				{
-					"name": "57mmgun",
-					"parent": "COMBATMODULE",
+					"name": "barrel",
+					"parent": "turret",
 					"pivot": [0.03721, 43.875, -14.125],
 					"cubes": [
 						{
@@ -4340,7 +4345,7 @@
 				},
 				{
 					"name": "SMOKE",
-					"parent": "COMBATMODULE",
+					"parent": "turret",
 					"pivot": [-0.19612, 44.26219, -19.92364],
 					"cubes": [
 						{
