@@ -112,7 +112,7 @@
       "DefaultFireMode": "Auto",
       "AvailableFireModes": "Auto",
       "Projectile": "superbwarfare:small_cannon_shell",
-      "DefaultZoom": 3,
+      "DefaultZoom": 2,
       "RPM": 330,
       "Velocity": 20,
       "Damage": 55,
@@ -124,7 +124,7 @@
       "RecoilForce": 0.62,
       "ShootAnimationTime": 3,
       "Spread": 0.5,
-      "Crosshair": "@VehicleRuApc",
+      "Crosshair": "vvp:textures/reticles/bmp2_2a42_zoom.png",
       "CrosshairColor": "0x66FF00",
       "Name": "weapon.vvp.2a42_30mm",
       "SoundInfo": {
@@ -218,7 +218,7 @@
         "Directions": ["Turret"],
         "ViewDirection": "Barrel"
       },
-      "Crosshair": "@VehicleCommonMissile",
+      "Crosshair": "vvp:textures/reticles/bmp2_atgm_zoom.png",
       "SoundInfo": {
         "Fire1P": "superbwarfare:bmp_2_missile_fire_1p",
         "Fire3P": "superbwarfare:bmp_2_missile_fire_3p",

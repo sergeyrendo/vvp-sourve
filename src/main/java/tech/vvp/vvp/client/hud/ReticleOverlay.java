@@ -194,15 +194,14 @@ public class ReticleOverlay {
             tech.vvp.vvp.entity.vehicle.Bmp2Entity.class,
             0,
             new ReticleConfig()
-                .setOutline("vvp:textures/reticles/outline_digital-4x3.png")
-                .setOutlineScale(1.2f) // Увеличиваем outline для большего поля обзора
+                .setOutline("vvp:textures/reticles/outline_kord-rws.png")
                 .setReticle("vvp:textures/reticles/bmp2_2a42_zoom.png") // По умолчанию для пушки
                 .setWeaponReticle("Cannon", "vvp:textures/reticles/bmp2_2a42_zoom.png")
                 .setWeaponReticle("Missile", "vvp:textures/reticles/bmp2_atgm_zoom.png")
                 .setReticleColor(1.0f, 1.0f, 1.0f, 1.0f)
                 .setReticleScale(1.0f)
-                .setThermalVisionAllowed(false)
                 .setZoomScale(1.5f)
+                .setThermalVisionAllowed(false)
                 .setNoiseEnabled(false)
                 .setNoiseDuration(15)
                 .setNoiseAlpha(0.3f)

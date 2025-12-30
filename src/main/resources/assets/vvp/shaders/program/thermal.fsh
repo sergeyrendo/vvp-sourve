@@ -20,7 +20,7 @@ uniform float NoiseAmplification;    // Strength of noise effect
 const vec3 lum = vec3(0.2125, 0.4154, 0.0721);
 
 const float minBlur = 0.0;
-const float blurIterations = 2.0;  // Optimized: reduced from 4.0 to 2.0
+const float blurIterations = 4.0;
 const float blurDistance = 0.03;
 const float pixels = 0.2;
 
@@ -51,25 +51,27 @@ vec4 blurTex(in sampler2D tex, in vec2 uv, float off, float it) {
 }
 
 float getAverageSceneBrightness(sampler2D tex) {
-    // Optimized: reduced from 7x7 (49 samples) to 3x3 (9 samples)
-    const int SAMPLE_COUNT_X = 3;
-    const int SAMPLE_COUNT_Y = 3;
+    const int SAMPLE_COUNT_X = 7;
+    const int SAMPLE_COUNT_Y = 7;
 
     vec3 totalBrightness = vec3(0.0);
     float weightSum = 0.0;
     float maxBrightnessSample = 0.0;
+    float minBrightnessSample = 1.0;
 
     for (int y = 0; y < SAMPLE_COUNT_Y; y++) {
-        float yPos = 0.2 + 0.6 * (float(y) / float(SAMPLE_COUNT_Y - 1));
+        float yPos = 0.1 + 0.8 * (float(y) / float(SAMPLE_COUNT_Y - 1));
 
         for (int x = 0; x < SAMPLE_COUNT_X; x++) {
-            float xPos = 0.2 + 0.6 * (float(x) / float(SAMPLE_COUNT_X - 1));
+            float xPos = 0.1 + 0.8 * (float(x) / float(SAMPLE_COUNT_X - 1));
 
             float weight = 1.0 - (distance(vec2(xPos, yPos), vec2(0.5, 0.5)) * 1.2);
             weight = max(0.2, weight * weight);
-            vec3 sampleColor = textureLod(tex, vec2(xPos, yPos), 5.0).rgb;
+            vec3 sampleColor = textureLod(tex, vec2(xPos, yPos), 4.0).rgb;
 
             float sampleBrightness = dot(sampleColor, lum);
+
+            minBrightnessSample = min(minBrightnessSample, sampleBrightness);
             maxBrightnessSample = max(maxBrightnessSample, sampleBrightness);
 
             if (sampleBrightness > 1.0) {
@@ -89,6 +91,7 @@ float getAverageSceneBrightness(sampler2D tex) {
         brightness *= dampFactor;
     }
 
+    // adjust for functionality lmao
     if (maxBrightnessSample < 0.1) {
         brightness = mix(brightness + BASE_BRIGHTNESS, brightness, maxBrightnessSample * 10.0);
     }
@@ -157,13 +160,14 @@ vec4 thermalVision(sampler2D tex, vec2 uv, vec2 fragCoord) {
 
     vec4 center = fragResult;
 
-    // Optimized: reduced edge detection samples from 4 to 2
-    vec4 neighbors[2];
+    vec4 neighbors[4];
     neighbors[0] = texture(tex, uv + vec2(0.01, 0.0));
-    neighbors[1] = texture(tex, uv + vec2(0.0, 0.01));
+    neighbors[1] = texture(tex, uv + vec2(-0.01, 0.0));
+    neighbors[2] = texture(tex, uv + vec2(0.0, 0.01));
+    neighbors[3] = texture(tex, uv + vec2(0.0, -0.01));
 
     float edgeContrast = 0.0;
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 4; i++) {
         float neighborGrey = dot(neighbors[i].rgb, lum);
         edgeContrast += abs(grey - neighborGrey);
     }
