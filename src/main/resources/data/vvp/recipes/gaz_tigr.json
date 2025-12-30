@@ -4,12 +4,11 @@
   "inputs": [
     "superbwarfare:medium_battery_pack",
     "superbwarfare:light_armament_module",
-    "superbwarfare:heavy_armament_module",
-    "6 #forge:storage_blocks/steel",
-    "8 superbwarfare:wheel",
-    "superbwarfare:large_motor"
+    "4 #forge:storage_blocks/steel",
+    "4 superbwarfare:wheel",
+    "superbwarfare:motor"
   ],
   "result": {
-    "entity": "vvp:centauro"
+    "entity": "vvp:gaz_tigr"
   }
 }
