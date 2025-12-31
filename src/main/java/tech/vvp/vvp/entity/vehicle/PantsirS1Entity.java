@@ -448,8 +448,8 @@ public class PantsirS1Entity extends CamoVehicleBase {
         // Позиция цели (центр)
         Vec3 targetPos = target.getBoundingBox().getCenter();
         
-        // Позиция откуда стреляем - используем позицию башни (не getShootPos который крашит)
-        Vec3 shootPos = this.position().add(0, 2.5, 0);
+        // Позиция откуда стреляем - используем реальную позицию ствола
+        Vec3 shootPos = this.getShootPos(operator, 1.0f);
         
         // Проверяем какое оружие выбрано (0 = пушка, 1 = ракеты)
         int seatIndex = this.getSeatIndex(operator);
@@ -461,22 +461,21 @@ public class PantsirS1Entity extends CamoVehicleBase {
             // Ракеты - целимся прямо на цель (ракеты сами наводятся)
             aimVector = targetPos.subtract(shootPos).normalize();
         } else {
-            // Пушка - используем упреждение с учётом скорости и гравитации
+            // Пушка - используем простой предикт
             Vec3 targetVel = target.getDeltaMovement();
             
-            // Параметры пушки 2А38М (фиксированные значения)
-            float velocity = 20.0f;
-            float gravity = 0.03f;
+            // Параметры пушки 2А38М
+            double projectileSpeed = 20.0;
             
-            // Используем RangeTool.calculateFiringSolution для правильного упреждения
-            aimVector = com.atsuishio.superbwarfare.tools.RangeTool.calculateFiringSolution(
-                shootPos, targetPos, targetVel, velocity, gravity
-            );
+            // Вычисляем время полёта до цели
+            double distance = shootPos.distanceTo(targetPos);
+            double timeToTarget = distance / projectileSpeed;
             
-            // Если calculateFiringSolution вернул null - используем прямое направление
-            if (aimVector == null || aimVector.lengthSqr() < 0.001) {
-                aimVector = targetPos.subtract(shootPos).normalize();
-            }
+            // Предсказываем позицию цели с учётом её скорости
+            Vec3 predictedPos = targetPos.add(targetVel.scale(timeToTarget));
+            
+            // Целимся в предсказанную позицию
+            aimVector = predictedPos.subtract(shootPos).normalize();
         }
         
         // Нормализуем вектор направления

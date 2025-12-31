@@ -38,8 +38,8 @@ public class PantsirOperatorOverlay {
     private static final int COLOR_TARGET_RED = 0xFFFF3333;
     private static final int COLOR_LOCKED = 0xFF00FF00;
     private static final int COLOR_TARGET_BLIP = 0xFFFF6600;
-    private static final int COLOR_TURRET_BEAM = 0xFFFF00FF;
-    private static final int COLOR_SSC_SECTOR = 0x40FF00FF;
+    private static final int COLOR_TURRET_BEAM = 0xFFFFFF00; // Жёлтый вместо фиолетового
+    private static final int COLOR_SSC_SECTOR = 0x40FFFF00; // Жёлтый вместо фиолетового
     private static final int COLOR_PANEL_BG = 0xC0000000; // Полупрозрачный чёрный для фона панели
     private static final int COLOR_MISSILE = 0xFF00FFFF; // Голубой для ракет
     
@@ -172,13 +172,23 @@ public class PantsirOperatorOverlay {
         int centerX = screenWidth - RADAR_RADIUS - 25;
         int centerY = RADAR_RADIUS + 40;
         
+        // Фон радара с градиентом
         drawFilledCircle(poseStack, centerX, centerY, RADAR_RADIUS, COLOR_RADAR_BG);
-        drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS * 0.33f, COLOR_RADAR_DARK);
-        drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS * 0.66f, COLOR_RADAR_DARK);
-        drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS - 2, COLOR_RADAR_GREEN);
         
-        guiGraphics.fill(centerX - 1, centerY - 8, centerX + 1, centerY + 8, COLOR_RADAR_DARK);
-        guiGraphics.fill(centerX - 8, centerY - 1, centerX + 8, centerY + 1, COLOR_RADAR_DARK);
+        // Концентрические круги с разной яркостью
+        drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS * 0.25f, COLOR_RADAR_DARK);
+        drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS * 0.5f, COLOR_RADAR_DARK);
+        drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS * 0.75f, COLOR_RADAR_DARK);
+        
+        // Внешняя рамка с эффектом свечения
+        drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS - 2, COLOR_RADAR_GREEN);
+        drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS - 1, (COLOR_RADAR_GREEN & 0x00FFFFFF) | 0x80000000);
+        
+        // Перекрестие с улучшенным дизайном
+        guiGraphics.fill(centerX - 1, centerY - 10, centerX + 1, centerY + 10, COLOR_RADAR_DARK);
+        guiGraphics.fill(centerX - 10, centerY - 1, centerX + 10, centerY + 1, COLOR_RADAR_DARK);
+        // Центральная точка
+        guiGraphics.fill(centerX - 2, centerY - 2, centerX + 2, centerY + 2, COLOR_RADAR_GREEN);
         
         // Полоска 1: Вращающийся обзорный радар (зелёный)
         drawRadarSweep(poseStack, centerX, centerY, player);
@@ -193,17 +203,28 @@ public class PantsirOperatorOverlay {
         drawMissiles(guiGraphics, poseStack, centerX, centerY, player);
         
         Minecraft mc = Minecraft.getInstance();
-        // Все буквы направлений одного цвета (зелёный)
-        guiGraphics.drawString(mc.font, "N", centerX - 3, centerY - RADAR_RADIUS - 12, COLOR_RADAR_GREEN, false);
-        guiGraphics.drawString(mc.font, "S", centerX - 3, centerY + RADAR_RADIUS + 4, COLOR_RADAR_GREEN, false);
-        guiGraphics.drawString(mc.font, "W", centerX - RADAR_RADIUS - 10, centerY - 4, COLOR_RADAR_GREEN, false);
-        guiGraphics.drawString(mc.font, "E", centerX + RADAR_RADIUS + 4, centerY - 4, COLOR_RADAR_GREEN, false);
+        // Буквы направлений с тенью для лучшей читаемости
+        guiGraphics.drawString(mc.font, "N", centerX - 3, centerY - RADAR_RADIUS - 12, COLOR_RADAR_GREEN, true);
+        guiGraphics.drawString(mc.font, "S", centerX - 3, centerY + RADAR_RADIUS + 4, COLOR_RADAR_GREEN, true);
+        guiGraphics.drawString(mc.font, "W", centerX - RADAR_RADIUS - 10, centerY - 4, COLOR_RADAR_GREEN, true);
+        guiGraphics.drawString(mc.font, "E", centerX + RADAR_RADIUS + 4, centerY - 4, COLOR_RADAR_GREEN, true);
         
-        guiGraphics.drawString(mc.font, "1100m", centerX + RADAR_RADIUS - 26, centerY - RADAR_RADIUS + 5, COLOR_RADAR_DARK, false);
+        // Дистанция с фоном
+        String rangeText = "1100m";
+        int rangeWidth = mc.font.width(rangeText);
+        guiGraphics.fill(centerX + RADAR_RADIUS - rangeWidth - 4, centerY - RADAR_RADIUS + 3, 
+                        centerX + RADAR_RADIUS - 2, centerY - RADAR_RADIUS + 13, 0x80000000);
+        guiGraphics.drawString(mc.font, rangeText, centerX + RADAR_RADIUS - rangeWidth - 2, 
+                              centerY - RADAR_RADIUS + 5, COLOR_RADAR_GREEN, false);
         
+        // Счётчик целей с фоном
         int targetCount = PantsirClientHandler.allTargets.size();
         if (targetCount > 0) {
-            guiGraphics.drawString(mc.font, "TGT: " + targetCount, centerX - RADAR_RADIUS + 5, 
+            String tgtText = "TGT: " + targetCount;
+            int tgtWidth = mc.font.width(tgtText);
+            guiGraphics.fill(centerX - RADAR_RADIUS + 3, centerY - RADAR_RADIUS + 3, 
+                            centerX - RADAR_RADIUS + tgtWidth + 7, centerY - RADAR_RADIUS + 13, 0x80000000);
+            guiGraphics.drawString(mc.font, tgtText, centerX - RADAR_RADIUS + 5, 
                 centerY - RADAR_RADIUS + 5, COLOR_TARGET_YELLOW, false);
         }
     }
@@ -225,9 +246,36 @@ public class PantsirOperatorOverlay {
             default -> COLOR_RADAR_GREEN;
         };
         
-        drawLine(poseStack, centerX, centerY, endX, endY, beamColor, 2);
-        
+        // Рисуем затухающий след за лучом (эффект свечения)
         float sectorAngle = 15.0f;
+        int trailSegments = 8;
+        for (int i = 0; i < trailSegments; i++) {
+            float trailAngle = radarAngle - (i * 3.0f); // След за лучом
+            double trailRad = Math.toRadians(trailAngle);
+            
+            double leftRad = trailRad - Math.toRadians(sectorAngle);
+            double rightRad = trailRad + Math.toRadians(sectorAngle);
+            
+            int leftX = centerX + (int)(Math.sin(leftRad) * beamLength);
+            int leftY = centerY + (int)(Math.cos(leftRad) * beamLength);
+            int rightX = centerX + (int)(Math.sin(rightRad) * beamLength);
+            int rightY = centerY + (int)(Math.cos(rightRad) * beamLength);
+            
+            // Затухающая прозрачность
+            float alpha = (1.0f - (i / (float)trailSegments)) * 0.15f;
+            int trailColor = (beamColor & 0x00FFFFFF) | ((int)(alpha * 255) << 24);
+            
+            drawTriangle(poseStack, centerX, centerY, leftX, leftY, rightX, rightY, trailColor);
+        }
+        
+        // Основной луч с утолщением
+        drawLine(poseStack, centerX, centerY, endX, endY, beamColor, 3);
+        
+        // Яркая точка на конце луча
+        int glowSize = 3;
+        drawFilledCircle(poseStack, endX, endY, glowSize, beamColor);
+        
+        // Сектор сканирования
         double leftRad = radians - Math.toRadians(sectorAngle);
         double rightRad = radians + Math.toRadians(sectorAngle);
         
@@ -236,7 +284,9 @@ public class PantsirOperatorOverlay {
         int rightX = centerX + (int)(Math.sin(rightRad) * beamLength);
         int rightY = centerY + (int)(Math.cos(rightRad) * beamLength);
         
-        drawTriangle(poseStack, centerX, centerY, leftX, leftY, rightX, rightY, 0x3000FF00);
+        // Полупрозрачный сектор
+        int sectorAlpha = (beamColor & 0x00FFFFFF) | 0x30000000;
+        drawTriangle(poseStack, centerX, centerY, leftX, leftY, rightX, rightY, sectorAlpha);
     }
     
     /**
@@ -311,12 +361,33 @@ public class PantsirOperatorOverlay {
             if (isMainTarget && PantsirClientHandler.radarState == PantsirRadarSyncMessage.STATE_LOCKED) {
                 long time = System.currentTimeMillis();
                 if ((time / 250) % 2 == 0) {
-                    int size = 5;
-                    guiGraphics.fill(blipX - size - 1, blipY - size - 1, blipX + size + 1, blipY - size, blipColor);
-                    guiGraphics.fill(blipX - size - 1, blipY + size, blipX + size + 1, blipY + size + 1, blipColor);
-                    guiGraphics.fill(blipX - size - 1, blipY - size - 1, blipX - size, blipY + size + 1, blipColor);
-                    guiGraphics.fill(blipX + size, blipY - size - 1, blipX + size + 1, blipY + size + 1, blipColor);
+                    int size = 6;
+                    int thickness = 2;
+                    // Угловые скобки вместо полной рамки
+                    guiGraphics.fill(blipX - size - 1, blipY - size - 1, blipX - size + 3, blipY - size - 1 + thickness, blipColor);
+                    guiGraphics.fill(blipX - size - 1, blipY - size - 1, blipX - size - 1 + thickness, blipY - size + 3, blipColor);
+                    
+                    guiGraphics.fill(blipX + size - 2, blipY - size - 1, blipX + size + 1, blipY - size - 1 + thickness, blipColor);
+                    guiGraphics.fill(blipX + size - 1, blipY - size - 1, blipX + size + 1, blipY - size + 3, blipColor);
+                    
+                    guiGraphics.fill(blipX - size - 1, blipY + size - 1, blipX - size + 3, blipY + size + 1, blipColor);
+                    guiGraphics.fill(blipX - size - 1, blipY + size - 2, blipX - size - 1 + thickness, blipY + size + 1, blipColor);
+                    
+                    guiGraphics.fill(blipX + size - 2, blipY + size - 1, blipX + size + 1, blipY + size + 1, blipColor);
+                    guiGraphics.fill(blipX + size - 1, blipY + size - 2, blipX + size + 1, blipY + size + 1, blipColor);
                 }
+            }
+            
+            // Анимация захвата для locking цели
+            if (isMainTarget && PantsirClientHandler.radarState == PantsirRadarSyncMessage.STATE_LOCKING) {
+                long time = System.currentTimeMillis();
+                float progress = PantsirClientHandler.lockProgress / 100.0f;
+                int ringSize = (int)(8 + Math.sin(time / 100.0) * 2);
+                
+                // Пульсирующее кольцо
+                int ringAlpha = (int)((0.5f + Math.sin(time / 150.0) * 0.3f) * 255);
+                int ringColor = (blipColor & 0x00FFFFFF) | (ringAlpha << 24);
+                drawCircleOutline(poseStack, blipX, blipY, ringSize * progress, ringColor);
             }
         }
     }
@@ -325,26 +396,60 @@ public class PantsirOperatorOverlay {
      * Рисует иконку цели в зависимости от типа
      */
     private static void drawTargetIcon(GuiGraphics guiGraphics, PoseStack poseStack, int x, int y, int targetType, int color, boolean isMain) {
-        int size = isMain ? 4 : 3;
+        int size = isMain ? 3 : 2;
+        
+        // Эффект пульсации для главной цели
+        if (isMain) {
+            long time = System.currentTimeMillis();
+            float pulse = (float)(Math.sin(time / 200.0) * 0.3 + 0.7); // 0.4 - 1.0
+            int pulseAlpha = (int)(pulse * 255);
+            int glowColor = (color & 0x00FFFFFF) | (pulseAlpha << 24);
+            int glowSize = size + 2;
+            
+            // Внешнее свечение
+            drawFilledCircle(poseStack, x, y, glowSize, glowColor);
+        }
         
         switch (targetType) {
             case PantsirRadarSyncMessage.TARGET_TYPE_HELICOPTER -> {
-                // Вертолёт: крестик с точкой в центре (как винт)
+                // Вертолёт: улучшенный крестик с точкой в центре
                 guiGraphics.fill(x - size, y - 1, x + size, y + 1, color); // горизонталь
                 guiGraphics.fill(x - 1, y - size, x + 1, y + size, color); // вертикаль
-                guiGraphics.fill(x - 1, y - 1, x + 1, y + 1, color); // центр
+                // Центральная точка (винт)
+                guiGraphics.fill(x - 2, y - 2, x + 2, y + 2, color);
+                // Внешний контур для объёма
+                if (isMain) {
+                    guiGraphics.fill(x - size - 1, y - 1, x - size, y + 1, color);
+                    guiGraphics.fill(x + size, y - 1, x + size + 1, y + 1, color);
+                    guiGraphics.fill(x - 1, y - size - 1, x + 1, y - size, color);
+                    guiGraphics.fill(x - 1, y + size, x + 1, y + size + 1, color);
+                }
             }
             case PantsirRadarSyncMessage.TARGET_TYPE_AIRPLANE -> {
-                // Самолёт: треугольник (стрелка вверх)
+                // Самолёт: улучшенный треугольник с крыльями
                 drawTriangleUp(poseStack, x, y - size, x - size, y + size, x + size, y + size, color);
+                // Крылья (горизонтальная линия)
+                guiGraphics.fill(x - size - 1, y, x + size + 1, y + 1, color);
+                // Контур для объёма
+                if (isMain) {
+                    drawLine(poseStack, x, y - size - 1, x - size - 1, y + size, color, 1);
+                    drawLine(poseStack, x, y - size - 1, x + size + 1, y + size, color, 1);
+                }
             }
             case PantsirRadarSyncMessage.TARGET_TYPE_MISSILE -> {
-                // Вражеская ракета: ромб
+                // Вражеская ракета: улучшенный ромб с хвостом
                 drawDiamond(poseStack, x, y, size, color);
+                // Хвост ракеты
+                guiGraphics.fill(x - 1, y + size, x + 1, y + size + 3, color);
+                // Внутренняя точка
+                guiGraphics.fill(x - 1, y - 1, x + 1, y + 1, color);
             }
             default -> {
-                // Неизвестная цель: квадрат
+                // Неизвестная цель: квадрат с крестом
                 guiGraphics.fill(x - size, y - size, x + size, y + size, color);
+                // Крест внутри
+                guiGraphics.fill(x - 1, y - size + 1, x + 1, y + size - 1, (color & 0x00FFFFFF) | 0x80000000);
+                guiGraphics.fill(x - size + 1, y - 1, x + size - 1, y + 1, (color & 0x00FFFFFF) | 0x80000000);
             }
         }
     }
@@ -400,15 +505,21 @@ public class PantsirOperatorOverlay {
         int x = 15;
         int y = 40;
         
-        // Фон панели
-        int panelWidth = 100;
-        int panelHeight = 60;
+        // Фон панели с рамкой
+        int panelWidth = 110;
+        int panelHeight = 65;
         guiGraphics.fill(x - 5, y - 5, x + panelWidth, y + panelHeight, COLOR_PANEL_BG);
+        guiGraphics.fill(x - 6, y - 6, x + panelWidth + 1, y - 5, COLOR_RADAR_GREEN);
+        guiGraphics.fill(x - 6, y + panelHeight, x + panelWidth + 1, y + panelHeight + 1, COLOR_RADAR_GREEN);
+        guiGraphics.fill(x - 6, y - 5, x - 5, y + panelHeight, COLOR_RADAR_GREEN);
+        guiGraphics.fill(x + panelWidth, y - 5, x + panelWidth + 1, y + panelHeight, COLOR_RADAR_GREEN);
         
-        guiGraphics.drawString(mc.font, Component.literal("▌ PANTSIR-S1"), x, y, COLOR_RADAR_GREEN, false);
+        // Заголовок с иконкой
+        guiGraphics.drawString(mc.font, Component.literal("▌ PANTSIR-S1"), x, y, COLOR_RADAR_GREEN, true);
         y += 14;
         
-        guiGraphics.fill(x, y, x + 90, y + 1, COLOR_RADAR_DARK);
+        // Разделитель
+        guiGraphics.fill(x, y, x + 95, y + 1, COLOR_RADAR_GREEN);
         y += 6;
         
         String stateText;
@@ -416,15 +527,15 @@ public class PantsirOperatorOverlay {
         
         switch (PantsirClientHandler.radarState) {
             case PantsirRadarSyncMessage.STATE_IDLE -> {
-                stateText = "SCANNING";
+                stateText = "◉ SCANNING";
                 stateColor = COLOR_RADAR_GREEN;
             }
             case PantsirRadarSyncMessage.STATE_DETECTED -> {
-                stateText = "DETECTED";
+                stateText = "◎ DETECTED";
                 stateColor = COLOR_TARGET_YELLOW;
             }
             case PantsirRadarSyncMessage.STATE_LOCKING -> {
-                stateText = "LOCKING " + PantsirClientHandler.lockProgress + "%";
+                stateText = "◐ LOCKING " + PantsirClientHandler.lockProgress + "%";
                 stateColor = COLOR_TARGET_YELLOW;
             }
             case PantsirRadarSyncMessage.STATE_LOCKED -> {
@@ -432,7 +543,7 @@ public class PantsirOperatorOverlay {
                 stateColor = COLOR_LOCKED;
             }
             case PantsirRadarSyncMessage.STATE_LOST -> {
-                stateText = "LOST";
+                stateText = "◌ LOST";
                 stateColor = COLOR_TARGET_RED;
             }
             default -> {
@@ -441,23 +552,32 @@ public class PantsirOperatorOverlay {
             }
         }
         
-        guiGraphics.drawString(mc.font, Component.literal(stateText), x, y, stateColor, false);
+        guiGraphics.drawString(mc.font, Component.literal(stateText), x, y, stateColor, true);
         y += 12;
         
         if (PantsirClientHandler.radarState == PantsirRadarSyncMessage.STATE_LOCKING) {
-            int barWidth = 80;
-            int barHeight = 4;
+            int barWidth = 90;
+            int barHeight = 6;
             int progress = PantsirClientHandler.lockProgress;
             int filledWidth = (int)(barWidth * progress / 100.0);
             
+            // Рамка прогресс-бара
+            guiGraphics.fill(x - 1, y - 1, x + barWidth + 1, y + barHeight + 1, COLOR_RADAR_GREEN);
             guiGraphics.fill(x, y, x + barWidth, y + barHeight, COLOR_RADAR_DARK);
-            guiGraphics.fill(x, y, x + filledWidth, y + barHeight, COLOR_TARGET_YELLOW);
-            y += 8;
+            
+            // Заполнение с градиентом (эффект анимации)
+            long time = System.currentTimeMillis();
+            float pulse = (float)(Math.sin(time / 100.0) * 0.2 + 0.8);
+            int pulseAlpha = (int)(pulse * 255);
+            int barColor = (COLOR_TARGET_YELLOW & 0x00FFFFFF) | (pulseAlpha << 24);
+            guiGraphics.fill(x, y, x + filledWidth, y + barHeight, barColor);
+            
+            y += 10;
         }
         
         if (PantsirClientHandler.isTargetDetected()) {
             String distText = String.format("RNG: %.0fm", PantsirClientHandler.targetDistance);
-            guiGraphics.drawString(mc.font, Component.literal(distText), x, y, COLOR_RADAR_GREEN, false);
+            guiGraphics.drawString(mc.font, Component.literal(distText), x, y, COLOR_RADAR_GREEN, true);
         }
     }
 
