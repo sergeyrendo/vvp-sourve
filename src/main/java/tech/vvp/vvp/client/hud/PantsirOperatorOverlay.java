@@ -172,28 +172,40 @@ public class PantsirOperatorOverlay {
         int centerX = screenWidth - RADAR_RADIUS - 25;
         int centerY = RADAR_RADIUS + 40;
         
+        // Тень под радаром
+        drawFilledCircle(poseStack, centerX + 2, centerY + 2, RADAR_RADIUS + 2, 0x80000000);
+        
         // Фон радара с градиентом
         drawFilledCircle(poseStack, centerX, centerY, RADAR_RADIUS, COLOR_RADAR_BG);
+        
+        // Сетка радара (линии через центр)
+        int gridColor = (COLOR_RADAR_DARK & 0x00FFFFFF) | 0x40000000;
+        // Диагональные линии
+        int diag = (int)(RADAR_RADIUS * 0.707); // cos(45°) ≈ 0.707
+        drawLine(poseStack, centerX - diag, centerY - diag, centerX + diag, centerY + diag, gridColor, 1);
+        drawLine(poseStack, centerX - diag, centerY + diag, centerX + diag, centerY - diag, gridColor, 1);
         
         // Концентрические круги с разной яркостью
         drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS * 0.25f, COLOR_RADAR_DARK);
         drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS * 0.5f, COLOR_RADAR_DARK);
         drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS * 0.75f, COLOR_RADAR_DARK);
         
-        // Внешняя рамка с эффектом свечения
+        // Внешняя рамка с эффектом свечения (двойная)
         drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS - 2, COLOR_RADAR_GREEN);
         drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS - 1, (COLOR_RADAR_GREEN & 0x00FFFFFF) | 0x80000000);
+        drawCircleOutline(poseStack, centerX, centerY, RADAR_RADIUS, (COLOR_RADAR_GREEN & 0x00FFFFFF) | 0x40000000);
         
         // Перекрестие с улучшенным дизайном
         guiGraphics.fill(centerX - 1, centerY - 10, centerX + 1, centerY + 10, COLOR_RADAR_DARK);
         guiGraphics.fill(centerX - 10, centerY - 1, centerX + 10, centerY + 1, COLOR_RADAR_DARK);
-        // Центральная точка
+        // Центральная точка с свечением
+        drawFilledCircle(poseStack, centerX, centerY, 3, (COLOR_RADAR_GREEN & 0x00FFFFFF) | 0x60000000);
         guiGraphics.fill(centerX - 2, centerY - 2, centerX + 2, centerY + 2, COLOR_RADAR_GREEN);
         
         // Полоска 1: Вращающийся обзорный радар (зелёный)
         drawRadarSweep(poseStack, centerX, centerY, player);
         
-        // Полоска 2: Пассивный радар - направление башни (фиолетовый)
+        // Полоска 2: Пассивный радар - направление башни (жёлтый)
         drawTurretBeam(poseStack, centerX, centerY, player);
         
         // Все цели на радаре
@@ -209,23 +221,23 @@ public class PantsirOperatorOverlay {
         guiGraphics.drawString(mc.font, "W", centerX - RADAR_RADIUS - 10, centerY - 4, COLOR_RADAR_GREEN, true);
         guiGraphics.drawString(mc.font, "E", centerX + RADAR_RADIUS + 4, centerY - 4, COLOR_RADAR_GREEN, true);
         
-        // Дистанция с фоном
+        // Дистанция с улучшенным фоном
         String rangeText = "1100m";
         int rangeWidth = mc.font.width(rangeText);
-        guiGraphics.fill(centerX + RADAR_RADIUS - rangeWidth - 4, centerY - RADAR_RADIUS + 3, 
-                        centerX + RADAR_RADIUS - 2, centerY - RADAR_RADIUS + 13, 0x80000000);
-        guiGraphics.drawString(mc.font, rangeText, centerX + RADAR_RADIUS - rangeWidth - 2, 
-                              centerY - RADAR_RADIUS + 5, COLOR_RADAR_GREEN, false);
+        guiGraphics.fill(centerX + RADAR_RADIUS - rangeWidth - 6, centerY - RADAR_RADIUS + 1, 
+                        centerX + RADAR_RADIUS, centerY - RADAR_RADIUS + 11, 0xC0000000);
+        guiGraphics.drawString(mc.font, rangeText, centerX + RADAR_RADIUS - rangeWidth - 4, 
+                              centerY - RADAR_RADIUS + 3, COLOR_RADAR_GREEN, false);
         
-        // Счётчик целей с фоном
+        // Счётчик целей с улучшенным фоном и иконкой
         int targetCount = PantsirClientHandler.allTargets.size();
         if (targetCount > 0) {
-            String tgtText = "TGT: " + targetCount;
+            String tgtText = "◎ " + targetCount;
             int tgtWidth = mc.font.width(tgtText);
-            guiGraphics.fill(centerX - RADAR_RADIUS + 3, centerY - RADAR_RADIUS + 3, 
-                            centerX - RADAR_RADIUS + tgtWidth + 7, centerY - RADAR_RADIUS + 13, 0x80000000);
+            guiGraphics.fill(centerX - RADAR_RADIUS + 1, centerY - RADAR_RADIUS + 1, 
+                            centerX - RADAR_RADIUS + tgtWidth + 9, centerY - RADAR_RADIUS + 11, 0xC0000000);
             guiGraphics.drawString(mc.font, tgtText, centerX - RADAR_RADIUS + 5, 
-                centerY - RADAR_RADIUS + 5, COLOR_TARGET_YELLOW, false);
+                centerY - RADAR_RADIUS + 3, COLOR_TARGET_YELLOW, false);
         }
     }
     
