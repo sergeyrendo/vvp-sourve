@@ -194,20 +194,19 @@ public class ReticleOverlay {
             tech.vvp.vvp.entity.vehicle.Bmp2Entity.class,
             0,
             new ReticleConfig()
-                .setOutline("vvp:textures/reticles/outline_kord-rws.png")
+                .setOutline("vvp:textures/reticles/outline_digital-4x3.png")
                 .setReticle("vvp:textures/reticles/bmp2_2a42_zoom.png") // По умолчанию для пушки
                 .setWeaponReticle("Cannon", "vvp:textures/reticles/bmp2_2a42_zoom.png")
                 .setWeaponReticle("Missile", "vvp:textures/reticles/bmp2_atgm_zoom.png")
                 .setReticleColor(1.0f, 1.0f, 1.0f, 1.0f)
-                .setReticleScale(1.0f)
-                .setZoomScale(1.5f)
+                .setReticleScale(1.33f)  // Увеличен чтобы соответствовать БМП-2М (4:3 -> 16:9)
                 .setThermalVisionAllowed(false)
+                .setZoomScale(1.5f)
                 .setNoiseEnabled(false)
                 .setNoiseDuration(15)
                 .setNoiseAlpha(0.3f)
                 .setSeatIndex(0)
                 .setHudRightSide(false)
-                .setFullscreenReticle(false) // Сохраняем пропорции для круглого прицела
         );
         
         // BMP-2M - сидушка 0 (наводчик)
@@ -876,23 +875,37 @@ public class ReticleOverlay {
     }
     
     private static void renderOutline(GuiGraphics guiGraphics, ResourceLocation outlineTexture, int screenWidth, int screenHeight, float outlineScale) {
-        // Растягиваем текстуру ровно на весь экран (как в BTR-4)
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         
-        // Всегда растягиваем на весь экран без выхода за границы
-        // Используем preciseBlit для точного рендера
+        // Чёрный фон НЕ рисуем - он закрывает игровой мир!
+        // Для digital прицелов используется tv_frame.png
+        
+        // Растягиваем текстуру на весь экран
         RenderHelper.preciseBlit(
             guiGraphics,
             outlineTexture,
-            0f,                    // x - начинаем с 0
-            0f,                    // y - начинаем с 0
-            0f,                    // uOffset
-            0f,                    // vOffset
-            screenWidth,           // width - ровно на весь экран
-            screenHeight,          // height - ровно на весь экран
-            screenWidth,           // textureWidth
-            screenHeight           // textureHeight
+            0f,
+            0f,
+            0f,
+            0f,
+            screenWidth,
+            screenHeight,
+            screenWidth,
+            screenHeight
         );
+        
+        // Для outline_digital-4x3.png рисуем чёрные полосы по бокам (letterbox)
+        if (outlineTexture.getPath().contains("outline_digital-4x3")) {
+            // Соотношение 4:3
+            int targetWidth = (int) (screenHeight * 4.0 / 3.0);
+            if (targetWidth < screenWidth) {
+                int blackBarWidth = (screenWidth - targetWidth) / 2;
+                // Левая полоса
+                guiGraphics.fill(0, 0, blackBarWidth, screenHeight, 0xFF000000);
+                // Правая полоса
+                guiGraphics.fill(screenWidth - blackBarWidth, 0, screenWidth, screenHeight, 0xFF000000);
+            }
+        }
     }
     
     /**

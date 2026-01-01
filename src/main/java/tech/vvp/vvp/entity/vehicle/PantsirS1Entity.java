@@ -260,6 +260,18 @@ public class PantsirS1Entity extends CamoVehicleBase {
         double distance = entity.position().distanceTo(radarPos);
         if (distance > RADAR_RANGE) return false;
         
+        // 1. ТЕГИ - для кастомных сущностей из других модов (не VehicleEntity)
+        // Воздушные цели из других модов
+        if (entity.getType().is(tech.vvp.vvp.init.ModTags.EntityTypes.PANTSIR_AIR_TARGET)) {
+            return true;
+        }
+        
+        // Ракеты из других модов
+        if (entity.getType().is(tech.vvp.vvp.init.ModTags.EntityTypes.PANTSIR_MISSILE_TARGET)) {
+            return true;
+        }
+        
+        // 2. ВСТРОЕННАЯ ЛОГИКА для VehicleEntity и MissileProjectile из SBW/VVP
         // Вражеские ракеты (MissileProjectile) - можно сбивать!
         // Исключаем свои ракеты (PantsirMissileEntity с нашим launcherId)
         if (entity instanceof MissileProjectile missile) {
@@ -286,9 +298,8 @@ public class PantsirS1Entity extends CamoVehicleBase {
                 return true;
             }
             
-            // Остальная техника - только если в воздухе (прыгает, падает и т.д.)
-            double heightAboveRadar = vehicle.position().y - radarPos.y;
-            return !vehicle.onGround() && heightAboveRadar > 3.0;
+            // Остальная техника - НЕТ (это ПВО)
+            return false;
         }
         
         // Игроков НЕ показываем на радаре (нельзя залочить)
