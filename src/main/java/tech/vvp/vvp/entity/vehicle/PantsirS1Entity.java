@@ -6,6 +6,7 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
 import com.atsuishio.superbwarfare.init.ModSounds;
 import com.atsuishio.superbwarfare.init.ModTags;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -13,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -59,7 +61,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
     // Параметры радара
     private static final double RADAR_RANGE = 1100.0;          // Дальность обзорного радара
     private static final double RADAR_TRACK_RANGE = 1000.0;    // Дальность сопровождения
-    private static final int LOCK_TIME_TICKS = 20;             // Время захвата (1 секунда)
+    private static final int LOCK_TIME_TICKS = 40;             // Время захвата (2 секунды) - БАЛАНС: больше времени на уклонение
     
     // Параметры вращающегося радара (синхронизация с анимацией)
     private static final float RADAR_ROTATION_TICKS = 42.5f;   // Тиков на полный оборот
@@ -248,6 +250,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
     /**
      * Проверяет является ли entity валидной целью для радара
      * Техника (VehicleEntity) и вражеские ракеты (MissileProjectile, ThrowableProjectile)
+     * ВАЖНО: Цели за горами/зданиями не показываются на радаре (line of sight)
      */
     private boolean isValidRadarTarget(Entity entity) {
         if (entity == null || !entity.isAlive()) return false;
@@ -260,15 +263,18 @@ public class PantsirS1Entity extends CamoVehicleBase {
         double distance = entity.position().distanceTo(radarPos);
         if (distance > RADAR_RANGE) return false;
         
+        // Сначала проверяем тип цели
+        boolean isValidType = false;
+        
         // 1. ТЕГИ - для кастомных сущностей из других модов (не VehicleEntity)
         // Воздушные цели из других модов
         if (entity.getType().is(tech.vvp.vvp.init.ModTags.EntityTypes.PANTSIR_AIR_TARGET)) {
-            return true;
+            isValidType = true;
         }
         
         // Ракеты из других модов
         if (entity.getType().is(tech.vvp.vvp.init.ModTags.EntityTypes.PANTSIR_MISSILE_TARGET)) {
-            return true;
+            isValidType = true;
         }
         
         // 2. ВСТРОЕННАЯ ЛОГИКА для VehicleEntity и MissileProjectile из SBW/VVP
@@ -277,38 +283,39 @@ public class PantsirS1Entity extends CamoVehicleBase {
         if (entity instanceof MissileProjectile missile) {
             // Свои ракеты не показываем как цели (они отдельно отображаются)
             if (entity instanceof PantsirMissileEntity pantsirMissile) {
-                return pantsirMissile.getLauncherId() != this.getId();
+                isValidType = pantsirMissile.getLauncherId() != this.getId();
+            } else {
+                isValidType = true; // Все остальные ракеты - вражеские
             }
-            return true; // Все остальные ракеты - вражеские
         }
         
         // Баллистические ракеты (ThrowableProjectile) - тоже можно сбивать
         // Проверяем по имени класса чтобы не импортировать лишнее
-        String className = entity.getClass().getSimpleName();
-        if (className.contains("Missile") || className.contains("Rocket") || className.contains("Bomb")) {
-            return true;
+        if (!isValidType) {
+            String className = entity.getClass().getSimpleName();
+            if (className.contains("Missile") || className.contains("Rocket") || className.contains("Bomb")) {
+                isValidType = true;
+            }
         }
         
         // VehicleEntity из SBW/VVP - проверяем по типу техники
-        if (entity instanceof VehicleEntity vehicle) {
+        if (!isValidType && entity instanceof VehicleEntity vehicle) {
             VehicleType vehicleType = vehicle.getVehicleType();
             
             // Вертолёты и самолёты - ВСЕГДА показываем (это воздушные цели)
             if (vehicleType == VehicleType.HELICOPTER || vehicleType == VehicleType.AIRPLANE) {
-                return true;
+                isValidType = true;
             }
-            
-            // Остальная техника - НЕТ (это ПВО)
+        }
+        
+        // Игроков и мобов НЕ показываем на радаре
+        if (!isValidType) {
             return false;
         }
         
-        // Игроков НЕ показываем на радаре (нельзя залочить)
-        if (entity instanceof Player) {
-            return false;
-        }
-        
-        // Мобов НЕ показываем (летучие мыши, пчёлы и т.д. - пофиг на них)
-        return false;
+        // КРИТИЧНО: Проверяем line of sight - цели за горами не видны радару
+        Vec3 targetPos = entity.position().add(0, entity.getBbHeight() * 0.5, 0);
+        return hasLineOfSight(radarPos, targetPos);
     }
     
     /**
@@ -386,6 +393,8 @@ public class PantsirS1Entity extends CamoVehicleBase {
                     disableAutoAim();
                     radarState = PantsirRadarSyncMessage.STATE_LOST;
                 } else {
+                    // Радар автоматически лочит цель - не требует прицеливания
+                    
                     // Проверяем наличие decoy/flare рядом с целью - они могут перехватить лок
                     Entity decoyNearTarget = findDecoyNearTarget(trackedTarget, 50.0);
                     if (decoyNearTarget != null) {
@@ -417,6 +426,15 @@ public class PantsirS1Entity extends CamoVehicleBase {
                     disableAutoAim();
                     radarState = PantsirRadarSyncMessage.STATE_LOST;
                 } else {
+                    // БАЛАНС: Проверяем резкие манёвры цели - они могут сбить захват
+                    if (isTargetManeuvering(lockedTarget)) {
+                        // Цель делает резкий манёвр - теряем захват!
+                        lockedTarget = null;
+                        disableAutoAim();
+                        radarState = PantsirRadarSyncMessage.STATE_LOST;
+                        break;
+                    }
+                    
                     // Автонаведение башни на захваченную цель
                     updateAutoAimTarget(lockedTarget);
                     
@@ -441,7 +459,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
     
     /**
      * Обновляет синхронизированные данные для автонаведения башни (только на сервере)
-     * Использует упреждение для движущихся целей
+     * Использует упреждение для движущихся целей и компенсацию гравитации для пушки
      */
     private void updateAutoAimTarget(Entity target) {
         if (target == null) {
@@ -472,20 +490,17 @@ public class PantsirS1Entity extends CamoVehicleBase {
             // Ракеты - целимся прямо на цель (ракеты сами наводятся)
             aimVector = targetPos.subtract(shootPos).normalize();
         } else {
-            // Пушка - используем простой предикт
+            // Пушка - используем баллистический расчёт с компенсацией гравитации
             Vec3 targetVel = target.getDeltaMovement();
             
-            // Параметры пушки 2А38М
-            double projectileSpeed = 20.0;
+            // Параметры пушки 2А38М из конфига
+            double projectileSpeed = 20.0;  // Velocity из конфига
+            double gravity = 0.03;          // Gravity из конфига
             
-            // Вычисляем время полёта до цели
-            double distance = shootPos.distanceTo(targetPos);
-            double timeToTarget = distance / projectileSpeed;
+            // Вычисляем баллистическую траекторию с учётом гравитации
+            Vec3 predictedPos = calculateBallisticAimPoint(shootPos, targetPos, targetVel, projectileSpeed, gravity);
             
-            // Предсказываем позицию цели с учётом её скорости
-            Vec3 predictedPos = targetPos.add(targetVel.scale(timeToTarget));
-            
-            // Целимся в предсказанную позицию
+            // Целимся в предсказанную позицию с компенсацией гравитации
             aimVector = predictedPos.subtract(shootPos).normalize();
         }
         
@@ -497,6 +512,44 @@ public class PantsirS1Entity extends CamoVehicleBase {
         this.entityData.set(AIM_DIR_X, (float) aimVector.x);
         this.entityData.set(AIM_DIR_Y, (float) aimVector.y);
         this.entityData.set(AIM_DIR_Z, (float) aimVector.z);
+    }
+    
+    /**
+     * Вычисляет точку прицеливания с учётом баллистики (гравитация + движение цели)
+     * Использует итеративный метод для точного расчёта траектории
+     */
+    private Vec3 calculateBallisticAimPoint(Vec3 shootPos, Vec3 targetPos, Vec3 targetVel, double projectileSpeed, double gravity) {
+        // Начальная оценка времени полёта
+        double distance = shootPos.distanceTo(targetPos);
+        double timeToTarget = distance / projectileSpeed;
+        
+        // Итеративно уточняем точку прицеливания (5 итераций для точности)
+        Vec3 aimPoint = targetPos;
+        for (int i = 0; i < 5; i++) {
+            // Предсказываем где будет цель через timeToTarget тиков
+            Vec3 predictedTargetPos = targetPos.add(targetVel.scale(timeToTarget));
+            
+            // Вычисляем горизонтальное расстояние и разницу высот
+            Vec3 toTarget = predictedTargetPos.subtract(shootPos);
+            double horizontalDist = Math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z);
+            double verticalDist = toTarget.y;
+            
+            // Вычисляем время полёта по горизонтали
+            timeToTarget = horizontalDist / projectileSpeed;
+            
+            // Вычисляем падение снаряда из-за гравитации за это время
+            // s = g * t^2 / 2 (формула свободного падения)
+            double gravityDrop = 0.5 * gravity * timeToTarget * timeToTarget;
+            
+            // Компенсируем падение: целимся выше на величину gravityDrop
+            aimPoint = predictedTargetPos.add(0, gravityDrop, 0);
+            
+            // Пересчитываем время с учётом новой точки прицеливания
+            distance = shootPos.distanceTo(aimPoint);
+            timeToTarget = distance / projectileSpeed;
+        }
+        
+        return aimPoint;
     }
     
     /**
@@ -526,11 +579,107 @@ public class PantsirS1Entity extends CamoVehicleBase {
     
     /**
      * Проверяет валидность цели для отслеживания
+     * Line of sight уже проверяется в isValidRadarTarget при сканировании
      */
     private boolean isTargetValidForTracking(Entity target, Vec3 radarPos) {
         if (target == null || !target.isAlive()) return false;
         double distance = target.position().distanceTo(radarPos);
-        return distance <= RADAR_RANGE;
+        if (distance > RADAR_RANGE) return false;
+        
+        // Проверяем line of sight (цель могла зайти за гору после сканирования)
+        Vec3 targetPos = target.position().add(0, target.getBbHeight() * 0.5, 0);
+        return hasLineOfSight(radarPos, targetPos);
+    }
+    
+    /**
+     * ОПТИМИЗИРОВАННАЯ проверка прямой видимости (line of sight)
+     * Использует гибридный подход:
+     * 1. Быстрая проверка высоты (heightmap)
+     * 2. Если цель низко - точная проверка raycast
+     * 
+     * @param from позиция радара
+     * @param to позиция цели
+     * @return true если есть прямая видимость
+     */
+    private boolean hasLineOfSight(Vec3 from, Vec3 to) {
+        // ШАГ 1: Быстрая проверка высоты (очень дешёвая операция)
+        int fromX = (int) from.x;
+        int fromZ = (int) from.z;
+        int toX = (int) to.x;
+        int toZ = (int) to.z;
+        
+        double horizontalDist = Math.sqrt((toX - fromX) * (toX - fromX) + (toZ - fromZ) * (toZ - fromZ));
+        int steps = Math.max(1, (int) (horizontalDist / 50)); // Проверяем каждые 50 блоков
+        
+        boolean targetIsHigh = true;
+        for (int i = 0; i <= steps; i++) {
+            double t = (double) i / steps;
+            int x = (int) (fromX + (toX - fromX) * t);
+            int z = (int) (fromZ + (toZ - fromZ) * t);
+            
+            // Находим самый высокий блок (рельеф)
+            int highestY = this.level().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, x, z);
+            
+            // Если цель ниже рельефа + 10 блоков - она низко
+            if (to.y < highestY + 10) {
+                targetIsHigh = false;
+                break;
+            }
+        }
+        
+        // Если цель высоко - пропускаем raycast (оптимизация)
+        if (targetIsHigh) {
+            return true;
+        }
+        
+        // ШАГ 2: Цель низко - делаем точную проверку raycast
+        // Но проверяем только каждые 20 блоков (оптимизация)
+        Vec3 direction = to.subtract(from);
+        double distance = direction.length();
+        Vec3 step = direction.normalize().scale(20); // Шаг 20 блоков
+        
+        Vec3 current = from;
+        int raySteps = (int) (distance / 20);
+        
+        for (int i = 0; i < raySteps; i++) {
+            current = current.add(step);
+            BlockPos pos = BlockPos.containing(current.x, current.y, current.z);
+            
+            // Проверяем только твёрдые блоки (камень, земля, но не трава/цветы)
+            net.minecraft.world.level.block.state.BlockState state = this.level().getBlockState(pos);
+            if (!state.isAir() && state.isSolidRender(this.level(), pos)) {
+                return false; // Блок мешает
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * КРИТИЧНО: Проверяет что цель в прицеле оператора (в конусе обзора)
+     * Это нужно чтобы локинг не останавливался на 2% когда оператор не смотрит на цель
+     * @param target цель
+     * @param operator оператор (игрок в турели)
+     * @param maxAngle максимальный угол отклонения (градусы)
+     * @return true если цель в прицеле
+     */
+    private boolean isTargetInOperatorSight(Entity target, Entity operator, double maxAngle) {
+        if (target == null || operator == null) return false;
+        
+        // Направление взгляда оператора
+        Vec3 lookVec = operator.getLookAngle();
+        
+        // Направление от оператора к цели
+        Vec3 toTarget = target.position().add(0, target.getBbHeight() * 0.5, 0)
+                .subtract(operator.position().add(0, operator.getEyeHeight(), 0))
+                .normalize();
+        
+        // Вычисляем угол между направлением взгляда и направлением к цели
+        double dot = lookVec.dot(toTarget);
+        double angle = Math.toDegrees(Math.acos(Mth.clamp(dot, -1.0, 1.0)));
+        
+        // Цель в прицеле если угол меньше maxAngle
+        return angle <= maxAngle;
     }
     
     /**
@@ -541,6 +690,56 @@ public class PantsirS1Entity extends CamoVehicleBase {
         
         double distance = target.position().distanceTo(radarPos);
         return distance <= RADAR_TRACK_RANGE * 1.2; // Немного больший радиус для удержания
+    }
+    
+    /**
+     * БАЛАНС: Проверяет делает ли цель резкий манёвр
+     * Резкие манёвры сбивают захват или замедляют его прогресс
+     * @param target цель
+     * @return true если цель делает резкий манёвр
+     */
+    private boolean isTargetManeuvering(Entity target) {
+        if (target == null) return false;
+        
+        // Только для VehicleEntity (самолёты/вертолёты)
+        if (!(target instanceof VehicleEntity vehicle)) {
+            return false;
+        }
+        
+        // Получаем скорость и ускорение цели
+        Vec3 velocity = target.getDeltaMovement();
+        double speed = velocity.length();
+        
+        // Если цель стоит или движется медленно - манёвра нет
+        if (speed < 0.3) return false;
+        
+        // Проверяем угловую скорость (насколько быстро меняется направление)
+        // Сравниваем текущее направление с направлением 5 тиков назад
+        Vec3 currentDir = velocity.normalize();
+        
+        // Простая проверка: если цель резко меняет высоту или направление
+        // Проверяем вертикальную составляющую скорости
+        double verticalSpeed = Math.abs(velocity.y);
+        
+        // Резкий набор высоты или пикирование (> 0.5 блоков/тик вертикально)
+        if (verticalSpeed > 0.5) {
+            return true;
+        }
+        
+        // Проверяем горизонтальное ускорение через изменение yaw
+        float currentYaw = target.getYRot();
+        float oldYaw = target.yRotO;
+        float yawDelta = Math.abs(currentYaw - oldYaw);
+        
+        // Нормализуем угол в диапазон [0, 180]
+        if (yawDelta > 180) yawDelta = 360 - yawDelta;
+        
+        // Резкий поворот (> 15 градусов за тик при высокой скорости)
+        if (yawDelta > 15 && speed > 0.5) {
+            return true;
+        }
+        
+        return false;
     }
     
     /**

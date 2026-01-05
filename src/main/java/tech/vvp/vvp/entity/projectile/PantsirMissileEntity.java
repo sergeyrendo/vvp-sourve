@@ -62,15 +62,21 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    // Параметры ракеты 57Э6 (реалистичные, адаптированные для игры)
-    private static final double MISSILE_SPEED = 10.0;         // Блоков/тик (~200 м/с в игре)
-    private static final float MAX_TURN_RATE = 8.0f;          // Градусов/тик - реалистичный поворот (перегрузка ~20g)
+    // Параметры ракеты 57Э6 (сбалансированные для игры)
+    // БАЛАНС: Ракета эффективна против медленных целей, но может промахнуться по быстрым манёврам
+    private static final double MISSILE_SPEED = 10.0;         // Блоков/тик (~200 м/с в игре) - хорошо для баланса
+    private static final double INITIAL_SPEED = 8.0;          // Начальная скорость при запуске (из конфига)
+    private static final double ACCELERATION = 0.25;          // Ускорение ракеты (блоков/тик²) - плавный разгон
+    private static final float MAX_TURN_RATE = 7.0f;          // Градусов/тик - реалистичная перегрузка ~30g
+    private static final float BOOST_TURN_RATE = 9.0f;        // Градусов/тик в фазе разгона - чуть выше
     private static final float MAX_LEAD_ANGLE = 45.0f;        // Максимальный угол упреждения
-    private static final double PROXIMITY_FUSE_MISSILE = 3.0; // Радиовзрыватель для ракет/баллистики - 3 блока
-    private static final double PROXIMITY_FUSE_AIRCRAFT = 7.0;// Радиовзрыватель для самолётов/вертолётов - 7 блоков
-    private static final double SHRAPNEL_RANGE = 15.0;        // Радиус поражения осколками
-    private static final float SHRAPNEL_MAX_DAMAGE = 80.0f;   // Максимальный урон осколками
+    private static final double PROXIMITY_FUSE_MISSILE = 2.5; // Радиовзрыватель для ракет/баллистики - 2.5 блока (сложнее сбить)
+    private static final double PROXIMITY_FUSE_AIRCRAFT = 5.0;// Радиовзрыватель для самолётов/вертолётов - 5 блоков (реалистично)
+    private static final double SHRAPNEL_RANGE = 12.0;        // Радиус поражения осколками (уменьшен)
+    private static final float SHRAPNEL_MAX_DAMAGE = 60.0f;   // Максимальный урон осколками (уменьшен)
     private static final int MAX_LIFETIME = 400;              // Максимальное время жизни (20 сек)
+    private static final int BOOST_PHASE_TICKS = 25;          // Фаза разгона (1.25 секунды) - чуть дольше
+    private static final int MAX_TURN_ANGLE = 75;             // Максимальный угол разворота (градусов) - если цель дальше, ракета промахнётся
     
     // Состояние
     private int launcherEntityId = -1;
@@ -130,8 +136,9 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
         spawnTrailParticles();
         
         if (!this.level().isClientSide && this.level() instanceof ServerLevel) {
-            // КРИТИЧНО: На первом тике сразу ищем панцирь и цель
-            if (this.tickCount == 1) {
+            // КРИТИЧНО: На первых 5 тиках постоянно ищем панцирь и цель
+            // Это нужно для надёжной синхронизации на сервере
+            if (this.tickCount <= 5) {
                 forceUpdateTargetFromRadar();
             }
             
@@ -146,7 +153,8 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
     }
     
     /**
-     * Проверяет наличие decoy/flare и переключается на них (как в Agm65Entity)
+     * Проверяет наличие decoy/flare и переключается на них
+     * БАЛАНС: Флаеры имеют долгий кулдаун (20-25 сек), поэтому шанс отвлечения высокий
      */
     private void checkForDecoy() {
         // Ищем decoy в радиусе 32 блоков с углом 90 градусов
@@ -154,12 +162,135 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
         
         for (var e : decoy) {
             if (e.getType().is(ModTags.EntityTypes.DECOY) && !this.distracted) {
-                // Переключаемся на decoy
-                this.entityData.set(TARGET_UUID, e.getStringUUID());
-                this.distracted = true;
-                break;
+                // Проверяем что флаер на пути к цели (не за целью)
+                if (!isFlareOnPath(e)) continue;
+                
+                // Вычисляем шанс отвлечения
+                double distractionChance = calculateDistractionChance(e);
+                
+                // Проверяем шанс
+                if (this.random.nextDouble() < distractionChance) {
+                    // Переключаемся на decoy
+                    this.entityData.set(TARGET_UUID, e.getStringUUID());
+                    this.distracted = true;
+                    break;
+                }
             }
         }
+    }
+    
+    /**
+     * Проверяет что флаер находится МЕЖДУ ракетой и целью
+     * Если флаер за целью (пилот летит на Панцирь и сбрасывает флаеры назад) - возвращает false
+     * 
+     * @param flare флаер
+     * @return true если флаер на пути ракеты к цели
+     */
+    private boolean isFlareOnPath(Entity flare) {
+        if (targetPos == null) return true; // Если нет цели - принимаем любой флаер
+        
+        Vec3 missilePos = this.position();
+        Vec3 flarePos = flare.position();
+        
+        // Направление от ракеты к цели и к флаеру
+        Vec3 toTarget = targetPos.subtract(missilePos).normalize();
+        Vec3 toFlare = flarePos.subtract(missilePos).normalize();
+        double dot = toTarget.dot(toFlare);
+        
+        // Если угол > 90° - флаер вообще не на пути (за ракетой или сбоку)
+        if (dot < 0) return false;
+        
+        // Расстояния
+        double distMissileToTarget = missilePos.distanceTo(targetPos);
+        double distMissileToFlare = missilePos.distanceTo(flarePos);
+        
+        // Флаер должен быть ближе к ракете чем цель (не за целью)
+        return distMissileToFlare < distMissileToTarget;
+    }
+    
+    /**
+     * Вычисляет шанс отвлечения ракеты на флаер
+     * БАЛАНС: У самолётов долгий кулдаун флаеров (20-25 сек), поэтому базовый шанс высокий
+     * 
+     * Факторы:
+     * 1. Базовый шанс 70% (высокий из-за долгого кулдауна)
+     * 2. Расстояние до флаера (ближе = лучше)
+     * 3. Фаза полёта ракеты (в начале легче отвлечь)
+     * 4. Угол между флаером и целью (флаер должен быть на пути)
+     * 5. Тепловая сигнатура цели (форсаж = сложнее отвлечь)
+     * 
+     * @param flare флаер
+     * @return шанс от 0.0 до 1.0
+     */
+    private double calculateDistractionChance(Entity flare) {
+        // Высокий базовый шанс - компенсация за долгий кулдаун флаеров
+        double baseChance = 0.70;
+        
+        // 1. РАССТОЯНИЕ ДО ФЛАЕРА
+        double distanceToFlare = this.distanceTo(flare);
+        double distanceBonus;
+        if (distanceToFlare < 10) {
+            distanceBonus = 0.20; // +20% если флаер очень близко
+        } else if (distanceToFlare < 20) {
+            distanceBonus = 0.10; // +10% если флаер близко
+        } else {
+            distanceBonus = 0.0;
+        }
+        
+        // 2. ФАЗА ПОЛЁТА РАКЕТЫ
+        double flightPhaseBonus;
+        if (this.tickCount < 40) {
+            // Первые 2 секунды - ракета только запущена, легко отвлечь
+            flightPhaseBonus = 0.15; // +15%
+        } else if (targetPos != null && this.position().distanceTo(targetPos) < 30) {
+            // Очень близко к цели - сложнее отвлечь (но не невозможно)
+            flightPhaseBonus = -0.15; // -15%
+        } else {
+            flightPhaseBonus = 0.0;
+        }
+        
+        // 3. УГОЛ МЕЖДУ ФЛАЕРОМ И ЦЕЛЬЮ
+        double anglePenalty = 0.0;
+        if (targetPos != null) {
+            Vec3 toTarget = targetPos.subtract(this.position()).normalize();
+            Vec3 toFlare = flare.position().subtract(this.position()).normalize();
+            
+            double dot = toTarget.dot(toFlare);
+            double angle = Math.toDegrees(Math.acos(Mth.clamp(dot, -1.0, 1.0)));
+            
+            // Если флаер сильно в стороне от цели - меньше шанс
+            if (angle > 60) {
+                anglePenalty = -0.25; // -25% если флаер далеко от траектории
+            } else if (angle > 30) {
+                anglePenalty = -0.10; // -10% если флаер немного в стороне
+            }
+        }
+        
+        // 4. ТЕПЛОВАЯ СИГНАТУРА ЦЕЛИ
+        double thermalBonus = 0.0;
+        if (targetEntityId != -1) {
+            Entity target = this.level().getEntity(targetEntityId);
+            if (target instanceof VehicleEntity vehicle) {
+                Vec3 velocity = vehicle.getDeltaMovement();
+                double speed = velocity.length();
+                
+                // Если самолёт летит быстро (форсаж) - двигатель горячий, сложнее отвлечь
+                if (speed > 1.0) {
+                    thermalBonus = -0.15; // -15% (горячий двигатель)
+                } else if (speed < 0.3) {
+                    // Если самолёт планирует - холоднее, легче отвлечь
+                    thermalBonus = 0.10; // +10%
+                }
+            }
+        }
+        
+        // ИТОГОВЫЙ ШАНС
+        double finalChance = baseChance + distanceBonus + flightPhaseBonus + anglePenalty + thermalBonus;
+        
+        // Ограничиваем от 40% до 95%
+        // Минимум 40% - даже плохо брошенный флаер имеет шанс
+        // Максимум 95% - всегда есть шанс что ракета не отвлечётся
+        return Mth.clamp(finalChance, 0.40, 0.95);
     }
     
     /**
@@ -258,23 +389,26 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
     private Vec3 calculateInterceptPoint(Vec3 targetPos, Vec3 targetVelocity) {
         Vec3 missilePos = this.position();
         
-        // Используем константную скорость ракеты
-        double missileSpeed = MISSILE_SPEED;
+        // Используем текущую скорость ракеты для более точного расчёта
+        double currentSpeed = this.getDeltaMovement().length();
+        double missileSpeed = Math.max(currentSpeed, MISSILE_SPEED * 0.5); // Минимум 50% от макс скорости
         
         // Скорость цели
         double targetSpeed = targetVelocity.length();
         
-        // Если цель стоит - целимся прямо на неё
+        // Если цель стоит или движется очень медленно
         if (targetSpeed < 0.1) {
-            return targetPos;
+            // Добавляем небольшое упреждение вверх для компенсации гравитации снаряда
+            // и для того чтобы ракета не стреляла ниже цели
+            return targetPos.add(0, 0.5, 0);
         }
         
         // Итеративно вычисляем время до перехвата
         double distance = missilePos.distanceTo(targetPos);
         double timeToIntercept = distance / missileSpeed;
         
-        // 3 итерации для уточнения
-        for (int i = 0; i < 3; i++) {
+        // 5 итераций для более точного расчёта
+        for (int i = 0; i < 5; i++) {
             // Где будет цель через timeToIntercept тиков
             Vec3 predictedPos = targetPos.add(targetVelocity.scale(timeToIntercept));
             
@@ -283,8 +417,8 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
             timeToIntercept = distance / missileSpeed;
         }
         
-        // Финальная предсказанная позиция
-        Vec3 interceptPoint = targetPos.add(targetVelocity.scale(timeToIntercept));
+        // Финальная предсказанная позиция с небольшим упреждением вверх
+        Vec3 interceptPoint = targetPos.add(targetVelocity.scale(timeToIntercept)).add(0, 0.3, 0);
         
         return interceptPoint;
     }
@@ -409,13 +543,19 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
     
     /**
      * Поворот ракеты к цели с реалистичным ограничением
-     * Ракета НЕ может разворачиваться на 180° - если цель позади, ракета промахивается
+     * БАЛАНС: Ракета может промахнуться если цель делает резкие манёвры
      */
     private void turnToTarget(float maxTurnRate) {
         if (targetPos == null) return;
         
         Vec3 currentVelocity = this.getDeltaMovement();
-        if (currentVelocity.lengthSqr() < 0.001) return;
+        if (currentVelocity.lengthSqr() < 0.001) {
+            // Если ракета только что запущена и скорость близка к 0
+            // Направляем её сразу на цель
+            Vec3 toTarget = targetPos.subtract(this.position()).normalize();
+            this.setDeltaMovement(toTarget.scale(INITIAL_SPEED));
+            return;
+        }
         
         Vec3 toTarget = targetPos.subtract(this.position());
         Vec3 targetDirection = toTarget.normalize();
@@ -424,16 +564,23 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
         double dot = currentDirection.dot(targetDirection);
         double angle = Math.toDegrees(Math.acos(Mth.clamp(dot, -1.0, 1.0)));
         
-        // РЕАЛИСТИЧНОЕ ОГРАНИЧЕНИЕ: если цель под углом > 60° - ракета не может навестись
-        // Это предотвращает нереалистичные развороты на 180°
-        if (angle > 60) {
-            // Ракета продолжает лететь прямо - промах неизбежен
+        // БАЛАНС: Если цель под углом > MAX_TURN_ANGLE - ракета не может навестись
+        // Это даёт шанс самолётам уклониться резким манёвром
+        if (angle > MAX_TURN_ANGLE) {
+            // Ракета продолжает лететь прямо - промах!
             return;
         }
         
+        // Динамическая скорость поворота: быстрее в начале полёта (фаза разгона)
+        float dynamicTurnRate = maxTurnRate;
+        if (this.tickCount < BOOST_PHASE_TICKS) {
+            // В фазе разгона - увеличенная маневренность (но не имба)
+            dynamicTurnRate = BOOST_TURN_RATE;
+        }
+        
         // Ограничиваем скорость поворота (реалистичная перегрузка)
-        double actualTurnRate = Math.min(maxTurnRate, MAX_TURN_RATE);
-        double turnFactor = Math.min(actualTurnRate / Math.max(angle, 0.1), 1.0);
+        double actualTurnRate = Math.min(dynamicTurnRate, angle);
+        double turnFactor = actualTurnRate / Math.max(angle, 0.1);
         
         Vec3 newDirection = new Vec3(
             Mth.lerp(turnFactor, currentDirection.x, targetDirection.x),
@@ -446,16 +593,37 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
     }
     
     /**
-     * Поддерживает скорость ракеты на постоянном уровне
+     * Поддерживает скорость ракеты с плавным ускорением
+     * Ракета разгоняется от начальной скорости до максимальной
      */
     private void maintainSpeed() {
         Vec3 velocity = this.getDeltaMovement();
         double currentSpeed = velocity.length();
         
-        // Поддерживаем постоянную скорость ракеты
-        if (currentSpeed < MISSILE_SPEED * 0.9 || currentSpeed > MISSILE_SPEED * 1.1) {
+        // Целевая скорость зависит от фазы полёта
+        double targetSpeed;
+        if (this.tickCount < BOOST_PHASE_TICKS) {
+            // Фаза разгона - плавно увеличиваем скорость
+            double progress = (double) this.tickCount / BOOST_PHASE_TICKS;
+            targetSpeed = INITIAL_SPEED + (MISSILE_SPEED - INITIAL_SPEED) * progress;
+        } else {
+            // Крейсерская фаза - максимальная скорость
+            targetSpeed = MISSILE_SPEED;
+        }
+        
+        // Плавно изменяем скорость
+        if (Math.abs(currentSpeed - targetSpeed) > 0.1) {
+            double newSpeed;
+            if (currentSpeed < targetSpeed) {
+                // Ускоряемся
+                newSpeed = Math.min(currentSpeed + ACCELERATION, targetSpeed);
+            } else {
+                // Замедляемся (редко, но может быть при резких манёврах)
+                newSpeed = Math.max(currentSpeed - ACCELERATION * 0.5, targetSpeed);
+            }
+            
             Vec3 direction = velocity.lengthSqr() > 0.001 ? velocity.normalize() : this.getLookAngle();
-            this.setDeltaMovement(direction.scale(MISSILE_SPEED));
+            this.setDeltaMovement(direction.scale(newSpeed));
         }
     }
     
@@ -474,12 +642,45 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
     /**
      * Спавнит частицы следа ракеты
      */
+    /**
+     * Спавнит красивый дымовой след за ракетой
+     * Как в War Thunder - густой белый дым с огнём двигателя
+     */
     private void spawnTrailParticles() {
         if (this.level() instanceof ServerLevel serverLevel) {
             Vec3 pos = this.position();
-            ParticleTool.sendParticle(serverLevel, ParticleTypes.SMOKE, pos.x, pos.y, pos.z, 2, 0.1, 0.1, 0.1, 0.02, false);
-            if (this.tickCount % 2 == 0) {
-                ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, pos.x, pos.y, pos.z, 1, 0.05, 0.05, 0.05, 0.01, false);
+            Vec3 velocity = this.getDeltaMovement();
+            
+            // Позиция позади ракеты (откуда идёт дым)
+            Vec3 trailPos = pos.subtract(velocity.normalize().scale(0.3));
+            
+            // Основной густой белый дым (как у настоящих ЗУР)
+            ParticleTool.sendParticle(serverLevel, ParticleTypes.CAMPFIRE_COSY_SMOKE, 
+                trailPos.x, trailPos.y, trailPos.z, 3, 0.05, 0.05, 0.05, 0.001, true);
+            
+            // Обычный дым для объёма
+            ParticleTool.sendParticle(serverLevel, ParticleTypes.SMOKE, 
+                trailPos.x, trailPos.y, trailPos.z, 2, 0.08, 0.08, 0.08, 0.01, false);
+            
+            // Огонь двигателя (ярче в фазе разгона)
+            if (this.tickCount < BOOST_PHASE_TICKS) {
+                // Фаза разгона - яркое пламя
+                ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, 
+                    trailPos.x, trailPos.y, trailPos.z, 3, 0.03, 0.03, 0.03, 0.02, false);
+                ParticleTool.sendParticle(serverLevel, ParticleTypes.SOUL_FIRE_FLAME, 
+                    trailPos.x, trailPos.y, trailPos.z, 1, 0.02, 0.02, 0.02, 0.01, false);
+            } else {
+                // Крейсерская фаза - меньше огня
+                if (this.tickCount % 2 == 0) {
+                    ParticleTool.sendParticle(serverLevel, ParticleTypes.FLAME, 
+                        trailPos.x, trailPos.y, trailPos.z, 1, 0.02, 0.02, 0.02, 0.01, false);
+                }
+            }
+            
+            // Искры от двигателя (редко)
+            if (this.tickCount % 5 == 0) {
+                ParticleTool.sendParticle(serverLevel, ParticleTypes.LAVA, 
+                    trailPos.x, trailPos.y, trailPos.z, 1, 0.05, 0.05, 0.05, 0.02, false);
             }
         }
     }
