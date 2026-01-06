@@ -204,7 +204,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
             this.getId(), PantsirRadarSyncMessage.STATE_IDLE, -1, 0, 0, 0, 
             0, 0, 0, // скорость цели
             0, 0, radarAngle, turretAngle,
-            new int[0], new double[0], new double[0], new double[0], new int[0],
+            new int[0], new double[0], new double[0], new double[0], new int[0], new boolean[0],
             new double[0], new double[0], new double[0]
         );
         
@@ -426,15 +426,6 @@ public class PantsirS1Entity extends CamoVehicleBase {
                     disableAutoAim();
                     radarState = PantsirRadarSyncMessage.STATE_LOST;
                 } else {
-                    // БАЛАНС: Проверяем резкие манёвры цели - они могут сбить захват
-                    if (isTargetManeuvering(lockedTarget)) {
-                        // Цель делает резкий манёвр - теряем захват!
-                        lockedTarget = null;
-                        disableAutoAim();
-                        radarState = PantsirRadarSyncMessage.STATE_LOST;
-                        break;
-                    }
-                    
                     // Автонаведение башни на захваченную цель
                     updateAutoAimTarget(lockedTarget);
                     
@@ -457,6 +448,11 @@ public class PantsirS1Entity extends CamoVehicleBase {
         }
     }
     
+    // Для вычисления скорости цели по позициям
+    private Vec3 lastTargetPos = null;
+    private int lastTargetId = -1;
+    private Vec3 calculatedTargetVel = Vec3.ZERO;
+    
     /**
      * Обновляет синхронизированные данные для автонаведения башни (только на сервере)
      * Использует упреждение для движущихся целей и компенсацию гравитации для пушки
@@ -464,6 +460,8 @@ public class PantsirS1Entity extends CamoVehicleBase {
     private void updateAutoAimTarget(Entity target) {
         if (target == null) {
             this.entityData.set(AUTO_AIM_ACTIVE, false);
+            lastTargetPos = null;
+            lastTargetId = -1;
             return;
         }
         
@@ -490,22 +488,19 @@ public class PantsirS1Entity extends CamoVehicleBase {
             // Ракеты - целимся прямо на цель (ракеты сами наводятся)
             aimVector = targetPos.subtract(shootPos).normalize();
         } else {
-            // Пушка - используем баллистический расчёт с компенсацией гравитации
-            Vec3 targetVel = target.getDeltaMovement();
+            // Пушка - вычисляем скорость цели САМИ (getDeltaMovement может врать)
+            Vec3 targetVel = getTargetVelocity(target, targetPos);
             
             // Параметры пушки 2А38М из конфига
             double projectileSpeed = 20.0;  // Velocity из конфига
             double gravity = 0.03;          // Gravity из конфига
             
-            // Вычисляем баллистическую траекторию с учётом гравитации
-            Vec3 predictedPos = calculateBallisticAimPoint(shootPos, targetPos, targetVel, projectileSpeed, gravity);
+            // Вычисляем баллистическую траекторию
+            Vec3 predictedPos = calculateBallisticAimPointForTarget(shootPos, targetPos, targetVel, projectileSpeed, gravity, target);
             
-            // Целимся в предсказанную позицию с компенсацией гравитации
+            // Целимся в предсказанную позицию
             aimVector = predictedPos.subtract(shootPos).normalize();
         }
-        
-        // Нормализуем вектор направления
-        aimVector = aimVector.normalize();
         
         // Обновляем синхронизированные данные (вектор направления)
         this.entityData.set(AUTO_AIM_ACTIVE, true);
@@ -515,36 +510,77 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
     
     /**
+     * Вычисляет скорость цели по изменению позиции (надёжнее чем getDeltaMovement)
+     */
+    private Vec3 getTargetVelocity(Entity target, Vec3 currentPos) {
+        // Если цель сменилась - сбрасываем
+        if (target.getId() != lastTargetId) {
+            lastTargetId = target.getId();
+            lastTargetPos = currentPos;
+            calculatedTargetVel = target.getDeltaMovement(); // Fallback
+            return calculatedTargetVel;
+        }
+        
+        // Вычисляем скорость по разнице позиций
+        if (lastTargetPos != null) {
+            Vec3 newVel = currentPos.subtract(lastTargetPos);
+            
+            // Сглаживаем скорость (80% новая + 20% старая)
+            calculatedTargetVel = newVel.scale(0.8).add(calculatedTargetVel.scale(0.2));
+        }
+        
+        lastTargetPos = currentPos;
+        return calculatedTargetVel;
+    }
+    
+    /**
      * Вычисляет точку прицеливания с учётом баллистики (гравитация + движение цели)
      * Использует итеративный метод для точного расчёта траектории
+     * Адаптируется под размер и тип движения цели
      */
     private Vec3 calculateBallisticAimPoint(Vec3 shootPos, Vec3 targetPos, Vec3 targetVel, double projectileSpeed, double gravity) {
-        // Начальная оценка времени полёта
+        return calculateBallisticAimPointForTarget(shootPos, targetPos, targetVel, projectileSpeed, gravity, null);
+    }
+    
+    /**
+     * Вычисляет точку прицеливания с учётом размера и типа цели
+     */
+    private Vec3 calculateBallisticAimPointForTarget(Vec3 shootPos, Vec3 targetPos, Vec3 targetVel, 
+            double projectileSpeed, double gravity, @Nullable Entity target) {
+        
         double distance = shootPos.distanceTo(targetPos);
         double timeToTarget = distance / projectileSpeed;
         
-        // Итеративно уточняем точку прицеливания (5 итераций для точности)
+        // Проверяем - это цель из нашего тега (дроны, шахеды)?
+        boolean isTaggedTarget = target != null && 
+            target.getType().is(tech.vvp.vvp.init.ModTags.EntityTypes.PANTSIR_AIR_TARGET);
+        
+        // Для целей из тега (дроны, шахеды) - простой расчёт
+        if (isTaggedTarget) {
+            // Время полёта снаряда (в тиках)
+            double flightTime = distance / projectileSpeed;
+            
+            // Предсказываем где будет цель
+            Vec3 predictedPos = targetPos.add(targetVel.scale(flightTime));
+            
+            // Компенсация гравитации
+            double gravityComp = 0.5 * gravity * flightTime * flightTime;
+            
+            return predictedPos.add(0, gravityComp, 0);
+        }
+        
+        // === СТАНДАРТНЫЙ РАСЧЁТ ДЛЯ VehicleEntity (самолёты, вертолёты) ===
         Vec3 aimPoint = targetPos;
         for (int i = 0; i < 5; i++) {
-            // Предсказываем где будет цель через timeToTarget тиков
             Vec3 predictedTargetPos = targetPos.add(targetVel.scale(timeToTarget));
             
-            // Вычисляем горизонтальное расстояние и разницу высот
             Vec3 toTarget = predictedTargetPos.subtract(shootPos);
             double horizontalDist = Math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z);
-            double verticalDist = toTarget.y;
             
-            // Вычисляем время полёта по горизонтали
             timeToTarget = horizontalDist / projectileSpeed;
-            
-            // Вычисляем падение снаряда из-за гравитации за это время
-            // s = g * t^2 / 2 (формула свободного падения)
             double gravityDrop = 0.5 * gravity * timeToTarget * timeToTarget;
             
-            // Компенсируем падение: целимся выше на величину gravityDrop
             aimPoint = predictedTargetPos.add(0, gravityDrop, 0);
-            
-            // Пересчитываем время с учётом новой точки прицеливания
             distance = shootPos.distanceTo(aimPoint);
             timeToTarget = distance / projectileSpeed;
         }
@@ -567,12 +603,14 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
     
     /**
-     * Ищет ближайшую цель из обнаруженных
+     * Ищет ближайшую НЕ союзную цель из обнаруженных
      */
     @Nullable
     private Entity findClosestTarget(Vec3 radarPos) {
+        LivingEntity operator = getOperator();
         return detectedTargets.stream()
                 .filter(e -> e.isAlive())
+                .filter(e -> !isAllyTarget(e, operator)) // Пропускаем союзников
                 .min(Comparator.comparingDouble(e -> e.position().distanceTo(radarPos)))
                 .orElse(null);
     }
@@ -832,6 +870,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
         double[] targetYs = new double[targetIds.length];
         double[] targetZs = new double[targetIds.length];
         int[] targetTypes = new int[targetIds.length];
+        boolean[] targetIsAlly = new boolean[targetIds.length];
         
         for (int i = 0; i < targetIds.length; i++) {
             Entity target = detectedTargets.get(i);
@@ -840,6 +879,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
             targetYs[i] = target.getY() + target.getBbHeight() / 2;
             targetZs[i] = target.getZ();
             targetTypes[i] = getTargetType(target);
+            targetIsAlly[i] = isAllyTarget(target, operator);
         }
         
         // Собираем позиции ракет
@@ -859,10 +899,36 @@ public class PantsirS1Entity extends CamoVehicleBase {
             this.getId(), radarState, targetId, targetX, targetY, targetZ, 
             targetVelX, targetVelY, targetVelZ,
             progress, distance, radarAngle, turretAngle,
-            targetIds, targetXs, targetYs, targetZs, targetTypes, missileX, missileY, missileZ
+            targetIds, targetXs, targetYs, targetZs, targetTypes, targetIsAlly,
+            missileX, missileY, missileZ
         );
         
         VVPNetwork.VVP_HANDLER.send(PacketDistributor.PLAYER.with(() -> serverPlayer), message);
+    }
+    
+    /**
+     * Проверяет является ли цель союзником оператора
+     * Проверяет команду оператора и команду пилота/владельца техники
+     */
+    private boolean isAllyTarget(Entity target, LivingEntity operator) {
+        if (operator == null || target == null) return false;
+        
+        // Если у оператора нет команды - никто не союзник
+        if (operator.getTeam() == null) return false;
+        
+        // Проверяем напрямую isAlliedTo
+        if (operator.isAlliedTo(target)) return true;
+        
+        // Для VehicleEntity проверяем команду пилота/пассажиров
+        if (target instanceof VehicleEntity vehicle) {
+            for (Entity passenger : vehicle.getPassengers()) {
+                if (passenger instanceof LivingEntity living) {
+                    if (operator.isAlliedTo(living)) return true;
+                }
+            }
+        }
+        
+        return false;
     }
     
     /**
@@ -882,6 +948,10 @@ public class PantsirS1Entity extends CamoVehicleBase {
      */
     public void requestLock(LivingEntity operator) {
         if (radarState == PantsirRadarSyncMessage.STATE_DETECTED && trackedTarget != null) {
+            // Нельзя лочить союзников!
+            if (isAllyTarget(trackedTarget, operator)) {
+                return;
+            }
             radarState = PantsirRadarSyncMessage.STATE_LOCKING;
             lockingProgress = 0;
         }
@@ -900,12 +970,14 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
     
     /**
-     * Выбирает следующую цель из списка обнаруженных
+     * Выбирает следующую цель из списка обнаруженных (пропускает союзников)
      */
     public void selectNextTarget() {
         if (detectedTargets.isEmpty()) return;
         if (radarState == PantsirRadarSyncMessage.STATE_LOCKING || 
             radarState == PantsirRadarSyncMessage.STATE_LOCKED) return;
+        
+        LivingEntity operator = getOperator();
         
         int currentIndex = -1;
         if (trackedTarget != null) {
@@ -915,21 +987,34 @@ public class PantsirS1Entity extends CamoVehicleBase {
         // Если текущая цель не в списке, начинаем с 0
         if (currentIndex < 0) currentIndex = -1;
         
-        int nextIndex = (currentIndex + 1) % detectedTargets.size();
-        trackedTarget = detectedTargets.get(nextIndex);
+        // Ищем следующую НЕ союзную цель
+        int startIndex = currentIndex;
+        int nextIndex = currentIndex;
+        do {
+            nextIndex = (nextIndex + 1) % detectedTargets.size();
+            Entity candidate = detectedTargets.get(nextIndex);
+            // Пропускаем союзников
+            if (!isAllyTarget(candidate, operator)) {
+                trackedTarget = candidate;
+                if (radarState == PantsirRadarSyncMessage.STATE_IDLE) {
+                    radarState = PantsirRadarSyncMessage.STATE_DETECTED;
+                }
+                return;
+            }
+        } while (nextIndex != startIndex && nextIndex != currentIndex);
         
-        if (radarState == PantsirRadarSyncMessage.STATE_IDLE) {
-            radarState = PantsirRadarSyncMessage.STATE_DETECTED;
-        }
+        // Если все цели союзники - не выбираем ничего
     }
     
     /**
-     * Выбирает предыдущую цель из списка обнаруженных
+     * Выбирает предыдущую цель из списка обнаруженных (пропускает союзников)
      */
     public void selectPrevTarget() {
         if (detectedTargets.isEmpty()) return;
         if (radarState == PantsirRadarSyncMessage.STATE_LOCKING || 
             radarState == PantsirRadarSyncMessage.STATE_LOCKED) return;
+        
+        LivingEntity operator = getOperator();
         
         int currentIndex = -1;
         if (trackedTarget != null) {
@@ -939,13 +1024,24 @@ public class PantsirS1Entity extends CamoVehicleBase {
         // Если текущая цель не в списке, начинаем с конца
         if (currentIndex < 0) currentIndex = 0;
         
-        int prevIndex = currentIndex - 1;
-        if (prevIndex < 0) prevIndex = detectedTargets.size() - 1;
-        trackedTarget = detectedTargets.get(prevIndex);
+        // Ищем предыдущую НЕ союзную цель
+        int startIndex = currentIndex;
+        int prevIndex = currentIndex;
+        do {
+            prevIndex = prevIndex - 1;
+            if (prevIndex < 0) prevIndex = detectedTargets.size() - 1;
+            Entity candidate = detectedTargets.get(prevIndex);
+            // Пропускаем союзников
+            if (!isAllyTarget(candidate, operator)) {
+                trackedTarget = candidate;
+                if (radarState == PantsirRadarSyncMessage.STATE_IDLE) {
+                    radarState = PantsirRadarSyncMessage.STATE_DETECTED;
+                }
+                return;
+            }
+        } while (prevIndex != startIndex && prevIndex != currentIndex);
         
-        if (radarState == PantsirRadarSyncMessage.STATE_IDLE) {
-            radarState = PantsirRadarSyncMessage.STATE_DETECTED;
-        }
+        // Если все цели союзники - не выбираем ничего
     }
     
     /**

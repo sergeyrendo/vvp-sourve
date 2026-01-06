@@ -354,7 +354,10 @@ public class PantsirOperatorOverlay {
             boolean isMainTarget = (target.entityId == PantsirClientHandler.targetEntityId);
             int blipColor;
             
-            if (isMainTarget) {
+            // Союзники всегда зелёные
+            if (target.isAlly) {
+                blipColor = COLOR_RADAR_GREEN;
+            } else if (isMainTarget) {
                 blipColor = switch (PantsirClientHandler.radarState) {
                     case PantsirRadarSyncMessage.STATE_LOCKED -> COLOR_LOCKED;
                     case PantsirRadarSyncMessage.STATE_LOCKING -> COLOR_TARGET_YELLOW;

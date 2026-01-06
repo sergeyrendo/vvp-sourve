@@ -65,13 +65,15 @@ public class PantsirClientHandler {
         public final int entityId;
         public final double x, y, z;
         public final int targetType; // Тип цели (вертолёт/самолёт/ракета)
+        public final boolean isAlly; // Союзник ли цель
         
-        public RadarTarget(int entityId, double x, double y, double z, int targetType) {
+        public RadarTarget(int entityId, double x, double y, double z, int targetType, boolean isAlly) {
             this.entityId = entityId;
             this.x = x;
             this.y = y;
             this.z = z;
             this.targetType = targetType;
+            this.isAlly = isAlly;
         }
     }
     
@@ -134,7 +136,8 @@ public class PantsirClientHandler {
                 message.allTargetX[i],
                 message.allTargetY[i],
                 message.allTargetZ[i],
-                message.allTargetTypes[i]
+                message.allTargetTypes[i],
+                message.allTargetIsAlly[i]
             ));
         }
         
