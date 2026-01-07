@@ -335,7 +335,10 @@
   },
   "into_atgm": {
     "sounds": [
-      "vvp:switch_weapon/into_atgm"
+      {
+        "name": "vvp:switch_weapon/into_atgm",
+        "volume": 0.35
+      }
     ]
   },
   "into_autocannon": {

@@ -78,6 +78,23 @@ public class PantsirS1Entity extends CamoVehicleBase {
     // Список всех обнаруженных целей (для отображения на радаре)
     private final List<Entity> detectedTargets = new ArrayList<>();
     private int targetScanTimer = 0;
+    private int scanOffset = 0; // Для постепенного сканирования
+    
+    // Кеш line of sight для оптимизации
+    private final java.util.Map<Integer, CachedLineOfSight> losCache = new java.util.HashMap<>();
+    
+    /**
+     * Кешированный результат проверки line of sight
+     */
+    private static class CachedLineOfSight {
+        boolean hasLOS;
+        int expiresAt;
+        
+        CachedLineOfSight(boolean hasLOS, int expiresAt) {
+            this.hasLOS = hasLOS;
+            this.expiresAt = expiresAt;
+        }
+    }
     
     // Список выпущенных ракет (для отображения на радаре)
     private final List<PantsirMissileEntity> activeMissiles = new ArrayList<>();
@@ -218,16 +235,121 @@ public class PantsirS1Entity extends CamoVehicleBase {
     
     /**
      * Сканирует все цели в радиусе радара
+     * ОПТИМИЗАЦИЯ: Постепенное сканирование - проверяем по 4 цели за раз
      */
     private void scanForTargets() {
         Vec3 radarPos = this.position().add(0, 2.5, 0);
-        detectedTargets.clear();
         
-        // Ищем все entity в радиусе
+        // Получаем все entity в радиусе (быстрая операция)
         AABB searchBox = new AABB(radarPos, radarPos).inflate(RADAR_RANGE);
-        List<Entity> entities = this.level().getEntities(this, searchBox, this::isValidRadarTarget);
+        List<Entity> allEntities = this.level().getEntities(this, searchBox);
         
-        detectedTargets.addAll(entities);
+        // Фильтруем по базовым критериям (без line of sight)
+        List<Entity> candidates = new ArrayList<>();
+        for (Entity entity : allEntities) {
+            if (isValidRadarTargetBasic(entity, radarPos)) {
+                candidates.add(entity);
+            }
+        }
+        
+        // ПОСТЕПЕННОЕ СКАНИРОВАНИЕ: проверяем line of sight только для 4 целей за раз
+        int batchSize = 4;
+        int startIdx = scanOffset % Math.max(candidates.size(), 1);
+        int endIdx = Math.min(startIdx + batchSize, candidates.size());
+        
+        for (int i = startIdx; i < endIdx; i++) {
+            Entity entity = candidates.get(i);
+            if (hasLineOfSightCached(entity, radarPos)) {
+                if (!detectedTargets.contains(entity)) {
+                    detectedTargets.add(entity);
+                }
+            } else {
+                detectedTargets.remove(entity);
+            }
+        }
+        
+        // Удаляем мёртвые/далёкие цели
+        detectedTargets.removeIf(e -> !e.isAlive() || e.position().distanceTo(radarPos) > RADAR_RANGE);
+        
+        // Сдвигаем offset для следующего тика
+        scanOffset += batchSize;
+        
+        // Очищаем старый кеш (каждые 100 тиков)
+        if (this.tickCount % 100 == 0) {
+            losCache.entrySet().removeIf(entry -> entry.getValue().expiresAt < this.tickCount);
+        }
+    }
+    
+    /**
+     * Базовая проверка цели БЕЗ line of sight (быстрая)
+     */
+    private boolean isValidRadarTargetBasic(Entity entity, Vec3 radarPos) {
+        if (entity == null || !entity.isAlive()) return false;
+        if (entity == this) return false;
+        if (this.hasPassenger(entity)) return false;
+        
+        double distance = entity.position().distanceTo(radarPos);
+        if (distance > RADAR_RANGE) return false;
+        
+        // Проверяем тип цели
+        boolean isValidType = false;
+        
+        // Теги
+        if (entity.getType().is(tech.vvp.vvp.init.ModTags.EntityTypes.PANTSIR_AIR_TARGET)) {
+            isValidType = true;
+        }
+        if (entity.getType().is(tech.vvp.vvp.init.ModTags.EntityTypes.PANTSIR_MISSILE_TARGET)) {
+            isValidType = true;
+        }
+        
+        // MissileProjectile
+        if (entity instanceof MissileProjectile missile) {
+            if (entity instanceof PantsirMissileEntity pantsirMissile) {
+                isValidType = pantsirMissile.getLauncherId() != this.getId();
+            } else {
+                isValidType = true;
+            }
+        }
+        
+        // Баллистика
+        if (!isValidType) {
+            String className = entity.getClass().getSimpleName();
+            if (className.contains("Missile") || className.contains("Rocket") || className.contains("Bomb")) {
+                isValidType = true;
+            }
+        }
+        
+        // VehicleEntity
+        if (!isValidType && entity instanceof VehicleEntity vehicle) {
+            VehicleType vehicleType = vehicle.getVehicleType();
+            if (vehicleType == VehicleType.HELICOPTER || vehicleType == VehicleType.AIRPLANE) {
+                isValidType = true;
+            }
+        }
+        
+        return isValidType;
+    }
+    
+    /**
+     * Проверка line of sight с кешированием (TTL = 20 тиков)
+     */
+    private boolean hasLineOfSightCached(Entity entity, Vec3 radarPos) {
+        int entityId = entity.getId();
+        
+        // Проверяем кеш
+        CachedLineOfSight cached = losCache.get(entityId);
+        if (cached != null && cached.expiresAt > this.tickCount) {
+            return cached.hasLOS;
+        }
+        
+        // Вычисляем line of sight
+        Vec3 targetPos = entity.position().add(0, entity.getBbHeight() * 0.5, 0);
+        boolean hasLOS = hasLineOfSightOptimized(radarPos, targetPos);
+        
+        // Кешируем на 20 тиков (1 секунда)
+        losCache.put(entityId, new CachedLineOfSight(hasLOS, this.tickCount + 20));
+        
+        return hasLOS;
     }
     
     /**
@@ -245,77 +367,6 @@ public class PantsirS1Entity extends CamoVehicleBase {
         );
         
         activeMissiles.addAll(missiles);
-    }
-    
-    /**
-     * Проверяет является ли entity валидной целью для радара
-     * Техника (VehicleEntity) и вражеские ракеты (MissileProjectile, ThrowableProjectile)
-     * ВАЖНО: Цели за горами/зданиями не показываются на радаре (line of sight)
-     */
-    private boolean isValidRadarTarget(Entity entity) {
-        if (entity == null || !entity.isAlive()) return false;
-        if (entity == this) return false;
-        
-        // Не считаем пассажиров этой машины
-        if (this.hasPassenger(entity)) return false;
-        
-        Vec3 radarPos = this.position().add(0, 2.5, 0);
-        double distance = entity.position().distanceTo(radarPos);
-        if (distance > RADAR_RANGE) return false;
-        
-        // Сначала проверяем тип цели
-        boolean isValidType = false;
-        
-        // 1. ТЕГИ - для кастомных сущностей из других модов (не VehicleEntity)
-        // Воздушные цели из других модов
-        if (entity.getType().is(tech.vvp.vvp.init.ModTags.EntityTypes.PANTSIR_AIR_TARGET)) {
-            isValidType = true;
-        }
-        
-        // Ракеты из других модов
-        if (entity.getType().is(tech.vvp.vvp.init.ModTags.EntityTypes.PANTSIR_MISSILE_TARGET)) {
-            isValidType = true;
-        }
-        
-        // 2. ВСТРОЕННАЯ ЛОГИКА для VehicleEntity и MissileProjectile из SBW/VVP
-        // Вражеские ракеты (MissileProjectile) - можно сбивать!
-        // Исключаем свои ракеты (PantsirMissileEntity с нашим launcherId)
-        if (entity instanceof MissileProjectile missile) {
-            // Свои ракеты не показываем как цели (они отдельно отображаются)
-            if (entity instanceof PantsirMissileEntity pantsirMissile) {
-                isValidType = pantsirMissile.getLauncherId() != this.getId();
-            } else {
-                isValidType = true; // Все остальные ракеты - вражеские
-            }
-        }
-        
-        // Баллистические ракеты (ThrowableProjectile) - тоже можно сбивать
-        // Проверяем по имени класса чтобы не импортировать лишнее
-        if (!isValidType) {
-            String className = entity.getClass().getSimpleName();
-            if (className.contains("Missile") || className.contains("Rocket") || className.contains("Bomb")) {
-                isValidType = true;
-            }
-        }
-        
-        // VehicleEntity из SBW/VVP - проверяем по типу техники
-        if (!isValidType && entity instanceof VehicleEntity vehicle) {
-            VehicleType vehicleType = vehicle.getVehicleType();
-            
-            // Вертолёты и самолёты - ВСЕГДА показываем (это воздушные цели)
-            if (vehicleType == VehicleType.HELICOPTER || vehicleType == VehicleType.AIRPLANE) {
-                isValidType = true;
-            }
-        }
-        
-        // Игроков и мобов НЕ показываем на радаре
-        if (!isValidType) {
-            return false;
-        }
-        
-        // КРИТИЧНО: Проверяем line of sight - цели за горами не видны радару
-        Vec3 targetPos = entity.position().add(0, entity.getBbHeight() * 0.5, 0);
-        return hasLineOfSight(radarPos, targetPos);
     }
     
     /**
@@ -626,20 +677,20 @@ public class PantsirS1Entity extends CamoVehicleBase {
         
         // Проверяем line of sight (цель могла зайти за гору после сканирования)
         Vec3 targetPos = target.position().add(0, target.getBbHeight() * 0.5, 0);
-        return hasLineOfSight(radarPos, targetPos);
+        return hasLineOfSightOptimized(radarPos, targetPos);
     }
     
     /**
      * ОПТИМИЗИРОВАННАЯ проверка прямой видимости (line of sight)
      * Использует гибридный подход:
      * 1. Быстрая проверка высоты (heightmap)
-     * 2. Если цель низко - точная проверка raycast
+     * 2. Если цель низко - упрощённый raycast (3 точки вместо полного)
      * 
      * @param from позиция радара
      * @param to позиция цели
      * @return true если есть прямая видимость
      */
-    private boolean hasLineOfSight(Vec3 from, Vec3 to) {
+    private boolean hasLineOfSightOptimized(Vec3 from, Vec3 to) {
         // ШАГ 1: Быстрая проверка высоты (очень дешёвая операция)
         int fromX = (int) from.x;
         int fromZ = (int) from.z;
@@ -670,18 +721,13 @@ public class PantsirS1Entity extends CamoVehicleBase {
             return true;
         }
         
-        // ШАГ 2: Цель низко - делаем точную проверку raycast
-        // Но проверяем только каждые 20 блоков (оптимизация)
+        // ШАГ 2: Цель низко - делаем УПРОЩЁННЫЙ raycast (3 точки вместо полного)
+        // Проверяем только 25%, 50%, 75% пути
         Vec3 direction = to.subtract(from);
-        double distance = direction.length();
-        Vec3 step = direction.normalize().scale(20); // Шаг 20 блоков
         
-        Vec3 current = from;
-        int raySteps = (int) (distance / 20);
-        
-        for (int i = 0; i < raySteps; i++) {
-            current = current.add(step);
-            BlockPos pos = BlockPos.containing(current.x, current.y, current.z);
+        for (double t : new double[]{0.25, 0.5, 0.75}) {
+            Vec3 checkPoint = from.add(direction.scale(t));
+            BlockPos pos = BlockPos.containing(checkPoint.x, checkPoint.y, checkPoint.z);
             
             // Проверяем только твёрдые блоки (камень, земля, но не трава/цветы)
             net.minecraft.world.level.block.state.BlockState state = this.level().getBlockState(pos);

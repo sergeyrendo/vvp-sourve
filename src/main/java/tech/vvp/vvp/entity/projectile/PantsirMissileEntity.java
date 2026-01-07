@@ -64,27 +64,33 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
 
     // Параметры ракеты 57Э6 (сбалансированные для игры)
     // БАЛАНС: Ракета эффективна против медленных целей, но может промахнуться по быстрым манёврам
-    private static final double MISSILE_SPEED = 10.0;         // Блоков/тик (~200 м/с в игре) - хорошо для баланса
-    private static final double INITIAL_SPEED = 8.0;          // Начальная скорость при запуске (из конфига)
-    private static final double ACCELERATION = 0.25;          // Ускорение ракеты (блоков/тик²) - плавный разгон
-    private static final float MAX_TURN_RATE = 7.0f;          // Градусов/тик - реалистичная перегрузка ~30g
-    private static final float BOOST_TURN_RATE = 9.0f;        // Градусов/тик в фазе разгона - чуть выше
-    private static final float MAX_LEAD_ANGLE = 45.0f;        // Максимальный угол упреждения
-    private static final double PROXIMITY_FUSE_MISSILE = 2.5; // Радиовзрыватель для ракет/баллистики - 2.5 блока (сложнее сбить)
-    private static final double PROXIMITY_FUSE_AIRCRAFT = 5.0;// Радиовзрыватель для самолётов/вертолётов - 5 блоков (реалистично)
-    private static final double SHRAPNEL_RANGE = 12.0;        // Радиус поражения осколками (уменьшен)
-    private static final float SHRAPNEL_MAX_DAMAGE = 60.0f;   // Максимальный урон осколками (уменьшен)
-    private static final int MAX_LIFETIME = 400;              // Максимальное время жизни (20 сек)
-    private static final int BOOST_PHASE_TICKS = 25;          // Фаза разгона (1.25 секунды) - чуть дольше
-    private static final int MAX_TURN_ANGLE = 75;             // Максимальный угол разворота (градусов) - если цель дальше, ракета промахнётся
+    private static final double MISSILE_SPEED = 10.0;
+    private static final double INITIAL_SPEED = 8.0;
+    private static final double ACCELERATION = 0.25;
+    private static final float MAX_TURN_RATE = 5.0f;
+    private static final float BOOST_TURN_RATE = 6.0f;
+    private static final float MAX_LEAD_ANGLE = 45.0f;
+    private static final double PROXIMITY_FUSE_MISSILE = 2.5;
+    private static final double PROXIMITY_FUSE_AIRCRAFT = 3.5;
+    private static final double SHRAPNEL_RANGE = 12.0;
+    private static final float SHRAPNEL_MAX_DAMAGE = 60.0f;
+    private static final int MAX_LIFETIME = 400;
+    private static final int BOOST_PHASE_TICKS = 25;
+    private static final int MAX_TURN_ANGLE = 75;
     
-    // Состояние
+    private static final int TARGET_UPDATE_INTERVAL = 3;
+    private static final double FLARE_CONE_ANGLE = 15.0;
+    
     private int launcherEntityId = -1;
-    private int targetEntityId = -1;  // ID цели для поиска (работает для всех entity, не только LivingEntity)
-    private boolean targetIsMissile = false; // Тип цели - ракета/баллистика или самолёт/вертолёт
-    private double lastDistanceToTarget = Double.MAX_VALUE;   // Для радиовзрывателя
-    private double minDistanceReached = Double.MAX_VALUE;     // Минимальная дистанция до цели
-    private boolean lostTargetFromManeuver = false;           // Потеряли цель из-за манёвра - радар не перезаписывает
+    private int targetEntityId = -1;
+    private boolean targetIsMissile = false;
+    private double lastDistanceToTarget = Double.MAX_VALUE;
+    private double minDistanceReached = Double.MAX_VALUE;
+    private boolean lostTargetFromManeuver = false;
+    
+    private Vec3 cachedTargetPos = null;
+    private Vec3 smoothedTargetVelocity = Vec3.ZERO;
+    private int targetUpdateCooldown = 0;
     
     public PantsirMissileEntity(EntityType<? extends PantsirMissileEntity> type, Level level) {
         super(type, level);
@@ -188,25 +194,30 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
      * @return true если флаер на пути ракеты к цели
      */
     private boolean isFlareOnPath(Entity flare) {
-        if (targetPos == null) return true; // Если нет цели - принимаем любой флаер
+        if (targetPos == null) return true;
+        
+        Vec3 missileVelocity = this.getDeltaMovement();
+        if (missileVelocity.lengthSqr() < 0.01) return true;
         
         Vec3 missilePos = this.position();
         Vec3 flarePos = flare.position();
+        Vec3 toFlare = flarePos.subtract(missilePos);
         
-        // Направление от ракеты к цели и к флаеру
-        Vec3 toTarget = targetPos.subtract(missilePos).normalize();
-        Vec3 toFlare = flarePos.subtract(missilePos).normalize();
-        double dot = toTarget.dot(toFlare);
+        Vec3 missileDirection = missileVelocity.normalize();
+        Vec3 toFlareNorm = toFlare.normalize();
         
-        // Если угол > 90° - флаер вообще не на пути (за ракетой или сбоку)
-        if (dot < 0) return false;
+        double dot = missileDirection.dot(toFlareNorm);
+        double angle = Math.toDegrees(Math.acos(Mth.clamp(dot, -1.0, 1.0)));
         
-        // Расстояния
-        double distMissileToTarget = missilePos.distanceTo(targetPos);
-        double distMissileToFlare = missilePos.distanceTo(flarePos);
+        if (angle > FLARE_CONE_ANGLE) return false;
         
-        // Флаер должен быть ближе к ракете чем цель (не за целью)
-        return distMissileToFlare < distMissileToTarget;
+        double distToFlare = toFlare.length();
+        Vec3 projectionOnPath = missileDirection.scale(distToFlare * dot);
+        Vec3 lateralOffset = toFlare.subtract(projectionOnPath);
+        double lateralDist = lateralOffset.length();
+        
+        double maxLateralDist = distToFlare * Math.tan(Math.toRadians(FLARE_CONE_ANGLE));
+        return lateralDist <= maxLateralDist;
     }
     
     /**
@@ -224,26 +235,21 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
      * @return шанс от 0.0 до 1.0
      */
     private double calculateDistractionChance(Entity flare) {
-        // НЕРФ: Очень высокий базовый шанс - флаеры должны работать надёжно
-        double baseChance = 0.85;
+        double baseChance = 0.725;
         
-        // 1. РАССТОЯНИЕ ДО ФЛАЕРА (бонус за близость)
         double distanceToFlare = this.distanceTo(flare);
         double distanceBonus;
         if (distanceToFlare < 15) {
-            distanceBonus = 0.10; // +10% если флаер близко
+            distanceBonus = 0.10;
         } else {
             distanceBonus = 0.0;
         }
         
-        // 2. ФАЗА ПОЛЁТА РАКЕТЫ (небольшой штраф только близко к цели)
         double flightPhaseBonus = 0.0;
         if (targetPos != null && this.position().distanceTo(targetPos) < 20) {
-            // Очень близко к цели - чуть сложнее отвлечь
-            flightPhaseBonus = -0.10; // -10%
+            flightPhaseBonus = -0.10;
         }
         
-        // 3. УГОЛ МЕЖДУ ФЛАЕРОМ И ЦЕЛЬЮ (мягкий штраф)
         double anglePenalty = 0.0;
         if (targetPos != null) {
             Vec3 toTarget = targetPos.subtract(this.position()).normalize();
@@ -252,76 +258,66 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
             double dot = toTarget.dot(toFlare);
             double angle = Math.toDegrees(Math.acos(Mth.clamp(dot, -1.0, 1.0)));
             
-            // Только если флаер совсем в стороне
             if (angle > 70) {
-                anglePenalty = -0.15; // -15% если флаер далеко от траектории
+                anglePenalty = -0.15;
             }
         }
         
-        // ИТОГОВЫЙ ШАНС
         double finalChance = baseChance + distanceBonus + flightPhaseBonus + anglePenalty;
-        
-        // НЕРФ: Минимум 60% - флаеры должны работать надёжно
-        // Максимум 95% - всегда есть маленький шанс что ракета не отвлечётся
         return Mth.clamp(finalChance, 0.60, 0.95);
     }
     
-    /**
-     * Основная логика наведения (только на сервере)
-     * Использует пропорциональное наведение для перехвата быстрых целей
-     */
     private void tickGuidance() {
-        // Если потеряли цель из-за манёвра - НЕ обновляем от радара
         if (!lostTargetFromManeuver) {
             updateTargetFromRadar();
         }
         
-        // Ищем цель по ID (работает для ВСЕХ entity, включая projectile)
+        targetUpdateCooldown--;
+        
         Entity target = null;
         if (targetEntityId != -1) {
             target = this.level().getEntity(targetEntityId);
         }
         
-        // Fallback на UUID для совместимости с обычными ракетами
         if (target == null && !lostTargetFromManeuver) {
             String targetUuid = this.entityData.get(TARGET_UUID);
             if (targetUuid != null && !targetUuid.equals("none")) {
                 target = EntityFindUtil.findEntity(this.level(), targetUuid);
                 if (target != null) {
                     targetEntityId = target.getId();
-                    targetPos = target.position().add(0, target.getBbHeight() * 0.5, 0);
                 }
             }
         }
         
-        // Если нашли цель - вычисляем точку перехвата
         if (target != null && target.isAlive()) {
-            // БАЛАНС: Проверяем резкие манёвры цели - ракета может потерять наведение
-            // Шанс зависит от дистанции - ближе = манёвры эффективнее
             if (isTargetManeuvering(target)) {
                 float evasionChance = getManeuverEvasionChance(target);
                 if (this.random.nextFloat() < evasionChance) {
-                    // Теряем наведение навсегда - летим по последней известной позиции
                     lostTargetFromManeuver = true;
                     targetEntityId = -1;
                     this.entityData.set(TARGET_UUID, "none");
-                    // targetPos остаётся - летим туда
                 }
             }
             
-            // Если ещё не потеряли цель - обновляем позицию
             if (!lostTargetFromManeuver) {
-                Vec3 targetCenter = target.position().add(0, target.getBbHeight() * 0.5, 0);
-                Vec3 targetVelocity = target.getDeltaMovement();
+                if (targetUpdateCooldown <= 0) {
+                    Vec3 newTargetPos = target.position().add(0, target.getBbHeight() * 0.5, 0);
+                    
+                    if (cachedTargetPos != null) {
+                        Vec3 newVelocity = newTargetPos.subtract(cachedTargetPos).scale(1.0 / TARGET_UPDATE_INTERVAL);
+                        smoothedTargetVelocity = newVelocity.scale(0.6).add(smoothedTargetVelocity.scale(0.4));
+                    } else {
+                        smoothedTargetVelocity = target.getDeltaMovement();
+                    }
+                    
+                    cachedTargetPos = newTargetPos;
+                    targetUpdateCooldown = TARGET_UPDATE_INTERVAL;
+                }
                 
-                // Вычисляем точку перехвата с упреждением
-                targetPos = calculateInterceptPoint(targetCenter, targetVelocity);
-                
-                // Определяем тип цели для радиовзрывателя
+                targetPos = calculateInterceptPoint(cachedTargetPos, smoothedTargetVelocity);
                 targetIsMissile = isTargetMissile(target);
             }
             
-            // Оповещаем цель о приближающейся ракете
             int warningInterval = (int) Math.max(0.04 * this.distanceTo(target), 2);
             if (this.tickCount % warningInterval == 0) {
                 boolean shouldWarn = target instanceof VehicleEntity 
@@ -336,7 +332,6 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
             }
         }
         
-        // Если нет targetPos - летим прямо (но продолжаем искать цель)
         if (targetPos == null) {
             maintainSpeed();
             return;
@@ -344,21 +339,17 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
         
         double distanceToTarget = this.position().distanceTo(targetPos);
         
-        // Запоминаем минимальную дистанцию
         if (distanceToTarget < minDistanceReached) {
             minDistanceReached = distanceToTarget;
         }
         
-        // Радиовзрыватель: разный радиус для ракет (3) и самолётов/вертолётов (7)
         double fuseRange = targetIsMissile ? PROXIMITY_FUSE_MISSILE : PROXIMITY_FUSE_AIRCRAFT;
         
-        // Вариант 1: Сразу взрываемся если достаточно близко
         if (distanceToTarget < fuseRange) {
             explodeWithShrapnel();
             return;
         }
         
-        // Вариант 2: Если пролетели мимо (дистанция начала увеличиваться) и были близко
         if (distanceToTarget > lastDistanceToTarget + 0.5 && minDistanceReached < fuseRange * 2) {
             explodeWithShrapnel();
             return;
@@ -366,50 +357,42 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
         
         lastDistanceToTarget = distanceToTarget;
         
-        // Наводимся на точку перехвата с реалистичным ограничением поворота
-        turnToTarget(MAX_TURN_RATE);
+        float turnRate = (this.tickCount < BOOST_PHASE_TICKS) ? BOOST_TURN_RATE : MAX_TURN_RATE;
+        turnToTarget(turnRate);
         
         maintainSpeed();
         updateRotationFromVelocity();
     }
     
-    /**
-     * Вычисляет точку перехвата с учётом скорости цели
-     * Использует итеративный метод для нахождения точки где ракета встретит цель
-     */
     private Vec3 calculateInterceptPoint(Vec3 targetPos, Vec3 targetVelocity) {
         Vec3 missilePos = this.position();
-        
-        // Используем текущую скорость ракеты для более точного расчёта
         double currentSpeed = this.getDeltaMovement().length();
-        double missileSpeed = Math.max(currentSpeed, MISSILE_SPEED * 0.5); // Минимум 50% от макс скорости
+        double missileSpeed = Math.max(currentSpeed, MISSILE_SPEED * 0.5);
         
-        // Скорость цели
         double targetSpeed = targetVelocity.length();
         
-        // Если цель стоит или движется очень медленно
         if (targetSpeed < 0.1) {
-            // Добавляем небольшое упреждение вверх для компенсации гравитации снаряда
-            // и для того чтобы ракета не стреляла ниже цели
             return targetPos.add(0, 0.5, 0);
         }
         
-        // Итеративно вычисляем время до перехвата
         double distance = missilePos.distanceTo(targetPos);
         double timeToIntercept = distance / missileSpeed;
         
-        // 5 итераций для более точного расчёта
         for (int i = 0; i < 5; i++) {
-            // Где будет цель через timeToIntercept тиков
             Vec3 predictedPos = targetPos.add(targetVelocity.scale(timeToIntercept));
-            
-            // Новое расстояние до предсказанной позиции
             distance = missilePos.distanceTo(predictedPos);
             timeToIntercept = distance / missileSpeed;
         }
         
-        // Финальная предсказанная позиция с небольшим упреждением вверх
-        Vec3 interceptPoint = targetPos.add(targetVelocity.scale(timeToIntercept)).add(0, 0.3, 0);
+        double leadCoefficient = 1.0;
+        if (distance < 40) {
+            leadCoefficient = 0.3;
+        }
+        if (distance < 25) {
+            leadCoefficient = 0.0;
+        }
+        
+        Vec3 interceptPoint = targetPos.add(targetVelocity.scale(timeToIntercept * leadCoefficient)).add(0, 0.3, 0);
         
         return interceptPoint;
     }
@@ -572,38 +555,27 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
         return false;
     }
     
-    /**
-     * Вычисляет шанс потери наведения от манёвра
-     * БАЛАНС: Чем ближе ракета - тем выше шанс что манёвр сработает
-     */
     private float getManeuverEvasionChance(Entity target) {
         if (target == null || targetPos == null) return 0.05f;
         
         double distance = this.position().distanceTo(target.position());
         
-        // Чем ближе ракета - тем выше шанс уклониться манёвром
         if (distance < 30) {
-            return 0.35f;  // 35% - ракета очень близко, манёвр очень эффективен
+            return 0.45f;
         } else if (distance < 60) {
-            return 0.20f;  // 20% - ракета близко
+            return 0.25f;
         } else if (distance < 100) {
-            return 0.10f;  // 10% - средняя дистанция
+            return 0.10f;
         } else {
-            return 0.05f;  // 5% - ракета далеко, манёвр почти не помогает
+            return 0.05f;
         }
     }
     
-    /**
-     * Поворот ракеты к цели с реалистичным ограничением
-     * БАЛАНС: Ракета может промахнуться если цель делает резкие манёвры
-     */
     private void turnToTarget(float maxTurnRate) {
         if (targetPos == null) return;
         
         Vec3 currentVelocity = this.getDeltaMovement();
         if (currentVelocity.lengthSqr() < 0.001) {
-            // Если ракета только что запущена и скорость близка к 0
-            // Направляем её сразу на цель
             Vec3 toTarget = targetPos.subtract(this.position()).normalize();
             this.setDeltaMovement(toTarget.scale(INITIAL_SPEED));
             return;
@@ -616,32 +588,25 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
         double dot = currentDirection.dot(targetDirection);
         double angle = Math.toDegrees(Math.acos(Mth.clamp(dot, -1.0, 1.0)));
         
-        // БАЛАНС: Если цель под углом > MAX_TURN_ANGLE - ракета не может навестись
-        // Это даёт шанс самолётам уклониться резким манёвром
         if (angle > MAX_TURN_ANGLE) {
-            // Ракета продолжает лететь прямо - промах!
             return;
         }
         
-        // Динамическая скорость поворота: быстрее в начале полёта (фаза разгона)
-        float dynamicTurnRate = maxTurnRate;
-        if (this.tickCount < BOOST_PHASE_TICKS) {
-            // В фазе разгона - увеличенная маневренность (но не имба)
-            dynamicTurnRate = BOOST_TURN_RATE;
-        }
-        
-        // Ограничиваем скорость поворота (реалистичная перегрузка)
-        double actualTurnRate = Math.min(dynamicTurnRate, angle);
+        double actualTurnRate = Math.min(maxTurnRate, angle);
         double turnFactor = actualTurnRate / Math.max(angle, 0.1);
         
-        Vec3 newDirection = new Vec3(
-            Mth.lerp(turnFactor, currentDirection.x, targetDirection.x),
-            Mth.lerp(turnFactor, currentDirection.y, targetDirection.y),
-            Mth.lerp(turnFactor, currentDirection.z, targetDirection.z)
-        ).normalize();
+        Vec3 newDirection = slerp(currentDirection, targetDirection, turnFactor);
         
         double speed = currentVelocity.length();
         this.setDeltaMovement(newDirection.scale(speed));
+    }
+    
+    private Vec3 slerp(Vec3 start, Vec3 end, double t) {
+        double dot = Mth.clamp(start.dot(end), -1.0, 1.0);
+        double theta = Math.acos(dot) * t;
+        
+        Vec3 relative = end.subtract(start.scale(dot)).normalize();
+        return start.scale(Math.cos(theta)).add(relative.scale(Math.sin(theta)));
     }
     
     /**
@@ -932,5 +897,19 @@ public class PantsirMissileEntity extends MissileProjectile implements GeoEntity
      */
     public int getTargetEntityId() {
         return this.targetEntityId;
+    }
+    
+    /**
+     * Устанавливает начальный поворот ракеты по направлению полёта
+     */
+    public void setInitialRotation(Vec3 direction) {
+        double horizontalDist = Math.sqrt(direction.x * direction.x + direction.z * direction.z);
+        float yaw = (float) (-Math.atan2(direction.x, direction.z) * 180.0 / Math.PI);
+        float pitch = (float) (-Math.atan2(direction.y, horizontalDist) * 180.0 / Math.PI);
+        
+        this.setYRot(yaw);
+        this.setXRot(pitch);
+        this.yRotO = yaw;
+        this.xRotO = pitch;
     }
 }
