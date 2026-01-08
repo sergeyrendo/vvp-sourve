@@ -40,7 +40,7 @@ public class PantsirS1Model extends VehicleModel<PantsirS1Entity> {
                     Entity playerVehicle = player.getVehicle();
                     if (playerVehicle == vehicle) {
                         // Игрок в этом панцире - используем синхронизированный угол
-                        angle = PantsirClientHandler.getInterpolatedRadarAngle();
+                        angle = PantsirClientHandler.getInterpolatedRadarAngle(vehicle.getId());
                     } else {
                         // Игрок НЕ в этом панцире - вращаем локально
                         angle = getLocalRadarAngle();

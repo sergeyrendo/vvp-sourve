@@ -72,9 +72,11 @@ public class PantsirOperatorOverlay {
         int seatIndex = pantsir.getSeatIndex(player);
         if (seatIndex != 1) return;
         
+        int vehicleId = pantsir.getId();
+        
         handleLockKeyInput(player);
         handleTargetSwitchInput(player);
-        handleLockSounds(player);
+        handleLockSounds(vehicleId);
 
         GuiGraphics guiGraphics = event.getGuiGraphics();
         int screenWidth = mc.getWindow().getGuiScaledWidth();
@@ -86,20 +88,26 @@ public class PantsirOperatorOverlay {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         
-        renderRadarDisplay(guiGraphics, poseStack, screenWidth, screenHeight, player);
-        renderStatusPanel(guiGraphics, screenWidth, screenHeight);
-        renderTargetMarker(guiGraphics, screenWidth, screenHeight);
-        renderControlHint(guiGraphics, screenWidth, screenHeight);
+        renderRadarDisplay(guiGraphics, poseStack, screenWidth, screenHeight, player, vehicleId);
+        renderStatusPanel(guiGraphics, screenWidth, screenHeight, vehicleId);
+        renderTargetMarker(guiGraphics, screenWidth, screenHeight, vehicleId);
+        renderControlHint(guiGraphics, screenWidth, screenHeight, vehicleId);
         
         poseStack.popPose();
     }
     
     private static void handleLockKeyInput(Player player) {
+        Entity vehicle = player.getVehicle();
+        if (!(vehicle instanceof PantsirS1Entity pantsir)) return;
+        
+        PantsirClientHandler.PantsirRadarData data = PantsirClientHandler.getRadarData(pantsir.getId());
+        if (data == null) return;
+        
         // Используем кнопку VEHICLE_SEEK из SBW (X по умолчанию)
         boolean isPressed = ModKeyMappings.VEHICLE_SEEK.isDown();
         
         if (isPressed && !wasLockKeyPressed) {
-            int state = PantsirClientHandler.radarState;
+            int state = data.radarState;
             
             // X начинает захват когда цель обнаружена
             if (state == PantsirRadarSyncMessage.STATE_DETECTED) {
@@ -122,14 +130,20 @@ public class PantsirOperatorOverlay {
      * Обработка переключения целей стрелочками
      */
     private static void handleTargetSwitchInput(Player player) {
+        Entity vehicle = player.getVehicle();
+        if (!(vehicle instanceof PantsirS1Entity pantsir)) return;
+        
+        PantsirClientHandler.PantsirRadarData data = PantsirClientHandler.getRadarData(pantsir.getId());
+        if (data == null) return;
+        
         Minecraft mc = Minecraft.getInstance();
         long window = mc.getWindow().getWindow();
         
         // Стрелка влево - предыдущая цель
         boolean leftPressed = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT) == GLFW.GLFW_PRESS;
         if (leftPressed && !wasPrevKeyPressed) {
-            if (PantsirClientHandler.radarState != PantsirRadarSyncMessage.STATE_LOCKING &&
-                PantsirClientHandler.radarState != PantsirRadarSyncMessage.STATE_LOCKED) {
+            if (data.radarState != PantsirRadarSyncMessage.STATE_LOCKING &&
+                data.radarState != PantsirRadarSyncMessage.STATE_LOCKED) {
                 VVPNetwork.VVP_HANDLER.sendToServer(
                     new PantsirLockRequestMessage(PantsirLockRequestMessage.ACTION_PREV_TARGET)
                 );
@@ -140,8 +154,8 @@ public class PantsirOperatorOverlay {
         // Стрелка вправо - следующая цель
         boolean rightPressed = GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT) == GLFW.GLFW_PRESS;
         if (rightPressed && !wasNextKeyPressed) {
-            if (PantsirClientHandler.radarState != PantsirRadarSyncMessage.STATE_LOCKING &&
-                PantsirClientHandler.radarState != PantsirRadarSyncMessage.STATE_LOCKED) {
+            if (data.radarState != PantsirRadarSyncMessage.STATE_LOCKING &&
+                data.radarState != PantsirRadarSyncMessage.STATE_LOCKED) {
                 VVPNetwork.VVP_HANDLER.sendToServer(
                     new PantsirLockRequestMessage(PantsirLockRequestMessage.ACTION_NEXT_TARGET)
                 );
@@ -150,9 +164,15 @@ public class PantsirOperatorOverlay {
         wasNextKeyPressed = rightPressed;
     }
     
-    private static void handleLockSounds(Player player) {
-        int currentState = PantsirClientHandler.radarState;
-        long currentTime = System.currentTimeMillis();
+    private static void handleLockSounds(int vehicleId) {
+        PantsirClientHandler.PantsirRadarData data = PantsirClientHandler.getRadarData(vehicleId);
+        if (data == null) return;
+        
+        Minecraft mc = Minecraft.getInstance();
+        Player player = mc.player;
+        if (player == null) return;
+        
+        int currentState = data.radarState;
         
         // Звук в начале LOCKING (один раз)
         if (currentState == PantsirRadarSyncMessage.STATE_LOCKING && lastRadarState != PantsirRadarSyncMessage.STATE_LOCKING) {
@@ -168,7 +188,9 @@ public class PantsirOperatorOverlay {
     }
 
     private static void renderRadarDisplay(GuiGraphics guiGraphics, PoseStack poseStack, 
-            int screenWidth, int screenHeight, Player player) {
+            int screenWidth, int screenHeight, Player player, int vehicleId) {
+        PantsirClientHandler.PantsirRadarData data = PantsirClientHandler.getRadarData(vehicleId);
+        if (data == null) return;
         int centerX = screenWidth - RADAR_RADIUS - 25;
         int centerY = RADAR_RADIUS + 40;
         
@@ -203,16 +225,16 @@ public class PantsirOperatorOverlay {
         guiGraphics.fill(centerX - 2, centerY - 2, centerX + 2, centerY + 2, COLOR_RADAR_GREEN);
         
         // Полоска 1: Вращающийся обзорный радар (зелёный)
-        drawRadarSweep(poseStack, centerX, centerY, player);
+        drawRadarSweep(poseStack, centerX, centerY, vehicleId, data);
         
         // Полоска 2: Пассивный радар - направление башни (жёлтый)
-        drawTurretBeam(poseStack, centerX, centerY, player);
+        drawTurretBeam(poseStack, centerX, centerY, data);
         
         // Все цели на радаре
-        drawAllTargetBlips(guiGraphics, poseStack, centerX, centerY, player);
+        drawAllTargetBlips(guiGraphics, poseStack, centerX, centerY, player, data);
         
         // Ракеты на радаре (с пунктирной линией)
-        drawMissiles(guiGraphics, poseStack, centerX, centerY, player);
+        drawMissiles(guiGraphics, poseStack, centerX, centerY, player, data);
         
         Minecraft mc = Minecraft.getInstance();
         // Буквы направлений с тенью для лучшей читаемости
@@ -230,7 +252,7 @@ public class PantsirOperatorOverlay {
                               centerY - RADAR_RADIUS + 3, COLOR_RADAR_GREEN, false);
         
         // Счётчик целей с улучшенным фоном и иконкой
-        int targetCount = PantsirClientHandler.allTargets.size();
+        int targetCount = data.allTargets.size();
         if (targetCount > 0) {
             String tgtText = "◎ " + targetCount;
             int tgtWidth = mc.font.width(tgtText);
@@ -241,9 +263,9 @@ public class PantsirOperatorOverlay {
         }
     }
     
-    private static void drawRadarSweep(PoseStack poseStack, int centerX, int centerY, Player player) {
+    private static void drawRadarSweep(PoseStack poseStack, int centerX, int centerY, int vehicleId, PantsirClientHandler.PantsirRadarData data) {
         // radarAngle от сервера - абсолютный угол вращения радара (в градусах, как yaw)
-        float radarAngle = PantsirClientHandler.getInterpolatedRadarAngle();
+        float radarAngle = PantsirClientHandler.getInterpolatedRadarAngle(vehicleId);
         
         // Та же формула что и для turret beam
         double radians = Math.toRadians(radarAngle);
@@ -252,7 +274,7 @@ public class PantsirOperatorOverlay {
         int endX = centerX + (int)(Math.sin(radians) * beamLength);
         int endY = centerY + (int)(Math.cos(radians) * beamLength);
         
-        int beamColor = switch (PantsirClientHandler.radarState) {
+        int beamColor = switch (data.radarState) {
             case PantsirRadarSyncMessage.STATE_LOCKED -> COLOR_LOCKED;
             case PantsirRadarSyncMessage.STATE_LOCKING, PantsirRadarSyncMessage.STATE_DETECTED -> COLOR_TARGET_YELLOW;
             default -> COLOR_RADAR_GREEN;
@@ -305,8 +327,8 @@ public class PantsirOperatorOverlay {
      * Рисует ССЦ (Станция Сопровождения Целей) - узкий сектор ±3° от направления башни
      * Стабилизированный - север = вверх
      */
-    private static void drawTurretBeam(PoseStack poseStack, int centerX, int centerY, Player player) {
-        float turretAngle = PantsirClientHandler.turretAngle;
+    private static void drawTurretBeam(PoseStack poseStack, int centerX, int centerY, PantsirClientHandler.PantsirRadarData data) {
+        float turretAngle = data.turretAngle;
         double radians = Math.toRadians(turretAngle);
         
         int beamLength = RADAR_RADIUS - 5;
@@ -329,14 +351,14 @@ public class PantsirOperatorOverlay {
         drawTriangle(poseStack, centerX, centerY, leftX, leftY, rightX, rightY, COLOR_SSC_SECTOR);
     }
 
-    private static void drawAllTargetBlips(GuiGraphics guiGraphics, PoseStack poseStack, int centerX, int centerY, Player player) {
+    private static void drawAllTargetBlips(GuiGraphics guiGraphics, PoseStack poseStack, int centerX, int centerY, Player player, PantsirClientHandler.PantsirRadarData data) {
         // Стабилизированный радар - используем позицию панциря, не игрока
         Entity vehicle = player.getVehicle();
         if (vehicle == null) return;
         
         Vec3 radarPos = vehicle.position();
         
-        for (PantsirClientHandler.RadarTarget target : PantsirClientHandler.allTargets) {
+        for (PantsirClientHandler.RadarTarget target : data.allTargets) {
             Vec3 targetPos = new Vec3(target.x, target.y, target.z);
             Vec3 toTarget = targetPos.subtract(radarPos);
             double distance = toTarget.horizontalDistance();
@@ -351,14 +373,14 @@ public class PantsirOperatorOverlay {
             int blipX = centerX + (int)(toTarget.x / distance * radarDist);
             int blipY = centerY + (int)(toTarget.z / distance * radarDist);
             
-            boolean isMainTarget = (target.entityId == PantsirClientHandler.targetEntityId);
+            boolean isMainTarget = (target.entityId == data.targetEntityId);
             int blipColor;
             
             // Союзники всегда зелёные
             if (target.isAlly) {
                 blipColor = COLOR_RADAR_GREEN;
             } else if (isMainTarget) {
-                blipColor = switch (PantsirClientHandler.radarState) {
+                blipColor = switch (data.radarState) {
                     case PantsirRadarSyncMessage.STATE_LOCKED -> COLOR_LOCKED;
                     case PantsirRadarSyncMessage.STATE_LOCKING -> COLOR_TARGET_YELLOW;
                     default -> COLOR_TARGET_RED;
@@ -373,7 +395,7 @@ public class PantsirOperatorOverlay {
             drawTargetIcon(guiGraphics, poseStack, blipX, blipY, target.targetType, blipColor, isMainTarget);
             
             // Рамка для залоченной цели
-            if (isMainTarget && PantsirClientHandler.radarState == PantsirRadarSyncMessage.STATE_LOCKED) {
+            if (isMainTarget && data.radarState == PantsirRadarSyncMessage.STATE_LOCKED) {
                 long time = System.currentTimeMillis();
                 if ((time / 250) % 2 == 0) {
                     int size = 6;
@@ -394,9 +416,9 @@ public class PantsirOperatorOverlay {
             }
             
             // Анимация захвата для locking цели
-            if (isMainTarget && PantsirClientHandler.radarState == PantsirRadarSyncMessage.STATE_LOCKING) {
+            if (isMainTarget && data.radarState == PantsirRadarSyncMessage.STATE_LOCKING) {
                 long time = System.currentTimeMillis();
-                float progress = PantsirClientHandler.lockProgress / 100.0f;
+                float progress = data.lockProgress / 100.0f;
                 int ringSize = (int)(8 + Math.sin(time / 100.0) * 2);
                 
                 // Пульсирующее кольцо
@@ -488,13 +510,13 @@ public class PantsirOperatorOverlay {
     /**
      * Рисует свои ракеты на радаре с пунктирной линией от центра
      */
-    private static void drawMissiles(GuiGraphics guiGraphics, PoseStack poseStack, int centerX, int centerY, Player player) {
+    private static void drawMissiles(GuiGraphics guiGraphics, PoseStack poseStack, int centerX, int centerY, Player player, PantsirClientHandler.PantsirRadarData data) {
         Entity vehicle = player.getVehicle();
         if (vehicle == null) return;
         
         Vec3 radarPos = vehicle.position();
         
-        for (PantsirClientHandler.MissilePosition missile : PantsirClientHandler.missiles) {
+        for (PantsirClientHandler.MissilePosition missile : data.missiles) {
             Vec3 missilePos = new Vec3(missile.x, missile.y, missile.z);
             Vec3 toMissile = missilePos.subtract(radarPos);
             double distance = toMissile.horizontalDistance();
@@ -515,7 +537,9 @@ public class PantsirOperatorOverlay {
         }
     }
 
-    private static void renderStatusPanel(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
+    private static void renderStatusPanel(GuiGraphics guiGraphics, int screenWidth, int screenHeight, int vehicleId) {
+        PantsirClientHandler.PantsirRadarData data = PantsirClientHandler.getRadarData(vehicleId);
+        if (data == null) return;
         Minecraft mc = Minecraft.getInstance();
         int x = 15;
         int y = 40;
@@ -540,7 +564,7 @@ public class PantsirOperatorOverlay {
         String stateText;
         int stateColor;
         
-        switch (PantsirClientHandler.radarState) {
+        switch (data.radarState) {
             case PantsirRadarSyncMessage.STATE_IDLE -> {
                 stateText = "◉ SCANNING";
                 stateColor = COLOR_RADAR_GREEN;
@@ -550,7 +574,7 @@ public class PantsirOperatorOverlay {
                 stateColor = COLOR_TARGET_YELLOW;
             }
             case PantsirRadarSyncMessage.STATE_LOCKING -> {
-                stateText = "◐ LOCKING " + PantsirClientHandler.lockProgress + "%";
+                stateText = "◐ LOCKING " + data.lockProgress + "%";
                 stateColor = COLOR_TARGET_YELLOW;
             }
             case PantsirRadarSyncMessage.STATE_LOCKED -> {
@@ -570,10 +594,10 @@ public class PantsirOperatorOverlay {
         guiGraphics.drawString(mc.font, Component.literal(stateText), x, y, stateColor, true);
         y += 12;
         
-        if (PantsirClientHandler.radarState == PantsirRadarSyncMessage.STATE_LOCKING) {
+        if (data.radarState == PantsirRadarSyncMessage.STATE_LOCKING) {
             int barWidth = 90;
             int barHeight = 6;
-            int progress = PantsirClientHandler.lockProgress;
+            int progress = data.lockProgress;
             int filledWidth = (int)(barWidth * progress / 100.0);
             
             // Рамка прогресс-бара
@@ -590,20 +614,38 @@ public class PantsirOperatorOverlay {
             y += 10;
         }
         
-        if (PantsirClientHandler.isTargetDetected()) {
-            String distText = String.format("RNG: %.0fm", PantsirClientHandler.targetDistance);
+        if (data.targetEntityId != -1 && (data.radarState == PantsirRadarSyncMessage.STATE_DETECTED ||
+            data.radarState == PantsirRadarSyncMessage.STATE_LOCKING ||
+            data.radarState == PantsirRadarSyncMessage.STATE_LOCKED)) {
+            String distText = String.format("RNG: %.0fm", data.targetDistance);
             guiGraphics.drawString(mc.font, Component.literal(distText), x, y, COLOR_RADAR_GREEN, true);
         }
     }
 
-    private static void renderTargetMarker(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
-        if (PantsirClientHandler.radarState != PantsirRadarSyncMessage.STATE_LOCKED) return;
+    private static void renderTargetMarker(GuiGraphics guiGraphics, int screenWidth, int screenHeight, int vehicleId) {
+        PantsirClientHandler.PantsirRadarData data = PantsirClientHandler.getRadarData(vehicleId);
+        if (data == null || data.radarState != PantsirRadarSyncMessage.STATE_LOCKED) return;
         
-        Vec3 targetPos = new Vec3(
-            PantsirClientHandler.targetX,
-            PantsirClientHandler.targetY,
-            PantsirClientHandler.targetZ
-        );
+        Minecraft mc = Minecraft.getInstance();
+        Player player = mc.player;
+        if (player == null) return;
+        
+        Entity vehicle = player.getVehicle();
+        if (!(vehicle instanceof PantsirS1Entity pantsir)) return;
+        
+        Vec3 targetPos;
+        boolean isSignalLost = data.uiLostSignal;
+        
+        // Если сигнал потерян - используем последнюю известную позицию
+        if (isSignalLost && data.uiLastTargetPos != null) {
+            targetPos = data.uiLastTargetPos;
+        } else {
+            targetPos = new Vec3(
+                data.targetX,
+                data.targetY,
+                data.targetZ
+            );
+        }
         
         if (!VectorUtil.canSee(targetPos)) return;
         
@@ -611,31 +653,45 @@ public class PantsirOperatorOverlay {
         int x = (int) screenPos.x;
         int y = (int) screenPos.y;
         
-        drawTargetBrackets(guiGraphics, x, y, COLOR_LOCKED);
-        
-        Minecraft mc = Minecraft.getInstance();
+        // Мигание при потере сигнала
+        int color = COLOR_LOCKED;
+        if (isSignalLost) {
+            // Пульсация прозрачности
+            long time = System.currentTimeMillis();
+            float alpha = (float)(Math.sin(time / 200.0) * 0.4 + 0.6); // 0.2 - 1.0
+            int alphaInt = (int)(alpha * 255);
+            color = (COLOR_TARGET_RED & 0x00FFFFFF) | (alphaInt << 24);
+            
+            // Или мигание (вкл/выкл)
+            if ((time / 300) % 2 == 0) {
+                drawTargetBrackets(guiGraphics, x, y, color);
+            }
+        } else {
+            drawTargetBrackets(guiGraphics, x, y, color);
+        }
         
         // Дистанция
-        String distText = String.format("%.0fm", PantsirClientHandler.targetDistance);
-        guiGraphics.drawString(mc.font, Component.literal(distText), x + MARKER_HALF + 5, y - 12, COLOR_LOCKED, false);
+        String distText = String.format("%.0fm", data.targetDistance);
+        guiGraphics.drawString(mc.font, Component.literal(distText), x + MARKER_HALF + 5, y - 12, color, false);
         
         // Скорость цели (блоков/тик -> м/с, 1 тик = 0.05 сек, так что *20)
         double speed = Math.sqrt(
-            PantsirClientHandler.targetVelX * PantsirClientHandler.targetVelX +
-            PantsirClientHandler.targetVelY * PantsirClientHandler.targetVelY +
-            PantsirClientHandler.targetVelZ * PantsirClientHandler.targetVelZ
+            data.targetVelX * data.targetVelX +
+            data.targetVelY * data.targetVelY +
+            data.targetVelZ * data.targetVelZ
         ) * 20; // блоков/сек
         String speedText = String.format("%.0f m/s", speed);
-        guiGraphics.drawString(mc.font, Component.literal(speedText), x + MARKER_HALF + 5, y, COLOR_LOCKED, false);
+        guiGraphics.drawString(mc.font, Component.literal(speedText), x + MARKER_HALF + 5, y, color, false);
         
         // Время до перехвата ракетой (примерно)
-        // Скорость ракеты ~8 блоков/тик = 160 м/с
         double missileSpeed = 160.0; // м/с
-        double timeToIntercept = PantsirClientHandler.targetDistance / missileSpeed;
+        double timeToIntercept = data.targetDistance / missileSpeed;
         String timeText = String.format("ETA: %.1fs", timeToIntercept);
-        guiGraphics.drawString(mc.font, Component.literal(timeText), x + MARKER_HALF + 5, y + 12, COLOR_LOCKED, false);
+        guiGraphics.drawString(mc.font, Component.literal(timeText), x + MARKER_HALF + 5, y + 12, color, false);
         
-        guiGraphics.drawString(mc.font, Component.literal("TRK"), x + MARKER_HALF + 5, y + 24, COLOR_LOCKED, false);
+        // Статус
+        String status = isSignalLost ? "LOST" : "TRK";
+        guiGraphics.drawString(mc.font, Component.literal(status), x + MARKER_HALF + 5, y + 24, color, false);
     }
     
     private static void drawTargetBrackets(GuiGraphics guiGraphics, int cx, int cy, int color) {
@@ -653,15 +709,18 @@ public class PantsirOperatorOverlay {
         guiGraphics.fill(cx + half - thick, cy + half - corner, cx + half, cy + half, color);
     }
 
-    private static void renderControlHint(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
+    private static void renderControlHint(GuiGraphics guiGraphics, int screenWidth, int screenHeight, int vehicleId) {
+        PantsirClientHandler.PantsirRadarData data = PantsirClientHandler.getRadarData(vehicleId);
+        if (data == null) return;
+        
         Minecraft mc = Minecraft.getInstance();
         PoseStack poseStack = guiGraphics.pose();
         
         // Используем кнопку VEHICLE_SEEK из SBW
         String keyName = ModKeyMappings.VEHICLE_SEEK.getKey().getDisplayName().getString();
         String fireKey = ModKeyMappings.FIRE.getKey().getDisplayName().getString();
-        String hint = switch (PantsirClientHandler.radarState) {
-            case PantsirRadarSyncMessage.STATE_IDLE -> PantsirClientHandler.allTargets.isEmpty() 
+        String hint = switch (data.radarState) {
+            case PantsirRadarSyncMessage.STATE_IDLE -> data.allTargets.isEmpty() 
                 ? "Radar scanning..." 
                 : "[←/→] Select target";
             case PantsirRadarSyncMessage.STATE_DETECTED -> "[" + keyName + "] Lock | [←/→] Switch";
@@ -671,7 +730,7 @@ public class PantsirOperatorOverlay {
             default -> "";
         };
         
-        int color = switch (PantsirClientHandler.radarState) {
+        int color = switch (data.radarState) {
             case PantsirRadarSyncMessage.STATE_LOCKED -> COLOR_LOCKED;
             case PantsirRadarSyncMessage.STATE_DETECTED, PantsirRadarSyncMessage.STATE_LOCKING -> COLOR_TARGET_YELLOW;
             default -> COLOR_RADAR_GREEN;

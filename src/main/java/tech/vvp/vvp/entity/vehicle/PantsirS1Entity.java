@@ -49,11 +49,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
     private static final EntityDataAccessor<Float> AIM_DIR_Z = SynchedEntityData.defineId(PantsirS1Entity.class, EntityDataSerializers.FLOAT);
 
     private static final ResourceLocation[] CAMO_TEXTURES = {
-        new ResourceLocation("vvp", "textures/entity/pantsir_s1.png"),
-        new ResourceLocation("vvp", "textures/entity/pantsir_s1_haki.png"),
-        new ResourceLocation("vvp", "textures/entity/pantsir_s1_camo2.png"),
-        new ResourceLocation("vvp", "textures/entity/pantsir_s1_camo3.png"),
-        new ResourceLocation("vvp", "textures/entity/pantsir_s1_camo4.png")
+        new ResourceLocation("vvp", "textures/entity/pantsir_s1.png")
     };
     
     private static final String[] CAMO_NAMES = {"Standard", "Haki", "Camo2", "Camo3", "Camo4"};
@@ -74,6 +70,12 @@ public class PantsirS1Entity extends CamoVehicleBase {
     private int lockingProgress = 0;
     private int syncTimer = 0;
     private float radarRotationTicks = 0;  // Угол вращения обзорного радара
+    
+    // Система потери радиолокационного сопровождения (для GUI)
+    private Vec3 lastKnownTargetPos = null;  // Последняя известная позиция цели
+    private boolean signalLost = false;      // Флаг потери сигнала
+    private int noSignalTicks = 0;           // Счётчик тиков без сигнала
+    private static final int MAX_REACQUIRE_TICKS = 40; // 2 секунды на восстановление
     
     // Список всех обнаруженных целей (для отображения на радаре)
     private final List<Entity> detectedTargets = new ArrayList<>();
@@ -98,6 +100,13 @@ public class PantsirS1Entity extends CamoVehicleBase {
     
     // Список выпущенных ракет (для отображения на радаре)
     private final List<PantsirMissileEntity> activeMissiles = new ArrayList<>();
+    
+    // Кеш оператора (обновляется каждые 10 тиков)
+    private LivingEntity cachedOperator = null;
+    private int operatorCacheExpiry = 0;
+    
+    // Throttling звуков предупреждения
+    private int soundCooldown = 0;
 
     public PantsirS1Entity(EntityType<PantsirS1Entity> type, Level world) {
         super(type, world);
@@ -167,16 +176,18 @@ public class PantsirS1Entity extends CamoVehicleBase {
      * Серверная логика радара
      */
     private void tickRadar() {
-        // Вращаем обзорный радар ВСЕГДА (даже без оператора)
+        // Вращаем радар всегда
         radarRotationTicks += 1.0f;
         if (radarRotationTicks >= RADAR_ROTATION_TICKS) {
             radarRotationTicks -= RADAR_ROTATION_TICKS;
         }
         
+        // Throttling звуков
+        if (soundCooldown > 0) soundCooldown--;
+        
         LivingEntity operator = getOperator();
         if (operator == null) {
             resetRadar();
-            // Синхронизируем угол радара всем игрокам рядом даже без оператора
             syncRadarAngleToNearbyPlayers();
             return;
         }
@@ -189,7 +200,6 @@ public class PantsirS1Entity extends CamoVehicleBase {
             scanForMissiles();
         }
         
-        // Обновляем состояние радара
         updateRadarState(operator);
         
         // Синхронизируем с клиентом каждые 2 тика
@@ -205,46 +215,45 @@ public class PantsirS1Entity extends CamoVehicleBase {
      */
     private void syncRadarAngleToNearbyPlayers() {
         syncTimer++;
-        if (syncTimer < 5) return;
+        if (syncTimer < 10) return;
         syncTimer = 0;
         
-        float radarAngle = getRadarAngle();
+        // Проверяем есть ли игроки рядом
+        List<ServerPlayer> nearbyPlayers = this.level().getEntitiesOfClass(
+            ServerPlayer.class, 
+            this.getBoundingBox().inflate(100)
+        );
         
-        // Угол башни из вектора направления ствола
-        // atan2(x, z) даёт угол где 0=юг, 90=восток, но Minecraft yaw: 0=юг, -90=восток
-        // Поэтому инвертируем знак
+        if (nearbyPlayers.isEmpty()) return;
+        
+        float radarAngle = getRadarAngle();
         Vec3 barrelDir = this.getBarrelVector(1.0f);
         float turretAngle = (float) Math.toDegrees(-Math.atan2(barrelDir.x, barrelDir.z));
         
-        // Пустое сообщение только с углами радара и башни
         PantsirRadarSyncMessage message = new PantsirRadarSyncMessage(
             this.getId(), PantsirRadarSyncMessage.STATE_IDLE, -1, 0, 0, 0, 
-            0, 0, 0, // скорость цели
+            0, 0, 0,
             0, 0, radarAngle, turretAngle,
             new int[0], new double[0], new double[0], new double[0], new int[0], new boolean[0],
-            new double[0], new double[0], new double[0]
+            new double[0], new double[0], new double[0],
+            false, 0, 0, 0
         );
         
-        // Отправляем всем игрокам в радиусе 100 блоков
-        for (Entity entity : this.level().getEntities(this, this.getBoundingBox().inflate(100), e -> e instanceof ServerPlayer)) {
-            if (entity instanceof ServerPlayer player) {
-                VVPNetwork.VVP_HANDLER.send(PacketDistributor.PLAYER.with(() -> player), message);
-            }
+        for (ServerPlayer player : nearbyPlayers) {
+            VVPNetwork.VVP_HANDLER.send(PacketDistributor.PLAYER.with(() -> player), message);
         }
     }
     
     /**
-     * Сканирует все цели в радиусе радара
-     * ОПТИМИЗАЦИЯ: Постепенное сканирование - проверяем по 4 цели за раз
+     * Сканирует цели в радиусе радара (постепенно, по 4 за раз)
      */
     private void scanForTargets() {
         Vec3 radarPos = this.position().add(0, 2.5, 0);
         
-        // Получаем все entity в радиусе (быстрая операция)
         AABB searchBox = new AABB(radarPos, radarPos).inflate(RADAR_RANGE);
         List<Entity> allEntities = this.level().getEntities(this, searchBox);
         
-        // Фильтруем по базовым критериям (без line of sight)
+        // Фильтруем по базовым критериям
         List<Entity> candidates = new ArrayList<>();
         for (Entity entity : allEntities) {
             if (isValidRadarTargetBasic(entity, radarPos)) {
@@ -252,7 +261,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
             }
         }
         
-        // ПОСТЕПЕННОЕ СКАНИРОВАНИЕ: проверяем line of sight только для 4 целей за раз
+        // Постепенное сканирование: проверяем LOS только для 4 целей за раз
         int batchSize = 4;
         int startIdx = scanOffset % Math.max(candidates.size(), 1);
         int endIdx = Math.min(startIdx + batchSize, candidates.size());
@@ -268,98 +277,77 @@ public class PantsirS1Entity extends CamoVehicleBase {
             }
         }
         
-        // Удаляем мёртвые/далёкие цели
         detectedTargets.removeIf(e -> !e.isAlive() || e.position().distanceTo(radarPos) > RADAR_RANGE);
         
-        // Сдвигаем offset для следующего тика
         scanOffset += batchSize;
         
-        // Очищаем старый кеш (каждые 100 тиков)
+        // Очищаем старый кеш
         if (this.tickCount % 100 == 0) {
             losCache.entrySet().removeIf(entry -> entry.getValue().expiresAt < this.tickCount);
         }
     }
     
     /**
-     * Базовая проверка цели БЕЗ line of sight (быстрая)
+     * Базовая проверка цели без line of sight
      */
     private boolean isValidRadarTargetBasic(Entity entity, Vec3 radarPos) {
         if (entity == null || !entity.isAlive()) return false;
-        if (entity == this) return false;
-        if (this.hasPassenger(entity)) return false;
+        if (entity == this || this.hasPassenger(entity)) return false;
         
         double distance = entity.position().distanceTo(radarPos);
         if (distance > RADAR_RANGE) return false;
         
-        // Проверяем тип цели
-        boolean isValidType = false;
-        
         // Теги
-        if (entity.getType().is(tech.vvp.vvp.init.ModTags.EntityTypes.PANTSIR_AIR_TARGET)) {
-            isValidType = true;
-        }
-        if (entity.getType().is(tech.vvp.vvp.init.ModTags.EntityTypes.PANTSIR_MISSILE_TARGET)) {
-            isValidType = true;
+        EntityType<?> type = entity.getType();
+        if (type.is(tech.vvp.vvp.init.ModTags.EntityTypes.PANTSIR_AIR_TARGET) ||
+            type.is(tech.vvp.vvp.init.ModTags.EntityTypes.PANTSIR_MISSILE_TARGET)) {
+            return true;
         }
         
         // MissileProjectile
-        if (entity instanceof MissileProjectile missile) {
-            if (entity instanceof PantsirMissileEntity pantsirMissile) {
-                isValidType = pantsirMissile.getLauncherId() != this.getId();
-            } else {
-                isValidType = true;
-            }
-        }
-        
-        // Баллистика
-        if (!isValidType) {
-            String className = entity.getClass().getSimpleName();
-            if (className.contains("Missile") || className.contains("Rocket") || className.contains("Bomb")) {
-                isValidType = true;
-            }
+        if (entity instanceof MissileProjectile) {
+            return !(entity instanceof PantsirMissileEntity pm) || pm.getLauncherId() != this.getId();
         }
         
         // VehicleEntity
-        if (!isValidType && entity instanceof VehicleEntity vehicle) {
-            VehicleType vehicleType = vehicle.getVehicleType();
-            if (vehicleType == VehicleType.HELICOPTER || vehicleType == VehicleType.AIRPLANE) {
-                isValidType = true;
+        if (entity instanceof VehicleEntity vehicle) {
+            VehicleType vt = vehicle.getVehicleType();
+            if (vt == VehicleType.HELICOPTER || vt == VehicleType.AIRPLANE) {
+                return true;
             }
         }
         
-        return isValidType;
+        // Баллистика (последняя проверка)
+        String className = entity.getClass().getSimpleName();
+        return className.contains("Missile") || className.contains("Rocket") || className.contains("Bomb");
     }
     
     /**
-     * Проверка line of sight с кешированием (TTL = 20 тиков)
+     * Проверка line of sight с кешем (TTL = 20 тиков)
      */
     private boolean hasLineOfSightCached(Entity entity, Vec3 radarPos) {
         int entityId = entity.getId();
         
-        // Проверяем кеш
         CachedLineOfSight cached = losCache.get(entityId);
         if (cached != null && cached.expiresAt > this.tickCount) {
             return cached.hasLOS;
         }
         
-        // Вычисляем line of sight
         Vec3 targetPos = entity.position().add(0, entity.getBbHeight() * 0.5, 0);
         boolean hasLOS = hasLineOfSightOptimized(radarPos, targetPos);
         
-        // Кешируем на 20 тиков (1 секунда)
         losCache.put(entityId, new CachedLineOfSight(hasLOS, this.tickCount + 20));
         
         return hasLOS;
     }
     
     /**
-     * Сканирует выпущенные ракеты этого панциря
+     * Сканирует свои ракеты
      */
     private void scanForMissiles() {
         Vec3 radarPos = this.position().add(0, 2.5, 0);
         activeMissiles.clear();
         
-        // Ищем ракеты в радиусе радара
         AABB searchBox = new AABB(radarPos, radarPos).inflate(RADAR_RANGE);
         List<PantsirMissileEntity> missiles = this.level().getEntitiesOfClass(
             PantsirMissileEntity.class, searchBox, 
@@ -370,54 +358,58 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
     
     /**
-     * Проигрывает звук предупреждения о локе для цели
-     * @param target цель
-     * @param locked true = залочен, false = идёт захват
+     * Проигрывает звук предупреждения о локе (с throttling)
      */
     private void playLockWarningSound(Entity target, boolean locked) {
-        if (target == null) return;
+        if (target == null || soundCooldown > 0) return;
         
-        // Проигрываем звук только если у цели есть пассажиры или это VehicleEntity
         if (!target.getPassengers().isEmpty() || target instanceof VehicleEntity) {
             target.level().playSound(null, target.getOnPos(), 
                 target instanceof Pig ? SoundEvents.PIG_HURT : 
                     (locked ? ModSounds.LOCKED_WARNING.get() : ModSounds.LOCKING_WARNING.get()), 
                 SoundSource.PLAYERS, 2, 1f);
+            soundCooldown = locked ? 2 : 3;
         }
     }
     
     /**
-     * Получает оператора оружия (игрока на сидушке 1 - с пушкой и ракетами)
-     * TurretControllerIndex: 1 в JSON означает что оператор управляет башней
+     * Получает оператора оружия (с кешем на 10 тиков)
      */
     @Nullable
     private LivingEntity getOperator() {
-        List<Entity> passengers = this.getPassengers();
-        if (passengers.isEmpty()) return null;
+        if (cachedOperator != null && operatorCacheExpiry > this.tickCount) {
+            return cachedOperator;
+        }
         
-        // Ищем игрока который управляет башней (seatIndex == 1)
+        List<Entity> passengers = this.getPassengers();
+        if (passengers.isEmpty()) {
+            cachedOperator = null;
+            return null;
+        }
+        
         for (Entity passenger : passengers) {
             if (passenger instanceof LivingEntity living) {
                 int seatIndex = this.getSeatIndex(living);
                 if (seatIndex == 1) {
+                    cachedOperator = living;
+                    operatorCacheExpiry = this.tickCount + 10;
                     return living;
                 }
             }
         }
         
+        cachedOperator = null;
         return null;
     }
     
     /**
      * Обновляет состояние радара
-     * Захват работает на любую цель в радиусе радара (не требует ССЦ)
      */
     private void updateRadarState(LivingEntity operator) {
         Vec3 radarPos = this.position().add(0, 2.5, 0);
         
         switch (radarState) {
             case PantsirRadarSyncMessage.STATE_IDLE:
-                // Ищем ближайшую цель
                 trackedTarget = findClosestTarget(radarPos);
                 disableAutoAim();
                 if (trackedTarget != null) {
@@ -426,7 +418,6 @@ public class PantsirS1Entity extends CamoVehicleBase {
                 break;
                 
             case PantsirRadarSyncMessage.STATE_DETECTED:
-                // Цель обнаружена, ждём команды захвата
                 disableAutoAim();
                 if (!isTargetValidForTracking(trackedTarget, radarPos)) {
                     trackedTarget = findClosestTarget(radarPos);
@@ -437,30 +428,21 @@ public class PantsirS1Entity extends CamoVehicleBase {
                 break;
                 
             case PantsirRadarSyncMessage.STATE_LOCKING:
-                // Идёт захват - цель должна быть в радиусе радара
                 if (!isTargetValidForTracking(trackedTarget, radarPos)) {
-                    // Цель потеряна (вышла из радиуса или уничтожена)
                     lockingProgress = 0;
                     disableAutoAim();
                     radarState = PantsirRadarSyncMessage.STATE_LOST;
                 } else {
-                    // Радар автоматически лочит цель - не требует прицеливания
-                    
-                    // Проверяем наличие decoy/flare рядом с целью - они могут перехватить лок
+                    // Проверяем флаеры
                     Entity decoyNearTarget = findDecoyNearTarget(trackedTarget, 50.0);
                     if (decoyNearTarget != null) {
-                        // Флаер перехватил лок! Переключаемся на него
                         trackedTarget = decoyNearTarget;
                     }
                     
-                    // Продолжаем захват (без автонаведения - ручное управление)
                     lockingProgress++;
                     disableAutoAim();
                     
-                    // Оповещаем цель о том что её лочат (каждые 3 тика)
-                    if (lockingProgress % 3 == 0) {
-                        playLockWarningSound(trackedTarget, false);
-                    }
+                    playLockWarningSound(trackedTarget, false);
                     
                     if (lockingProgress >= LOCK_TIME_TICKS) {
                         lockedTarget = trackedTarget;
@@ -470,25 +452,52 @@ public class PantsirS1Entity extends CamoVehicleBase {
                 break;
                 
             case PantsirRadarSyncMessage.STATE_LOCKED:
-                // Цель захвачена - должна оставаться в радиусе
+                // Проверяем потерю сигнала
+                boolean targetInRange = lockedTarget != null && lockedTarget.isAlive();
+                boolean hasLOS = false;
+                
+                if (targetInRange) {
+                    Vec3 targetPos = lockedTarget.position().add(0, lockedTarget.getBbHeight() * 0.5, 0);
+                    double distance = radarPos.distanceTo(targetPos);
+                    
+                    if (distance <= RADAR_TRACK_RANGE) {
+                        hasLOS = hasLineOfSightOptimized(radarPos, targetPos);
+                    }
+                    
+                    if (hasLOS) {
+                        lastKnownTargetPos = targetPos;
+                        signalLost = false;
+                        noSignalTicks = 0;
+                    } else {
+                        if (!signalLost) {
+                            signalLost = true;
+                            noSignalTicks = 0;
+                        }
+                        noSignalTicks++;
+                        
+                        if (noSignalTicks > MAX_REACQUIRE_TICKS) {
+                            lockedTarget = null;
+                            disableAutoAim();
+                            signalLost = false;
+                            lastKnownTargetPos = null;
+                            radarState = PantsirRadarSyncMessage.STATE_LOST;
+                        }
+                    }
+                }
+                
                 if (!isTargetValidForLock(lockedTarget, radarPos)) {
-                    // Цель потеряна (вышла из радиуса или уничтожена)
                     lockedTarget = null;
                     disableAutoAim();
+                    signalLost = false;
+                    lastKnownTargetPos = null;
                     radarState = PantsirRadarSyncMessage.STATE_LOST;
-                } else {
-                    // Автонаведение башни на захваченную цель
+                } else if (hasLOS) {
                     updateAutoAimTarget(lockedTarget);
-                    
-                    // Оповещаем цель о том что она залочена (каждые 2 тика)
-                    if (this.tickCount % 2 == 0) {
-                        playLockWarningSound(lockedTarget, true);
-                    }
+                    playLockWarningSound(lockedTarget, true);
                 }
                 break;
                 
             case PantsirRadarSyncMessage.STATE_LOST:
-                // Захват потерян - пауза перед возвратом в IDLE
                 disableAutoAim();
                 lockingProgress++;
                 if (lockingProgress > 20) {
@@ -654,41 +663,44 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
     
     /**
-     * Ищет ближайшую НЕ союзную цель из обнаруженных
+     * Ищет ближайшую не союзную цель
      */
     @Nullable
     private Entity findClosestTarget(Vec3 radarPos) {
         LivingEntity operator = getOperator();
-        return detectedTargets.stream()
-                .filter(e -> e.isAlive())
-                .filter(e -> !isAllyTarget(e, operator)) // Пропускаем союзников
-                .min(Comparator.comparingDouble(e -> e.position().distanceTo(radarPos)))
-                .orElse(null);
+        
+        Entity closest = null;
+        double minDistSq = Double.MAX_VALUE;
+        
+        for (Entity e : detectedTargets) {
+            if (!e.isAlive() || isAllyTarget(e, operator)) continue;
+            
+            double distSq = e.position().distanceToSqr(radarPos);
+            if (distSq < minDistSq) {
+                minDistSq = distSq;
+                closest = e;
+            }
+        }
+        
+        return closest;
     }
     
     /**
      * Проверяет валидность цели для отслеживания
-     * Line of sight уже проверяется в isValidRadarTarget при сканировании
      */
     private boolean isTargetValidForTracking(Entity target, Vec3 radarPos) {
         if (target == null || !target.isAlive()) return false;
         double distance = target.position().distanceTo(radarPos);
         if (distance > RADAR_RANGE) return false;
         
-        // Проверяем line of sight (цель могла зайти за гору после сканирования)
         Vec3 targetPos = target.position().add(0, target.getBbHeight() * 0.5, 0);
         return hasLineOfSightOptimized(radarPos, targetPos);
     }
     
     /**
-     * ОПТИМИЗИРОВАННАЯ проверка прямой видимости (line of sight)
-     * Использует гибридный подход:
+     * Оптимизированная проверка line of sight
      * 1. Быстрая проверка высоты (heightmap)
-     * 2. Если цель низко - упрощённый raycast (3 точки вместо полного)
-     * 
-     * @param from позиция радара
-     * @param to позиция цели
-     * @return true если есть прямая видимость
+     * 2. Если цель низко - упрощённый raycast (3 точки)
      */
     private boolean hasLineOfSightOptimized(Vec3 from, Vec3 to) {
         // ШАГ 1: Быстрая проверка высоты (очень дешёвая операция)
@@ -706,33 +718,29 @@ public class PantsirS1Entity extends CamoVehicleBase {
             int x = (int) (fromX + (toX - fromX) * t);
             int z = (int) (fromZ + (toZ - fromZ) * t);
             
-            // Находим самый высокий блок (рельеф)
             int highestY = this.level().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, x, z);
             
-            // Если цель ниже рельефа + 10 блоков - она низко
             if (to.y < highestY + 10) {
                 targetIsHigh = false;
                 break;
             }
         }
         
-        // Если цель высоко - пропускаем raycast (оптимизация)
+        // Если цель высоко - пропускаем raycast
         if (targetIsHigh) {
             return true;
         }
         
-        // ШАГ 2: Цель низко - делаем УПРОЩЁННЫЙ raycast (3 точки вместо полного)
-        // Проверяем только 25%, 50%, 75% пути
+        // Цель низко - делаем упрощённый raycast (3 точки)
         Vec3 direction = to.subtract(from);
         
         for (double t : new double[]{0.25, 0.5, 0.75}) {
             Vec3 checkPoint = from.add(direction.scale(t));
             BlockPos pos = BlockPos.containing(checkPoint.x, checkPoint.y, checkPoint.z);
             
-            // Проверяем только твёрдые блоки (камень, земля, но не трава/цветы)
             net.minecraft.world.level.block.state.BlockState state = this.level().getBlockState(pos);
             if (!state.isAir() && state.isSolidRender(this.level(), pos)) {
-                return false; // Блок мешает
+                return false;
             }
         }
         
@@ -767,13 +775,13 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
     
     /**
-     * Проверяет валидность цели для удержания захвата (более мягкие условия)
+     * Проверяет валидность цели для удержания захвата
      */
     private boolean isTargetValidForLock(Entity target, Vec3 radarPos) {
         if (target == null || !target.isAlive()) return false;
         
         double distance = target.position().distanceTo(radarPos);
-        return distance <= RADAR_TRACK_RANGE * 1.2; // Немного больший радиус для удержания
+        return distance <= RADAR_TRACK_RANGE * 1.2;
     }
     
     /**
@@ -827,10 +835,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
     
     /**
-     * Ищет decoy/flare рядом с целью который может перехватить лок
-     * @param target текущая цель
-     * @param radius радиус поиска вокруг цели
-     * @return decoy entity или null
+     * Ищет флаер рядом с целью
      */
     @Nullable
     private Entity findDecoyNearTarget(Entity target, double radius) {
@@ -841,11 +846,9 @@ public class PantsirS1Entity extends CamoVehicleBase {
         
         List<Entity> entities = this.level().getEntities(target, searchBox, e -> {
             if (e == null || !e.isAlive()) return false;
-            // Проверяем что это decoy (флаер)
             return e.getType().is(ModTags.EntityTypes.DECOY);
         });
         
-        // Возвращаем ближайший decoy к цели
         return entities.stream()
                 .min(Comparator.comparingDouble(e -> e.position().distanceTo(targetPos)))
                 .orElse(null);
@@ -879,7 +882,6 @@ public class PantsirS1Entity extends CamoVehicleBase {
     
     /**
      * Синхронизирует состояние радара с клиентом
-     * Передаёт: состояние, координаты цели, скорость цели, угол обзорного радара, угол башни, список всех целей, ракеты
      */
     private void syncRadarToClient(LivingEntity operator) {
         if (!(operator instanceof ServerPlayer serverPlayer)) return;
@@ -946,26 +948,26 @@ public class PantsirS1Entity extends CamoVehicleBase {
             targetVelX, targetVelY, targetVelZ,
             progress, distance, radarAngle, turretAngle,
             targetIds, targetXs, targetYs, targetZs, targetTypes, targetIsAlly,
-            missileX, missileY, missileZ
+            missileX, missileY, missileZ,
+            signalLost, 
+            lastKnownTargetPos != null ? lastKnownTargetPos.x : 0,
+            lastKnownTargetPos != null ? lastKnownTargetPos.y : 0,
+            lastKnownTargetPos != null ? lastKnownTargetPos.z : 0
         );
         
         VVPNetwork.VVP_HANDLER.send(PacketDistributor.PLAYER.with(() -> serverPlayer), message);
     }
     
     /**
-     * Проверяет является ли цель союзником оператора
-     * Проверяет команду оператора и команду пилота/владельца техники
+     * Проверяет является ли цель союзником
      */
     private boolean isAllyTarget(Entity target, LivingEntity operator) {
         if (operator == null || target == null) return false;
-        
-        // Если у оператора нет команды - никто не союзник
         if (operator.getTeam() == null) return false;
         
-        // Проверяем напрямую isAlliedTo
         if (operator.isAlliedTo(target)) return true;
         
-        // Для VehicleEntity проверяем команду пилота/пассажиров
+        // Для VehicleEntity проверяем пассажиров
         if (target instanceof VehicleEntity vehicle) {
             for (Entity passenger : vehicle.getPassengers()) {
                 if (passenger instanceof LivingEntity living) {
@@ -990,11 +992,10 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
     
     /**
-     * Вызывается клиентом для запроса захвата цели
+     * Запрос захвата цели
      */
     public void requestLock(LivingEntity operator) {
         if (radarState == PantsirRadarSyncMessage.STATE_DETECTED && trackedTarget != null) {
-            // Нельзя лочить союзников!
             if (isAllyTarget(trackedTarget, operator)) {
                 return;
             }
@@ -1004,7 +1005,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
     
     /**
-     * Вызывается клиентом для отмены захвата
+     * Отмена захвата цели
      */
     public void cancelLock(LivingEntity operator) {
         if (radarState == PantsirRadarSyncMessage.STATE_LOCKING || 
@@ -1016,7 +1017,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
     
     /**
-     * Выбирает следующую цель из списка обнаруженных (пропускает союзников)
+     * Выбирает следующую цель (пропускает союзников)
      */
     public void selectNextTarget() {
         if (detectedTargets.isEmpty()) return;
@@ -1033,13 +1034,12 @@ public class PantsirS1Entity extends CamoVehicleBase {
         // Если текущая цель не в списке, начинаем с 0
         if (currentIndex < 0) currentIndex = -1;
         
-        // Ищем следующую НЕ союзную цель
+        // Ищем следующую не союзную цель
         int startIndex = currentIndex;
         int nextIndex = currentIndex;
         do {
             nextIndex = (nextIndex + 1) % detectedTargets.size();
             Entity candidate = detectedTargets.get(nextIndex);
-            // Пропускаем союзников
             if (!isAllyTarget(candidate, operator)) {
                 trackedTarget = candidate;
                 if (radarState == PantsirRadarSyncMessage.STATE_IDLE) {
@@ -1048,12 +1048,10 @@ public class PantsirS1Entity extends CamoVehicleBase {
                 return;
             }
         } while (nextIndex != startIndex && nextIndex != currentIndex);
-        
-        // Если все цели союзники - не выбираем ничего
     }
     
     /**
-     * Выбирает предыдущую цель из списка обнаруженных (пропускает союзников)
+     * Выбирает предыдущую цель (пропускает союзников)
      */
     public void selectPrevTarget() {
         if (detectedTargets.isEmpty()) return;
@@ -1070,14 +1068,13 @@ public class PantsirS1Entity extends CamoVehicleBase {
         // Если текущая цель не в списке, начинаем с конца
         if (currentIndex < 0) currentIndex = 0;
         
-        // Ищем предыдущую НЕ союзную цель
+        // Ищем предыдущую не союзную цель
         int startIndex = currentIndex;
         int prevIndex = currentIndex;
         do {
             prevIndex = prevIndex - 1;
             if (prevIndex < 0) prevIndex = detectedTargets.size() - 1;
             Entity candidate = detectedTargets.get(prevIndex);
-            // Пропускаем союзников
             if (!isAllyTarget(candidate, operator)) {
                 trackedTarget = candidate;
                 if (radarState == PantsirRadarSyncMessage.STATE_IDLE) {
@@ -1086,12 +1083,10 @@ public class PantsirS1Entity extends CamoVehicleBase {
                 return;
             }
         } while (prevIndex != startIndex && prevIndex != currentIndex);
-        
-        // Если все цели союзники - не выбираем ничего
     }
     
     /**
-     * Возвращает захваченную цель (для стрельбы ракетами)
+     * Возвращает захваченную цель
      */
     @Nullable
     public Entity getLockedTarget() {
@@ -1106,26 +1101,21 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
 
     /**
-     * Переопределяем canShoot для блокировки стрельбы ракетами без захвата цели на клиенте
-     * Это предотвращает проигрывание звука стрельбы когда цель не захвачена
+     * Блокирует стрельбу ракетами без захвата цели
      */
     @Override
     public boolean canShoot(LivingEntity living) {
         int seatIndex = getSeatIndex(living);
         int weaponIndex = getSelectedWeapon(seatIndex);
         
-        // Пушка (индекс 0) - всегда можно стрелять
         if (weaponIndex == 0) {
             return super.canShoot(living);
         }
         
-        // Ракеты (индекс 1) - требуется захват цели
         if (weaponIndex == 1) {
-            // На клиенте проверяем статус захвата через ClientHandler
             if (this.level().isClientSide) {
                 return isTargetLocked() && super.canShoot(living);
             }
-            // На сервере проверяем наличие захваченной цели
             return hasLockedTarget() && super.canShoot(living);
         }
         
@@ -1133,18 +1123,15 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
     
     /**
-     * Проверяет захвачена ли цель на клиенте
+     * Проверяет захват на клиенте
      */
     @OnlyIn(Dist.CLIENT)
     private boolean isTargetLocked() {
-        // Используем наш PantsirClientHandler для проверки статуса захвата
-        return tech.vvp.vvp.client.PantsirClientHandler.isTargetLocked();
+        return tech.vvp.vvp.client.PantsirClientHandler.isTargetLocked(this.getId());
     }
 
     /**
-     * Переопределяем vehicleShoot для блокировки стрельбы ракетами без захвата цели на сервере
-     * Индекс оружия 0 = пушка (всегда можно стрелять)
-     * Индекс оружия 1 = ракеты (требуется захват цели - uuid != null)
+     * Блокирует стрельбу ракетами без захвата на сервере
      */
     @Override
     public void vehicleShoot(@Nullable LivingEntity living, @Nullable UUID uuid, @Nullable Vec3 targetPos) {
@@ -1156,25 +1143,20 @@ public class PantsirS1Entity extends CamoVehicleBase {
         int seatIndex = getSeatIndex(living);
         int weaponIndex = getSelectedWeapon(seatIndex);
         
-        // Пушка (индекс 0) - всегда можно стрелять
         if (weaponIndex == 0) {
             super.vehicleShoot(living, uuid, targetPos);
             return;
         }
         
-        // Ракеты (индекс 1) - требуется захват цели
         if (weaponIndex == 1) {
-            // Используем захваченную цель из радара
             if (hasLockedTarget()) {
                 UUID targetUuid = lockedTarget.getUUID();
                 Vec3 targetPosition = lockedTarget.position().add(0, lockedTarget.getBbHeight() / 2, 0);
                 super.vehicleShoot(living, targetUuid, targetPosition);
             }
-            // Если цель не захвачена - не стреляем
             return;
         }
         
-        // Для других оружий - стандартное поведение
         super.vehicleShoot(living, uuid, targetPos);
     }
 }

@@ -3,59 +3,61 @@ package tech.vvp.vvp.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import tech.vvp.vvp.entity.vehicle.PantsirS1Entity;
 import tech.vvp.vvp.network.message.PantsirRadarSyncMessage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Клиентский обработчик данных радара Pantsir
+ * Хранит данные по ID панциря для поддержки мультиплеера
  */
 @OnlyIn(Dist.CLIENT)
 public class PantsirClientHandler {
     
-    // Текущее состояние радара
-    public static int radarState = PantsirRadarSyncMessage.STATE_IDLE;
+    /**
+     * Данные радара конкретного Панциря
+     */
+    public static class PantsirRadarData {
+        public int radarState = PantsirRadarSyncMessage.STATE_IDLE;
+        public int targetEntityId = -1;
+        public double targetX = 0;
+        public double targetY = 0;
+        public double targetZ = 0;
+        public double targetVelX = 0;
+        public double targetVelY = 0;
+        public double targetVelZ = 0;
+        public int lockProgress = 0;
+        public double targetDistance = 0;
+        public float radarAngle = 0;
+        public float turretAngle = 0;
+        public final List<RadarTarget> allTargets = new ArrayList<>();
+        public final List<MissilePosition> missiles = new ArrayList<>();
+        
+        // Для плавной интерполяции радара
+        public float clientRadarAngle = 0;
+        public float serverRadarAngle = 0;
+        public long lastSyncTime = 0;
+        public long lastUpdateTime = 0;
+        
+        // Система потери сигнала для GUI (упрощённая)
+        public Vec3 uiLastTargetPos = null;  // Последняя известная позиция
+        public boolean uiLostSignal = false; // Флаг потери сигнала
+        
+        // TTL для очистки
+        public long lastMessageTime = System.currentTimeMillis();
+    }
     
-    // ID основной цели (-1 если нет)
-    public static int targetEntityId = -1;
-    
-    // Позиция основной цели для отрисовки
-    public static double targetX = 0;
-    public static double targetY = 0;
-    public static double targetZ = 0;
-    
-    // Скорость цели (блоков/тик)
-    public static double targetVelX = 0;
-    public static double targetVelY = 0;
-    public static double targetVelZ = 0;
-    
-    // Прогресс захвата (0-100)
-    public static int lockProgress = 0;
-    
-    // Дистанция до цели
-    public static double targetDistance = 0;
-    
-    // Угол вращения радара от сервера (абсолютный)
-    public static float radarAngle = 0;
-    
-    // Угол башни (пассивный радар) - направление куда смотрит пушка
-    public static float turretAngle = 0;
-    
-    // Все обнаруженные цели для отображения на радаре
-    public static final List<RadarTarget> allTargets = new ArrayList<>();
-    
-    // Для плавной интерполяции радара на клиенте
-    private static float clientRadarAngle = 0;
-    private static float serverRadarAngle = 0;
-    private static long lastSyncTime = 0;
-    private static long lastUpdateTime = 0;
+    // Данные по ID панциря (для мультиплеера)
+    private static final Map<Integer, PantsirRadarData> radarDataByVehicle = new HashMap<>();
     
     // Скорость вращения радара (градусов в миллисекунду)
-    // 360° за 42.5 тика = 360° за 2.125 сек = ~169.4°/сек = ~0.1694°/мс
     private static final float RADAR_ROTATION_SPEED = 360.0f / 2125.0f;
     
     /**
@@ -64,8 +66,8 @@ public class PantsirClientHandler {
     public static class RadarTarget {
         public final int entityId;
         public final double x, y, z;
-        public final int targetType; // Тип цели (вертолёт/самолёт/ракета)
-        public final boolean isAlly; // Союзник ли цель
+        public final int targetType;
+        public final boolean isAlly;
         
         public RadarTarget(int entityId, double x, double y, double z, int targetType, boolean isAlly) {
             this.entityId = entityId;
@@ -90,48 +92,37 @@ public class PantsirClientHandler {
         }
     }
     
-    // Все выпущенные ракеты для отображения на радаре
-    public static final List<MissilePosition> missiles = new ArrayList<>();
-    
     /**
      * Обработка сообщения синхронизации радара от сервера
-     * Фильтрует сообщения - принимает только от панциря в котором сидит игрок
+     * Сохраняет данные по ID панциря для поддержки мультиплеера
      */
     public static void handleRadarSync(PantsirRadarSyncMessage message) {
-        // Проверяем что игрок сидит именно в этом панцире
-        Minecraft mc = Minecraft.getInstance();
-        Player player = mc.player;
-        if (player == null) return;
+        // Получаем или создаём данные для этого панциря
+        PantsirRadarData data = radarDataByVehicle.computeIfAbsent(message.vehicleId, k -> new PantsirRadarData());
         
-        Entity vehicle = player.getVehicle();
-        if (!(vehicle instanceof PantsirS1Entity)) return;
+        // Обновляем данные
+        data.radarState = message.radarState;
+        data.targetEntityId = message.targetEntityId;
+        data.targetX = message.targetX;
+        data.targetY = message.targetY;
+        data.targetZ = message.targetZ;
+        data.targetVelX = message.targetVelX;
+        data.targetVelY = message.targetVelY;
+        data.targetVelZ = message.targetVelZ;
+        data.lockProgress = message.lockProgress;
+        data.targetDistance = message.targetDistance;
         
-        // Фильтруем - принимаем только сообщения от нашего панциря
-        if (vehicle.getId() != message.vehicleId) return;
+        // Синхронизируем угол с сервером
+        data.serverRadarAngle = message.radarAngle;
+        data.clientRadarAngle = message.radarAngle;
+        data.lastSyncTime = System.currentTimeMillis();
         
-        radarState = message.radarState;
-        targetEntityId = message.targetEntityId;
-        targetX = message.targetX;
-        targetY = message.targetY;
-        targetZ = message.targetZ;
-        targetVelX = message.targetVelX;
-        targetVelY = message.targetVelY;
-        targetVelZ = message.targetVelZ;
-        lockProgress = message.lockProgress;
-        targetDistance = message.targetDistance;
+        data.turretAngle = message.turretAngle;
         
-        // Синхронизируем угол с сервером и сбрасываем время для интерполяции
-        serverRadarAngle = message.radarAngle;
-        clientRadarAngle = message.radarAngle;
-        lastSyncTime = System.currentTimeMillis();
-        
-        // Угол башни (пассивный радар)
-        turretAngle = message.turretAngle;
-        
-        // Обновляем список всех целей
-        allTargets.clear();
+        // Обновляем список целей
+        data.allTargets.clear();
         for (int i = 0; i < message.allTargetIds.length; i++) {
-            allTargets.add(new RadarTarget(
+            data.allTargets.add(new RadarTarget(
                 message.allTargetIds[i],
                 message.allTargetX[i],
                 message.allTargetY[i],
@@ -142,103 +133,121 @@ public class PantsirClientHandler {
         }
         
         // Обновляем список ракет
-        missiles.clear();
+        data.missiles.clear();
         for (int i = 0; i < message.missileX.length; i++) {
-            missiles.add(new MissilePosition(
+            data.missiles.add(new MissilePosition(
                 message.missileX[i],
                 message.missileY[i],
                 message.missileZ[i]
             ));
         }
+        
+        // Обработка потери сигнала для GUI
+        if (message.signalLost) {
+            // Сигнал потерян - сохраняем последнюю позицию
+            data.uiLostSignal = true;
+            data.uiLastTargetPos = new Vec3(message.lostTargetX, message.lostTargetY, message.lostTargetZ);
+        } else {
+            // Сигнал восстановлен или цель в зоне - сбрасываем
+            data.uiLostSignal = false;
+            data.uiLastTargetPos = null;
+        }
+        
+        // Обновляем TTL
+        data.lastMessageTime = System.currentTimeMillis();
+        
+        // Очистка старых данных (TTL > 5 секунд)
+        cleanupOldData();
     }
     
     /**
-     * Возвращает интерполированный угол радара для плавного вращения
-     * Используется для кости модели и GUI
-     * Вращается автономно на клиенте, синхронизируется с сервером
+     * Очищает данные панцирей которые не обновлялись > 5 секунд
      */
-    public static float getInterpolatedRadarAngle() {
+    private static void cleanupOldData() {
         long currentTime = System.currentTimeMillis();
-        
-        if (lastUpdateTime == 0) {
-            lastUpdateTime = currentTime;
-            return clientRadarAngle;
-        }
-        
-        // Время с последнего обновления
-        float deltaTime = currentTime - lastUpdateTime;
-        lastUpdateTime = currentTime;
-        
-        // Ограничиваем deltaTime чтобы избежать скачков
-        deltaTime = Math.min(deltaTime, 50);
-        
-        // Вращаем радар с постоянной скоростью (против часовой стрелки)
-        clientRadarAngle -= RADAR_ROTATION_SPEED * deltaTime;
-        
-        // Нормализуем угол в диапазон [-360, 0]
-        while (clientRadarAngle < -360) {
-            clientRadarAngle += 360;
-        }
-        while (clientRadarAngle > 0) {
-            clientRadarAngle -= 360;
-        }
-        
-        return clientRadarAngle;
-    }
-    
-    /**
-     * Сброс состояния (когда игрок выходит из машины)
-     */
-    public static void reset() {
-        radarState = PantsirRadarSyncMessage.STATE_IDLE;
-        targetEntityId = -1;
-        targetX = 0;
-        targetY = 0;
-        targetZ = 0;
-        targetVelX = 0;
-        targetVelY = 0;
-        targetVelZ = 0;
-        lockProgress = 0;
-        targetDistance = 0;
-        radarAngle = 0;
-        turretAngle = 0;
-        serverRadarAngle = 0;
-        clientRadarAngle = 0;
-        lastSyncTime = 0;
-        lastUpdateTime = 0;  // Сбрасываем чтобы избежать скачков после респавна
-        allTargets.clear();
-        missiles.clear();
-    }
-    
-    /**
-     * Проверяет, захвачена ли цель
-     */
-    public static boolean isTargetLocked() {
-        return radarState == PantsirRadarSyncMessage.STATE_LOCKED;
-    }
-    
-    /**
-     * Проверяет, идёт ли процесс захвата
-     */
-    public static boolean isLocking() {
-        return radarState == PantsirRadarSyncMessage.STATE_LOCKING;
-    }
-    
-    /**
-     * Проверяет, обнаружена ли основная цель (для world-marker)
-     */
-    public static boolean isTargetDetected() {
-        return targetEntityId != -1 && (
-            radarState == PantsirRadarSyncMessage.STATE_DETECTED ||
-            radarState == PantsirRadarSyncMessage.STATE_LOCKING ||
-            radarState == PantsirRadarSyncMessage.STATE_LOCKED
+        radarDataByVehicle.entrySet().removeIf(entry -> 
+            currentTime - entry.getValue().lastMessageTime > 5000
         );
     }
     
     /**
-     * Проверяет, есть ли цели на радаре
+     * Получает данные радара для конкретного панциря
      */
-    public static boolean hasTargets() {
-        return !allTargets.isEmpty();
+    public static PantsirRadarData getRadarData(int vehicleId) {
+        return radarDataByVehicle.get(vehicleId);
+    }
+    
+    /**
+     * Возвращает интерполированный угол радара для конкретного панциря
+     */
+    public static float getInterpolatedRadarAngle(int vehicleId) {
+        PantsirRadarData data = radarDataByVehicle.get(vehicleId);
+        if (data == null) return 0;
+        
+        long currentTime = System.currentTimeMillis();
+        
+        if (data.lastUpdateTime == 0) {
+            data.lastUpdateTime = currentTime;
+            return data.clientRadarAngle;
+        }
+        
+        float deltaTime = currentTime - data.lastUpdateTime;
+        data.lastUpdateTime = currentTime;
+        deltaTime = Math.min(deltaTime, 50);
+        
+        data.clientRadarAngle -= RADAR_ROTATION_SPEED * deltaTime;
+        
+        while (data.clientRadarAngle < -360) {
+            data.clientRadarAngle += 360;
+        }
+        while (data.clientRadarAngle > 0) {
+            data.clientRadarAngle -= 360;
+        }
+        
+        return data.clientRadarAngle;
+    }
+    
+    /**
+     * Сброс всех данных
+     */
+    public static void reset() {
+        radarDataByVehicle.clear();
+    }
+    
+    /**
+     * Проверяет, захвачена ли цель (для конкретного панциря)
+     */
+    public static boolean isTargetLocked(int vehicleId) {
+        PantsirRadarData data = radarDataByVehicle.get(vehicleId);
+        return data != null && data.radarState == PantsirRadarSyncMessage.STATE_LOCKED;
+    }
+    
+    /**
+     * Проверяет, идёт ли процесс захвата (для конкретного панциря)
+     */
+    public static boolean isLocking(int vehicleId) {
+        PantsirRadarData data = radarDataByVehicle.get(vehicleId);
+        return data != null && data.radarState == PantsirRadarSyncMessage.STATE_LOCKING;
+    }
+    
+    /**
+     * Проверяет, обнаружена ли основная цель (для конкретного панциря)
+     */
+    public static boolean isTargetDetected(int vehicleId) {
+        PantsirRadarData data = radarDataByVehicle.get(vehicleId);
+        if (data == null) return false;
+        return data.targetEntityId != -1 && (
+            data.radarState == PantsirRadarSyncMessage.STATE_DETECTED ||
+            data.radarState == PantsirRadarSyncMessage.STATE_LOCKING ||
+            data.radarState == PantsirRadarSyncMessage.STATE_LOCKED
+        );
+    }
+    
+    /**
+     * Проверяет, есть ли цели на радаре (для конкретного панциря)
+     */
+    public static boolean hasTargets(int vehicleId) {
+        PantsirRadarData data = radarDataByVehicle.get(vehicleId);
+        return data != null && !data.allTargets.isEmpty();
     }
 }

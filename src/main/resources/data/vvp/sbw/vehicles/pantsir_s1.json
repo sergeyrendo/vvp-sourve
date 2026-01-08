@@ -248,7 +248,7 @@
     "Level": 3,
     "PowerLimits": [[0, 0, true], [0, 0, true], [0.15, 0.09, false]]
   },
-  "EngineSound": "superbwarfare:bmp_engine",
+  "EngineSound": "superbwarfare:truck_engine",
   "HudType": "@Land",
   "TerrainCompat": [
     [1.2, 0, 1.5], [-1.2, 0, 1.5],
