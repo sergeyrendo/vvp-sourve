@@ -116,6 +116,9 @@ public class ModEntities {
     public static final RegistryObject<EntityType<PantsirMissileEntity>> PANTSIR_MISSILE = register("pantsir_missile",
             EntityType.Builder.<PantsirMissileEntity>of(PantsirMissileEntity::new, MobCategory.MISC).setShouldReceiveVelocityUpdates(false).setTrackingRange(256).setUpdateInterval(1).noSave().fireImmune().sized(0.5f, 0.5f));
 
+    public static final RegistryObject<EntityType<AjaxEntity>> AJAX = register("ajax",
+            EntityType.Builder.of(AjaxEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3f));
+
 
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
         return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));

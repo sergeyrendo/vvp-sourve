@@ -2819,51 +2819,6 @@
 					"pivot": [0.10552, -40.83834, -16.09542]
 				},
 				{
-					"name": "AGS",
-					"parent": "BMP_2turret2",
-					"pivot": [-3.3, -45.05, -33.9],
-					"cubes": [
-						{
-							"origin": [-4.65, 46.05, 25.5],
-							"size": [2.8, 2, 17.5],
-							"uv": {
-								"north": {"uv": [79, 360], "uv_size": [-3, 2]},
-								"east": {"uv": [134, 156], "uv_size": [-18, 2]},
-								"south": {"uv": [76, 360], "uv_size": [-3, 2]},
-								"west": {"uv": [216, 185], "uv_size": [-18, 2]},
-								"up": {"uv": [133, 313], "uv_size": [3, -18]},
-								"down": {"uv": [270, 295], "uv_size": [3, 18]}
-							}
-						},
-						{
-							"origin": [-2.56256, 45.85815, 13.8],
-							"size": [1, 1, 17.5],
-							"pivot": [-3.3, 45.05, 33.9],
-							"rotation": [0, 0, -45],
-							"uv": {
-								"north": {"uv": [148, 352], "uv_size": [-1, 1]},
-								"east": {"uv": [349, 40], "uv_size": [-18, 1]},
-								"south": {"uv": [335, 351], "uv_size": [-1, 1]},
-								"west": {"uv": [349, 63], "uv_size": [-18, 1]},
-								"up": {"uv": [269, 346], "uv_size": [1, -18]},
-								"down": {"uv": [215, 331], "uv_size": [1, 18]}
-							}
-						},
-						{
-							"origin": [-4.65, 44.05, 31.5],
-							"size": [2.8, 2, 11.5],
-							"uv": {
-								"north": {"uv": [85, 360], "uv_size": [-3, 2]},
-								"east": {"uv": [334, 314], "uv_size": [-12, 2]},
-								"south": {"uv": [82, 360], "uv_size": [-3, 2]},
-								"west": {"uv": [334, 316], "uv_size": [-12, 2]},
-								"up": {"uv": [109, 325], "uv_size": [3, -12]},
-								"down": {"uv": [133, 313], "uv_size": [3, 12]}
-							}
-						}
-					]
-				},
-				{
 					"name": "Hatches2",
 					"parent": "BMP_2turret2",
 					"pivot": [8.19234, -41.44979, -23.93163]
@@ -3611,6 +3566,61 @@
 								"west": {"uv": [124, 355], "uv_size": [-3, 3]},
 								"up": {"uv": [355, 180], "uv_size": [3, -3]},
 								"down": {"uv": [179, 355], "uv_size": [3, 3]}
+							}
+						}
+					]
+				},
+				{
+					"name": "passengerWeaponStation",
+					"parent": "BMP_2turret2",
+					"pivot": [0.10552, -40.83834, -16.09542]
+				},
+				{
+					"name": "passengerWeaponStationYaw",
+					"parent": "passengerWeaponStation",
+					"pivot": [-3.28333, 45.19167, 35.35]
+				},
+				{
+					"name": "passengerWeaponStationPitch",
+					"parent": "passengerWeaponStationYaw",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{
+							"origin": [-4.65, 46.05, 25.5],
+							"size": [2.8, 2, 17.5],
+							"uv": {
+								"north": {"uv": [79, 360], "uv_size": [-3, 2]},
+								"east": {"uv": [134, 156], "uv_size": [-18, 2]},
+								"south": {"uv": [76, 360], "uv_size": [-3, 2]},
+								"west": {"uv": [216, 185], "uv_size": [-18, 2]},
+								"up": {"uv": [133, 313], "uv_size": [3, -18]},
+								"down": {"uv": [270, 295], "uv_size": [3, 18]}
+							}
+						},
+						{
+							"origin": [-2.56256, 45.85815, 13.8],
+							"size": [1, 1, 17.5],
+							"pivot": [-3.3, 45.05, 33.9],
+							"rotation": [0, 0, -45],
+							"uv": {
+								"north": {"uv": [148, 352], "uv_size": [-1, 1]},
+								"east": {"uv": [349, 40], "uv_size": [-18, 1]},
+								"south": {"uv": [335, 351], "uv_size": [-1, 1]},
+								"west": {"uv": [349, 63], "uv_size": [-18, 1]},
+								"up": {"uv": [269, 346], "uv_size": [1, -18]},
+								"down": {"uv": [215, 331], "uv_size": [1, 18]}
+							}
+						},
+						{
+							"origin": [-4.65, 44.05, 31.5],
+							"size": [2.8, 2, 11.5],
+							"uv": {
+								"north": {"uv": [85, 360], "uv_size": [-3, 2]},
+								"east": {"uv": [334, 314], "uv_size": [-12, 2]},
+								"south": {"uv": [82, 360], "uv_size": [-3, 2]},
+								"west": {"uv": [334, 316], "uv_size": [-12, 2]},
+								"up": {"uv": [109, 325], "uv_size": [3, -12]},
+								"down": {"uv": [133, 313], "uv_size": [3, 12]}
 							}
 						}
 					]

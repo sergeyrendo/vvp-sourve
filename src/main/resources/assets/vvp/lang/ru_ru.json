@@ -48,6 +48,7 @@
   "entity.vvp.centauro": "Centauro",
   "entity.vvp.bmp_2_bakhcha": "БМП-2 Бахча",
   "entity.vvp.bmpt_3k": "БМПТ-3К",
+  "entity.vvp.ajax": "AJAX",
 
   "//": "==================== ЛЕГКАЯ ТЕХНИКА ====================",
   "entity.vvp.m997_green": "Humvee M997",
@@ -209,6 +210,8 @@
   "weapon.vvp.2a91_57mm": "2А91 57мм %s",
   "weapon.vvp.2a91_57mm_he": "2А91 57мм ОФ %s",
   "weapon.vvp.2a72_30mm_he": "2А72 30мм ОФ %s",
+  "weapon.vvp.ajax_weapon": "CTAS40 40мм %s",
+  "weapon.vvp.ajax_weapon_he": "CTAS40 40мм ОФ %s",
   "weapon.vvp.57e6_missile": "57Э6 ЗУР %s",
   "weapon.vvp.gsh_30_2": "ГШ-30-2 30мм %s",
   "weapon.vvp.s8_rocket": "С-8 80мм %s",
