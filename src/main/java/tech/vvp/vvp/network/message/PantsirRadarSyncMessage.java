@@ -47,19 +47,27 @@ public class PantsirRadarSyncMessage {
     public final double[] allTargetY;
     public final double[] allTargetZ;
     public final int[] allTargetTypes; // Тип каждой цели
+    public final boolean[] allTargetIsAlly; // Союзник ли цель
     
     // Выпущенные ракеты для отображения на радаре
     public final double[] missileX;
     public final double[] missileY;
     public final double[] missileZ;
     
+    // Система потери сигнала для GUI
+    public final boolean signalLost;        // Флаг потери сигнала
+    public final double lostTargetX;        // Последняя известная позиция (если signalLost=true)
+    public final double lostTargetY;
+    public final double lostTargetZ;
+    
     public PantsirRadarSyncMessage(int vehicleId, int radarState, int targetEntityId, 
                                    double targetX, double targetY, double targetZ,
                                    double targetVelX, double targetVelY, double targetVelZ,
                                    int lockProgress, double targetDistance, float radarAngle, float turretAngle,
                                    int[] allTargetIds, double[] allTargetX, double[] allTargetY, double[] allTargetZ,
-                                   int[] allTargetTypes,
-                                   double[] missileX, double[] missileY, double[] missileZ) {
+                                   int[] allTargetTypes, boolean[] allTargetIsAlly,
+                                   double[] missileX, double[] missileY, double[] missileZ,
+                                   boolean signalLost, double lostTargetX, double lostTargetY, double lostTargetZ) {
         this.vehicleId = vehicleId;
         this.radarState = radarState;
         this.targetEntityId = targetEntityId;
@@ -78,9 +86,14 @@ public class PantsirRadarSyncMessage {
         this.allTargetY = allTargetY;
         this.allTargetZ = allTargetZ;
         this.allTargetTypes = allTargetTypes;
+        this.allTargetIsAlly = allTargetIsAlly;
         this.missileX = missileX;
         this.missileY = missileY;
         this.missileZ = missileZ;
+        this.signalLost = signalLost;
+        this.lostTargetX = lostTargetX;
+        this.lostTargetY = lostTargetY;
+        this.lostTargetZ = lostTargetZ;
     }
     
     public static void encode(PantsirRadarSyncMessage message, FriendlyByteBuf buffer) {
@@ -106,6 +119,7 @@ public class PantsirRadarSyncMessage {
             buffer.writeDouble(message.allTargetY[i]);
             buffer.writeDouble(message.allTargetZ[i]);
             buffer.writeInt(message.allTargetTypes[i]);
+            buffer.writeBoolean(message.allTargetIsAlly[i]);
         }
         
         // Ракеты
@@ -115,6 +129,12 @@ public class PantsirRadarSyncMessage {
             buffer.writeDouble(message.missileY[i]);
             buffer.writeDouble(message.missileZ[i]);
         }
+        
+        // Потеря сигнала
+        buffer.writeBoolean(message.signalLost);
+        buffer.writeDouble(message.lostTargetX);
+        buffer.writeDouble(message.lostTargetY);
+        buffer.writeDouble(message.lostTargetZ);
     }
     
     public static PantsirRadarSyncMessage decode(FriendlyByteBuf buffer) {
@@ -138,6 +158,7 @@ public class PantsirRadarSyncMessage {
         double[] allTargetY = new double[count];
         double[] allTargetZ = new double[count];
         int[] allTargetTypes = new int[count];
+        boolean[] allTargetIsAlly = new boolean[count];
         
         for (int i = 0; i < count; i++) {
             allTargetIds[i] = buffer.readInt();
@@ -145,6 +166,7 @@ public class PantsirRadarSyncMessage {
             allTargetY[i] = buffer.readDouble();
             allTargetZ[i] = buffer.readDouble();
             allTargetTypes[i] = buffer.readInt();
+            allTargetIsAlly[i] = buffer.readBoolean();
         }
         
         int missileCount = buffer.readInt();
@@ -158,12 +180,19 @@ public class PantsirRadarSyncMessage {
             missileZ[i] = buffer.readDouble();
         }
         
+        // Потеря сигнала
+        boolean signalLost = buffer.readBoolean();
+        double lostTargetX = buffer.readDouble();
+        double lostTargetY = buffer.readDouble();
+        double lostTargetZ = buffer.readDouble();
+        
         return new PantsirRadarSyncMessage(
             vehicleId, radarState, targetEntityId, targetX, targetY, targetZ, 
             targetVelX, targetVelY, targetVelZ,
             lockProgress, targetDistance, radarAngle, turretAngle, 
-            allTargetIds, allTargetX, allTargetY, allTargetZ, allTargetTypes,
-            missileX, missileY, missileZ
+            allTargetIds, allTargetX, allTargetY, allTargetZ, allTargetTypes, allTargetIsAlly,
+            missileX, missileY, missileZ,
+            signalLost, lostTargetX, lostTargetY, lostTargetZ
         );
     }
     

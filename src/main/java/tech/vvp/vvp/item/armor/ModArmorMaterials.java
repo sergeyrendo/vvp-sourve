@@ -11,7 +11,8 @@ import tech.vvp.vvp.VVP;
 import java.util.function.Supplier;
 
 public enum ModArmorMaterials implements ArmorMaterial {
-    USAHelmet("usahelmet", 25, new int[]{3, 6, 8, 3}, 19, SoundEvents.ARMOR_EQUIP_NETHERITE,
+    // В параметрах: сапоги, поножи, нагрудник, шлем
+    USA_HELMET("usahelmet", 25, new int[]{3, 6, 8, 3}, 19, SoundEvents.ARMOR_EQUIP_NETHERITE,
             2.0f, 0.1f, () -> Ingredient.of(Items.IRON_INGOT));
 
     private final String name;
@@ -23,7 +24,8 @@ public enum ModArmorMaterials implements ArmorMaterial {
     private final float knockbackResistance;
     private final Supplier<Ingredient> repairIngredient;
 
-    private static final int[] BASE_DURABILITY = {11, 16, 15, 13};
+    // Базовая прочность ванильной брони (шлем, нагрудник, поножи, ботинки)
+    private static final int[] BASE_DURABILITY = {13, 15, 16, 11};
 
     ModArmorMaterials(String name, int durabilityMultiplier, int[] protectionAmounts, int enchantmentValue, SoundEvent equipSound, float toughness, float knockbackResistance, Supplier<Ingredient> repairIngredient) {
         this.name = name;
@@ -38,12 +40,27 @@ public enum ModArmorMaterials implements ArmorMaterial {
 
     @Override
     public int getDurabilityForType(ArmorItem.Type type) {
-        return BASE_DURABILITY[type.getSlot().getIndex()] * this.durabilityMultiplier;
+        // Безопасный расчет прочности через switch
+        return switch (type) {
+            case HELMET -> BASE_DURABILITY[0] * this.durabilityMultiplier;
+            case CHESTPLATE -> BASE_DURABILITY[1] * this.durabilityMultiplier;
+            case LEGGINGS -> BASE_DURABILITY[2] * this.durabilityMultiplier;
+            case BOOTS -> BASE_DURABILITY[3] * this.durabilityMultiplier;
+            default -> 0;
+        };
     }
 
     @Override
     public int getDefenseForType(ArmorItem.Type type) {
-        return this.protectionAmounts[type.getSlot().getIndex()];
+        // Безопасный расчет защиты через switch. 
+        // Порядок в массиве {3, 6, 8, 3} соответствует: [ботинки, поножи, нагрудник, шлем]
+        return switch (type) {
+            case BOOTS -> this.protectionAmounts[0];
+            case LEGGINGS -> this.protectionAmounts[1];
+            case CHESTPLATE -> this.protectionAmounts[2];
+            case HELMET -> this.protectionAmounts[3];
+            default -> 0;
+        };
     }
 
     @Override

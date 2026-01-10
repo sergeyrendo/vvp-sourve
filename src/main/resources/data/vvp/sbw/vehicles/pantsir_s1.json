@@ -15,6 +15,12 @@
       "Size": [1.625, 0.65625, 2.75],
       "Position": [0, 2.40625, -4.5]
     },
+    {
+      "Size": [1.5, 0.6875, 1.8125],
+      "Position": [0, 0.34375, 0],
+      "Transform": "Turret",
+      "Part": "Turret"
+    },
 
 
 
@@ -110,8 +116,8 @@
       "Velocity": 20,
       "Gravity": 0.03,
       "Damage": 12,
-      "ExplosionDamage": 15,
-      "ExplosionRadius": 6,
+      "ExplosionDamage": 8,
+      "ExplosionRadius": 2,
       "Spread": 0.5,
       "RecoilTime": 25,
       "RecoilForce": 0.4,
@@ -147,9 +153,9 @@
       "EmptyReloadTime": 240,
       "Projectile": "vvp:pantsir_missile",
       "Name": "weapon.vvp.57e6_missile",
-      "Damage": 250,
+      "Damage": 312,
       "RPM": 30,
-      "ExplosionDamage": 120,
+      "ExplosionDamage": 150,
       "ExplosionRadius": 8,
       "Velocity": 8,
       "ShootPos": {
@@ -242,7 +248,7 @@
     "Level": 3,
     "PowerLimits": [[0, 0, true], [0, 0, true], [0.15, 0.09, false]]
   },
-  "EngineSound": "superbwarfare:bmp_engine",
+  "EngineSound": "superbwarfare:truck_engine",
   "HudType": "@Land",
   "TerrainCompat": [
     [1.2, 0, 1.5], [-1.2, 0, 1.5],
