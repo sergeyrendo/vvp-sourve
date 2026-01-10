@@ -258,7 +258,7 @@ public class D30Entity extends GeoVehicleEntity {
         
         // Звук выстрела
         serverLevel.playSound(null, shootPos.x, shootPos.y, shootPos.z, 
-            ModSounds.RPG_FIRE_3P.get(), SoundSource.PLAYERS, 5.8f, 0.7f + random.nextFloat() * 0.2f);
+            ModSounds.RPG_FIRE_3P.get(), SoundSource.PLAYERS, 7.0f, 0.7f + random.nextFloat() * 0.2f);
         
         // Стандартные частицы дульного пламени
         ParticleTool.spawnMediumCannonMuzzleParticles(barrelDir, shootPos, serverLevel, this);
@@ -300,9 +300,9 @@ public class D30Entity extends GeoVehicleEntity {
                 1, ringX * 0.3, 0, ringZ * 0.3, 0.15);
         }
         
-        // 5. Гильза вылетает сбоку
+        // 5. Гильза вылетает сзади из казённика
         Matrix4d turretTransform = getTurretTransform(1.0f);
-        Vector4d casingPos = transformPosition(turretTransform, -0.8, 0.3, -0.5); // Справа от казённика
+        Vector4d casingPos = transformPosition(turretTransform, -0.8, 0.3, -0.8);
         
         net.minecraft.world.entity.item.ItemEntity casingEntity = new net.minecraft.world.entity.item.ItemEntity(
             serverLevel, casingPos.x, casingPos.y, casingPos.z,

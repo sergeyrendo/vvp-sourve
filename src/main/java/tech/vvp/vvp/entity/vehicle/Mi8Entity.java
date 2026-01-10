@@ -31,10 +31,15 @@ public class Mi8Entity extends CamoVehicleBase {
 
     private static final ResourceLocation[] CAMO_TEXTURES = {
         new ResourceLocation("vvp", "textures/entity/mi8_default.png"),
-        new ResourceLocation("vvp", "textures/entity/mi8_pepeshneyna.png")
+        new ResourceLocation("vvp", "textures/entity/mi8_pepeshneyna.png"),
+        new ResourceLocation("vvp", "textures/entity/mi8_rf2.png"),
+        new ResourceLocation("vvp", "textures/entity/mi8_rf3.png"),
+        new ResourceLocation("vvp", "textures/entity/mi8_rf4.png"),
+        new ResourceLocation("vvp", "textures/entity/mi8_ukr.png"),
+        new ResourceLocation("vvp", "textures/entity/mi8_ukr2.png")
     };
 
-    private static final String[] CAMO_NAMES = {"Default", "Pepeshneyna"};
+    private static final String[] CAMO_NAMES = {"Default", "Pepeshneyna", "RF2", "RF3", "RF4", "Ukraine", "Ukraine2"};
 
     private static Field propellerRotField;
     private static Field propellerRotOField;
@@ -101,6 +106,21 @@ public class Mi8Entity extends CamoVehicleBase {
     @Override
     public void tick() {
         super.tick();
+        
+        // Force engine shutdown when no pilot (first passenger)
+        // This fixes the issue where engine keeps running with passengers but no pilot
+        if (!this.level().isClientSide && this.getFirstPassenger() == null) {
+            // Access power field via reflection and reduce it faster
+            try {
+                java.lang.reflect.Field powerField = Class.forName("com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity")
+                    .getDeclaredField("power");
+                powerField.setAccessible(true);
+                float currentPower = powerField.getFloat(this);
+                if (currentPower > 0.0001f) {
+                    powerField.setFloat(this, currentPower * 0.98f); // Faster decay when no pilot
+                }
+            } catch (Exception ignored) {}
+        }
         
         // Auto-close doors when taking off (propeller spinning fast or off ground)
         if (!this.level().isClientSide) {

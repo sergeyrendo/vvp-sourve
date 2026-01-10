@@ -183,6 +183,8 @@
     "CrashPassengers": true
   },
   "HUDColor": "0x66FF00",
+  "VehicleIcon": "vvp:textures/vehicle_icon/mi8.png",
+  "ContainerIcon": "vvp:textures/gui/vehicle/type/aircraft_ru.png",
   "Weapons": {
     "Nothing": {
       "Name": "",
