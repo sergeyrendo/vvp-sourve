@@ -119,6 +119,12 @@ public class ModEntities {
     public static final RegistryObject<EntityType<AjaxEntity>> AJAX = register("ajax",
             EntityType.Builder.of(AjaxEntity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(3.9f, 3f));
 
+    public static final RegistryObject<EntityType<Mi8Entity>> MI_8 = register("mi_8",
+            EntityType.Builder.of(Mi8Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
+
+    public static final RegistryObject<EntityType<D30Entity>> D30 = register("d30",
+            EntityType.Builder.of(D30Entity::new, MobCategory.MISC).setTrackingRange(256).setUpdateInterval(1).fireImmune().sized(3f, 2f));
+
 
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
         return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));

@@ -50,6 +50,10 @@ public class ModEntityRenderers {
 
         event.registerEntityRenderer(ModEntities.PANTSIR_MISSILE.get(), PantsirMissileRenderer::new);
 
+        // Mi-8 and D-30
+        event.registerEntityRenderer(ModEntities.MI_8.get(), Mi8Renderer::new);
+        event.registerEntityRenderer(ModEntities.D30.get(), D30Renderer::new);
+
     }
 
     /**
