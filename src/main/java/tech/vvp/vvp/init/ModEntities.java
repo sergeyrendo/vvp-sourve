@@ -125,6 +125,9 @@ public class ModEntities {
     public static final RegistryObject<EntityType<D30Entity>> D30 = register("d30",
             EntityType.Builder.of(D30Entity::new, MobCategory.MISC).setTrackingRange(256).setUpdateInterval(1).fireImmune().sized(3f, 2f));
 
+    public static final RegistryObject<EntityType<Nh90Entity>> NH_90 = register("nh_90",
+            EntityType.Builder.of(Nh90Entity::new, MobCategory.MISC).setTrackingRange(512).setUpdateInterval(1).fireImmune().sized(4f, 4f));
+
 
     private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
         return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(name));

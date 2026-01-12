@@ -20,9 +20,18 @@ public class ModKeyMappings {
             "key.categories.vvp"
     );
 
+    public static final KeyMapping SEAT_SELECTOR = new KeyMapping(
+            "key.vvp.seat_selector",
+            KeyConflictContext.IN_GAME,
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_X,
+            "key.categories.vvp"
+    );
+
     @SubscribeEvent
     public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(THERMAL_VISION);
+        event.register(SEAT_SELECTOR);
     }
 }
 

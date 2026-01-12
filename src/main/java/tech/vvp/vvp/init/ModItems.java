@@ -126,6 +126,9 @@ public class ModItems {
     public static final RegistryObject<Item> SHELL_122MM_CASING = REGISTRY.register("shell_122mm_casing",
             () -> new Item(new Item.Properties().stacksTo(64)));
 
+    public static final RegistryObject<Item> NH_90 = REGISTRY.register("nh_90",
+            () -> new tech.vvp.vvp.item.VehicleSpawnItem(ModEntities.NH_90::get, new Item.Properties().stacksTo(1)));
+
     public static void register(IEventBus eventBus) {
         REGISTRY.register(eventBus);
     }

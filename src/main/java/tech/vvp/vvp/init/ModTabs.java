@@ -38,6 +38,7 @@ public class ModTabs {
                 output.accept(ContainerBlockItem.createInstance(ModEntities.VARTA_PTRK.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.FMTV.get()));
                 output.accept(ContainerBlockItem.createInstance(ModEntities.COBRA.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.NH_90.get()));
 
             })
             .build());

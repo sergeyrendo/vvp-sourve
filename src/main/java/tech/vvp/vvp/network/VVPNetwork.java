@@ -8,6 +8,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import tech.vvp.vvp.network.message.PantsirLockRequestMessage;
 import tech.vvp.vvp.network.message.PantsirRadarSyncMessage;
+import tech.vvp.vvp.network.message.SeatSwapMessage;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -51,6 +52,15 @@ public class VVPNetwork {
             PantsirRadarSyncMessage::decode,
             PantsirRadarSyncMessage::handler,
             Optional.of(NetworkDirection.PLAY_TO_CLIENT)
+        );
+        
+        // Клиент -> Сервер: смена места в технике
+        addNetworkMessage(
+            SeatSwapMessage.class,
+            SeatSwapMessage::encode,
+            SeatSwapMessage::decode,
+            SeatSwapMessage::handler,
+            Optional.of(NetworkDirection.PLAY_TO_SERVER)
         );
     }
 }
