@@ -19,19 +19,24 @@ import tech.vvp.vvp.network.message.SeatSwapMessage;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Круговое меню выбора места в технике
- */
 public class RadialSeatScreen extends Screen {
     
-    private static final int INNER_RADIUS = 60;
-    private static final int OUTER_RADIUS = 130;
-    private static final int SEGMENTS = 32; // Сегментов на сектор для гладкости
+    private static final int INNER_RADIUS = 45;
+    private static final int OUTER_RADIUS = 115;
+    
+    // Военный зелёный HUD цвет
+    private static final int HUD_GREEN = 0xFF40FF40;
+    private static final int HUD_GREEN_DIM = 0xFF208020;
+    private static final int HUD_GREEN_DARK = 0xFF103010;
+    private static final int HUD_RED = 0xFFFF4040;
+    private static final int HUD_YELLOW = 0xFFFFFF40;
     
     private final VehicleEntity vehicle;
     private final int currentSeat;
     private final List<SeatInfo> seats = new ArrayList<>();
     private int hoveredSeat = -1;
+    private float animProgress = 0f;
+    private int tickCount = 0;
     
     public RadialSeatScreen(VehicleEntity vehicle, int currentSeat) {
         super(Component.translatable("gui.vvp.seat_selector"));
@@ -50,173 +55,243 @@ public class RadialSeatScreen extends Screen {
     }
     
     private String getSeatName(int index, int maxSeats) {
-        if (index == 0) return "Pilot";
-        if (index == 1 && maxSeats > 2) return "Co-Pilot";
-        if (index == 1) return "Passenger";
-        return "Seat " + (index + 1);
+        if (index == 0) return "PILOT";
+        if (index == 1 && maxSeats > 2) return "CO-PILOT";
+        if (index == 1) return "PASSENGER";
+        return "SEAT-" + String.format("%02d", index + 1);
+    }
+    
+    @Override
+    public void tick() {
+        super.tick();
+        tickCount++;
+        if (animProgress < 1f) {
+            animProgress = Math.min(1f, animProgress + 0.15f);
+        }
     }
     
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        // Полупрозрачный фон
-        graphics.fill(0, 0, width, height, 0x90000000);
+        float anim = easeOutQuad(animProgress);
+        
+        // Тёмный фон с лёгким зелёным оттенком
+        graphics.fill(0, 0, width, height, 0xCC001005);
+        
+        // Сканлайны эффект
+        renderScanlines(graphics);
         
         int centerX = width / 2;
         int centerY = height / 2;
         
         hoveredSeat = getHoveredSeat(mouseX, mouseY, centerX, centerY);
         
-        // Тень под кругом (несколько слоёв для мягкости)
-        drawFilledCircle(graphics, centerX + 4, centerY + 4, OUTER_RADIUS + 15, 0x40000000);
-        drawFilledCircle(graphics, centerX + 3, centerY + 3, OUTER_RADIUS + 12, 0x50000000);
-        drawFilledCircle(graphics, centerX + 2, centerY + 2, OUTER_RADIUS + 8, 0x60000000);
+        int outerR = (int)(OUTER_RADIUS * anim);
+        int innerR = (int)(INNER_RADIUS * anim);
         
-        // Фон круга
-        drawFilledCircle(graphics, centerX, centerY, OUTER_RADIUS + 5, 0xF0181818);
-        drawCircleOutline(graphics, centerX, centerY, OUTER_RADIUS + 5, 0xFF444444, 3.0f);
+        // Внешние декоративные кольца
+        drawCircleOutline(graphics, centerX, centerY, outerR + 20, HUD_GREEN_DARK, 1f);
+        drawCircleOutline(graphics, centerX, centerY, outerR + 15, HUD_GREEN_DIM, 1f);
         
-        // Рисуем секторы
-        renderSectors(graphics, centerX, centerY);
+        // Угловые маркеры
+        renderCornerMarkers(graphics, centerX, centerY, outerR + 25);
         
-        // Центральный круг
-        renderCenter(graphics, centerX, centerY);
+        // Основное кольцо
+        drawCircleOutline(graphics, centerX, centerY, outerR, HUD_GREEN, 2f);
+        drawCircleOutline(graphics, centerX, centerY, innerR, HUD_GREEN, 2f);
         
-        // Подсказка снизу
-        renderTooltip(graphics, centerX, centerY);
+        // Секторы
+        if (anim > 0.2f) {
+            renderSectors(graphics, centerX, centerY, innerR, outerR);
+        }
         
-        // Подсказка закрытия
-        String hint = "[X] Close  |  [1-9] Quick Select";
-        int hintWidth = font.width(hint);
-        graphics.drawString(font, hint, centerX - hintWidth / 2, height - 30, 0x80FFFFFF, false);
+        // Центральный дисплей
+        renderCenterDisplay(graphics, centerX, centerY, innerR, anim);
+        
+        // Tooltip
+        if (hoveredSeat >= 0 && hoveredSeat < seats.size() && anim > 0.5f) {
+            renderTooltip(graphics, centerX, centerY, outerR);
+        }
+        
+        // Нижняя панель с инструкциями
+        renderBottomPanel(graphics, centerX);
         
         super.render(graphics, mouseX, mouseY, partialTick);
     }
     
-    private void renderSectors(GuiGraphics graphics, int centerX, int centerY) {
+    private float easeOutQuad(float x) {
+        return 1 - (1 - x) * (1 - x);
+    }
+    
+    private void renderScanlines(GuiGraphics graphics) {
+        // Горизонтальные линии для эффекта старого монитора
+        for (int y = 0; y < height; y += 4) {
+            graphics.fill(0, y, width, y + 1, 0x10FFFFFF);
+        }
+    }
+    
+    private void renderCornerMarkers(GuiGraphics graphics, int cx, int cy, int radius) {
+        // Маркеры по углам как на военных дисплеях
+        int markerLen = 15;
+        int[] angles = {45, 135, 225, 315};
+        
+        for (int angle : angles) {
+            double rad = Math.toRadians(angle);
+            int x = cx + (int)(Math.cos(rad) * radius);
+            int y = cy + (int)(Math.sin(rad) * radius);
+            
+            // Маленький крестик
+            drawLine(graphics, x - 5, y, x + 5, y, HUD_GREEN_DIM);
+            drawLine(graphics, x, y - 5, x, y + 5, HUD_GREEN_DIM);
+        }
+    }
+    
+    private void renderSectors(GuiGraphics graphics, int centerX, int centerY, int innerR, int outerR) {
         if (seats.isEmpty()) return;
         
         int seatCount = seats.size();
         float angleStep = 360f / seatCount;
-        float gapAngle = 2f; // Зазор между секторами
         
         for (int i = 0; i < seatCount; i++) {
             SeatInfo seat = seats.get(i);
-            float startAngle = i * angleStep - 90 + gapAngle / 2;
-            float endAngle = (i + 1) * angleStep - 90 - gapAngle / 2;
+            float startAngle = i * angleStep - 90;
+            float endAngle = (i + 1) * angleStep - 90;
+            float midAngle = (startAngle + endAngle) / 2;
             
-            // Цвета
-            int fillColor;
-            int borderColor;
+            // Разделительные линии
+            float lineAngle = (float) Math.toRadians(startAngle);
+            int x1 = centerX + (int)(Math.cos(lineAngle) * innerR);
+            int y1 = centerY + (int)(Math.sin(lineAngle) * innerR);
+            int x2 = centerX + (int)(Math.cos(lineAngle) * outerR);
+            int y2 = centerY + (int)(Math.sin(lineAngle) * outerR);
+            drawLine(graphics, x1, y1, x2, y2, HUD_GREEN_DIM);
+            
+            // Подсветка сектора
+            int sectorColor = 0;
             if (seat.isCurrentPlayer) {
-                fillColor = 0xA000AA00;  // Зелёный
-                borderColor = 0xFF00FF00;
+                sectorColor = 0x40208020; // Зелёная подсветка
             } else if (seat.occupied) {
-                fillColor = 0xA0AA0000;  // Красный
-                borderColor = 0xFFFF0000;
+                sectorColor = 0x40802020; // Красная подсветка
             } else if (i == hoveredSeat) {
-                fillColor = 0xA0AAAA00;  // Жёлтый при наведении
-                borderColor = 0xFFFFFF00;
-            } else {
-                fillColor = 0x60333333;  // Серый
-                borderColor = 0xFF666666;
+                sectorColor = 0x40404020; // Жёлтая подсветка
             }
             
-            // Заливка сектора
-            drawFilledArc(graphics, centerX, centerY, INNER_RADIUS, OUTER_RADIUS, startAngle, endAngle, fillColor);
-            
-            // Контур
-            drawArcOutline(graphics, centerX, centerY, INNER_RADIUS, startAngle, endAngle, borderColor);
-            drawArcOutline(graphics, centerX, centerY, OUTER_RADIUS, startAngle, endAngle, borderColor);
+            if (sectorColor != 0) {
+                drawSector(graphics, centerX, centerY, innerR + 2, outerR - 2, startAngle + 1, endAngle - 1, sectorColor);
+            }
             
             // Номер места
-            float midAngle = (float) Math.toRadians((startAngle + endAngle) / 2);
-            int textRadius = (INNER_RADIUS + OUTER_RADIUS) / 2;
-            int textX = centerX + (int)(Math.cos(midAngle) * textRadius);
-            int textY = centerY + (int)(Math.sin(midAngle) * textRadius);
+            float textAngle = (float) Math.toRadians(midAngle);
+            int textR = (innerR + outerR) / 2;
+            int tx = centerX + (int)(Math.cos(textAngle) * textR);
+            int ty = centerY + (int)(Math.sin(textAngle) * textR);
             
-            String num = String.valueOf(i + 1);
-            graphics.drawCenteredString(font, num, textX, textY - 4, 0xFFFFFFFF);
-        }
-    }
-    
-    private void drawFilledArc(GuiGraphics graphics, int cx, int cy, int innerR, int outerR,
-                               float startAngle, float endAngle, int color) {
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        
-        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-        buffer.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
-        
-        Matrix4f matrix = graphics.pose().last().pose();
-        
-        float a = ((color >> 24) & 0xFF) / 255f;
-        float r = ((color >> 16) & 0xFF) / 255f;
-        float g = ((color >> 8) & 0xFF) / 255f;
-        float b = (color & 0xFF) / 255f;
-        
-        for (int i = 0; i <= SEGMENTS; i++) {
-            float angle = (float) Math.toRadians(startAngle + (endAngle - startAngle) * i / SEGMENTS);
-            float cos = (float) Math.cos(angle);
-            float sin = (float) Math.sin(angle);
+            int textColor;
+            String prefix = "";
+            if (seat.isCurrentPlayer) {
+                textColor = HUD_GREEN;
+                prefix = ">";
+            } else if (seat.occupied) {
+                textColor = HUD_RED;
+                prefix = "X";
+            } else if (i == hoveredSeat) {
+                textColor = HUD_YELLOW;
+                prefix = "";
+            } else {
+                textColor = HUD_GREEN_DIM;
+                prefix = "";
+            }
             
-            buffer.vertex(matrix, cx + cos * innerR, cy + sin * innerR, 0).color(r, g, b, a).endVertex();
-            buffer.vertex(matrix, cx + cos * outerR, cy + sin * outerR, 0).color(r, g, b, a).endVertex();
+            String text = prefix.isEmpty() ? String.valueOf(i + 1) : prefix + (i + 1);
+            graphics.drawCenteredString(font, text, tx, ty - 4, textColor);
+            
+            // Статус индикатор на внешнем крае
+            int indicatorR = outerR - 8;
+            int ix = centerX + (int)(Math.cos(textAngle) * indicatorR);
+            int iy = centerY + (int)(Math.sin(textAngle) * indicatorR);
+            
+            if (seat.isCurrentPlayer) {
+                graphics.drawCenteredString(font, "■", ix, iy - 4, HUD_GREEN);
+            } else if (seat.occupied) {
+                graphics.drawCenteredString(font, "■", ix, iy - 4, HUD_RED);
+            } else {
+                graphics.drawCenteredString(font, "□", ix, iy - 4, HUD_GREEN_DIM);
+            }
         }
-        
-        BufferUploader.drawWithShader(buffer.end());
-        RenderSystem.disableBlend();
     }
     
-    private void drawArcOutline(GuiGraphics graphics, int cx, int cy, int radius,
-                                float startAngle, float endAngle, int color) {
-        drawArcOutline(graphics, cx, cy, radius, startAngle, endAngle, color, 3.0f);
-    }
-    
-    private void drawArcOutline(GuiGraphics graphics, int cx, int cy, int radius,
-                                float startAngle, float endAngle, int color, float lineWidth) {
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        RenderSystem.lineWidth(lineWidth);
+    private void renderCenterDisplay(GuiGraphics graphics, int cx, int cy, int innerR, float anim) {
+        // Фон центра
+        drawFilledCircle(graphics, cx, cy, innerR - 5, 0xE0001005);
         
-        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-        buffer.begin(VertexFormat.Mode.DEBUG_LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
-        
-        Matrix4f matrix = graphics.pose().last().pose();
-        
-        float a = ((color >> 24) & 0xFF) / 255f;
-        float r = ((color >> 16) & 0xFF) / 255f;
-        float g = ((color >> 8) & 0xFF) / 255f;
-        float b = (color & 0xFF) / 255f;
-        
-        for (int i = 0; i <= SEGMENTS; i++) {
-            float angle = (float) Math.toRadians(startAngle + (endAngle - startAngle) * i / SEGMENTS);
-            buffer.vertex(matrix, cx + (float)Math.cos(angle) * radius, cy + (float)Math.sin(angle) * radius, 0)
-                  .color(r, g, b, a).endVertex();
+        if (anim > 0.4f) {
+            // Заголовок
+            graphics.drawCenteredString(font, "§l[SEAT SELECT]", cx, cy - 16, HUD_GREEN);
+            
+            // Текущее место
+            String current = "POS: " + String.format("%02d", currentSeat + 1);
+            graphics.drawCenteredString(font, current, cx, cy, HUD_GREEN_DIM);
+            
+            // Мигающий курсор
+            if ((tickCount / 10) % 2 == 0) {
+                graphics.drawCenteredString(font, "_", cx + 20, cy, HUD_GREEN);
+            }
         }
-        
-        BufferUploader.drawWithShader(buffer.end());
-        RenderSystem.disableBlend();
     }
     
-    private void renderCenter(GuiGraphics graphics, int centerX, int centerY) {
-        // Тень центрального круга
-        drawFilledCircle(graphics, centerX + 2, centerY + 2, INNER_RADIUS - 8, 0x60000000);
+    private void renderTooltip(GuiGraphics graphics, int cx, int cy, int outerR) {
+        SeatInfo seat = seats.get(hoveredSeat);
         
-        // Круглый центр
-        drawFilledCircle(graphics, centerX, centerY, INNER_RADIUS - 10, 0xF0151515);
-        drawCircleOutline(graphics, centerX, centerY, INNER_RADIUS - 10, 0xFF666666, 3.0f);
+        int boxY = cy + outerR + 30;
+        int boxW = 120;
+        int boxH = 35;
+        int boxX = cx - boxW / 2;
+        
+        // Рамка в стиле HUD
+        graphics.fill(boxX, boxY, boxX + boxW, boxY + boxH, 0xE0001005);
+        drawRect(graphics, boxX, boxY, boxW, boxH, HUD_GREEN_DIM);
+        
+        // Уголки
+        int cornerSize = 5;
+        // Верхний левый
+        drawLine(graphics, boxX, boxY, boxX + cornerSize, boxY, HUD_GREEN);
+        drawLine(graphics, boxX, boxY, boxX, boxY + cornerSize, HUD_GREEN);
+        // Верхний правый
+        drawLine(graphics, boxX + boxW - cornerSize, boxY, boxX + boxW, boxY, HUD_GREEN);
+        drawLine(graphics, boxX + boxW, boxY, boxX + boxW, boxY + cornerSize, HUD_GREEN);
+        // Нижний левый
+        drawLine(graphics, boxX, boxY + boxH - cornerSize, boxX, boxY + boxH, HUD_GREEN);
+        drawLine(graphics, boxX, boxY + boxH, boxX + cornerSize, boxY + boxH, HUD_GREEN);
+        // Нижний правый
+        drawLine(graphics, boxX + boxW, boxY + boxH - cornerSize, boxX + boxW, boxY + boxH, HUD_GREEN);
+        drawLine(graphics, boxX + boxW - cornerSize, boxY + boxH, boxX + boxW, boxY + boxH, HUD_GREEN);
         
         // Текст
-        String title = "SEAT SELECT";
-        graphics.drawCenteredString(font, title, centerX, centerY - 12, 0xFFFFFFFF);
+        graphics.drawCenteredString(font, seat.name, cx, boxY + 6, HUD_GREEN);
         
-        String current = "Current: " + (currentSeat + 1);
-        graphics.drawCenteredString(font, current, centerX, centerY + 2, 0xFF88FF88);
+        String status;
+        int statusColor;
+        if (seat.isCurrentPlayer) {
+            status = "[CURRENT]";
+            statusColor = HUD_GREEN;
+        } else if (seat.occupied) {
+            status = "[OCCUPIED]";
+            statusColor = HUD_RED;
+        } else {
+            status = "[AVAILABLE]";
+            statusColor = HUD_YELLOW;
+        }
+        graphics.drawCenteredString(font, status, cx, boxY + 20, statusColor);
+    }
+    
+    private void renderBottomPanel(GuiGraphics graphics, int cx) {
+        int y = height - 30;
+        String hint = "[X] CLOSE  |  [1-9] SELECT  |  [LMB] CONFIRM";
+        graphics.drawCenteredString(font, hint, cx, y, HUD_GREEN_DIM);
     }
     
     private void drawFilledCircle(GuiGraphics graphics, int cx, int cy, int radius, int color) {
+        if (radius <= 0) return;
+        
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
@@ -225,16 +300,14 @@ public class RadialSeatScreen extends Screen {
         buffer.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
         
         Matrix4f matrix = graphics.pose().last().pose();
-        
         float a = ((color >> 24) & 0xFF) / 255f;
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
         
         buffer.vertex(matrix, cx, cy, 0).color(r, g, b, a).endVertex();
-        
-        for (int i = 0; i <= 32; i++) {
-            float angle = (float) (i * Math.PI * 2 / 32);
+        for (int i = 0; i <= 60; i++) {
+            float angle = (float)(i * Math.PI * 2 / 60);
             buffer.vertex(matrix, cx + (float)Math.cos(angle) * radius, cy + (float)Math.sin(angle) * radius, 0)
                   .color(r, g, b, a).endVertex();
         }
@@ -243,11 +316,9 @@ public class RadialSeatScreen extends Screen {
         RenderSystem.disableBlend();
     }
     
-    private void drawCircleOutline(GuiGraphics graphics, int cx, int cy, int radius, int color) {
-        drawCircleOutline(graphics, cx, cy, radius, color, 3.0f);
-    }
-    
     private void drawCircleOutline(GuiGraphics graphics, int cx, int cy, int radius, int color, float lineWidth) {
+        if (radius <= 0) return;
+        
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
@@ -257,14 +328,13 @@ public class RadialSeatScreen extends Screen {
         buffer.begin(VertexFormat.Mode.DEBUG_LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
         
         Matrix4f matrix = graphics.pose().last().pose();
-        
         float a = ((color >> 24) & 0xFF) / 255f;
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
         
-        for (int i = 0; i <= 32; i++) {
-            float angle = (float) (i * Math.PI * 2 / 32);
+        for (int i = 0; i <= 60; i++) {
+            float angle = (float)(i * Math.PI * 2 / 60);
             buffer.vertex(matrix, cx + (float)Math.cos(angle) * radius, cy + (float)Math.sin(angle) * radius, 0)
                   .color(r, g, b, a).endVertex();
         }
@@ -273,27 +343,61 @@ public class RadialSeatScreen extends Screen {
         RenderSystem.disableBlend();
     }
     
-    private void renderTooltip(GuiGraphics graphics, int centerX, int centerY) {
-        if (hoveredSeat >= 0 && hoveredSeat < seats.size()) {
-            SeatInfo seat = seats.get(hoveredSeat);
-            
-            String status;
-            int statusColor;
-            if (seat.isCurrentPlayer) {
-                status = "YOUR SEAT";
-                statusColor = 0xFF00FF00;
-            } else if (seat.occupied) {
-                status = "OCCUPIED";
-                statusColor = 0xFFFF4444;
-            } else {
-                status = "AVAILABLE - Click to switch";
-                statusColor = 0xFFFFFF00;
-            }
-            
-            int tooltipY = centerY + OUTER_RADIUS + 25;
-            graphics.drawCenteredString(font, seat.name, centerX, tooltipY, 0xFFFFFFFF);
-            graphics.drawCenteredString(font, status, centerX, tooltipY + 14, statusColor);
+    private void drawSector(GuiGraphics graphics, int cx, int cy, int innerR, int outerR,
+                           float startAngle, float endAngle, int color) {
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        
+        Matrix4f matrix = graphics.pose().last().pose();
+        float a = ((color >> 24) & 0xFF) / 255f;
+        float r = ((color >> 16) & 0xFF) / 255f;
+        float g = ((color >> 8) & 0xFF) / 255f;
+        float b = (color & 0xFF) / 255f;
+        
+        int segments = 20;
+        for (int i = 0; i <= segments; i++) {
+            float angle = (float) Math.toRadians(startAngle + (endAngle - startAngle) * i / segments);
+            float cos = (float) Math.cos(angle);
+            float sin = (float) Math.sin(angle);
+            buffer.vertex(matrix, cx + cos * innerR, cy + sin * innerR, 0).color(r, g, b, a).endVertex();
+            buffer.vertex(matrix, cx + cos * outerR, cy + sin * outerR, 0).color(r, g, b, a).endVertex();
         }
+        
+        BufferUploader.drawWithShader(buffer.end());
+        RenderSystem.disableBlend();
+    }
+    
+    private void drawLine(GuiGraphics graphics, int x1, int y1, int x2, int y2, int color) {
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.lineWidth(1.5f);
+        
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
+        
+        Matrix4f matrix = graphics.pose().last().pose();
+        float a = ((color >> 24) & 0xFF) / 255f;
+        float r = ((color >> 16) & 0xFF) / 255f;
+        float g = ((color >> 8) & 0xFF) / 255f;
+        float b = (color & 0xFF) / 255f;
+        
+        buffer.vertex(matrix, x1, y1, 0).color(r, g, b, a).endVertex();
+        buffer.vertex(matrix, x2, y2, 0).color(r, g, b, a).endVertex();
+        
+        BufferUploader.drawWithShader(buffer.end());
+        RenderSystem.disableBlend();
+    }
+    
+    private void drawRect(GuiGraphics graphics, int x, int y, int w, int h, int color) {
+        drawLine(graphics, x, y, x + w, y, color);
+        drawLine(graphics, x + w, y, x + w, y + h, color);
+        drawLine(graphics, x + w, y + h, x, y + h, color);
+        drawLine(graphics, x, y + h, x, y, color);
     }
     
     private int getHoveredSeat(int mouseX, int mouseY, int centerX, int centerY) {
@@ -301,7 +405,10 @@ public class RadialSeatScreen extends Screen {
         double dy = mouseY - centerY;
         double distance = Math.sqrt(dx * dx + dy * dy);
         
-        if (distance < INNER_RADIUS || distance > OUTER_RADIUS) {
+        int innerR = (int)(INNER_RADIUS * animProgress);
+        int outerR = (int)(OUTER_RADIUS * animProgress);
+        
+        if (distance < innerR || distance > outerR) {
             return -1;
         }
         
@@ -316,7 +423,6 @@ public class RadialSeatScreen extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && hoveredSeat >= 0 && hoveredSeat < seats.size()) {
             SeatInfo seat = seats.get(hoveredSeat);
-            
             if (!seat.occupied || seat.isCurrentPlayer) {
                 if (!seat.isCurrentPlayer) {
                     VVPNetwork.VVP_HANDLER.send(
@@ -333,46 +439,37 @@ public class RadialSeatScreen extends Screen {
     
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // Закрытие по X
         if (ModKeyMappings.SEAT_SELECTOR.matches(keyCode, scanCode)) {
             onClose();
             return true;
         }
         
-        // Цифры 1-9
         if (keyCode >= 49 && keyCode <= 57) {
-            int seatIndex = keyCode - 49;
-            if (seatIndex < seats.size()) {
-                SeatInfo seat = seats.get(seatIndex);
-                if (!seat.occupied || seat.isCurrentPlayer) {
-                    if (!seat.isCurrentPlayer) {
-                        VVPNetwork.VVP_HANDLER.send(
-                            PacketDistributor.SERVER.noArg(),
-                            new SeatSwapMessage(seatIndex)
-                        );
-                    }
-                    onClose();
-                    return true;
-                }
-            }
+            trySelectSeat(keyCode - 49);
+            return true;
         }
         
-        // 0 для места 10
         if (keyCode == 48 && seats.size() >= 10) {
-            SeatInfo seat = seats.get(9);
+            trySelectSeat(9);
+            return true;
+        }
+        
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+    
+    private void trySelectSeat(int seatIndex) {
+        if (seatIndex >= 0 && seatIndex < seats.size()) {
+            SeatInfo seat = seats.get(seatIndex);
             if (!seat.occupied || seat.isCurrentPlayer) {
                 if (!seat.isCurrentPlayer) {
                     VVPNetwork.VVP_HANDLER.send(
                         PacketDistributor.SERVER.noArg(),
-                        new SeatSwapMessage(9)
+                        new SeatSwapMessage(seatIndex)
                     );
                 }
                 onClose();
-                return true;
             }
         }
-        
-        return super.keyPressed(keyCode, scanCode, modifiers);
     }
     
     @Override
