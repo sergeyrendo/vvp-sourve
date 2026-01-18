@@ -229,7 +229,7 @@ public class D30Entity extends GeoVehicleEntity {
 
     public void interactEvent(Vec3 vec3) {
         if (level() instanceof ServerLevel serverLevel) {
-            interactionTick++;
+            interactionTick += 1.5;
             if (cooldown <= 0) {
                 cooldown = 4;
                 serverLevel.playSound(null, vec3.x, vec3.y, vec3.z, ModSounds.HAND_WHEEL_ROT.get(), SoundSource.PLAYERS, 0.5f, random.nextFloat() * 0.05f + 0.975f);
@@ -341,7 +341,7 @@ public class D30Entity extends GeoVehicleEntity {
 
         if (cooldown > 0) cooldown--;
 
-        interactionTick *= 0.85;
+        interactionTick *= 0.9;
         if (interactionTick < 1) interactionTick = 1;
 
         this.refreshDimensions();
