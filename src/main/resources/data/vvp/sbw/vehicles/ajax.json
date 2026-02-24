@@ -86,7 +86,7 @@
       "HidePassenger": true,
       "CameraPos": {
         "Transform": "Barrel",
-        "ZoomPosition": [0.1, 0.0517, 0],
+        "ZoomPosition": [0, 0.0517, 1],
         "Direction": "Barrel"
       },
       "Weapons": ["Cannon", "MainMachineGun"],
@@ -197,22 +197,9 @@
       },
       "SoundRadius": 24,
       "AmmoType": [
-        "vvp:item_30mm",
-        {
-          "Ammo": "vvp:item_30mm",
-          "Override": {
-            "Icon": "vvp:textures/screens/vehicle_weapon/30_mm_he.png",
-            "IsArmorPiercingProjectile": false,
-            "IsHighExplosiveProjectile": true,
-            "Velocity": 25,
-            "Damage": 17,
-            "ExplosionDamage": 75,
-            "ExplosionRadius": 6,
-            "Name": "weapon.vvp.ajax_weapon_he"
-          }
-        }
+        "vvp:item_30mm"
       ],
-      "Icon": "vvp:textures/screens/vehicle_weapon/30_mm_ap.png",
+      "Icon": "vvp:textures/screens/vehicle_weapon/40_mm.png",
       "ShootPos": {
         "Transform": "Barrel",
         "Positions": [
@@ -312,7 +299,7 @@
   "PassengerWeaponStationBarrelPos": [-0.3359, 0.5733, -0.0006],
   "PassengerWeaponStationTurnSpeed": [15, 15],
   "PassengerWeaponStationPitchRange": [-10, 60],
-  "ThirdPersonCameraPos": [0, 3, 3],
+  "ThirdPersonCameraPos": [0, 1, 3],
   "HasDecoy": true,
   "UpStep": 1.5,
   "RotateOffsetHeight": 2.2,

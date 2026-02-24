@@ -179,6 +179,7 @@ dependencies {
     implementation fg.deobf("curse.maven:superb-warfare-1218165:7274419")
     implementation fg.deobf("curse.maven:jei-238222:6600311")
     implementation fg.deobf("curse.maven:embeddium-908741:5681725")
+    implementation fg.deobf("curse.maven:sbw-warborn-drones-1383935:7373873")
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
