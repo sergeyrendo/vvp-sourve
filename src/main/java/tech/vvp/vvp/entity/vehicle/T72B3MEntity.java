@@ -35,8 +35,4 @@ public class T72B3MEntity extends CamoVehicleBase {
                 .custom((source, damage) -> getSourceAngle(source, 0.4f) * damage);
     }
 
-    @Override
-    public void baseTick() {
-        super.baseTick();
-    }
 }

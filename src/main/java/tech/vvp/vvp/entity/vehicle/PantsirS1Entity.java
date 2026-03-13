@@ -52,7 +52,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
         new ResourceLocation("vvp", "textures/entity/pantsir_s1.png")
     };
     
-    private static final String[] CAMO_NAMES = {"Standard", "Haki", "Camo2", "Camo3", "Camo4"};
+    private static final String[] CAMO_NAMES = {"Standard"};
     
     // Параметры радара
     private static final double RADAR_RANGE = 1100.0;          // Дальность обзорного радара
@@ -188,7 +188,6 @@ public class PantsirS1Entity extends CamoVehicleBase {
         LivingEntity operator = getOperator();
         if (operator == null) {
             resetRadar();
-            syncRadarAngleToNearbyPlayers();
             return;
         }
         
@@ -207,40 +206,6 @@ public class PantsirS1Entity extends CamoVehicleBase {
         if (syncTimer >= 2) {
             syncTimer = 0;
             syncRadarToClient(operator);
-        }
-    }
-    
-    /**
-     * Синхронизирует угол радара всем игрокам рядом (когда нет оператора)
-     */
-    private void syncRadarAngleToNearbyPlayers() {
-        syncTimer++;
-        if (syncTimer < 10) return;
-        syncTimer = 0;
-        
-        // Проверяем есть ли игроки рядом
-        List<ServerPlayer> nearbyPlayers = this.level().getEntitiesOfClass(
-            ServerPlayer.class, 
-            this.getBoundingBox().inflate(100)
-        );
-        
-        if (nearbyPlayers.isEmpty()) return;
-        
-        float radarAngle = getRadarAngle();
-        Vec3 barrelDir = this.getBarrelVector(1.0f);
-        float turretAngle = (float) Math.toDegrees(-Math.atan2(barrelDir.x, barrelDir.z));
-        
-        PantsirRadarSyncMessage message = new PantsirRadarSyncMessage(
-            this.getId(), PantsirRadarSyncMessage.STATE_IDLE, -1, 0, 0, 0, 
-            0, 0, 0,
-            0, 0, radarAngle, turretAngle,
-            new int[0], new double[0], new double[0], new double[0], new int[0], new boolean[0],
-            new double[0], new double[0], new double[0],
-            false, 0, 0, 0
-        );
-        
-        for (ServerPlayer player : nearbyPlayers) {
-            VVPNetwork.VVP_HANDLER.send(PacketDistributor.PLAYER.with(() -> player), message);
         }
     }
     
@@ -277,10 +242,13 @@ public class PantsirS1Entity extends CamoVehicleBase {
             }
         }
         
-        detectedTargets.removeIf(e -> !e.isAlive() || e.position().distanceTo(radarPos) > RADAR_RANGE);
-        
+        detectedTargets.removeIf(e -> !e.isAlive()
+                || e.position().distanceTo(radarPos) > RADAR_RANGE
+                || !isValidRadarTargetBasic(e, radarPos));
+
         scanOffset += batchSize;
-        
+        if (scanOffset < 0) scanOffset = 0;
+
         // Очищаем старый кеш
         if (this.tickCount % 100 == 0) {
             losCache.entrySet().removeIf(entry -> entry.getValue().expiresAt < this.tickCount);
@@ -377,7 +345,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
      */
     @Nullable
     private LivingEntity getOperator() {
-        if (cachedOperator != null && operatorCacheExpiry > this.tickCount) {
+        if (cachedOperator != null && cachedOperator.isAlive() && operatorCacheExpiry > this.tickCount) {
             return cachedOperator;
         }
         
@@ -598,15 +566,6 @@ public class PantsirS1Entity extends CamoVehicleBase {
     }
     
     /**
-     * Вычисляет точку прицеливания с учётом баллистики (гравитация + движение цели)
-     * Использует итеративный метод для точного расчёта траектории
-     * Адаптируется под размер и тип движения цели
-     */
-    private Vec3 calculateBallisticAimPoint(Vec3 shootPos, Vec3 targetPos, Vec3 targetVel, double projectileSpeed, double gravity) {
-        return calculateBallisticAimPointForTarget(shootPos, targetPos, targetVel, projectileSpeed, gravity, null);
-    }
-    
-    /**
      * Вычисляет точку прицеливания с учётом размера и типа цели
      */
     private Vec3 calculateBallisticAimPointForTarget(Vec3 shootPos, Vec3 targetPos, Vec3 targetVel, 
@@ -703,27 +662,27 @@ public class PantsirS1Entity extends CamoVehicleBase {
     
     /**
      * Оптимизированная проверка line of sight
-     * 1. Быстрая проверка высоты (heightmap)
+     * 1. Быстрая проверка высоты (heightmap) — не более 5 точек
      * 2. Если цель низко - упрощённый raycast (3 точки)
      */
     private boolean hasLineOfSightOptimized(Vec3 from, Vec3 to) {
-        // ШАГ 1: Быстрая проверка высоты (очень дешёвая операция)
         int fromX = (int) from.x;
         int fromZ = (int) from.z;
         int toX = (int) to.x;
         int toZ = (int) to.z;
-        
+
         double horizontalDist = Math.sqrt((toX - fromX) * (toX - fromX) + (toZ - fromZ) * (toZ - fromZ));
-        int steps = Math.max(1, (int) (horizontalDist / 50)); // Проверяем каждые 50 блоков
-        
+        // Ограничиваем до 5 шагов — достаточно для выявления гор на 1100 блоков
+        int steps = Math.min(5, Math.max(1, (int) (horizontalDist / 50)));
+
         boolean targetIsHigh = true;
         for (int i = 0; i <= steps; i++) {
             double t = (double) i / steps;
             int x = (int) (fromX + (toX - fromX) * t);
             int z = (int) (fromZ + (toZ - fromZ) * t);
-            
+
             int highestY = this.level().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, x, z);
-            
+
             if (to.y < highestY + 10) {
                 targetIsHigh = false;
                 break;
@@ -934,6 +893,9 @@ public class PantsirS1Entity extends CamoVehicleBase {
             targetIsAlly[i] = isAllyTarget(target, operator);
         }
         
+        // Убираем мёртвые/улетевшие ракеты перед отправкой (scanForMissiles обновляется только раз в 5 тиков)
+        activeMissiles.removeIf(m -> !m.isAlive());
+
         // Собираем позиции ракет
         int missileCount = Math.min(activeMissiles.size(), 8); // Максимум 8 ракет
         double[] missileX = new double[missileCount];
@@ -1035,14 +997,16 @@ public class PantsirS1Entity extends CamoVehicleBase {
             currentIndex = detectedTargets.indexOf(trackedTarget);
         }
         
-        // Если текущая цель не в списке, начинаем с 0
-        if (currentIndex < 0) currentIndex = -1;
-        
+        // Если текущая цель не в списке, начинаем с конца (симметрично selectPrevTarget)
+        if (currentIndex < 0) currentIndex = detectedTargets.size() - 1;
+
         // Ищем следующую не союзную цель
         int startIndex = currentIndex;
         int nextIndex = currentIndex;
+        int checked = 0;
         do {
             nextIndex = (nextIndex + 1) % detectedTargets.size();
+            if (++checked > detectedTargets.size()) return; // все цели — союзники, выходим
             Entity candidate = detectedTargets.get(nextIndex);
             if (!isAllyTarget(candidate, operator)) {
                 trackedTarget = candidate;
@@ -1075,9 +1039,11 @@ public class PantsirS1Entity extends CamoVehicleBase {
         // Ищем предыдущую не союзную цель
         int startIndex = currentIndex;
         int prevIndex = currentIndex;
+        int checked = 0;
         do {
             prevIndex = prevIndex - 1;
             if (prevIndex < 0) prevIndex = detectedTargets.size() - 1;
+            if (++checked > detectedTargets.size()) return; // все цели — союзники, выходим
             Entity candidate = detectedTargets.get(prevIndex);
             if (!isAllyTarget(candidate, operator)) {
                 trackedTarget = candidate;
@@ -1153,7 +1119,7 @@ public class PantsirS1Entity extends CamoVehicleBase {
         }
         
         if (weaponIndex == 1) {
-            if (hasLockedTarget()) {
+            if (hasLockedTarget() && lockedTarget.isAlive()) {
                 UUID targetUuid = lockedTarget.getUUID();
                 Vec3 targetPosition = lockedTarget.position().add(0, lockedTarget.getBbHeight() / 2, 0);
                 super.vehicleShoot(living, targetUuid, targetPosition);

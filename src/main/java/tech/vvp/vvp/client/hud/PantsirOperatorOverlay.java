@@ -167,23 +167,26 @@ public class PantsirOperatorOverlay {
     private static void handleLockSounds(int vehicleId) {
         PantsirClientHandler.PantsirRadarData data = PantsirClientHandler.getRadarData(vehicleId);
         if (data == null) return;
-        
+
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
         if (player == null) return;
-        
+
         int currentState = data.radarState;
-        
-        // Звук в начале LOCKING (один раз)
+        long now = System.currentTimeMillis();
+
+        // Звук в начале LOCKING (один раз при переходе в состояние)
         if (currentState == PantsirRadarSyncMessage.STATE_LOCKING && lastRadarState != PantsirRadarSyncMessage.STATE_LOCKING) {
             player.playSound(ModSounds.MISSILE_LOCKING.get(), 2.0f, 1.0f);
+            lastLockingSoundTime = now;
         }
-        
-        // Звук когда LOCKED - пищит постоянно как у иглы (каждый кадр)
-        if (currentState == PantsirRadarSyncMessage.STATE_LOCKED) {
+
+        // Звук LOCKED - не каждый кадр, а раз в 500мс
+        if (currentState == PantsirRadarSyncMessage.STATE_LOCKED && now - lastLockingSoundTime > 500) {
             player.playSound(ModSounds.MISSILE_LOCKED.get(), 2.0f, 1.0f);
+            lastLockingSoundTime = now;
         }
-        
+
         lastRadarState = currentState;
     }
 

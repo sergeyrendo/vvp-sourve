@@ -22,32 +22,28 @@ public class VehicleConfigHelper {
      * @return массив ResourceLocation с текстурами
      */
     public static ResourceLocation[] loadTexturesFromConfig(String configPath) {
-        try {
-            InputStream stream = VehicleConfigHelper.class.getResourceAsStream("/assets/vvp/" + configPath);
+        try (InputStream stream = VehicleConfigHelper.class.getResourceAsStream("/assets/vvp/" + configPath)) {
             if (stream == null) {
                 return new ResourceLocation[0];
             }
 
             JsonObject json = JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonObject();
             JsonObject model = json.getAsJsonObject("Model");
-            
+
             List<ResourceLocation> textures = new ArrayList<>();
-            
-            // Загружаем основную текстуру
+
             if (model.has("Texture")) {
                 textures.add(parseResourceLocation(model.get("Texture").getAsString()));
             }
-            
-            // Загружаем дополнительные текстуры (Texture_2, Texture_3, и т.д.)
+
             int i = 2;
             while (model.has("Texture_" + i)) {
                 textures.add(parseResourceLocation(model.get("Texture_" + i).getAsString()));
                 i++;
             }
-            
-            stream.close();
+
             return textures.toArray(new ResourceLocation[0]);
-            
+
         } catch (Exception e) {
             return new ResourceLocation[0];
         }

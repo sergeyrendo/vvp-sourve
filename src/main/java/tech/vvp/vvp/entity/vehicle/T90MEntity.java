@@ -29,11 +29,6 @@ public class T90MEntity extends CamoVehicleBase {
     }
 
     @Override
-    public void baseTick() {
-        super.baseTick();
-    }
-
-    @Override
     public ResourceLocation[] getCamoTextures() {
         return CAMO_TEXTURES;
     }

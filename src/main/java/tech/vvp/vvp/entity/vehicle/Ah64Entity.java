@@ -34,11 +34,6 @@ public class Ah64Entity extends GeoVehicleEntity {
                 .custom((source, damage) -> getSourceAngle(source, 0.4f) * damage);
     }
 
-    @Override
-    public void baseTick() {
-        super.baseTick();
-    }
-
     public float getPropellerRot() {
         try {
             return propellerRotField != null ? (float) propellerRotField.get(this) : 0f;
