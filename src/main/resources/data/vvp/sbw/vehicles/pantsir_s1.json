@@ -188,7 +188,7 @@
   },
   "EngineType": "Wheel",
   "EngineInfo": {
-    "Buoyancy": 0.052,
+    "Buoyancy": 0,
     "EnergyCostRate": 80,
     "WheelRotSpeed": 1.25,
     "WheelDifferential": 0.3,

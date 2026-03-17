@@ -44,6 +44,9 @@ public class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.CENTAURO.get(), CentauroRenderer::new);
         event.registerEntityRenderer(ModEntities.BMPT_3K.get(), BMPT3KRenderer::new);
         event.registerEntityRenderer(ModEntities.AJAX.get(), AjaxRenderer::new);
+        event.registerEntityRenderer(ModEntities.OPLOT.get(), OplotRenderer::new);
+        event.registerEntityRenderer(ModEntities.BTR_3.get(), Btr3Renderer::new);
+        event.registerEntityRenderer(ModEntities.PAUTINA.get(), PautinaRenderer::new);
 
         event.registerEntityRenderer(ModEntities.VARTA_PTRK.get(), VartaPTRKRenderer::new);
         event.registerEntityRenderer(ModEntities.BMP_2_BAKHCHA.get(), Bmp2BakhcaRenderer::new);

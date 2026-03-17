@@ -73,7 +73,7 @@
       "MaxPitch": 10,
       "MinYaw": -110,
       "MaxYaw": 110,
-      "Weapons": ["Cannon", "SeekMissile"],
+      "Weapons": ["Cannon", "PassengerMissile"],
       "DismountInfo": {
         "Transform": "Vehicle",
         "Position": [-2.5, 0.5, 3.5625]
@@ -155,12 +155,12 @@
       "AvailableFireModes": "Semi",
       "RPM": 12,
       "EmptyReloadTime": 240,
-      "AmmoType": "superbwarfare:medium_anti_ground_missile",
+      "AmmoType": "vvp:agm",
       "Projectile": "superbwarfare:wire_guide_missile",
-      "Name": "weapon.vvp.9m120_missile",
-      "Damage": 650,
+      "Name": "weapon.superbwarfare.9m_120_missile",
+      "Damage": 675,
       "ExplosionDamage": 80,
-      "ExplosionRadius": 7,
+      "ExplosionRadius": 8,
       "Velocity": 3,
       "CrosshairColor": "0xFFC700",
       "SoundInfo": {
@@ -168,74 +168,22 @@
         "Fire3P": "superbwarfare:bomb_release",
         "VehicleReload3p": "superbwarfare:bomb_reload",
         "VehicleReloadSoundTime": 11,
-        "Change": "vvp:into_atgm"
+        "Change": "superbwarfare:into_missile"
       },
       "SoundRadius": 8
     },
-    "SeekMissile": {
-      "AmmoType": [
-        {
-          "Ammo": "superbwarfare:large_anti_ground_missile",
-          "ShouldUnload": false
-        },
-        {
-          "Ammo": "superbwarfare:large_anti_ground_missile",
-          "ShouldUnload": false,
-          "Override": {
-            "Name": "weapon.vvp.kh39_missile",
-            "SeekWeaponInfo": {
-              "SeekDirection": "Barrel",
-              "SeekRange": 384,
-              "SeekAngle": 20,
-              "SeekTime": 20,
-              "MaxTargetHeight": 32,
-              "MinTargetSize": 0.9,
-              "OnlyLockBlock": true
-            }
-          }
-        }
-      ],
-      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/kh_39.png",
+    "PassengerMissile": {
       "DefaultZoom": 3,
-      "DefaultFireMode": "Semi",
-      "Magazine": 2,
-      "EmptyReloadTime": 260,
-      "Projectile": "superbwarfare:kh_39",
-      "Name": "weapon.vvp.kh39_missile",
-      "Damage": 650,
-      "ExplosionDamage": 180,
-      "ExplosionRadius": 12,
-      "Velocity": 8,
-      "SeekWeaponInfo": {
-        "SeekDirection": "Barrel",
-        "SeekRange": 384,
-        "SeekAngle": 20,
-        "SeekTime": 20,
-        "MaxTargetHeight": 32,
-        "MinTargetSize": 0.9,
-        "OnlyLockEntity": true
-      },
+      "Magazine": 8,
+      "Template": "@Missile",
+      "Crosshair": "@VehicleCommonMissile",
       "ShootPos": {
         "Transform": "Vehicle",
         "ShootPositionForHud": [0, 1.0625, 5.625],
         "Positions": [[2.625, 1.65625, -0.4375], [-2.625, 1.65625, -0.4375]],
-        "ViewDirection": "Barrel",
-        "BoundUpWithAmmoAmount": true
-      },
-      "SoundInfo": {
-        "Fire1P": "superbwarfare:bomb_release",
-        "Fire3P": "superbwarfare:bomb_release",
-        "VehicleReload3p": "superbwarfare:bomb_reload",
-        "VehicleReloadSoundTime": 11,
-        "Change": "vvp:into_atgm",
-        "Locking": "superbwarfare:javelin_locking",
-        "Locked": "superbwarfare:javelin_locked"
-      },
-      "CrosshairColor": "0xFFC700",
-      "Crosshair": "@VehicleCommonMissile",
-      "CrosshairZooming": "@VehicleCommonSeekMissile",
-      "SoundRadius": 8,
-      "AvailableFireModes": ["Semi"]
+        "Directions": ["Barrel", "Barrel"],
+        "ViewDirection": "Barrel"
+      }
     }
   },
   "EngineType": "Helicopter",

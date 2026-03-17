@@ -359,5 +359,15 @@
     "sounds": [
       "vvp:switch_weapon/into_main_cannon"
     ]
+  },
+  "ah1z_engine_start": {
+    "sounds": [
+      "vvp:ah1z_engine_start"
+    ]
+  },
+  "ah1z_engine_idle": {
+    "sounds": [
+      "vvp:ah1z_engine_idle"
+    ]
   }
 }

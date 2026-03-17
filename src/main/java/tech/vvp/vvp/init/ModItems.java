@@ -113,6 +113,12 @@ public class ModItems {
     public static final RegistryObject<Item> AT4 = REGISTRY.register("at4",
             () -> new tech.vvp.vvp.item.gun.At4Item());
 
+    public static final RegistryObject<Item> AGM = REGISTRY.register("agm",
+            () -> new Item(new Item.Properties().stacksTo(4)));
+
+    public static final RegistryObject<Item> AAM = REGISTRY.register("aam",
+            () -> new Item(new Item.Properties().stacksTo(4)));
+
     // Mi-8 and D-30
     public static final RegistryObject<Item> MI_8 = REGISTRY.register("mi_8",
             () -> new tech.vvp.vvp.item.VehicleSpawnItem(ModEntities.MI_8::get, new Item.Properties().stacksTo(1)));

@@ -10,11 +10,4 @@ public class CobraRenderer extends VehicleRenderer<CobraEntity> {
     public CobraRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new CobraModel());
     }
-
-    @Override
-    public ResourceLocation getTextureLocation(CobraEntity entity) {
-        ResourceLocation[] textures = entity.getCamoTextures();
-        int camoType = entity.getCamoType();
-        return (camoType >= 0 && camoType < textures.length) ? textures[camoType] : textures[0];
-    }
 }

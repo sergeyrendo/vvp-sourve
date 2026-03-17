@@ -1,6 +1,7 @@
 package tech.vvp.vvp.client.model;
 
 import com.atsuishio.superbwarfare.client.model.entity.VehicleModel;
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import tech.vvp.vvp.entity.vehicle.CobraEntity;
@@ -14,7 +15,39 @@ public class CobraModel extends VehicleModel<CobraEntity> {
                     (bone, vehicle, state) -> bone.setRotY(-Mth.lerp(state.getPartialTick(), vehicle.getPropellerRotO(), vehicle.getPropellerRot()));
             case "tailPropeller" ->
                     (bone, vehicle, state) -> bone.setRotX(6 * Mth.lerp(state.getPartialTick(), vehicle.getPropellerRotO(), vehicle.getPropellerRot()));
+            case "missile1" -> (bone, vehicle, state) ->
+                    bone.setHidden(shouldHideMissile(vehicle, 8));
+
+            case "missile2" -> (bone, vehicle, state) ->
+                    bone.setHidden(shouldHideMissile(vehicle, 7));
+
+            case "missile3" -> (bone, vehicle, state) ->
+                    bone.setHidden(shouldHideMissile(vehicle, 6));
+
+            case "missile4" -> (bone, vehicle, state) ->
+                    bone.setHidden(shouldHideMissile(vehicle, 5));
+
+            case "missile5" -> (bone, vehicle, state) ->
+                    bone.setHidden(shouldHideMissile(vehicle, 4));
+
+            case "missile6" -> (bone, vehicle, state) ->
+                    bone.setHidden(shouldHideMissile(vehicle, 3));
+
+            case "missile7" -> (bone, vehicle, state) ->
+                    bone.setHidden(shouldHideMissile(vehicle, 2));
+
+            case "missile8" -> (bone, vehicle, state) ->
+                    bone.setHidden(shouldHideMissile(vehicle, 1));
             default -> super.collectTransform(boneName);
         };
+    }
+
+    public boolean shouldHideMissile(VehicleEntity vehicle, int ammo) {
+        var gunData = vehicle.getGunData("PassengerMissile");
+        if (gunData == null) {
+            return false;
+        } else {
+            return gunData.ammo.get() < ammo;
+        }
     }
 }
